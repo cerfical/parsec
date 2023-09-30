@@ -32,16 +32,16 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Print out a character. */
-		void Visit(const RegExChar& ch) override;
+		void VisitNode(const RegExChar& ch) override;
 
 		/** @brief Print out a star expression and its inner expression. */
-		void Visit(const RegExStar& star) override;
+		void VisitNode(const RegExStar& star) override;
 		
 		/** @brief Print out an alternation expression and its subexpressions. */
-		void Visit(const RegExAltern& altern) override;
+		void VisitNode(const RegExAltern& altern) override;
 		
 		/** @brief Print out a concatenation expression and its subexpressions. */
-		void Visit(const RegExConcat& concat) override;
+		void VisitNode(const RegExConcat& concat) override;
 		/** @} */
 
 	private:		
