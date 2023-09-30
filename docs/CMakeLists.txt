@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 # Search for Doxygen installation
 find_package(Doxygen REQUIRED)
 
@@ -23,12 +21,10 @@ set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 set(DOXYGEN_EXPAND_AS_DEFINED PARSEC_BNF_TOKEN PARSEC_BNF_TOKEN_LIST)
 
 # Get the list of interface headers of the library
-get_property(_parsec-lib_INTERFACE_SOURCES
-	TARGET parsec-lib
-	PROPERTY INTERFACE_SOURCES
+get_target_property(_INTERFACE_HEADERS
+	parsec-lib HEADER_SET
 )
 
-# Add a target for documentation generation
-doxygen_add_docs(parsec-docs "${_parsec-lib_INTERFACE_SOURCES}"
+doxygen_add_docs(parsec-docs "${_INTERFACE_HEADERS}"
 	ALL USE_STAMP_FILE
 )

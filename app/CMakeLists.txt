@@ -1,17 +1,9 @@
-cmake_minimum_required(VERSION 3.16)
+add_executable(parsec "main.cpp")
 
-# Add a target for the project's executable
-add_executable(parsec-app "main.cpp")
-set_target_properties(parsec-app
-	PROPERTIES
-		OUTPUT_NAME "parsec"
-)
-
-# Link to the executable its dependencies
-target_link_libraries(parsec-app PRIVATE parsec-lib
+target_link_libraries(parsec PRIVATE parsec-lib
 	Microsoft.GSL::GSL
+	Boost::boost
 	Boost::program_options
 )
 
-# Set the C++ standard required to compile the executable
-target_compile_features(parsec-app PRIVATE cxx_std_20)
+target_compile_features(parsec PRIVATE cxx_std_20)
