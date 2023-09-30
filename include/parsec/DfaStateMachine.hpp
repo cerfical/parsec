@@ -252,7 +252,7 @@ namespace parsec {
 			return transitions;
 		}
 		
-		/** @brief Get the number of transitions int the DFA. */
+		/** @brief Get the number of transitions in the DFA. */
 		std::size_t GetTransitionsCount() const noexcept {
 			return GetTransitions().size();
 		}
