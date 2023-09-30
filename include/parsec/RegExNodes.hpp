@@ -10,6 +10,8 @@
 namespace parsec {
 	class RegExTraverser;
 	class RegExChar;
+
+	/** @brief List of pointers to @ref RegExChar "RegExChars	". */
 	using RegExCharList = std::vector<const RegExChar*>;
 
 	/**
