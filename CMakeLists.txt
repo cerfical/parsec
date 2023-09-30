@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.23)
 
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.5.3)
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.6.0)
 
 # Set MSVC runtime library to static
 if(MSVC)
