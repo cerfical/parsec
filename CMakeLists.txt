@@ -20,6 +20,7 @@ target_sources(parsec-lib
 
 		"include/parsec/LexGrammar.hpp"
 		"include/parsec/LexAutomaton.hpp"
+		"include/parsec/LexCompiler.hpp"
 
 		"include/parsec/RegExNodes.hpp"
 		"include/parsec/RegExPrinter.hpp"
@@ -33,6 +34,7 @@ target_sources(parsec-lib
 		"src/Utils.cpp"
 
 		"src/LexAutomaton.cpp"
+		"src/LexCompiler.cpp"
 
 		"src/RegExNodes.cpp"
 		"src/RegExPrinter.cpp"

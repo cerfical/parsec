@@ -35,6 +35,9 @@ namespace parsec {
 		constexpr static int CharToInt(char ch) noexcept {
 			return static_cast<unsigned char>(ch);
 		}
+
+		/** @brief Represent a character in a human-readable form. */
+		static std::string EscapeChar(char ch); 
 		/** @} */
 
 		/** @{ */

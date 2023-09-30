@@ -10,6 +10,7 @@
 
 #include "LexGrammar.hpp"
 #include "LexAutomaton.hpp"
+#include "LexCompiler.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }
