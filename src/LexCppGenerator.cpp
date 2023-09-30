@@ -29,32 +29,40 @@ namespace {
 	/** @} */
 
 	/** @{ */
-	constexpr auto lexerClassName = "Lexer";
-	constexpr auto tokensEnumName = "Tokens";
-	constexpr auto eofTokenName = "Eof";
+	constexpr auto wsPattern = "ws";
 
-	constexpr auto lexFuncName = "Lex";
-	constexpr auto peekFuncName = "PeekChar";
-	constexpr auto skipFuncName = "SkipChar";
-	constexpr auto eofFuncName = "IsEndOfFile";
+	constexpr auto locationClass = "SourceLocation";
+	constexpr auto tokensEnum = "Tokens";
+	constexpr auto tokenClass = "Token";
+	constexpr auto lexerClass = "Lexer";
+	constexpr auto lexErrorClass = "Error";
 
-	constexpr auto startLabelName = "start";
-	constexpr auto errorLabelName = "error";
+	constexpr auto eofToken = "Eof";
+
+	constexpr auto lexFunc = "Lex";
+	constexpr auto makeTokenFunc = "MakeToken";
+	constexpr auto peekCharFunc = "PeekChar";
+	constexpr auto nextCharFunc = "NextChar";
+	constexpr auto eofFunc = "IsEndOfFile";
+
+	constexpr auto lexLabel = "lex";
+	constexpr auto startLabel = "start";
+	constexpr auto errorLabel = "error";
 	/** @} */
 }
 
 namespace parsec {
 	void LexCppGenerator::OnPreState(LexState state) {
 		out.Up().PrintLine(MakeStateLabel(state), ':');
-		out.PrintLine(skipFuncName, "();");
+		out.PrintLine(nextCharFunc, "();");
 		if(state == 0) {
-			out.Up().PrintLine(startLabelName, ':');
+			out.Up().PrintLine(startLabel, ':');
 		}
 	}
 	
 	void LexCppGenerator::OnPreTransitions() {
-		out.PrintLine("if(!", eofFuncName, "()) {" );
-		out.Down().PrintLine("switch(" , peekFuncName,"()) {");
+		out.PrintLine("if(!", eofFunc, "()) {" );
+		out.Down().PrintLine("switch(" , peekCharFunc,"()) {");
 	}
 
 	void LexCppGenerator::OnTransition(LexState toState, char label) {
@@ -68,11 +76,15 @@ namespace parsec {
 	}
 
 	void LexCppGenerator::OnAccept(const LexPattern& match) {
-		out.PrintLine("return ", tokensEnumName, "::", MakeTokenName(match), ';');
+		if(match.GetName() != wsPattern) {
+			out.PrintLine("return ", makeTokenFunc, '(', tokensEnum, "::", MakeTokenName(match), ");");
+		} else {
+			out.PrintLine("goto ", lexLabel, ';');
+		}
 	}
 
 	void LexCppGenerator::OnReject() {
-		out.PrintLine("goto ", errorLabelName, ';');
+		out.PrintLine("goto ", errorLabel, ';');
 	}
 
 	void LexCppGenerator::OnPostState(LexState state) {
@@ -81,23 +93,61 @@ namespace parsec {
 
 
 	void LexCppGenerator::Header() {
+		LocationClass();
+		out.PrintLine();
 		TokensEnum();
+		out.PrintLine();
+		TokenClass();
+		out.PrintLine();
 		LexerClass();
 	}
 
+	void LexCppGenerator::LocationClass() {
+		out.PrintLine("struct ", locationClass, " {").Down()
+			.PrintLine("int startPos = { };")
+			.PrintLine("int colNo = { };")
+			.PrintLine("int colCount = { };")
+			.PrintLine("int lineNo = { };");
+		out.PrintLine("};");
+	}
+
 	void LexCppGenerator::TokensEnum() {
-		out.PrintLine("enum class ", tokensEnumName, " {");
-		out.Down().Print(eofTokenName);
+		out.PrintLine("enum class ", tokensEnum, " {");
+		out.Down().Print(eofToken);
 		for(const auto& pattern : *GetPatterns()) {
-			out.RawPrint(",\n");
-			out.Down().Print(MakeTokenName(pattern));
+			if(pattern.GetName() != wsPattern) {
+				out.RawPrint(",\n").Down()
+					.Print(MakeTokenName(pattern));
+			}
 		}
 		out.PrintLine();
-		out.PrintLine("};\n");
+		out.PrintLine("};");
+	}
+
+	void LexCppGenerator::TokenClass() {
+		out.PrintLine("struct ", tokenClass, " {").Down()
+			.PrintLine("std::string text;")
+			.PrintLine(tokensEnum, " kind = ", tokensEnum, "::", eofToken, ';')
+			.PrintLine(locationClass, " loc = { };");
+		out.PrintLine("};");
+	}
+
+	void LexCppGenerator::LexErrorClass() {
+		out.PrintLine("class ", lexErrorClass, " : public std::runtime_error {");
+		out.PrintLine("public:");
+		out.Down()
+			.PrintLine(lexErrorClass, "(const char* msg, const ", locationClass, "& loc) noexcept")
+			.PrintLine(" : runtime_error(msg), loc(loc)")
+			.PrintLine("{ }\n")
+			.PrintLine(lexErrorClass, "(const std::string& msg, const ", locationClass, "& loc) noexcept")
+			.PrintLine(" : runtime_error(msg), loc(loc)")
+			.PrintLine("{ }\n")
+			.PrintLine(locationClass, " loc;");
+		out.PrintLine("};");
 	}
 
 	void LexCppGenerator::LexerClass() {
-		out.PrintLine("class ", lexerClassName, " {");
+		out.PrintLine("class ", lexerClass, " {");
 		LexerPublicSection();
 		LexerPrivateSection();
 		out.PrintLine("};");
@@ -107,12 +157,14 @@ namespace parsec {
 	void LexCppGenerator::LexerPublicSection() {
 		out.PrintLine("public:");
 		out = out.Down();
+		LexErrorClass();
+		out.PrintLine();
 		LexerPublicMethods();
 		out = out.Up();
 	}
 
 	void LexCppGenerator::LexerPublicMethods() {
-		LexerCtor();
+		LexerCtors();
 		LexerDtor();
 		out.PrintLine();
 		LexerMoveOps();
@@ -123,39 +175,43 @@ namespace parsec {
 		out.PrintLine();
 	}
 
-	void LexCppGenerator::LexerCtor() {
-		out.PrintLine(lexerClassName, "() = default;");
-		out.PrintLine(lexerClassName, "(std::istream* input) noexcept")
-			.PrintLine(" : input(input)")
-			.PrintLine("{ }");
+	void LexCppGenerator::LexerCtors() {
+		out.PrintLine(lexerClass, "() = default;");
+		out.PrintLine(lexerClass, "(std::istream* input) noexcept");
+		out.PrintLine(" : input(input)");
+		out.PrintLine("{ }");
 	}
 
 	void LexCppGenerator::LexerDtor() {
-		out.PrintLine('~', lexerClassName, "() = default;");
+		out.PrintLine('~', lexerClass, "() = default;");
 	}
 
 	void LexCppGenerator::LexerMoveOps() {
-		out.PrintLine(lexerClassName, '(', lexerClassName, "&&) = default;")
-			.PrintLine(lexerClassName, "& operator=(", lexerClassName, "&&) = default;");
+		out.PrintLine(lexerClass, '(', lexerClass, "&&) = default;")
+			.PrintLine(lexerClass, "& operator=(", lexerClass, "&&) = default;");
 	}
 
 	void LexCppGenerator::LexerCopyOps() {
-		out.PrintLine(lexerClassName, "(const ", lexerClassName, "&) = delete;")
-			.PrintLine(lexerClassName, "& operator=(const ", lexerClassName, "&) = delete;");
+		out.PrintLine(lexerClass, "(const ", lexerClass, "&) = delete;")
+			.PrintLine(lexerClass, "& operator=(const ", lexerClass, "&) = delete;");
 	}
 
 	void LexCppGenerator::LexFunc() {
-		out.PrintLine(tokensEnumName, ' ', lexFuncName, "() {");
+		out.PrintLine(tokenClass, ' ', lexFunc, "() {");
+		out.PrintLine(lexLabel, ':');
 		out = out.Down();
-		out.PrintLine("if(!", eofFuncName, "()) {" );
-		out.Down().PrintLine("goto ", startLabelName, ';');
+		out.PrintLine("buffer.clear();");
+		out.PrintLine("loc.colNo += loc.colCount;");
+		out.PrintLine("loc.colCount = 0;");
+		out.PrintLine("if(!", eofFunc, "()) {" );
+		out.Down().PrintLine("goto ", startLabel, ';');
 		out.PrintLine('}');
-		out.PrintLine("return ", tokensEnumName, "::", eofTokenName, ";\n");
+		out.PrintLine("return ", makeTokenFunc, '(', tokensEnum, "::", eofToken, ");\n");
 		
 		LexGenerator::Generate();
 
-		out.Up().PrintLine(errorLabelName, ": ");
-		out.PrintLine("throw \"lex error\";");
+		out.Up().PrintLine(errorLabel, ": ");
+		out.PrintLine("throw ", lexErrorClass, "(\"ill-formed token\", loc)", ";");
 		out = out.Up();
 		out.PrintLine('}');
 	}
@@ -171,18 +227,20 @@ namespace parsec {
 
 	void LexCppGenerator::LexerPrivateMethods() {
 		EofFunc();
-		PeekFunc();
+		PeekCharFunc();
 		out.PrintLine();
-		SkipFunc();
+		NextCharFunc();
+		out.PrintLine();
+		MakeTokenFunc();
 		out.PrintLine();
 	}
 
 	void LexCppGenerator::EofFunc() {
-		out.PrintLine("bool ", eofFuncName, "() const {").Down()
+		out.PrintLine("bool ", eofFunc, "() const {").Down()
 			.PrintLine("if(!input) {").Down()
 				.PrintLine("return true;").Up()
 			.PrintLine('}')
-			.PrintLine("if(input->peek() == EOF) {").Down()
+			.PrintLine("if(input->peek() == std::char_traits<char>::eof()) {").Down()
 				.PrintLine("input->clear(input->rdstate() ^ std::ios::eofbit);")
 				.PrintLine("return true;").Up()
 			.PrintLine('}')
@@ -190,24 +248,34 @@ namespace parsec {
 		out.PrintLine('}');
 	}
 
-	void LexCppGenerator::PeekFunc() {
-		out.PrintLine("char ", peekFuncName, "() const {")
-			.Down()
-				.PrintLine("return static_cast<char>(input->peek());")
-			.Up()
-			.PrintLine('}');
+	void LexCppGenerator::PeekCharFunc() {
+		out.PrintLine("char ", peekCharFunc, "() const {").Down()
+			.PrintLine("return static_cast<char>(input->peek());");
+		out.PrintLine('}');
 	}
 
-	void LexCppGenerator::SkipFunc() {
-		out.PrintLine("void ", skipFuncName, "() {")
-			.Down()
-				.PrintLine("input->ignore();")
-			.Up()
-			.PrintLine('}');
+	void LexCppGenerator::NextCharFunc() {
+		out.PrintLine("void ", nextCharFunc, "() {").Down()
+			.PrintLine("loc.colCount++;")
+			.PrintLine("if(", peekCharFunc, "() == '\\n') {").Down()
+				.PrintLine("loc.startPos = loc.colNo + loc.colCount;")
+				.PrintLine("loc.colNo = loc.colCount = 0;")
+				.PrintLine("loc.lineNo++;").Up()
+			.PrintLine('}')
+			.PrintLine("buffer += input->get();");
+		out.PrintLine('}');
+	}
+
+	void LexCppGenerator::MakeTokenFunc() {
+		out.PrintLine(tokenClass, ' ', makeTokenFunc, '(', tokensEnum," kind) {").Down()
+			.PrintLine("return ", tokenClass, "(buffer, kind, loc);");
+		out.PrintLine('}');
 	}
 
 	void LexCppGenerator::LexerPrivateVars() {
 		out.PrintLine("std::istream* input = nullptr;");
+		out.PrintLine("std::string buffer;");
+		out.PrintLine(locationClass, " loc = { };");
 	}
 
 

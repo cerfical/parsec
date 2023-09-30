@@ -1,5 +1,5 @@
-#ifndef PARSEC_LEX_CPP_GENERATOR
-#define PARSEC_LEX_CPP_GENERATOR
+#ifndef PARSEC_LEX_CPP_GENERATOR_HEADER
+#define PARSEC_LEX_CPP_GENERATOR_HEADER
 
 #include "LexGenerator.hpp"
 
@@ -111,7 +111,11 @@ namespace parsec {
 		/** @{ */
 		void Header();
 
+		void LocationClass();
 		void TokensEnum();
+		void TokenClass();
+		void LexErrorClass();
+
 		void LexerClass();
 		/** @} */
 
@@ -119,7 +123,7 @@ namespace parsec {
 		void LexerPublicSection();
 		void LexerPublicMethods();
 
-		void LexerCtor();
+		void LexerCtors();
 		void LexerDtor();
 
 		void LexerMoveOps();
@@ -133,8 +137,9 @@ namespace parsec {
 		void LexerPrivateMethods();
 
 		void EofFunc();
-		void PeekFunc();
-		void SkipFunc();
+		void PeekCharFunc();
+		void NextCharFunc();
+		void MakeTokenFunc();
 
 		void LexerPrivateVars();
 		/** @} */

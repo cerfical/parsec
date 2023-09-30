@@ -50,6 +50,11 @@ namespace parsec {
 		/** @} */
 
 	private:
+		/** @brief Called when a character is encountered in an unexpected place. */
+		[[noreturn]] void UnexpectedChar() const;
+		/** @brief Called when the end of input is unexpectedly reached. */
+		[[noreturn]] void UnexpectedEof() const;
+		
 		/** @brief Check if the end of input has been reached. */
 		bool IsInputEnd() const;
 		/** @brief Check if the next token has already been parsed. */
@@ -57,6 +62,8 @@ namespace parsec {
 
 		/** @brief Return the next character from the input without removing it. */
 		char PeekChar() const;
+		/** @brief Remove the next character only if it is equal to the given one. */
+		bool SkipCharIf(char ch);
 		/** @brief Remove the next character from the input. */
 		void SkipChar();
 		/** @brief Remove the next character from the input and return it. */
