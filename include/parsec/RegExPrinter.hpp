@@ -31,8 +31,8 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Print out a literal. */
-		void Visit(const RegExLiteral& literal) override;
+		/** @brief Print out a character. */
+		void Visit(const RegExChar& ch) override;
 
 		/** @brief Print out a star expression and its inner expression. */
 		void Visit(const RegExStar& star) override;

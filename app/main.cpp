@@ -1,19 +1,17 @@
 #include <parsec/parsec.hpp>
 #include <fstream>
 
-int Error(parsec::ErrorLogger &errors) noexcept {
+int LogError(parsec::ErrorLogger& errors) noexcept {
 	try {
 		throw;	
 	} catch(const parsec::ParseError& err) {
 		errors.Log(err.what(), err.location());
-		return 1;
 	} catch(const std::exception& err) {
 		errors.Log(err.what());
-		return 1;
 	} catch(...) {
-		errors.Log("something VERY unexpected happened");
-		return 1;
+		errors.Log("something unexpected happened");
 	}
+	return 1;
 }
 
 int main(int argc, gsl::czstring argv[]) {
@@ -33,12 +31,15 @@ int main(int argc, gsl::czstring argv[]) {
 
 	parsec::BnfParser parser(fin);
 	try {
-		auto grammar = parser.Parse();
+		const auto grammar = parser.Parse();
 		for(const auto& tok : grammar->GetTokens()) {
-			std::cout << "token: "<< tok.GetName() << " = " << tok.GetRegex() << std::endl;
+			const auto regex = parsec::RegExParser().Parse(tok.GetRegex());
+			const auto dfa = parsec::DfaBuilder(*regex).Build();
+			std::cout << "DFA for \"" << tok.GetRegex() << "\":\n";
+			dfa.Dump();
 		}
 	} catch(...) {
-		return Error(errors);
+		return LogError(errors);
 	}
 }
 

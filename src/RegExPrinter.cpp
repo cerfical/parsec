@@ -1,9 +1,8 @@
 #include "RegExPrinter.hpp"
-#include "RegExNodes.hpp"
 
 namespace parsec {
-	void RegExPrinter::Visit(const RegExLiteral& literal) {
-		*out << literal.GetValue();
+	void RegExPrinter::Visit(const RegExChar& ch) {
+		*out << ch.GetValue();
 	}
 
 	void RegExPrinter::Visit(const RegExStar& star) {

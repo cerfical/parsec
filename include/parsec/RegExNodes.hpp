@@ -1,6 +1,8 @@
 #ifndef PARSEC_REGEX_NODES_HEADER
 #define PARSEC_REGEX_NODES_HEADER
 
+#include "Utils.hpp"
+
 #include <iostream>
 #include <memory>
 
@@ -11,6 +13,9 @@ namespace parsec {
 	 */
 	class RegExNode {
 	public:
+		/** @brief Print out the node to a @c std::ostream. */
+		friend std::ostream& operator<<(std::ostream& out, const RegExNode& regex);
+
 		/** @{ */
 		RegExNode(const RegExNode&) = delete;
 		RegExNode& operator=(const RegExNode&) = delete;
@@ -27,11 +32,8 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Examine the node in a type-safe manner using the visitor pattern. */
+		/** @brief Traverse the tree in a type-safe manner using the visitor pattern. */
 		virtual void Traverse(RegExTraverser& traverser) const = 0;
-		
-		/** @brief Print out the node to a @c std::ostream. */
-		void Print(std::ostream& out = std::cout) const;
 		/** @} */
 
 	protected:
@@ -42,18 +44,18 @@ namespace parsec {
 
 
 	/**
-	 * @brief Literal regular expression.
+	 * @brief Literal character regular expression.
 	 */
-	class RegExLiteral : public RegExNode {
+	class RegExChar : public RegExNode {
 	public:
 		/** @{ */
-		/** @brief Construct a new RegExLiteral from its value. */
-		explicit RegExLiteral(char value) noexcept
+		/** @brief Construct a new RegExChar from its value. */
+		explicit RegExChar(char value) noexcept
 		 : value(value)
 		{ }
 
 		/** @copybrief */
-		~RegExLiteral() = default;
+		~RegExChar() = default;
 		/** @} */
 
 		/** @{ */
@@ -61,7 +63,7 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Get the value of the RegExLiteral. */
+		/** @brief Get the value of the character literal. */
 		char GetValue() const noexcept {
 			return value;
 		}
@@ -185,10 +187,16 @@ namespace parsec {
 	class RegExTraverser {
 	public:
 		/** @{ */
-		virtual void Visit(const RegExLiteral& literal) = 0;
+		virtual void Visit(const RegExChar& ch) = 0;
 		virtual void Visit(const RegExStar& star) = 0;
 		virtual void Visit(const RegExAltern& altern) = 0;
 		virtual void Visit(const RegExConcat& concat) = 0;
+		/** @} */
+
+		/** @{ */
+		virtual TraversalTypes GetTraversalType() const noexcept {
+			return TraversalTypes::None;
+		} 
 		/** @} */
 
 	protected:

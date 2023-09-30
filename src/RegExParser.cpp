@@ -59,7 +59,7 @@ namespace parsec {
 				throw ParseError("unmatched parenthesis", loc);
 			}
 		} else {
-			regex = std::make_unique<RegExLiteral>(GetChar());
+			regex = std::make_unique<RegExChar>(GetChar());
 		}
 	}
 
@@ -67,6 +67,7 @@ namespace parsec {
 		ParseAtom();
 		if(SkipCharIf('*')) {
 			while(SkipCharIf('*'));
+			regex = std::make_unique<RegExStar>(std::move(regex));
 		}
 	}
 

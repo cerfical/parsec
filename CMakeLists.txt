@@ -26,8 +26,10 @@ target_sources(parsec-lib
 
 		"include/parsec/BnfToken.hpp"
 		"include/parsec/BnfLexer.hpp"
-
 		"include/parsec/BnfParser.hpp"
+
+		"include/parsec/DfaStateMachine.hpp"
+		"include/parsec/DfaBuilder.hpp"
 
 	PRIVATE
 		"src/Utils.cpp"
@@ -38,6 +40,9 @@ target_sources(parsec-lib
 
 		"src/BnfLexer.cpp"
 		"src/BnfParser.cpp"
+
+		"src/DfaStateMachine.cpp"
+		"src/DfaBuilder.cpp"
 )
 
 set_target_properties(parsec-lib

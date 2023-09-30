@@ -8,6 +8,9 @@
 #include "BnfLexer.hpp"
 #include "BnfParser.hpp"
 
+#include "DfaStateMachine.hpp"
+#include "DfaBuilder.hpp"
+
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }
 

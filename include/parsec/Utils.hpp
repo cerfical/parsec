@@ -11,6 +11,20 @@
 #include <cctype>
 
 namespace parsec {
+	/** @brief Simple integer type for representing numeric identifiers. */
+	using Uid = std::size_t;
+
+	/**
+	 * @brief Specifies the order in which child nodes are visited during tree traversal.
+	 */
+	enum class TraversalTypes {
+		None, /**< @brief Child nodes are not visited. */
+		Preorder, /**< @brief Root of a tree is visited first, then the child nodes. */
+		Postorder /**< @brief Child nodes of a tree are visited first, then the root. */
+	};
+
+
+
 	/**
 	 * @brief Utility functions for working with characters.
 	 */
