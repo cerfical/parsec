@@ -31,7 +31,7 @@ tokens {
   open-paren = "\(";
   close-paren = "\)";
   letter = "[a-zA-Z]";
-  ws = [\r\n ]+;
+  ws = "[\r\n ]+";
 }
 ```
 
