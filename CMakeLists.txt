@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.16)
 
 # Define project metadata
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.4)
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.4.5)
 
 # Optional building of documentation
 option(BUILD_DOC "Build the documentation" OFF)
