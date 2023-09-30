@@ -1,7 +1,7 @@
 #ifndef PARSEC_BNF_LEXER_HEADER
 #define PARSEC_BNF_LEXER_HEADER
 
-#include "BndToken.hpp"
+#include "BnfToken.hpp"
 #include "Utils.hpp"
 
 #include <gsl/util>
@@ -11,25 +11,22 @@
 
 namespace parsec {
 	/**
-	 * @brief Breaks down a character stream into a sequence of @ref BnfToken "BnfToken"s.
+	 * @brief Breaks down a character stream into a sequence of @ref BnfToken "BnfTokens".
 	 */
 	class BnfLexer {
 	public:
 		/** @{ */
-		/** @brief Construct a new BnfLexer that operates on @c std::istream. */
+		/** @brief Construct a new lexer that operates on @c std::istream. */
 		explicit BnfLexer(std::istream& input) noexcept
 		 : input(&input)
 		{ }
 		
-		/** @brief Destroy the BnfLexer. */
+		/** @copybrief */
 		~BnfLexer() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a new BnfLexer by moving from another BnfLexer. */
 		BnfLexer(BnfLexer&&) = default;
-		
-		/** @brief Move another BnfLexer to the BnfLexer. */
 		BnfLexer& operator=(BnfLexer&&) = default;
 		/** @} */
 
@@ -39,13 +36,13 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Get the current position of the BnfLexer in the input. */
+		/** @brief Get the current position of the lexer in the input. */
 		SourceLocation GetInputPos() const noexcept;
 
-		/** @brief Determine the type of the next BnfToken to be extracted, parsing it if necessary. */
+		/** @brief Determine the type of the next token to be extracted, parsing it if necessary. */
 		BnfTokenKinds Peek();
 
-		/** @brief Extract the next BnfToken from the input stream. */
+		/** @brief Extract the next token from the input stream. */
 		BnfToken Lex();
 		/** @} */
 

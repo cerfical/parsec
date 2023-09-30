@@ -1,50 +1,52 @@
-#include "PrintUtils.hpp"
-
 #include <parsec/parsec.hpp>
 #include <fstream>
 
-/** @brief Parse the command line arguments for the name of the file to be processed. */
-gsl::czstring ParseCmdArgs(int argc, gsl::czstring* argv) noexcept {
-	if(argc != 2) {
-		PrintError("Usage: ", argv[0], " <filename>");
-		std::exit(1);
+int Error(parsec::ErrorLogger &errors) noexcept {
+	try {
+		throw;	
+	} catch(const parsec::ParseError& err) {
+		errors.Log(err.what(), err.location());
+		return 1;
+	} catch(const std::exception& err) {
+		errors.Log(err.what());
+		return 1;
+	} catch(...) {
+		errors.Log("something VERY unexpected happened");
+		return 1;
 	}
-	return argv[1];
 }
 
-/** @brief Parse the file with the given name. */
-void ParseFile(gsl::czstring filename) {
-	std::ifstream fin(filename, std::ios_base::binary);
-	if(!fin.is_open()) {
-		PrintError("error: file not found: ", '\"', filename, '\"');
-		std::exit(1);
+int main(int argc, gsl::czstring argv[]) {
+	if(const auto program = argv[0]; argc != 2) {
+		std::cerr << "Usage: " << program << " <filename>" << '\n';
+		return 1;
 	}
-	
+
+	const auto filename = argv[1];
+	std::ifstream fin(filename, std::ios_base::binary);
+
+	parsec::ErrorLogger errors(fin, filename);
+	if(!fin.is_open()) {
+		errors.Log("file not found");
+		return 1;
+	}
+
 	parsec::BnfParser parser(fin);
 	try {
-		parser.Parse();
-	} catch(const parsec::ParseError& err) {
-		PrintParseError(err, fin, filename);
-		std::exit(1);
-	}
-}
-
-int main(int argc, gsl::czstring* argv) {
-	try {
-		const auto filename = ParseCmdArgs(argc, argv);
-		ParseFile(filename);
-	} catch(const std::exception& err) {
-		PrintError("error: ", err.what());
+		auto grammar = parser.Parse();
+		for(const auto& tok : grammar->GetTokens()) {
+			std::cout << "token: "<< tok.GetName() << " = " << tok.GetRegex() << std::endl;
+		}
 	} catch(...) {
-		PrintError("unknown error has occurred");
+		return Error(errors);
 	}
 }
 
 /*
 
-	token-def = ident '=' regex ';'
-	token-list = tokens '{' token-def* '}'
+	token = ident '=' regex ';'
+	token-list = tokens '{' token* '}'
 
-	grammar-def = token-list
+	grammar = token-list
 
 */

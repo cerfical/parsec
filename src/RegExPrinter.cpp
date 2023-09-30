@@ -8,22 +8,22 @@ namespace parsec {
 
 	void RegExPrinter::Visit(const RegExStar& star) {
 		*out << '(';
-		star.GetInnerExpr().AcceptVisitor(*this);
+		star.GetInnerExpr().Traverse(*this);
 		*out << "*)";
 	}
 
 	void RegExPrinter::Visit(const RegExAltern& altern) {
 		*out << '(';
-		altern.GetLeftExpr().AcceptVisitor(*this);
+		altern.GetLeftExpr().Traverse(*this);
 		*out << '|';
-		altern.GetRightExpr().AcceptVisitor(*this);
+		altern.GetRightExpr().Traverse(*this);
 		*out << ')';
 	}
 
 	void RegExPrinter::Visit(const RegExConcat& concat) {
 		*out << '(';
-		concat.GetLeftExpr().AcceptVisitor(*this);
-		concat.GetRightExpr().AcceptVisitor(*this);
+		concat.GetLeftExpr().Traverse(*this);
+		concat.GetRightExpr().Traverse(*this);
 		*out << ')';
 	}
 }

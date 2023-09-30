@@ -80,8 +80,8 @@ namespace parsec {
 
 	void BnfLexer::ParseOperator() {
 		switch(PeekChar()) {
-			case '{': tokKind = BnfTokenKinds::LeftBrace; break;
-			case '}': tokKind = BnfTokenKinds::RightBrace; break;
+			case '{': tokKind = BnfTokenKinds::OpenBrace; break;
+			case '}': tokKind = BnfTokenKinds::CloseBrace; break;
 			case ';': tokKind = BnfTokenKinds::Semicolon; break;
 			case '=': tokKind = BnfTokenKinds::Equals; break;
 			case '|': tokKind = BnfTokenKinds::Pipe; break;

@@ -12,43 +12,48 @@ namespace parsec {
 		GetToken();
 	}
 
-	void BnfParser::MatchToken(std::string_view text, gsl::czstring msg) {
+	BnfToken BnfParser::MatchToken(std::string_view text, gsl::czstring msg) {
 		if(PeekToken() != BnfTokenKinds::Ident) {
 			throw ParseError("identifier expected", lexer.GetInputPos());
 		}
-		const auto tok = GetToken();
+
+		auto tok = GetToken();
 		if(tok.GetText() != text) {
 			throw ParseError(msg, tok.GetLocation());
 		}
+		return tok;
 	}
-	void BnfParser::MatchToken(BnfTokenKinds tok, gsl::czstring msg) {
+	BnfToken BnfParser::MatchToken(BnfTokenKinds tok, gsl::czstring msg) {
 		if(PeekToken() != tok) {
 			throw ParseError(msg, lexer.GetInputPos());
 		}
-		SkipToken();
+		return GetToken();
 	}
 
-	void BnfParser::ParseTokenDef() {
-		MatchToken(BnfTokenKinds::Ident, "a token must start with an identifier");
+	void BnfParser::ParseToken() {
+		const auto tokName = MatchToken(BnfTokenKinds::Ident, "a token must start with an identifier");
 		MatchToken(BnfTokenKinds::Equals, "'=' expected");
-		MatchToken(BnfTokenKinds::Regex, "string literal expected");
+		
+		const auto tokRegex = MatchToken(BnfTokenKinds::Regex, "string literal expected");
 		MatchToken(BnfTokenKinds::Semicolon, "a token must end with ';'");
+		grammar->AddToken(tokName.GetText(), tokRegex.GetText());
 	}
-	
 	void BnfParser::ParseTokenList() {
-		MatchToken(BnfTokenKinds::LeftBrace, "a token list must start with '{'");
+		MatchToken(BnfTokenKinds::OpenBrace, "a token list must start with '{'");
 		while(PeekToken() == BnfTokenKinds::Ident) {
-			ParseTokenDef();
+			ParseToken();
 		}
-		MatchToken(BnfTokenKinds::RightBrace, "expected an identifier or '}'");
+		MatchToken(BnfTokenKinds::CloseBrace, "expected an identifier or '}'");
 	}
 
-	void BnfParser::ParseGrammarDef() {
+	void BnfParser::ParseGrammar() {
 		MatchToken("tokens", "invalid list type");
 		ParseTokenList();
 	}
 
-	void BnfParser::Parse() {
-		ParseGrammarDef();
+	std::unique_ptr<Grammar> BnfParser::Parse() {
+		grammar = std::make_unique<Grammar>();
+		ParseGrammar();
+		return std::move(grammar);
 	}
 }

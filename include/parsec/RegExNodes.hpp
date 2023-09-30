@@ -5,9 +5,9 @@
 #include <memory>
 
 namespace parsec {
-	class RegExVisitor;
+	class RegExTraverser;
 	/**
-	 * @brief Common interface for all regular expression nodes.
+	 * @brief Polymorphic entry point to the tree representation of a regular expression.
 	 */
 	class RegExNode {
 	public:
@@ -22,20 +22,20 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Destroy the RegExNode. */
+		/** @copybrief */
 		virtual ~RegExNode() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Perform a double dispatch on the RegExNode. */
-		virtual void AcceptVisitor(RegExVisitor& visitor) const = 0;
+		/** @brief Examine the node in a type-safe manner using the visitor pattern. */
+		virtual void Traverse(RegExTraverser& traverser) const = 0;
 		
-		/** @brief Print the RegExNode to a @c std::ostream. */
+		/** @brief Print out the node to a @c std::ostream. */
 		void Print(std::ostream& out = std::cout) const;
 		/** @} */
 
 	protected:
-		/** @brief Construct a new RegExNode. */
+		/** @copybrief */
 		RegExNode() = default;
 	};
 
@@ -52,13 +52,15 @@ namespace parsec {
 		 : value(value)
 		{ }
 
-		/** @brief Destroy the RegExLiteral. */
+		/** @copybrief */
 		~RegExLiteral() = default;
 		/** @} */
 
 		/** @{ */
-		void AcceptVisitor(RegExVisitor& visitor) const override;
-		
+		void Traverse(RegExTraverser& traverser) const override;
+		/** @} */
+
+		/** @{ */
 		/** @brief Get the value of the RegExLiteral. */
 		char GetValue() const noexcept {
 			return value;
@@ -82,13 +84,15 @@ namespace parsec {
 		 : innerExpr(std::move(expr))
 		{ }
 
-		/** @brief Destroy the RegExStar. */
+		/** @copybrief */
 		~RegExStar() = default;
 		/** @} */
 
 		/** @{ */
-		void AcceptVisitor(RegExVisitor& visitor) const override;
+		void Traverse(RegExTraverser& traverser) const override;
+		/** @} */
 
+		/** @{ */
 		/** @brief Get the inner expression of the RegExStar. */
 		const RegExNode& GetInnerExpr() const noexcept {
 			return *innerExpr;
@@ -112,17 +116,20 @@ namespace parsec {
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
-		/** @brief Destroy the RegExAltern. */
+		/** @copybrief */
 		~RegExAltern() = default;
 		/** @} */
 
 		/** @{ */
-		void AcceptVisitor(RegExVisitor& visitor) const override;
+		void Traverse(RegExTraverser& traverser) const override;
+		/** @} */
 
+		/** @{ */
 		/** @brief Get the left subexpression of the RegExAltern. */
 		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
+
 		/** @brief Get the right subexpression of the RegExAltern. */
 		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
@@ -146,17 +153,20 @@ namespace parsec {
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
-		/** @brief Destroy the RegExConcat. */
+		/** @copybrief */
 		~RegExConcat() = default;
 		/** @} */
 
 		/** @{ */
-		void AcceptVisitor(RegExVisitor& visitor) const override;
+		void Traverse(RegExTraverser& traverser) const override;
+		/** @} */
 
+		/** @{ */
 		/** @brief Get the left subexpression of the RegExConcat. */
 		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
+
 		/** @brief Get the right subexpression of the RegExConcat. */
 		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
@@ -170,9 +180,9 @@ namespace parsec {
 
 
 	/**
-	 * @brief Provides a double dispatch mechanism for regular expressions.
+	 * @brief Provides a mechanism for traversing regular expressions.
 	 */
-	class RegExVisitor {
+	class RegExTraverser {
 	public:
 		/** @{ */
 		virtual void Visit(const RegExLiteral& literal) = 0;
@@ -183,21 +193,21 @@ namespace parsec {
 
 	protected:
 		/** @{ */
-		/** @brief Construct a new RegExVisitor. */
-		RegExVisitor() = default;
+		/** @copybrief */
+		RegExTraverser() = default;
 
-		/** @brief Destroy the RegExVisitor. */
-		~RegExVisitor() = default;
+		/** @copybrief */
+		~RegExTraverser() = default;
 		/** @} */
 
 		/** @{ */
-		RegExVisitor(const RegExVisitor&) = default;
-		RegExVisitor& operator=(const RegExVisitor&) = default;
+		RegExTraverser(const RegExTraverser&) = default;
+		RegExTraverser& operator=(const RegExTraverser&) = default;
 		/** @} */
 
 		/** @{ */
-		RegExVisitor(RegExVisitor&&) = default;
-		RegExVisitor& operator=(RegExVisitor&&) = default;
+		RegExTraverser(RegExTraverser&&) = default;
+		RegExTraverser& operator=(RegExTraverser&&) = default;
 		/** @} */
 	};
 }

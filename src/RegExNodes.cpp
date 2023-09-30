@@ -4,22 +4,22 @@
 namespace parsec {
 	void RegExNode::Print(std::ostream& out) const {
 		RegExPrinter printer(out);
-		AcceptVisitor(printer);
+		Traverse(printer);
 	}
 
-	void RegExLiteral::AcceptVisitor(RegExVisitor& visitor) const {
-		visitor.Visit(*this);
+	void RegExLiteral::Traverse(RegExTraverser& traverser) const {
+		traverser.Visit(*this);
 	}
 
-	void RegExStar::AcceptVisitor(RegExVisitor& visitor) const {
-		visitor.Visit(*this);
+	void RegExStar::Traverse(RegExTraverser& traverser) const {
+		traverser.Visit(*this);
 	}
 	
-	void RegExAltern::AcceptVisitor(RegExVisitor& visitor) const {
-		visitor.Visit(*this);
+	void RegExAltern::Traverse(RegExTraverser& traverser) const {
+		traverser.Visit(*this);
 	}
 
-	void RegExConcat::AcceptVisitor(RegExVisitor& visitor) const {
-		visitor.Visit(*this);
+	void RegExConcat::Traverse(RegExTraverser& traverser) const {
+		traverser.Visit(*this);
 	}
 }

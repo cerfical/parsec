@@ -4,7 +4,7 @@
 #include "RegExNodes.hpp"
 #include "Utils.hpp"
 
-#include <gsl/gsl>
+#include <gsl/util>
 
 #include <string_view>
 #include <memory>
@@ -16,18 +16,15 @@ namespace parsec {
 	class RegExParser {
 	public:
 		/** @{ */
-		/** @brief Construct a new RegExParser. */
+		/** @copybrief */
 		RegExParser() = default;
 
-		/** @brief Destroy the RegExParser. */
+		/** @copybrief */
 		~RegExParser() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a new RegExParser by moving from another RegExParser. */
 		RegExParser(RegExParser&&) = default;
-
-		/** @brief Move another RegExParser into the RegExParser. */
 		RegExParser& operator=(RegExParser&&) = default;
 		/** @} */
 
@@ -37,7 +34,7 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Analyse a string for a valid regular expression. */
+		/** @brief Analyze a string for a valid regular expression. */
 		std::unique_ptr<RegExNode> Parse(std::string_view regex);
 		/** @} */
 

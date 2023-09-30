@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 #include <string_view>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <cctype>
 
@@ -61,10 +63,10 @@ namespace parsec {
 	class SourceLocation {
 	public:
 		/** @{ */
-		/** @brief Construct a new empty SourceLocation. */
+		/** @brief Construct a new empty location. */
 		constexpr SourceLocation() = default;
 
-		/** @brief Construct a new SourceLocation from its components. */
+		/** @brief Construct a new location from its description. */
 		constexpr SourceLocation(
 			gsl::index startPos,
 			gsl::index colNo,
@@ -74,44 +76,48 @@ namespace parsec {
 		 : startPos(startPos), colNo(colNo), colCount(colCount), lineNo(lineNo)
 		{ }
 
-		/** @brief Destroy the SourceLocation. */
+		/** @copybrief */
 		constexpr ~SourceLocation() = default;
 		/** @} */
 
-		/** @{ */
-		/** @brief Construct a new SourceLocation by making a copy of another SourceLocation. */
-		constexpr SourceLocation(const SourceLocation&) = default;
 
-		/** @brief Assign to the SourceLocation a copy of another SourceLocation. */
+		/** @{ */
+		constexpr SourceLocation(const SourceLocation&) = default;
 		constexpr SourceLocation& operator=(const SourceLocation&) = default;
 		/** @} */
 
+
 		/** @{ */
-		/** @brief Get the starting position of the SourceLocation. */
+		/** @brief Get the starting position of the location. */
 		constexpr gsl::index GetStartPos() const noexcept {
 			return startPos;
 		}
 
-		/** @brief Get the starting column of the SourceLocation relative to its starting position. */
+		/** @brief Get the starting column of the location relative to its starting position. */
 		constexpr gsl::index GetColumnNo() const noexcept {
 			return colNo;
 		}
-		/** @brief Get the column count in the SourceLocation. */
+		/** @brief Get the column count spanning the location. */
 		constexpr std::size_t GetColumnCount() const noexcept {
 			return colCount;
 		}
 
-		/** @brief Get the line containing the SourceLocation. */
+		/** @brief Get the line containing the location. */
 		constexpr gsl::index GetLineNo() const noexcept {
 			return lineNo;
+		}
+
+		/** @brief Check if the location is an empty location. */
+		constexpr bool IsEmpty() const noexcept {
+			return GetColumnCount() == 0;
 		}
 		/** @} */
 
 	private:
-		gsl::index startPos;
-		gsl::index colNo;
-		std::size_t colCount;
-		gsl::index lineNo;
+		gsl::index startPos = { };
+		gsl::index colNo = { };
+		std::size_t colCount = 0;
+		gsl::index lineNo = { };
 	};
 
 
@@ -132,20 +138,19 @@ namespace parsec {
 		 : runtime_error(msg), loc(loc)
 		{ }
 
-		/** @brief Destroy the ParseError. */
+		/** @copybrief */
 		~ParseError() = default;
 		/** @} */
+		
 
 		/** @{ */
-		/** @brief Construct a new ParseError by making a copy of another ParseError. */
 		ParseError(const ParseError&) = default;
-
-		/** @brief Assign to the ParseError a copy of another ParseError object. */
 		ParseError& operator=(const ParseError&) = default;
 		/** @} */
 
+
 		/** @{ */
-		/** @brief Get a location in the source code where the ParseError occurred. */
+		/** @brief Get a location in the source code where the error occurred. */
 		const SourceLocation& location() const noexcept {
 			return loc;
 		}
@@ -153,6 +158,48 @@ namespace parsec {
 
 	private:
 		SourceLocation loc;
+	};
+
+
+
+	/**
+	 * @brief Performs error logging with additional ability to augment error messages with contextual information.
+	 */
+	class ErrorLogger {
+	public:
+		/** @{ */
+		/** @brief Construct a new logger with the specified file as the context for the logger. */
+		ErrorLogger(std::istream& input, std::string_view filename, std::ostream& out = std::cerr) noexcept
+		 : filename(filename), input(&input), out(&out)
+		{ }
+
+		/** @copybrief */
+		~ErrorLogger() = default;
+		/** @} */
+
+		/** @{ */
+		ErrorLogger(ErrorLogger&&) = default;
+		ErrorLogger& operator=(ErrorLogger&&) = default;
+		/** @} */
+
+		/** @{ */
+		ErrorLogger(const ErrorLogger&) = delete;
+		ErrorLogger& operator=(const ErrorLogger&) = delete;
+		/** @} */
+
+		/** @{ */
+		/** @brief Print out the error message and optionally its origins. */
+		void Log(std::string_view msg, const SourceLocation& loc = { }) noexcept;
+		/** @} */
+
+	private:
+		/** @brief Read the line defined by a location from the input. */
+		std::string ReadLine(const SourceLocation& loc);
+
+		std::string_view filename;
+		std::istream* input = nullptr;
+		
+		std::ostream* out = nullptr;
 	};
 }
 

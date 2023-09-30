@@ -11,18 +11,16 @@
 	PARSEC_BNF_TOKEN(Semicolon, ";") /**< @brief Semicolon. */ \
 	PARSEC_BNF_TOKEN(Equals, "=") /**< @brief Equals sign. */ \
 \
-	PARSEC_BNF_TOKEN(LeftBrace, "{") /**< @brief Left brace. */ \
-	PARSEC_BNF_TOKEN(RightBrace, "}") /**< @brief Right brace. */
+	PARSEC_BNF_TOKEN(OpenBrace, "{") /**< @brief Opening brace. */ \
+	PARSEC_BNF_TOKEN(CloseBrace, "}") /**< @brief Closing brace. */
 
 #include "Utils.hpp"
-
-#include <string_view>
 #include <string>
 
 namespace parsec {
 #define PARSEC_BNF_TOKEN(kind, text) kind,
 	/**
-	 * @brief Defines available type codes for classifying @ref parsec::BnfToken "BnfToken"s.
+	 * @brief Defines available type codes for classifying @ref parsec::BnfToken "BnfTokens".
 	 */
 	enum class BnfTokenKinds {
 		PARSEC_BNF_TOKEN_LIST
@@ -30,61 +28,50 @@ namespace parsec {
 #undef PARSEC_BNF_TOKEN
 
 	/**
-	 * @brief A string of characters representing a single word from the BNF language.
+	 * @brief Description and classification of some character sequence from a language definition in the BNF-like form.
 	 */
 	class BnfToken {
 	public:
 		/** @{ */
-		/** @brief Construct a new empty @ref BnfTokenKinds::Eof "Eof" BnfToken. */
+		/** @brief Construct a new empty @ref BnfTokenKinds::Eof "Eof" token. */
 		BnfToken() = default;
 
-		/** @brief Construct a new BnfToken from its textual representation, classification and location. */
+		/** @brief Construct a new token from its textual representation, classification and location. */
 		BnfToken(const std::string& text, BnfTokenKinds kind, const SourceLocation& loc)
 		 : loc(loc), text(text), kind(kind)
 		{ }
 
-		/** @copybrief BnfToken(const std::string&, BnfTokenKinds, const SourceLocation&) */
-		BnfToken(std::string&& text, BnfTokenKinds kind, const SourceLocation& loc)
-		 : loc(loc), text(std::move(text)), kind(kind)
-		{ }
-
-		/** @brief Destroy the BnfToken. */
+		/** @copybrief */
 		~BnfToken() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a new BnfToken by making a copy of another BnfToken. */
 		BnfToken(const BnfToken&) = default;
-
-		/** @brief Assign to the BnfToken a copy of another BnfToken. */
 		BnfToken& operator=(const BnfToken&) = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a new BnfToken by moving from another BnfToken. */
 		BnfToken(BnfToken&&) = default;
-
-		/** @brief Move another BnfToken into the BnfToken. */
 		BnfToken& operator=(BnfToken&&) = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Get the textual representation of the BnfToken. */
+		/** @brief Get the textual representation of the token. */
 		const std::string& GetText() const noexcept {
 			return text;
 		}
 
-		/** @brief Get a location in the source code where the BnfToken was found. */
+		/** @brief Get a location in the source code where the token was found. */
 		const SourceLocation& GetLocation() const noexcept {
 			return loc;
 		}
 
-		/** @brief Get the classification of the BnfToken as reported by BnfLexer. */
+		/** @brief Get the classification of the token as reported by BnfLexer. */
 		BnfTokenKinds GetKind() const noexcept {
 			return kind;
 		}
 
-		/** @brief Check if the BnfToken is an @ref BnfTokenKinds::Eof "Eof" BnfToken. */
+		/** @brief Check if the token is an @ref BnfTokenKinds::Eof "Eof" token. */
 		bool IsEof() const noexcept {
 			return GetKind() == BnfTokenKinds::Eof;
 		}
