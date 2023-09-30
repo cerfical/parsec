@@ -176,48 +176,6 @@ namespace parsec {
 	private:
 		SourceLocation loc;
 	};
-
-
-
-	/**
-	 * @brief Performs error logging with additional ability to augment error messages with contextual information.
-	 */
-	class ErrorLogger {
-	public:
-		/** @{ */
-		/** @brief Construct a new logger with the specified file as the context for the logger. */
-		ErrorLogger(std::istream& input, std::string_view filename, std::ostream& out = std::cerr) noexcept
-		 : filename(filename), input(&input), out(&out)
-		{ }
-
-		/** @copybrief */
-		~ErrorLogger() = default;
-		/** @} */
-
-		/** @{ */
-		ErrorLogger(ErrorLogger&&) = default;
-		ErrorLogger& operator=(ErrorLogger&&) = default;
-		/** @} */
-
-		/** @{ */
-		ErrorLogger(const ErrorLogger&) = delete;
-		ErrorLogger& operator=(const ErrorLogger&) = delete;
-		/** @} */
-
-		/** @{ */
-		/** @brief Print out the error message and optionally its origins. */
-		void Log(std::string_view msg, const SourceLocation& loc = { }) noexcept;
-		/** @} */
-
-	private:
-		/** @brief Read the line defined by a location from the input. */
-		std::string ReadLine(const SourceLocation& loc);
-
-		std::string_view filename;
-		std::istream* input = nullptr;
-		
-		std::ostream* out = nullptr;
-	};
 }
 
 #endif

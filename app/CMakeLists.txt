@@ -8,8 +8,9 @@ set_target_properties(parsec-app
 )
 
 # Link to the executable its dependencies
-target_link_libraries(parsec-app PRIVATE
-	parsec-lib Microsoft.GSL::GSL
+target_link_libraries(parsec-app PRIVATE parsec-lib
+	Microsoft.GSL::GSL
+	Boost::program_options
 )
 
 # Set the C++ standard required to compile the executable

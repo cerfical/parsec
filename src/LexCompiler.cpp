@@ -247,9 +247,9 @@ namespace {
 		void EofFunc() {
 			out.PrintLine("bool ", eofFuncName, "() const {")
 				.Down()
-					.PrintLine("if(input->peek() == std::char_traits<char>::eof()) {")
+					.PrintLine("if(input->peek() == EOF) {")
 					.Down()
-						.PrintLine("input->clear(input->rdstate() ^ std::ios_base::eofbit);")
+						.PrintLine("input->clear(input->rdstate() ^ std::ios::eofbit);")
 						.PrintLine("return true;")
 					.Up()
 					.PrintLine('}')

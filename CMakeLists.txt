@@ -11,7 +11,7 @@ option(BUILD_DOC "Build the documentation" OFF)
 
 # Require GSL and Boost libraries to be installed 
 find_package(Microsoft.GSL REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 # Write project information to a header file
 configure_file("src/ProjectConfig.hpp.in" "ProjectConfig.hpp")
