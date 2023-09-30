@@ -16,9 +16,12 @@ namespace parsec {
 	class BnfLexer {
 	public:
 		/** @{ */
-		/** @brief Construct a new lexer that operates on @c std::istream. */
-		explicit BnfLexer(std::istream& input) noexcept
-		 : input(&input)
+		/** @copybrief */
+		BnfLexer() = default;
+
+		/** @brief Construct a new lexer that operates on a @c std::istream. */
+		explicit BnfLexer(std::istream* input) noexcept
+		 : input(input)
 		{ }
 		
 		/** @copybrief */
@@ -77,7 +80,7 @@ namespace parsec {
 		/** @brief Parse the next token from the input. */
 		void ParseToken();
 
-		std::istream *input;
+		std::istream *input = nullptr;
 
 		gsl::index lineStart = 0;
 		gsl::index lineNo = 0, colNo = 0;

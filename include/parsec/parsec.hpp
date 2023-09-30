@@ -10,9 +10,8 @@
 #include "BnfLexer.hpp"
 #include "BnfParser.hpp"
 
-#include "LexGrammar.hpp"
-#include "LexAutomaton.hpp"
-#include "LexCompiler.hpp"
+#include "LexGenerator.hpp"
+#include "LexCppGenerator.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

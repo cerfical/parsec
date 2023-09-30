@@ -36,7 +36,11 @@ namespace parsec {
 		
 		const auto tokRegex = MatchToken(BnfTokenKinds::Regex, "string literal expected");
 		MatchToken(BnfTokenKinds::Semicolon, "a token must end with ';'");
-		grammar.AddToken(tokName.GetText(), tokRegex.GetText());
+		try {
+			grammar.AddToken(tokName.GetText(), tokRegex.GetText());
+		} catch(const ParseError& err) {
+			throw ParseError("malformed regular expression", tokRegex.GetLocation());
+		}
 	}
 	void BnfParser::ParseTokenList() {
 		MatchToken(BnfTokenKinds::OpenBrace, "a token list must start with '{'");
@@ -51,8 +55,10 @@ namespace parsec {
 		ParseTokenList();
 	}
 
-	LexGrammar BnfParser::Parse() {
-		ParseGrammar();
+	BnfGrammar BnfParser::Parse() {
+		if(lexer.Peek() != BnfTokenKinds::Eof) {
+			ParseGrammar();
+		}
 		return std::move(grammar);
 	}
 }

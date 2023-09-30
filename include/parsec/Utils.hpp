@@ -11,9 +11,6 @@
 #include <cctype>
 
 namespace parsec {
-	/** @brief Simple integer type for representing numeric identifiers. */
-	using Uid = std::size_t;
-
 	/**
 	 * @brief Specifies the order in which child nodes are visited during tree traversal.
 	 */

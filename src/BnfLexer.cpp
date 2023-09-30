@@ -5,7 +5,10 @@
 
 namespace parsec {
 	bool BnfLexer::IsInputEnd() const {
-		// in case of end of file, reset the eof bit and return true
+		if(!input) {
+			return true;
+		}
+		// if the of end of file was reached, reset the eof bit and return true
 		if(input->peek() == std::char_traits<char>::eof()) {
 			input->clear(input->rdstate() ^ std::ios_base::eofbit);
 			return true;

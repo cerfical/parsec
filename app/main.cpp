@@ -156,10 +156,11 @@ private:
 
 	/** @{ */
 	int CompileFile() {
-		parsec::BnfParser parser(input);
+		parsec::BnfParser parser(&input);
 		try {
 			const auto grammar = parser.Parse();
-			parsec::LexCompiler(grammar, output).Compile();
+			parsec::LexCppGenerator(&grammar.GetTokens(), &output)
+				.Generate();
 		} catch(const parsec::ParseError& err) {
 			PrintParseError(err);
 			return 1;

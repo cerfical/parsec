@@ -2,7 +2,7 @@
 #define PARSEC_BNF_PARSER_HEADER
 
 #include "BnfLexer.hpp"
-#include "LexGrammar.hpp"
+#include "BnfGrammar.hpp"
 
 #include <gsl/string_span>
 
@@ -16,8 +16,11 @@ namespace parsec {
 	class BnfParser {
 	public:
 		/** @{ */
+		/** @copybrief */
+		BnfParser() = default;
+
 		/** @brief Construct a new parser operating on a @c std::istream. */
-		explicit BnfParser(std::istream& input) noexcept
+		explicit BnfParser(std::istream* input) noexcept
 		 : lexer(input)
 		{ }
 
@@ -37,7 +40,7 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Parse the input for a valid grammar description. */
-		LexGrammar Parse();
+		BnfGrammar Parse();
 		/** @} */
 
 	private:
@@ -62,7 +65,7 @@ namespace parsec {
 		/** @brief Parse a grammar definition. */
 		void ParseGrammar();
 
-		LexGrammar grammar;
+		BnfGrammar grammar;
 		BnfLexer lexer;
 	};
 }
