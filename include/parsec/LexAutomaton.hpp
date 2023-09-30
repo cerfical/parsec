@@ -5,6 +5,8 @@
 #include "LexGrammar.hpp"
 
 #include <vector>
+#include <iostream>
+#include <list>
 
 namespace parsec {
 	/**
@@ -35,8 +37,8 @@ namespace parsec {
 
 			/** @{ */
 			/** @brief Get a new state for the automaton after the transition. */
-			const State* GetNewState() const noexcept {
-				return newState;
+			const State& GetNewState() const noexcept {
+				return *newState;
 			}
 
 			/** @brief Get the input character that will trigger the transition. */
@@ -125,12 +127,15 @@ namespace parsec {
 		};
 
 		/** @brief List of @ref State "States". */
-		using StateList = std::vector<State>;
+		using StateList = std::list<State>;
 
 
 		/** @{ */
 		/** @copybrief */
 		LexAutomaton() = default;
+		
+		/** @brief Compile a new automaton from a grammar. */
+		LexAutomaton(const LexGrammar& grammar);
 		
 		/** @copybrief */
 		~LexAutomaton() = default;
@@ -177,6 +182,11 @@ namespace parsec {
 		std::size_t GetStatesCount() const noexcept {
 			return states.size();
 		}
+		/** @} */
+
+		/** @{ */
+		/** @brief Print out all information about the automaton to a @c std::ostream. */
+		void Dump(std::size_t indent = 0, std::ostream& out = std::cout);
 		/** @} */
 
 	private:

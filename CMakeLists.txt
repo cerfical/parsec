@@ -32,6 +32,8 @@ target_sources(parsec-lib
 	PRIVATE
 		"src/Utils.cpp"
 
+		"src/LexAutomaton.cpp"
+
 		"src/RegExNodes.cpp"
 		"src/RegExPrinter.cpp"
 		"src/RegExParser.cpp"

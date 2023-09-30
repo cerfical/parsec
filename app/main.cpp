@@ -17,12 +17,3 @@ int LogError(parsec::ErrorLogger& errors) noexcept {
 int main(int argc, gsl::czstring argv[]) {
 	
 }
-
-/*
-
-	token = ident '=' regex ';'
-	token-list = tokens '{' token* '}'
-
-	grammar = token-list
-
-*/
