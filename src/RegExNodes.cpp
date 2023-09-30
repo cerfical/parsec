@@ -6,10 +6,10 @@ namespace {
 
 
 	template <typename Node>
-	concept IsUnaryExpr = requires(const Node& n) { n.GetInnerExpr(); };
+	concept IsUnaryExpr = requires(const Node& n) { n.GetChild(); };
 
 	template <typename Node>
-	concept IsBinaryExpr = requires(const Node& n) { n.GetLeftExpr(); n.GetRightExpr(); };
+	concept IsBinaryExpr = requires(const Node& n) { n.GetLeftChild(); n.GetRightChild(); };
 
 	template <typename Node>
 	void TraverseNode(const Node& n, RegExTraverser& traverser) {
@@ -17,19 +17,19 @@ namespace {
 			case TraversalTypes::Preorder: {
 				traverser.VisitNode(n);
 				if constexpr(IsBinaryExpr<Node>) {
-					n.GetLeftExpr().TraverseWith(traverser);
-					n.GetRightExpr().TraverseWith(traverser);
+					n.GetLeftChild().TraverseWith(traverser);
+					n.GetRightChild().TraverseWith(traverser);
 				} else if constexpr(IsUnaryExpr<Node>) {
-					n.GetInnerExpr().TraverseWith(traverser);
+					n.GetChild().TraverseWith(traverser);
 				} 
 				break;
 			}
 			case TraversalTypes::Postorder: {
 				if constexpr(IsBinaryExpr<Node>) {
-					n.GetLeftExpr().TraverseWith(traverser);
-					n.GetRightExpr().TraverseWith(traverser);
+					n.GetLeftChild().TraverseWith(traverser);
+					n.GetRightChild().TraverseWith(traverser);
 				} else if constexpr(IsUnaryExpr<Node>) {
-					n.GetInnerExpr().TraverseWith(traverser);
+					n.GetChild().TraverseWith(traverser);
 				} 
 				traverser.VisitNode(n);
 				break;
@@ -52,28 +52,42 @@ namespace {
 
 	private:
 		/** @{ */
-		void VisitNode(const RegExChar& ch) override {
-			chars.push_back(&ch);
+		void VisitNode(const RegExChar& n) override {
+			chars.push_back(&n);
+		}
+
+		void VisitNode(const RegExNil& n) override {
+			// nothing to do
 		}
 		
+		void VisitNode(const RegExOpt& n) override {
+			// add the firstpos of the inner expression
+			n.GetChild().TraverseWith(*this);			
+		}
+
+		void VisitNode(const RegExPlus& n) override {
+			// add the firstpos of the inner expression
+			n.GetChild().TraverseWith(*this);			
+		}
+
 		void VisitNode(const RegExStar& n) override {
 			// add the firstpos of the inner expression
-			n.GetInnerExpr().TraverseWith(*this);			
+			n.GetChild().TraverseWith(*this);			
 		}
 		
 		void VisitNode(const RegExAltern& n) override {
 			// add the firstpos of the left child
-			n.GetLeftExpr().TraverseWith(*this);
+			n.GetLeftChild().TraverseWith(*this);
 			// add the firstpos of the right child
-			n.GetRightExpr().TraverseWith(*this);
+			n.GetRightChild().TraverseWith(*this);
 		}
 
 		void VisitNode(const RegExConcat& n) override {
 			// add the firstpos of the left child
-			n.GetLeftExpr().TraverseWith(*this);
-			if(n.GetLeftExpr().IsNullable()) {
+			n.GetLeftChild().TraverseWith(*this);
+			if(n.GetLeftChild().IsNullable()) {
 				// add the firstpos of the right child
-				n.GetRightExpr().TraverseWith(*this);
+				n.GetRightChild().TraverseWith(*this);
 			}
 		}
 		/** @} */
@@ -92,28 +106,42 @@ namespace {
 
 	private:
 		/** @{ */
-		void VisitNode(const RegExChar& ch) override {
-			chars.push_back(&ch);
+		void VisitNode(const RegExChar& n) override {
+			chars.push_back(&n);
 		}
 		
+		void VisitNode(const RegExNil& n) override {
+			// nothing to do
+		}
+
+		void VisitNode(const RegExOpt& n) override {
+			// add the lastpos of the inner expression
+			n.GetChild().TraverseWith(*this);			
+		}
+		
+		void VisitNode(const RegExPlus& n) override {
+			// add the lastpos of the inner expression
+			n.GetChild().TraverseWith(*this);			
+		}
+
 		void VisitNode(const RegExStar& n) override {
 			// add the lastpos of the inner expression
-			n.GetInnerExpr().TraverseWith(*this);			
+			n.GetChild().TraverseWith(*this);			
 		}
 		
 		void VisitNode(const RegExAltern& n) override {
 			// add the lastpos of the left child
-			n.GetLeftExpr().TraverseWith(*this);
+			n.GetLeftChild().TraverseWith(*this);
 			// add the lastpos of the right child
-			n.GetRightExpr().TraverseWith(*this);
+			n.GetRightChild().TraverseWith(*this);
 		}
 
 		void VisitNode(const RegExConcat& n) override {
 			// add the lastpos of the right child
-			n.GetRightExpr().TraverseWith(*this);
-			if(n.GetRightExpr().IsNullable()) {
+			n.GetRightChild().TraverseWith(*this);
+			if(n.GetRightChild().IsNullable()) {
 				// add the lastpos of the left child
-				n.GetLeftExpr().TraverseWith(*this);
+				n.GetLeftChild().TraverseWith(*this);
 			}
 		}
 		/** @} */
@@ -136,6 +164,19 @@ namespace {
 			TraverseParent(n);
 		}
 
+		void VisitNode(const RegExNil& n) override {
+			// nothing to do
+		}
+
+		void VisitNode(const RegExOpt& n) override {
+			TraverseParent(n);
+		}
+
+		void VisitNode(const RegExPlus& n) override {
+			AppendFirstPos(n);
+			TraverseParent(n);
+		}
+
 		void VisitNode(const RegExStar& n) override {
 			AppendFirstPos(n);
 			TraverseParent(n);
@@ -146,9 +187,9 @@ namespace {
 		}
 
 		void VisitNode(const RegExConcat& n) override {
-			if(child == &n.GetLeftExpr()) {
-				AppendFirstPos(n.GetRightExpr());
-				if(n.GetRightExpr().IsNullable()) {
+			if(child == &n.GetLeftChild()) {
+				AppendFirstPos(n.GetRightChild());
+				if(n.GetRightChild().IsNullable()) {
 					TraverseParent(n);
 				}
 			} else {
@@ -207,6 +248,21 @@ namespace parsec {
 	}
 
 
+	void RegExNil::TraverseWith(RegExTraverser& traverser) const {
+		TraverseNode(*this, traverser);
+	}
+
+
+	void RegExOpt::TraverseWith(RegExTraverser& traverser) const {
+		TraverseNode(*this, traverser);
+	}
+
+
+	void RegExPlus::TraverseWith(RegExTraverser& traverser) const {
+		TraverseNode(*this, traverser);
+	}
+
+
 	void RegExStar::TraverseWith(RegExTraverser& traverser) const {
 		TraverseNode(*this, traverser);
 	}
@@ -222,9 +278,9 @@ namespace parsec {
 	}
 
 
-	std::ostream& operator<<(std::ostream& out, const RegExNode& regex) {
-		RegExPrinter printer(out);
-		regex.TraverseWith(printer);
+	std::ostream& operator<<(std::ostream& out, const RegExNode& n) {
+		RegExPrinter printer(&out);
+		n.TraverseWith(printer);
 		return out;
 	}
 }

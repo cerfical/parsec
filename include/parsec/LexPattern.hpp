@@ -34,12 +34,12 @@ namespace parsec {
 		}
 		/** @brief Get the regex representation of the pattern. */
 		const RegExNode& GetRegex() const noexcept {
-			return regex->GetLeftExpr();
+			return *regex;
 		}
 
 		/** @brief Get the regex node marking the end of the pattern. */
 		const RegExChar& GetEndMarker() const noexcept {
-			return static_cast<const RegExChar&>(regex->GetRightExpr());
+			return static_cast<const RegExChar&>(regex->GetRightChild());
 		}
 
 		/** @brief Get the string representation of the pattern. */

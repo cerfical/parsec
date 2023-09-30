@@ -39,7 +39,13 @@ namespace parsec {
 		try {
 			grammar.AddToken(tokName.GetText(), tokRegex.GetText());
 		} catch(const ParseError& err) {
-			throw ParseError("malformed regular expression", tokRegex.GetLocation());
+			const auto loc = SourceLocation(
+				tokRegex.GetLocation().GetStartPos(),
+				tokRegex.GetLocation().GetColumnNo() + err.location().GetColumnNo() + 1,
+				err.location().GetColumnCount(),
+				tokRegex.GetLocation().GetLineNo()
+			);
+			throw ParseError(err.what(), loc);
 		}
 	}
 	void BnfParser::ParseTokenList() {

@@ -18,6 +18,11 @@ namespace parsec {
 	class LexGenerator {
 	public:
 		/** @{ */
+		LexGenerator(const LexGenerator&) = delete;
+		LexGenerator& operator=(const LexGenerator&) = delete;
+		/** @} */
+		
+		/** @{ */
 		/** @copybrief */
 		virtual ~LexGenerator() = default;
 		/** @} */
@@ -38,16 +43,10 @@ namespace parsec {
 		{ }
 		/** @} */
 
-
+		
 		/** @{ */
 		LexGenerator(LexGenerator&&) = default;
 		LexGenerator& operator=(LexGenerator&&) = default;
-		/** @} */
-
-
-		/** @{ */
-		LexGenerator(const LexGenerator&) = delete;
-		LexGenerator& operator=(const LexGenerator&) = delete;
 		/** @} */
 
 

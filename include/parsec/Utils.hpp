@@ -16,8 +16,8 @@ namespace parsec {
 	 */
 	enum class TraversalTypes {
 		None, /**< @brief Child nodes are not visited. */
-		Preorder, /**< @brief Root of a tree is visited first, then the child nodes. */
-		Postorder /**< @brief Child nodes of a tree are visited first, then the root. */
+		Preorder, /**< @brief Root of the tree is visited first, then the child nodes. */
+		Postorder /**< @brief Child nodes of the tree are visited first, then the root. */
 	};
 
 
@@ -33,6 +33,16 @@ namespace parsec {
 			return static_cast<unsigned char>(ch);
 		}
 
+		/** @brief Find the value of a single digit represented as a character. */
+		constexpr static int EvalDigit(char ch) noexcept {
+			return ch - '0';
+		}
+
+		/** @brief Find the value of a single hexadecimal digit represented as a character. */
+		constexpr static int EvalHexDigit(char ch) noexcept {
+			return (ch >= 'a') ? ch - 'a' + 10 : ((ch >= 'A') ? ch - 'A' : EvalDigit(ch));
+		}
+
 		/** @brief Represent a character in a human-readable form. */
 		static std::string EscapeChar(char ch); 
 		/** @} */
@@ -46,6 +56,11 @@ namespace parsec {
 		/** @brief Check if a character is a digit. */
 		static bool IsDigit(char ch) noexcept {
 			return std::isdigit(CharToInt(ch));
+		}
+
+		/** @brief Check if a character is a hexadecimal digit. */
+		static bool IsHexDigit(char ch) noexcept {
+			return std::isxdigit(CharToInt(ch));
 		}
 
 		/** @brief Check if a character is an alphanumeric character. */

@@ -1,4 +1,12 @@
 tokens {
-	ident = "a|b";
-	number = "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*";
+	number = "[1-9][0-9]*";
+	ident = "[a-zA-Z_][a-zA-Z_0-9]*";
+
+	open-paren = "\(";
+	close-paren = "\)";
+
+	add-op = "\+";
+	sub-op = "-";
+	mul-op = "\*";
+	div-op = "/";
 }

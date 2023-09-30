@@ -11,9 +11,12 @@ namespace parsec {
 	class RegExPrinter : public RegExTraverser {
 	public:
 		/** @{ */
+		/** @brief Construct a new RegExPrinter that prints to the @c std::cout. */
+		RegExPrinter() = default;
+
 		/** @brief Construct a new RegExPrinter that prints to a @c std::ostream. */
-		explicit RegExPrinter(std::ostream& out = std::cout) noexcept
-		 : out(&out)
+		explicit RegExPrinter(std::ostream* out) noexcept
+		 : out(out)
 		{ }
 
 		/** @copybrief */
@@ -31,21 +34,30 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Print out a character. */
-		void VisitNode(const RegExChar& ch) override;
+		/** @brief Print a RegExChar node. */
+		void VisitNode(const RegExChar& n) override;
 
-		/** @brief Print out a star expression and its inner expression. */
-		void VisitNode(const RegExStar& star) override;
+		/** @brief Print a RegExNil node. */
+		void VisitNode(const RegExNil& n) override;
+
+		/** @brief Print a RegExOpt node. */
+		void VisitNode(const RegExOpt& n) override;
+
+		/** @brief Print a RegExPlus node. */
+		void VisitNode(const RegExPlus& n) override;
+
+		/** @brief Print a RegExStar node. */
+		void VisitNode(const RegExStar& n) override;
 		
-		/** @brief Print out an alternation expression and its subexpressions. */
-		void VisitNode(const RegExAltern& altern) override;
+		/** @brief Print a RegExAltern node. */
+		void VisitNode(const RegExAltern& n) override;
 		
-		/** @brief Print out a concatenation expression and its subexpressions. */
-		void VisitNode(const RegExConcat& concat) override;
+		/** @brief Print a RegExConcat node. */
+		void VisitNode(const RegExConcat& n) override;
 		/** @} */
 
 	private:		
-		std::ostream* out = nullptr;
+		std::ostream* out = &std::cout;
 	};
 }
 

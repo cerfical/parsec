@@ -39,28 +39,42 @@ namespace parsec {
 		/** @} */
 
 	private:
-		/** @brief Get the current position of the RegExParser in the input. */
+		/** @brief Called when a character is encountered in an unexpected place. */
+		[[noreturn]] void UnexpectedChar() const;
+		/** @brief Called when the end of input is unexpectedly reached. */
+		[[noreturn]] void UnexpectedEof() const;
+
+		/** @brief Get the current position of the parser in the input. */
 		SourceLocation GetInputPos() const noexcept;
 		/** @brief Check if the input is empty. */
 		bool IsInputEmpty() const noexcept;
 
 		/** @brief Return the next character from the input without removing it. */
-		char PeekChar() const noexcept; 
+		char PeekChar() const; 
 		/** @brief Remove the next character from the input and return it. */
-		char GetChar() noexcept;
+		char GetChar();
 		
 		/** @brief Remove the next character only if it is equal to the given one. */
 		bool SkipCharIf(char ch) noexcept;
 		/** @brief Remove the next character from the input. */
-		void SkipChar() noexcept;
+		void SkipChar();
 
 		/** @brief Check if the next character starts an atom. */
 		bool IsAtomStart() const noexcept;
 
+		/** @brief Parse an escape sequence. */
+		char ParseEscapeSeq();
+		/** @brief Parse a literal character. */
+		char ParseChar();
+		/** @brief Parse a character range. */
+		void ParseCharRange();
+		/** @brief Parse a character set. */
+		void ParseCharSet();
+
 		/** @brief Parse an atom. */
 		void ParseAtom();
-		/** @brief Parse a star expression. */
-		void ParseStar();
+		/** @brief Parse a repetition expression. */
+		void ParseRepeat();
 		/** @brief Parse a concatenation. */
 		void ParseConcat();
 		/** @brief Parse an alternation. */
