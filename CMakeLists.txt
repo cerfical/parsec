@@ -1,7 +1,10 @@
 ﻿cmake_minimum_required(VERSION 3.16)
 
 # Define project metadata
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.4.5)
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.4.6)
+
+# Set MSVC runtime library to static
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Optional building of documentation
 option(BUILD_DOC "Build the documentation" OFF)
@@ -9,6 +12,9 @@ option(BUILD_DOC "Build the documentation" OFF)
 # Require GSL and Boost libraries to be installed 
 find_package(Microsoft.GSL REQUIRED)
 find_package(Boost REQUIRED)
+
+# Write project information to a header file
+configure_file("src/ProjectConfig.hpp.in" "ProjectConfig.hpp")
 
 # Add a target for the project's library
 add_library(parsec-lib)
@@ -52,6 +58,7 @@ set_target_properties(parsec-lib
 # Set interface and build-only include directories
 target_include_directories(parsec-lib
 	INTERFACE "include"
+	PUBLIC "${CMAKE_CURRENT_BINARY_DIR}"
 	PRIVATE "include/parsec"
 )
 

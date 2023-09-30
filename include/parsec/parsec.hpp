@@ -1,5 +1,7 @@
-#ifndef PARSEC_PARSEC_HEADER
-#define PARSEC_PARSEC_HEADER
+#ifndef PARSEC_ROOT_HEADER
+#define PARSEC_ROOT_HEADER
+
+#include "ProjectConfig.hpp"
 
 #include "RegExNodes.hpp"
 #include "RegExParser.hpp"
