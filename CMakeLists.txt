@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.16)
 
 # Define project metadata
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.5.2)
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.5.3)
 
 # Set MSVC runtime library to static
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
