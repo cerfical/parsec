@@ -4,6 +4,8 @@
 #include "RegExNodes.hpp"
 #include "Utils.hpp"
 
+#include <gsl/util>
+
 #include <string_view>
 #include <memory>
 
@@ -13,24 +15,29 @@ namespace parsec {
 	 */
 	class RegExParser {
 	public:
-		/** @name Construction/destruction: */
-
 		/** @{ */
+		/** @brief Construct a RegExParser. */
 		RegExParser() = default;
+
+		/** @brief Destroy RegExParser. */
 		~RegExParser() = default;
 		/** @} */
 
-		/** @name Copy/move operations: */
-
 		/** @{ */
+		/** @brief Construct a RegExParser from a moved copy of RegExParser object. */
 		RegExParser(RegExParser&&) = default;
+
+		/** @brief Assign a moved copy of RegExParser object to RegExParser. */
 		RegExParser& operator=(RegExParser&&) = default;
 		/** @} */
 
-		/** @name Ordinary functions: */
-		
 		/** @{ */
-		/** @brief Parses a string for a valid regular expression. */
+		RegExParser(const RegExParser&) = delete;
+		RegExParser& operator=(const RegExParser&) = delete;
+		/** @} */
+
+		/** @{ */
+		/** @brief Analyse a string for a valid regular expression. */
 		std::unique_ptr<RegExNode> Parse(std::string_view regex) {
 			input = regex; pos = 0;
 			ParseRegex();
@@ -39,48 +46,39 @@ namespace parsec {
 		/** @} */
 
 	private:
-		RegExParser(const RegExParser&) = delete;
-		RegExParser& operator=(const RegExParser&) = delete;
-
-		/** @brief Returns the current position of the parser in the input string. */
-		SourceLocation GetCurrentLocation() const noexcept {
-			const auto loc = SourceLocation({
-				.chars = CharRange({ .startPos = pos, .size = 1 }),
-				.lineNo = 0
-			});
-			return loc;
-		}
-		
-		/** @brief Checks if the input is empty. */
+		/** @brief Get position of RegExParser in input string. */
+		SourceLocation GetInputPos() const noexcept;
+		/** @brief Check if input is empty. */
 		bool IsInputEmpty() const noexcept;
 		
+		/** @brief Return next character from input without removing it. */
 		char PeekChar() const noexcept; 
-		/** @brief Removes the next character from the input and returns it. */
+		/** @brief Remove next character from input and return it. */
 		char GetChar() noexcept;
 		
-		/** @brief Skips the character only if it is equal to the given one. */
+		/** @brief Remove next character only if it is equal to the given one. */
 		bool SkipCharIf(char ch) noexcept;
-		/** @brief Removes the next character from the input. */
+		/** @brief Remove next character from input. */
 		void SkipChar() noexcept;
 
-		/** @brief Checks if the next input character starts an atom. */
+		/** @brief Check if next character starts an atom. */
 		bool IsAtomStart() const noexcept;
 
-		/** @brief Parses an atom. */
+		/** @brief Parse an atom. */
 		void ParseAtom();
-		/** @brief Parses a star expression. */
+		/** @brief Parse a star expression. */
 		void ParseStar();
-		/** @brief Parses a concatenation expression. */
+		/** @brief Parse a concatenation. */
 		void ParseConcat();
-		/** @brief Parses a alternation expression. */
+		/** @brief Parse an alternation. */
 		void ParseAltern();
-		/** @brief Parses a regular expression. */
+		/** @brief Parse a regular expression. */
 		void ParseRegex();
 
 		std::unique_ptr<RegExNode> regex;
 
 		std::string_view input;
-		Index pos = { };
+		gsl::index pos = { };
 	};
 }
 

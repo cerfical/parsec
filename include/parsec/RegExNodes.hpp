@@ -11,33 +11,32 @@ namespace parsec {
 	 */
 	class RegExNode {
 	public:
-		/** @name Object destruction: */
+		/** @{ */
+		RegExNode(const RegExNode&) = delete;
+		RegExNode& operator=(const RegExNode&) = delete;
+		/** @} */
 
 		/** @{ */
+		RegExNode(RegExNode&&) = delete;
+		RegExNode& operator=(RegExNode&&) = delete;
+		/** @} */
+
+		/** @{ */
+		/** @brief Destroy RegExNode. */
 		virtual ~RegExNode() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Performs a double dispatch on the specified visitor. */
+		/** @brief Perform a double dispatch on a visitor. */
 		virtual void AcceptVisitor(RegExVisitor& visitor) const = 0;
 		
-		/** @brief Prints out the expression to the stream. */
+		/** @brief Prints out RegExNode to a stream. */
 		void Print(std::ostream& out = std::cout) const;
 		/** @} */
 
 	protected:
-		/** @name Object construction: */
-
-		/** @{ */
+		/** @brief Construct a RegExNode. */
 		RegExNode() = default;
-		/** @} */
-
-	private:
-		RegExNode(const RegExNode&) = delete;
-		RegExNode& operator=(const RegExNode&) = delete;
-
-		RegExNode(RegExNode&&) = delete;
-		RegExNode& operator=(RegExNode&&) = delete;
 	};
 
 
@@ -47,21 +46,20 @@ namespace parsec {
 	 */
 	class RegExLiteral : public RegExNode {
 	public:
-		/** @name Object construction/destruction: */
-
 		/** @{ */
-		/** @brief Constructs a literal with the specified value. */
+		/** @brief Construct a RegExLiteral from its value. */
 		explicit RegExLiteral(char value) noexcept
 		 : value(value)
 		{ }
 
+		/** @brief Destroy RegExLiteral. */
 		~RegExLiteral() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 		
-		/** @brief Returns the value of the literal. */
+		/** @brief Get value of RegExLiteral. */
 		char GetValue() const noexcept {
 			return value;
 		}
@@ -78,22 +76,21 @@ namespace parsec {
 	 */
 	class RegExStar : public RegExNode {
 	public:
-		/** @name Object construction/destruction: */
-
 		/** @{ */
-		/** @brief Constructs a star with the specified inner expression. */
+		/** @brief Construct a RegExStar from its inner expression. */
 		explicit RegExStar(std::unique_ptr<RegExNode> expr) noexcept
 		 : innerExpr(std::move(expr))
 		{ }
 
+		/** @brief Destroy RegExStar. */
 		~RegExStar() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Returns the star's inner expression. */
-		const RegExNode &GetInnerExpr() const noexcept {
+		/** @brief Get inner expression of RegExStar. */
+		const RegExNode& GetInnerExpr() const noexcept {
 			return *innerExpr;
 		}
 		/** @} */
@@ -109,26 +106,25 @@ namespace parsec {
 	 */
 	class RegExAltern : public RegExNode {
 	public:
-		/** @name Object construction/destruction: */
-
 		/** @{ */
-		/** @brief Constructs an alternation from two subexpressions. */
+		/** @brief Construct a RegExAltern from its subexpressions. */
 		RegExAltern(std::unique_ptr<RegExNode> left, std::unique_ptr<RegExNode> right) noexcept
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
+		/** @brief Destroy RegExAltern. */
 		~RegExAltern() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Returns the alternation's left subexpression. */
-		const RegExNode &GetLeftExpr() const noexcept {
+		/** @brief Get left subexpression of RegExAltern. */
+		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
-		/** @brief Returns the alternation's right subexpression. */
-		const RegExNode &GetRightExpr() const noexcept {
+		/** @brief Get right subexpression of RegExAltern. */
+		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
 		}
 		/** @} */
@@ -144,27 +140,25 @@ namespace parsec {
 	 */
 	class RegExConcat : public RegExNode {
 	public:
-		/** @name Object construction/destruction: */
-
 		/** @{ */
-		/** @brief Constructs a concatenation from two subexpressions. */
+		/** @brief Construct a RegExConcat from its two subexpressions. */
 		RegExConcat(std::unique_ptr<RegExNode> left, std::unique_ptr<RegExNode> right) noexcept
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
+		/** @brief Destroy RegExConcat. */
 		~RegExConcat() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Performs a single dispatch on the specified visitor. */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Returns the concatenation's left subexpression. */
-		const RegExNode &GetLeftExpr() const noexcept {
+		/** @brief Get left subexpression of RegExConcat. */
+		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
-		/** @brief Returns the concatenation's right subexpression. */
-		const RegExNode &GetRightExpr() const noexcept {
+		/** @brief Get right subexpression of RegExConcat. */
+		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
 		}
 		/** @} */
@@ -188,21 +182,18 @@ namespace parsec {
 		/** @} */
 
 	protected:
-		/** @name Object construction/destruction: */
-
 		/** @{ */
+		/** @brief Construct a RegExVisitor. */
 		RegExVisitor() = default;
+
+		/** @brief Destroy RegExVisitor. */
 		~RegExVisitor() = default;
 		/** @} */
-
-		/** @name Copy operations: */
 
 		/** @{ */
 		RegExVisitor(const RegExVisitor&) = default;
 		RegExVisitor& operator=(const RegExVisitor&) = default;
 		/** @} */
-
-		/** @name Move operations: */
 
 		/** @{ */
 		RegExVisitor(RegExVisitor&&) = default;

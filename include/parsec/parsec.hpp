@@ -5,6 +5,8 @@
 #include "RegExParser.hpp"
 #include "RegExPrinter.hpp"
 
+#include "Lexer.hpp"
+
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }
 

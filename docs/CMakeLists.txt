@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
+# Search for Doxygen installation
 find_package(Doxygen REQUIRED)
 
+# Configure Doxygen output
 set(DOXYGEN_REPEAT_BRIEF NO)
 set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
 set(DOXYGEN_INLINE_SIMPLE_STRUCTS YES)
@@ -13,7 +15,19 @@ set(DOXYGEN_SHOW_NAMESPACES NO)
 set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_COLLABORATION_GRAPH NO)
-set(DOXYGEN_GENERATE_LATEX YES)
 
-get_property(${PARSEC_LIB}_INTERFACE_SOURCES TARGET ${PARSEC_LIB} PROPERTY INTERFACE_SOURCES)
-doxygen_add_docs(parsec-docs ${${PARSEC_LIB}_INTERFACE_SOURCES} ALL USE_STAMP_FILE)
+# Ensure proper expansion of X macros on Doxygen run
+set(DOXYGEN_MACRO_EXPANSION YES)
+set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
+set(DOXYGEN_EXPAND_AS_DEFINED PARSEC_TOKEN PARSEC_TOKEN_LIST)
+
+# Get the list of interface headers of the library
+get_property(${PARSEC_LIB}_INTERFACE_SOURCES
+	TARGET ${PARSEC_LIB}
+	PROPERTY INTERFACE_SOURCES
+)
+
+# Add a target for documentation generation
+doxygen_add_docs(parsec-docs ${${PARSEC_LIB}_INTERFACE_SOURCES}
+	ALL USE_STAMP_FILE
+)

@@ -2,6 +2,12 @@
 #include <sstream>
 
 namespace parsec {
+	SourceLocation RegExParser::GetInputPos() const noexcept {
+		const auto loc = SourceLocation({
+			.chars = CharRange({ .startPos = pos, .size = 1 })
+		});
+		return loc;
+	}
 	bool RegExParser::IsInputEmpty() const noexcept {
 		return input.size() == pos;
 	}
@@ -40,7 +46,7 @@ namespace parsec {
 	}
 
 	void RegExParser::ParseAtom() {
-		const auto loc = GetCurrentLocation();
+		const auto loc = GetInputPos();
 		if(!IsAtomStart()) {
 			if(!IsInputEmpty()) {
 				const auto msg = (std::ostringstream()

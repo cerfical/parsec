@@ -1,5 +1,30 @@
 #include <parsec/parsec.hpp>
 #include <iostream>
+#include <sstream>
+
+int main() {
+	std::istringstream input(R"(
+	tokens {
+		left-paren = '(';
+		right-paren = ')';
+		ident = '<letter>*';
+
+		'ab(0|1)'
+	})");
+
+	parsec::Lexer lexer(input);
+	while(true) {
+		const auto tok = lexer.Lex();
+		if(tok.IsEof()) {
+			break;
+		}
+		std::cout << tok.GetText() << std::endl;
+	}
+}
+
+/*
+
+PrintRegex("a|b(");
 
 void PrintRegex(std::string_view regex) {
 	parsec::RegExParser parser;
@@ -18,25 +43,5 @@ void PrintRegex(std::string_view regex) {
 		}
 	}
 }
-
-int main() {
-	PrintRegex("a|b(");
-}
-
-/*
-
-	tokens {
-		string-literal = '\'<letter>*\'';
-		left-paren = '(';
-		right-paren = ')';
-		ident = '<letter>*';
-
-		'ab(0|1)'
-	}
-
-	syntax {
-		func-def = ident ident '(' ')';
-		var-def = ident ident;
-	}
 
 */

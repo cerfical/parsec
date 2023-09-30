@@ -10,29 +10,34 @@ namespace parsec {
 	 */
 	class RegExPrinter : public RegExVisitor {
 	public:
-		/** @name Object construction/destruction: */
-		
 		/** @{ */
-		/** @brief Constructs a printer that sends its output to the stream. */
+		/** @brief Constructs a RegExPrinter that sends its output to @c std::ostream. */
 		explicit RegExPrinter(std::ostream& out = std::cout) noexcept
 		 : out(&out)
 		{ }
 
+		/** @brief Destroy RegExPrinter. */
 		~RegExPrinter() = default;
 		/** @} */
 
-		/** @name Move operations: */
+		/** @{ */
+		/** @brief Construct a RegExPrinter from a moved copy of RegExPrinter object. */
+		RegExPrinter(RegExPrinter&&) = default;
+
+		/** @brief Assign a moved copy of RegExPrinter object to RegExPrinter. */
+		RegExPrinter& operator=(RegExPrinter&&) = default;
+		/** @} */
 
 		/** @{ */
-		RegExPrinter(RegExPrinter&&) = default;
-		RegExPrinter& operator=(RegExPrinter&&) = default;
+		RegExPrinter(const RegExPrinter&) = delete;
+		RegExPrinter& operator=(const RegExPrinter&) = delete;
 		/** @} */
 
 		/** @{ */
 		/** @brief Prints out a literal. */
 		void Visit(const RegExLiteral& literal) override;
 
-		/** @brief Prints out a star and its subexpression. */
+		/** @brief Prints out a star and its inner expression. */
 		void Visit(const RegExStar& star) override;
 		
 		/** @brief Prints out an alternation and its subexpressions. */
@@ -42,10 +47,7 @@ namespace parsec {
 		void Visit(const RegExConcat& concat) override;
 		/** @} */
 
-	private:
-		RegExPrinter(const RegExPrinter&) = delete;
-		RegExPrinter& operator=(const RegExPrinter&) = delete;
-		
+	private:		
 		std::ostream* out = &std::cout;
 	};
 }
