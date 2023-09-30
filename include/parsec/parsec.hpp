@@ -1,17 +1,10 @@
 #ifndef PARSEC_ROOT_HEADER
 #define PARSEC_ROOT_HEADER
 
-#include "Config.hpp"
-
-#include "RegExNodes.hpp"
-#include "RegExParser.hpp"
-#include "RegExPrinter.hpp"
-
-#include "BnfLexer.hpp"
-#include "BnfParser.hpp"
-
-#include "LexGen.hpp"
-#include "CppLexGen.hpp"
+#include "config.hpp"
+#include "regex.hpp"
+#include "fg.hpp"
+#include "gen.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

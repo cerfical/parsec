@@ -1,11 +1,11 @@
-#include "Utils.hpp"
+#include "utils/chars.hpp"
 
 #include <sstream>
 #include <iomanip>
 
 namespace parsec {
-	std::string CharUtils::EscapeChar(char ch) {
-		if(IsPrint(ch)) {
+	std::string escapeChar(char ch) {
+		if(isPrint(ch)) {
 			switch(ch) {
 				case '\\': return "\\\\";
 				case '\'': return "\\\'";
@@ -25,19 +25,11 @@ namespace parsec {
 				case '\t': return "\\t";
 				case '\v': return "\\v";
 				default: {
-					return (std::ostringstream()
-						<< "\\x" << std::setw(2) << std::setfill('0') << std::hex << CharUtils::CharToInt(ch)
-					).str();
+					std::ostringstream out;
+					out << "\\x" << std::setw(2) << std::setfill('0') << std::hex << charToInt(ch);
+					return out.str();
 				}
 			}
 		}
-	}
-
-	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
-		out << "( Line: " << loc.colNo
-			<< ", StartPos: " << loc.startPos
-			<< ", Cols: " << loc.colNo << ':' << loc.colNo + loc.colCount
-			<< " )";
-		return out;
 	}
 }
