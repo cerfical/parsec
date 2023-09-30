@@ -15,19 +15,21 @@ find_package(Microsoft.GSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
 # Write project information to a header file
-configure_file("cmake/parsec-config.hpp.in" "parsec-config.hpp")
+configure_file("src/Config.hpp.in" "Config.hpp")
 
 add_library(parsec-lib STATIC
 	"src/Utils.cpp"
 
-	"src/LexPattern.cpp"
-	"src/LexGenerator.cpp"
-	"src/LexCppGenerator.cpp"
+	"src/Grammar.cpp"
+
+	"src/LexGen.cpp"
+	"src/CppLexGen.cpp"
 
 	"src/RegExNodes.cpp"
 	"src/RegExPrinter.cpp"
 	"src/RegExParser.cpp"
 
+	"src/BnfToken.cpp"
 	"src/BnfLexer.cpp"
 	"src/BnfParser.cpp"
 )
@@ -37,12 +39,10 @@ target_sources(parsec-lib
 		"include/parsec/parsec.hpp"
 		
 		"include/parsec/Utils.hpp"
+		"include/parsec/Grammar.hpp"
 		
-		"include/parsec/BnfGrammar.hpp"
-		
-		"include/parsec/LexPattern.hpp"
-		"include/parsec/LexGenerator.hpp"
-		"include/parsec/LexCppGenerator.hpp"
+		"include/parsec/LexGen.hpp"
+		"include/parsec/CppLexGen.hpp"
 		
 		"include/parsec/RegExNodes.hpp"
 		"include/parsec/RegExPrinter.hpp"

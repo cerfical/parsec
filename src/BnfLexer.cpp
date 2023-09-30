@@ -1,43 +1,34 @@
 #include "BnfLexer.hpp"
-
-#include <gsl/narrow>
 #include <sstream>
 
 namespace parsec {
-	void BnfLexer::UnexpectedChar() const {
+	void BnfLexer::Error(gsl::czstring msg) {
+		// adjust the input location to point to the offending symbol
+		auto loc = GetInputPos();
+		loc.colNo += std::exchange(loc.colCount, 1);
+		throw ParseError(msg, loc);
+	}
+
+	void BnfLexer::UnexpectedChar() {
 		const auto ch = PeekChar();
 		const auto msg = (std::ostringstream()
 			<< "unexpected \'" << ch << '\''
 		).str();
-
-		throw ParseError(msg, GetInputPos());
+		Error(msg.c_str());
 	}
-	void BnfLexer::UnexpectedEof() const {
-		throw ParseError("unexpected end of file", GetInputPos());
-	}
-
-	bool BnfLexer::IsInputEnd() const {
-		if(input) {
-			// if the of end of file was reached, reset the eof bit
-			if(input->peek() != std::char_traits<char>::eof()) {
-				return false;
-			}
-			input->clear(input->rdstate() ^ std::ios_base::eofbit);
-		}
-		return true;
-	}
-	bool BnfLexer::IsTokenParsed() const noexcept {
-		return tokKind != BnfTokenKinds::Eof;
+	void BnfLexer::UnexpectedEof() {
+		Error("unexpected end of file");
 	}
 
-	char BnfLexer::PeekChar() const {
-		if(!IsInputEnd()) {
-			return gsl::narrow_cast<char>(input->peek());
+
+	char BnfLexer::PeekChar() {
+		if(!IsEof()) {
+			return gsl::narrow_cast<char>(m_input->peek());
 		}
 		UnexpectedEof();
 	}
 	bool BnfLexer::SkipCharIf(char ch) {
-		if(!IsInputEnd()) {
+		if(!IsEof()) {
 			if(PeekChar() == ch) {
 				SkipChar();
 				return true;
@@ -49,116 +40,127 @@ namespace parsec {
 		GetChar();
 	}
 	char BnfLexer::GetChar() {
-		if(!IsInputEnd()) {
-			colCount++;
-			return gsl::narrow_cast<char>(input->get());
+		if(!IsEof()) {
+			m_pos.colCount++;
+			return gsl::narrow_cast<char>(m_input->get());
 		}
 		UnexpectedEof();
 	}
 
+
 	void BnfLexer::SkipWhitespace() {
-		while(!IsInputEnd() && CharUtils::IsSpace(PeekChar())) {
+		while(!IsEof() && CharUtils::IsSpace(PeekChar())) {
 			if(GetChar() == '\n') {
-				lineStart += std::exchange(colNo, 0) + std::exchange(colCount, 0);
-				lineNo++;
+				m_pos.startPos += std::exchange(m_pos.colNo, 0) + std::exchange(m_pos.colCount, 0);
+				m_pos.lineNo++;
 			}
 		}
 	}
 
-	bool BnfLexer::IsIdentStart() const {
-		return !IsInputEnd() && (
+	bool BnfLexer::IsIdentStart() {
+		return !IsEof() && (
 			CharUtils::IsAlnum(PeekChar())
 				|| PeekChar() == '-'
 				|| PeekChar() == '_'
 		);
 	}
-	void BnfLexer::ParseIdent() {
+	BnfTokenKinds BnfLexer::ParseIdent() {
 		while(IsIdentStart()) {
-			tokText += GetChar();
+			m_buf += GetChar();
 		}
-		tokKind = BnfTokenKinds::Ident;
+		return BnfTokenKinds::Ident;
 	}
 
-	bool BnfLexer::IsRegexStart() const {
-		return !IsInputEnd() && (
+	bool BnfLexer::IsRegexStart() {
+		return !IsEof() && (
 			PeekChar() == '\'' || PeekChar() == '\"'
 		);
 	}
-	void BnfLexer::ParseRegex() {
+	BnfTokenKinds BnfLexer::ParseRegex() {
 		const auto regexDelim = GetChar();
 		while(true) {
 			if(PeekChar() == '\n') {
-				throw ParseError("unexpected end of line", GetInputPos());
+				Error("unexpected end of line");
 			}
 			if(SkipCharIf(regexDelim)) {
 				break;
 			}
 			
 			const auto ch = GetChar();
-			tokText += ch;
+			m_buf += ch;
 
 			if(ch == '\\' && PeekChar() == regexDelim) {
-				tokText += GetChar();
+				m_buf += GetChar();
 			}
 		}
-		tokKind = BnfTokenKinds::Regex;
+		return BnfTokenKinds::Regex;
 	}
 
-	void BnfLexer::ParseOperator() {
+
+	BnfTokenKinds BnfLexer::ParseOperator() {
+		BnfTokenKinds tokKind = BnfTokenKinds::Eof;
 		switch(PeekChar()) {
 			case '{': tokKind = BnfTokenKinds::OpenBrace; break;
 			case '}': tokKind = BnfTokenKinds::CloseBrace; break;
 			case ';': tokKind = BnfTokenKinds::Semicolon; break;
 			case '=': tokKind = BnfTokenKinds::Equals; break;
 			case '|': tokKind = BnfTokenKinds::Pipe; break;
-			default: {
-				UnexpectedChar();
-			}
+			default: UnexpectedChar();
 		}
-		tokText += GetChar();
+		m_buf += GetChar();
+		return tokKind;
 	}
-	void BnfLexer::ParseToken() {
+	BnfTokenKinds BnfLexer::ParseToken() {
 		// remove all whitespace from the input before parsing the token
 		SkipWhitespace();
-		colNo += std::exchange(colCount, 0);
-		tokText.clear(); // clear the text buffer
+		m_pos.colNo += std::exchange(m_pos.colCount, 0);
+		m_buf.clear(); // clear the text buffer
 
 		// parse the token according to its type
-		if(!IsInputEnd()) {
+		if(!IsEof()) {
 			if(IsIdentStart()) {
-				ParseIdent();
-			} else if(IsRegexStart()) {
-				ParseRegex();
-			} else {
-				ParseOperator();
+				return ParseIdent();
 			}
-		} else {
-			tokKind = BnfTokenKinds::Eof;
+			if(IsRegexStart()) {
+				return ParseRegex();
+			}
+			return ParseOperator();
 		}
+		return BnfTokenKinds::Eof;
 	}
 
-	SourceLocation BnfLexer::GetInputPos() const noexcept {
-		if(IsTokenParsed()) {
-			return SourceLocation(
-				lineStart, colNo, colCount, lineNo
-			);
+
+	bool BnfLexer::IsKeyword(std::string_view keyword) {
+		if(Peek().GetKind() != BnfTokenKinds::Ident) {
+			return false;
 		}
-		return SourceLocation(lineStart, colNo, 1, lineNo);
+		return Peek().GetText() == keyword;
+	}
+	bool BnfLexer::IsEof() {
+		if(m_input) {
+			// if the of end of file was reached, reset the eof bit
+			if(m_input->peek() != std::char_traits<char>::eof()) {
+				return false;
+			}
+			m_input->clear(m_input->rdstate() ^ std::ios_base::eofbit);
+		}
+		return true;
 	}
 
-	BnfTokenKinds BnfLexer::Peek() {
-		if(!IsTokenParsed()) {
-			ParseToken();
+
+	const BnfToken& BnfLexer::Peek() {
+		if(!m_tok.has_value()) {
+			const auto tokKind = ParseToken();
+			m_tok = BnfToken(m_buf, tokKind, GetInputPos());
 		}
-		return tokKind;		
+		return *m_tok;
 	}
 	BnfToken BnfLexer::Lex() {
-		if(!IsTokenParsed()) {
-			ParseToken();
-		}
-		
-		return BnfToken(
-			tokText, std::exchange(tokKind, BnfTokenKinds::Eof), GetInputPos()
-		);
+		// make sure that the token is parsed
+		Peek();
+
+		auto tok = std::move(m_tok.value());
+		m_tok.reset();
+		return tok;
 	}
 }

@@ -24,18 +24,22 @@ Options:
 
 ## Lexer specification
 
+### Basics
+
 The *name=pattern* pairs enclosed in a `tokens` block define tokens for the generated lexer:
 
 ```
 tokens {
-  open-paren = "\(";
-  close-paren = "\)";
-  letter = "[a-zA-Z]";
-  ws = "[\r\n ]+";
+    open-paren = "\(";
+    close-paren = "\)";
+    letter = "[a-zA-Z]";
+    ws = "[\r\n ]+";
 }
 ```
 
 The special token `ws` resets lexical analysis process and can be used to skip whitespace characters from the input before parsing the token.
+
+### Regular expressions
 
 Token patterns support a subset of the most common regular expressions operations, including:
  - Alternation, concatenation, grouping: `(a|b)c`
@@ -48,3 +52,9 @@ Special characters used by the regex syntax can be escaped with a backslash (`\`
 
 For convenience, additional escape sequences are available, such as `\n` or `\t`.
 Also, an arbitrary character literal may be specified using its hexadecimal code, e.g. `\xff`.
+
+### Conflict resolution
+
+Tokens with the same name are merged together with `|` (alternation).
+
+If multiple patterns are matched, the pattern mentioned earlier in the specification takes precedence.

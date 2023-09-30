@@ -2,6 +2,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <gsl/gsl>
 
 #include <filesystem>
 #include <fstream>
@@ -159,8 +160,8 @@ private:
 		parsec::BnfParser parser(&input);
 		try {
 			const auto grammar = parser.Parse();
-			parsec::LexCppGenerator(&grammar.GetTokens(), &output)
-				.Generate();
+			parsec::LexCppGen(&grammar, &output)
+				.Gen();
 		} catch(const parsec::ParseError& err) {
 			PrintParseError(err);
 			return 1;
@@ -170,14 +171,10 @@ private:
 	/** @} */
 
 	/** @{ */
-	std::string ReadLine(const parsec::SourceLocation& loc) {
-		if(loc.IsEmpty()) {
-			return "";
-		}
-
+	std::string ReadLine(const parsec::SourceLoc& loc) {
 		// save the current input position and then update the input pointer
 		const auto inputPos = input.tellg();
-		input.seekg(loc.GetStartPos());
+		input.seekg(loc.startPos);
 		
 		// read the line of text represented by the location
 		std::string line;
@@ -188,16 +185,13 @@ private:
 	}
 
 	void PrintParseError(const parsec::ParseError& err) noexcept {
-		const auto& loc = err.location();
+		const auto& loc = err.GetLocation();
 		// retrieve the location text if any
 		const auto line = boost::algorithm::trim_right_copy(ReadLine(loc));
 		const auto trimmedLine = boost::algorithm::trim_left_copy(line);
 
 		// print out the location information if available
-		std::cerr << options.GetInputFile() << ':';
-		if(!loc.IsEmpty()) {
-			std::cerr << loc.GetLineNo() + 1 << ':' << loc.GetColumnNo() + 1 << ':';
-		}
+		std::cerr << options.GetInputFile() << ':' << loc.lineNo + 1 << ':' << loc.colNo + 1 << ':';
 
 		// print out the error message
 		std::cerr << " error: " << err.what();
@@ -209,9 +203,9 @@ private:
 		// print an optional message footer highlighting the location in the source code
 		if(!trimmedLine.empty()) {
 			// construct a label to visually mark the location
-			const auto label = std::string(loc.GetColumnCount(), loc.GetColumnCount() != 1 ? '~' : '^');
+			const auto label = std::string(loc.colCount, loc.colCount != 1 ? '~' : '^');
 			// construct a string of spaces to move the label to the proper place
-			const auto spaces = std::string(loc.GetColumnNo() + trimmedLine.size() - line.size(), ' ');
+			const auto spaces = std::string(loc.colNo + trimmedLine.size() - line.size(), ' ');
 
 			std::cerr << "    " << trimmedLine << '\n';
 			std::cerr << "    " << spaces + label << '\n';

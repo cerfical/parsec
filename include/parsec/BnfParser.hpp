@@ -2,12 +2,9 @@
 #define PARSEC_BNF_PARSER_HEADER
 
 #include "BnfLexer.hpp"
-#include "BnfGrammar.hpp"
+#include "Grammar.hpp"
 
-#include <gsl/string_span>
-
-#include <istream>
-#include <memory>
+#include <unordered_map>
 
 namespace parsec {
 	/**
@@ -16,16 +13,13 @@ namespace parsec {
 	class BnfParser {
 	public:
 		/** @{ */
-		/** @copybrief */
+		/** @brief Construct a defaulted parser that does nothing. */
 		BnfParser() = default;
 
 		/** @brief Construct a new parser operating on a @c std::istream. */
 		explicit BnfParser(std::istream* input) noexcept
-		 : lexer(input)
+		 : m_lexer(input)
 		{ }
-
-		/** @copybrief */
-		~BnfParser() = default;
 		/** @} */
 
 		/** @{ */
@@ -40,33 +34,39 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Parse the input for a valid grammar description. */
-		BnfGrammar Parse();
+		Grammar Parse();
 		/** @} */
 
 	private:
-		/** @brief Get the type of the next token without removing it from the input. */
+		/** @{ */
+		[[noreturn]] void UnexpectedToken();
+		/** @} */
+
+		/** @{ */
 		BnfTokenKinds PeekToken();
-
-		/** @brief Remove the next token from the input and return it. */
 		BnfToken GetToken();
-		/** @brief Remove the next token from the input. */
+
+		bool SkipKeywordIf(std::string_view keyword);
 		void SkipToken();
+		/** @} */
 
-		/** @brief Match the next token with a text, generate an error with a message if failed. */
-		BnfToken MatchToken(std::string_view text, gsl::czstring msg);
-		/** @brief Match the next token with the given one, generate an error with a message if failed. */
+		/** @{ */
 		BnfToken MatchToken(BnfTokenKinds tok, gsl::czstring msg);
+		std::unique_ptr<RegExNode> ParseRegex(const BnfToken& regex);
+		/** @} */
 
-		/** @brief Parse a token definition. */
+		/** @{ */
 		void ParseToken();
-		/** @brief Parse a list of token definitions. */
 		void ParseTokenList();
-
-		/** @brief Parse a grammar definition. */
 		void ParseGrammar();
+		/** @} */
 
-		BnfGrammar grammar;
-		BnfLexer lexer;
+		/** @{ */
+		void PopulateGrammar(Grammar& grammar);
+		/** @} */
+
+		std::unordered_map<std::string, std::unique_ptr<RegExNode>> m_tokens;
+		BnfLexer m_lexer;
 	};
 }
 

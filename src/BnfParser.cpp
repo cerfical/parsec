@@ -1,70 +1,100 @@
 #include "BnfParser.hpp"
 
+#include "RegExParser.hpp"
+#include <sstream>
+
 namespace parsec {
-	BnfTokenKinds BnfParser::PeekToken() {
-		return lexer.Peek();
+	void BnfParser::UnexpectedToken() {
+		const auto& tok = m_lexer.Peek();
+		const auto msg = (std::ostringstream()
+			<< "unexpected \"" << tok.GetText() << '\"'
+		).str();
+		throw ParseError(msg, tok.GetLocation());
 	}
 
-	BnfToken BnfParser::GetToken() {
-		return lexer.Lex();		
+
+	BnfTokenKinds BnfParser::PeekToken() {
+		return m_lexer.Peek().GetKind();
 	}
+	BnfToken BnfParser::GetToken() {
+		return m_lexer.Lex();		
+	}
+
+	bool BnfParser::SkipKeywordIf(std::string_view keyword) {
+		if(m_lexer.IsKeyword(keyword)) {
+			SkipToken();
+			return true;
+		}
+		return false;
+	}	
 	void BnfParser::SkipToken() {
 		GetToken();
 	}
 
-	BnfToken BnfParser::MatchToken(std::string_view text, gsl::czstring msg) {
-		if(PeekToken() != BnfTokenKinds::Ident) {
-			throw ParseError("identifier expected", lexer.GetInputPos());
-		}
 
-		auto tok = GetToken();
-		if(tok.GetText() != text) {
-			throw ParseError(msg, tok.GetLocation());
-		}
-		return tok;
-	}
 	BnfToken BnfParser::MatchToken(BnfTokenKinds tok, gsl::czstring msg) {
 		if(PeekToken() != tok) {
-			throw ParseError(msg, lexer.GetInputPos());
+			throw ParseError(msg, m_lexer.Peek().GetLocation());
 		}
 		return GetToken();
 	}
 
-	void BnfParser::ParseToken() {
-		const auto tokName = MatchToken(BnfTokenKinds::Ident, "a token must start with an identifier");
-		MatchToken(BnfTokenKinds::Equals, "'=' expected");
-		
-		const auto tokRegex = MatchToken(BnfTokenKinds::Regex, "string literal expected");
-		MatchToken(BnfTokenKinds::Semicolon, "a token must end with ';'");
+	std::unique_ptr<RegExNode> BnfParser::ParseRegex(const BnfToken& regex) {
 		try {
-			grammar.AddToken(tokName.GetText(), tokRegex.GetText());
+			return RegExParser().Parse(regex.GetText());
 		} catch(const ParseError& err) {
-			const auto loc = SourceLocation(
-				tokRegex.GetLocation().GetStartPos(),
-				tokRegex.GetLocation().GetColumnNo() + err.location().GetColumnNo() + 1,
-				err.location().GetColumnCount(),
-				tokRegex.GetLocation().GetLineNo()
-			);
+			// make in-regex location relative to the input
+			auto loc = regex.GetLocation();
+			loc.colNo += err.GetLocation().colNo + 1;
+			loc.colCount = err.GetLocation().colCount;
+
 			throw ParseError(err.what(), loc);
 		}
 	}
+
+
+	void BnfParser::ParseToken() {
+		const auto tokName = MatchToken(BnfTokenKinds::Ident, "identifier expected").GetText();
+		MatchToken(BnfTokenKinds::Equals, "'=' expected");
+		
+		const auto regexTok = MatchToken(BnfTokenKinds::Regex, "regular expression expected");
+		MatchToken(BnfTokenKinds::Semicolon, "missing ';'");
+
+		if(auto regex = ParseRegex(regexTok); auto oldRegex = std::exchange(m_tokens[tokName], std::move(regex))) {
+			m_tokens[tokName] = std::make_unique<RegExAltern>(std::move(oldRegex), std::move(m_tokens[tokName]));
+		}
+	}
+
 	void BnfParser::ParseTokenList() {
-		MatchToken(BnfTokenKinds::OpenBrace, "a token list must start with '{'");
+		MatchToken(BnfTokenKinds::OpenBrace, "'{' expected");
 		while(PeekToken() == BnfTokenKinds::Ident) {
 			ParseToken();
 		}
-		MatchToken(BnfTokenKinds::CloseBrace, "expected an identifier or '}'");
+		MatchToken(BnfTokenKinds::CloseBrace, "'}' or a token definition expected");
 	}
 
 	void BnfParser::ParseGrammar() {
-		MatchToken("tokens", "invalid list type");
-		ParseTokenList();
+		while(PeekToken() != BnfTokenKinds::Eof) {
+			if(SkipKeywordIf("tokens")) {
+				ParseTokenList();
+			} else {
+				UnexpectedToken();
+			}
+		}
 	}
 
-	BnfGrammar BnfParser::Parse() {
-		if(lexer.Peek() != BnfTokenKinds::Eof) {
-			ParseGrammar();
+
+	void BnfParser::PopulateGrammar(Grammar& grammar) {
+		for(auto& tok : m_tokens) {
+			grammar.AddToken(std::move(tok.first), std::move(tok.second), gsl::narrow_cast<int>(grammar.GetTokenCount()));
 		}
-		return std::move(grammar);
+	}
+
+
+	Grammar BnfParser::Parse() {
+		Grammar grammar;
+		ParseGrammar();
+		PopulateGrammar(grammar);
+		return grammar;
 	}
 }

@@ -1,4 +1,6 @@
 #include "Utils.hpp"
+
+#include <sstream>
 #include <iomanip>
 
 namespace parsec {
@@ -24,10 +26,18 @@ namespace parsec {
 				case '\v': return "\\v";
 				default: {
 					return (std::ostringstream()
-						<< "\\x" << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(ch)
+						<< "\\x" << std::setw(2) << std::setfill('0') << std::hex << CharUtils::CharToInt(ch)
 					).str();
 				}
 			}
 		}
+	}
+
+	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
+		out << "( Line: " << loc.colNo
+			<< ", StartPos: " << loc.startPos
+			<< ", Cols: " << loc.colNo << ':' << loc.colNo + loc.colCount
+			<< " )";
+		return out;
 	}
 }

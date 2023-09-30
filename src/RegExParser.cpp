@@ -1,14 +1,6 @@
 #include "RegExParser.hpp"
 #include <sstream>
 
-namespace {
-	using namespace parsec;
-
-	SourceLocation MakeLocation(gsl::index colNo, std::size_t colCount) noexcept {
-		return SourceLocation(0, colNo, colCount, 0);
-	}
-}
-
 namespace parsec {
 	void RegExParser::UnexpectedChar() const {
 		const auto ch = PeekChar();
@@ -22,22 +14,24 @@ namespace parsec {
 		throw ParseError("unexpected end of string", GetInputPos());
 	}
 
-	SourceLocation RegExParser::GetInputPos() const noexcept {
-		return MakeLocation(pos, 1);
+
+	SourceLoc RegExParser::GetInputPos() const noexcept {
+		return { .colNo = m_pos, .colCount = 1 };
 	}
 	bool RegExParser::IsInputEmpty() const noexcept {
-		return input.size() == pos;
+		return m_input.size() == m_pos;
 	}
+
 
 	char RegExParser::PeekChar() const {
 		if(!IsInputEmpty()) {
-			return input[pos];
+			return m_input[m_pos];
 		}
 		UnexpectedEof();
 	}
 	char RegExParser::GetChar() {
 		if(!IsInputEmpty()) {
-			return input[pos++];
+			return m_input[m_pos++];
 		}
 		UnexpectedEof();
 	}
@@ -55,6 +49,7 @@ namespace parsec {
 		GetChar();
 	}
 
+
 	bool RegExParser::IsAtomStart() const noexcept {
 		if(!IsInputEmpty()) {
 			switch(PeekChar()) {
@@ -64,6 +59,7 @@ namespace parsec {
 		}
 		return false;
 	}
+
 
 	char RegExParser::ParseEscapeSeq() {
 		switch(PeekChar()) {
@@ -84,12 +80,14 @@ namespace parsec {
 					if(!IsInputEmpty() && CharUtils::IsHexDigit(PeekChar())) {
 						ch = ch * 16 + CharUtils::EvalHexDigit(GetChar());
 					}
-					return static_cast<char>(ch);
+					return gsl::narrow_cast<char>(ch);
 				}
 				throw ParseError("expected at least one hexadecimal digit", GetInputPos());
 			}
 		}
-		throw ParseError("invalid escape sequence", MakeLocation(pos - 1, 2));
+		throw ParseError("invalid escape sequence",
+			{ .colNo = m_pos - 1, .colCount = 2 }
+		);
 	}
 	char RegExParser::ParseChar() {
 		if(SkipCharIf('\\')) {
@@ -98,16 +96,17 @@ namespace parsec {
 		return GetChar();
 	}
 	void RegExParser::ParseCharRange() {
-		const auto startCol = GetInputPos().GetColumnNo();
+		const auto startPos = m_pos;
 		const auto low = ParseChar();
 
-		auto e = static_cast<std::unique_ptr<RegExNode>>(std::make_unique<RegExChar>(low));
+		std::unique_ptr<RegExNode> e = std::make_unique<RegExChar>(low);
 		if(SkipCharIf('-')) {
 			if(PeekChar() != ']') {
 				const auto high = ParseChar();
 				if(low > high) {
-					const auto loc = MakeLocation(startCol, GetInputPos().GetColumnNo() - startCol);
-					throw ParseError("character range is out of order", loc);
+					throw ParseError("character range is out of order",
+						{ .colNo = startPos, .colCount = m_pos - startPos }
+					);
 				}
 
 				for(char ch = low; ch < high; ) {
@@ -119,19 +118,19 @@ namespace parsec {
 			}
 		}
 
-		regex = std::move(e);
+		m_regex = std::move(e);
 	}
 	void RegExParser::ParseCharSet() {
 		if(!SkipCharIf(']')) {
-			auto left = (ParseCharRange(), std::move(regex));
+			auto left = (ParseCharRange(), std::move(m_regex));
 			while(PeekChar() != ']') {
-				auto right = (ParseCharRange(), std::move(regex));
+				auto right = (ParseCharRange(), std::move(m_regex));
 				left = std::make_unique<RegExAltern>(std::move(left), std::move(right));
 			}
-			regex = std::move(left);
 			SkipChar(); // skip ']'
+			m_regex = std::move(left);
 		} else {
-			regex = std::make_unique<RegExNil>();
+			m_regex = std::make_unique<RegExNil>();
 		}
 	}
 
@@ -147,17 +146,17 @@ namespace parsec {
 					throw ParseError("unmatched parenthesis", openParen);
 				}
 			} else {
-				regex = std::make_unique<RegExNil>();
+				m_regex = std::make_unique<RegExNil>();
 			}
 		} else if(SkipCharIf('[')) {
 			ParseCharSet();
 		} else {
-			regex = std::make_unique<RegExChar>(ParseChar());
+			m_regex = std::make_unique<RegExChar>(ParseChar());
 		}
 	}
 
 	void RegExParser::ParseRepeat() {
-		auto e = (ParseAtom(), std::move(regex));
+		auto e = (ParseAtom(), std::move(m_regex));
 		while(true) {
 			if(SkipCharIf('*')) {
 				e = std::make_unique<RegExStar>(std::move(e));
@@ -169,35 +168,36 @@ namespace parsec {
 				break;
 			}
 		}
-		regex = std::move(e);
+		m_regex = std::move(e);
 	}
 
 	void RegExParser::ParseConcat() {
-		auto left = (ParseRepeat(), std::move(regex));
+		auto left = (ParseRepeat(), std::move(m_regex));
 		while(IsAtomStart()) {
-			auto right = (ParseRepeat(), std::move(regex));
+			auto right = (ParseRepeat(), std::move(m_regex));
 			left = std::make_unique<RegExConcat>(std::move(left), std::move(right));
 		}
-		regex = std::move(left);
+		m_regex = std::move(left);
 	}
 	
 	void RegExParser::ParseAltern() {
-		auto left = (ParseConcat(), std::move(regex));
+		auto left = (ParseConcat(), std::move(m_regex));
 		while(SkipCharIf('|')) {
-			auto right = (ParseConcat(), std::move(regex));
+			auto right = (ParseConcat(), std::move(m_regex));
 			left = std::make_unique<RegExAltern>(std::move(left), std::move(right));
 		}
-		regex = std::move(left);
+		m_regex = std::move(left);
 	}
 
 	void RegExParser::ParseRegex() {
 		ParseAltern();
 	}
 
+
 	std::unique_ptr<RegExNode> RegExParser::Parse(std::string_view regex) {
-		input = regex; pos = 0;
+		m_input = regex; m_pos = 0;
 		if(IsInputEmpty()) {
-			this->regex = std::make_unique<RegExNil>();
+			m_regex = std::make_unique<RegExNil>();
 		} else {
 			ParseRegex();
 			if(!IsInputEmpty()) {
@@ -207,6 +207,6 @@ namespace parsec {
 				UnexpectedChar();
 			}
 		}
-		return std::move(this->regex);
+		return std::move(m_regex);
 	}
 }

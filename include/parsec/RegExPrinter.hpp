@@ -1,5 +1,5 @@
-#ifndef PARSEC_REGEX_PRINTER_HEADER
-#define PARSEC_REGEX_PRINTER_HEADER
+#ifndef PARSEC_REG_EX_PRINTER_HEADER
+#define PARSEC_REG_EX_PRINTER_HEADER
 
 #include "RegExNodes.hpp"
 #include <iostream>
@@ -16,11 +16,8 @@ namespace parsec {
 
 		/** @brief Construct a new RegExPrinter that prints to a @c std::ostream. */
 		explicit RegExPrinter(std::ostream* out) noexcept
-		 : out(out)
+		 : m_out(out)
 		{ }
-
-		/** @copybrief */
-		~RegExPrinter() = default;
 		/** @} */
 
 		/** @{ */
@@ -34,30 +31,24 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Print a RegExChar node. */
+		/** @brief Print out a single regular expression. */
+		void Print(const RegExNode& regex) {
+			regex.TraverseWith(*this);
+		}
+		/** @} */
+
+	private:
+		/** @{ */
 		void VisitNode(const RegExChar& n) override;
-
-		/** @brief Print a RegExNil node. */
 		void VisitNode(const RegExNil& n) override;
-
-		/** @brief Print a RegExOpt node. */
 		void VisitNode(const RegExOpt& n) override;
-
-		/** @brief Print a RegExPlus node. */
 		void VisitNode(const RegExPlus& n) override;
-
-		/** @brief Print a RegExStar node. */
 		void VisitNode(const RegExStar& n) override;
-		
-		/** @brief Print a RegExAltern node. */
 		void VisitNode(const RegExAltern& n) override;
-		
-		/** @brief Print a RegExConcat node. */
 		void VisitNode(const RegExConcat& n) override;
 		/** @} */
 
-	private:		
-		std::ostream* out = &std::cout;
+		std::ostream* m_out = &std::cout;
 	};
 }
 

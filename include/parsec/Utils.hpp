@@ -4,24 +4,10 @@
 #include <gsl/gsl>
 
 #include <stdexcept>
-#include <string_view>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <cctype>
 
 namespace parsec {
-	/**
-	 * @brief Specifies the order in which child nodes are visited during tree traversal.
-	 */
-	enum class TraversalTypes {
-		None, /**< @brief Child nodes are not visited. */
-		Preorder, /**< @brief Root of the tree is visited first, then the child nodes. */
-		Postorder /**< @brief Child nodes of the tree are visited first, then the root. */
-	};
-
-
-
 	/**
 	 * @brief Utility functions for working with characters.
 	 */
@@ -89,64 +75,15 @@ namespace parsec {
 	/**
 	 * @brief Describes a location in the source code.
 	 */
-	class SourceLocation {
+	struct SourceLoc {
 	public:
-		/** @{ */
-		/** @brief Construct a new empty location. */
-		constexpr SourceLocation() = default;
+		/** @brief Print out a SourceLoc to a @c std::ostream. */
+		friend std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
 
-		/** @brief Construct a new location from its description. */
-		constexpr SourceLocation(
-			gsl::index startPos,
-			gsl::index colNo,
-			std::size_t colCount,
-			gsl::index lineNo
-		) noexcept
-		 : startPos(startPos), colNo(colNo), colCount(colCount), lineNo(lineNo)
-		{ }
-
-		/** @copybrief */
-		constexpr ~SourceLocation() = default;
-		/** @} */
-
-
-		/** @{ */
-		constexpr SourceLocation(const SourceLocation&) = default;
-		constexpr SourceLocation& operator=(const SourceLocation&) = default;
-		/** @} */
-
-
-		/** @{ */
-		/** @brief Get the starting position of the location. */
-		constexpr gsl::index GetStartPos() const noexcept {
-			return startPos;
-		}
-
-		/** @brief Get the starting column of the location relative to its starting position. */
-		constexpr gsl::index GetColumnNo() const noexcept {
-			return colNo;
-		}
-		/** @brief Get the column count spanning the location. */
-		constexpr std::size_t GetColumnCount() const noexcept {
-			return colCount;
-		}
-
-		/** @brief Get the line containing the location. */
-		constexpr gsl::index GetLineNo() const noexcept {
-			return lineNo;
-		}
-
-		/** @brief Check if the location is an empty location. */
-		constexpr bool IsEmpty() const noexcept {
-			return GetColumnCount() == 0;
-		}
-		/** @} */
-
-	private:
-		gsl::index startPos = { };
-		gsl::index colNo = { };
-		std::size_t colCount = 0;
-		gsl::index lineNo = { };
+		int startPos = { }; /**< @brief Starting position of the line containing the location. */
+		int colNo = { }; /**< @brief Ordinal number of the location starting character. */
+		int colCount = 0; /**< @brief Number of characters spanning the location. */
+		int lineNo = { }; /**< @brief Line number containing the location. */
 	};
 
 
@@ -158,35 +95,25 @@ namespace parsec {
 	public:
 		/** @{ */
 		/** @brief Construct a new ParseError from a C-style string message and a location. */
-		ParseError(gsl::czstring msg, const SourceLocation& loc) noexcept
-		 : runtime_error(msg), loc(loc)
+		ParseError(gsl::czstring msg, const SourceLoc& loc)
+		 : runtime_error(msg), m_loc(loc)
 		{ }
 
 		/** @brief Construct a new ParseError from a string message and a location. */
-		ParseError(const std::string& msg, const SourceLocation& loc) noexcept
-		 : runtime_error(msg), loc(loc)
+		ParseError(const std::string& msg, const SourceLoc& loc)
+		 : runtime_error(msg), m_loc(loc)
 		{ }
-
-		/** @copybrief */
-		~ParseError() = default;
 		/** @} */
 		
-
 		/** @{ */
-		ParseError(const ParseError&) = default;
-		ParseError& operator=(const ParseError&) = default;
-		/** @} */
-
-
-		/** @{ */
-		/** @brief Get a location in the source code where the error occurred. */
-		const SourceLocation& location() const noexcept {
-			return loc;
+		/** @brief Location in the source code where the error occurred. */
+		const SourceLoc& GetLocation() const noexcept {
+			return m_loc;
 		}
 		/** @} */
 
 	private:
-		SourceLocation loc;
+		SourceLoc m_loc = { };
 	};
 }
 

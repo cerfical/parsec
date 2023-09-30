@@ -2,12 +2,10 @@
 #define PARSEC_BNF_LEXER_HEADER
 
 #include "BnfToken.hpp"
-#include "Utils.hpp"
 
-#include <gsl/util>
-
+#include <string_view>
+#include <optional>
 #include <istream>
-#include <string>
 
 namespace parsec {
 	/**
@@ -16,16 +14,13 @@ namespace parsec {
 	class BnfLexer {
 	public:
 		/** @{ */
-		/** @copybrief */
+		/** @brief Construct a defaulted lexer that does nothing. */
 		BnfLexer() = default;
 
 		/** @brief Construct a new lexer that operates on a @c std::istream. */
 		explicit BnfLexer(std::istream* input) noexcept
-		 : input(input)
+		 : m_input(input)
 		{ }
-		
-		/** @copybrief */
-		~BnfLexer() = default;
 		/** @} */
 
 		/** @{ */
@@ -39,62 +34,62 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Get the current position of the lexer in the input. */
-		SourceLocation GetInputPos() const noexcept;
+		/** @brief Current position of the lexer in the input. */
+		const SourceLoc& GetInputPos() const noexcept {
+			return m_pos;
+		}
+		/** @} */
 
-		/** @brief Determine the type of the next token to be extracted, parsing it if necessary. */
-		BnfTokenKinds Peek();
+		/** @{ */
+		/** @brief Check if the next token is the specified keyword. */
+		bool IsKeyword(std::string_view keyword);
+		/** @brief Check if the end of input was reached. */
+		bool IsEof();
+		/** @} */
+
+		/** @{ */
+		/** @brief Look at the next token to be extracted, parsing it if necessary. */
+		const BnfToken& Peek();
 
 		/** @brief Extract the next token from the input stream. */
 		BnfToken Lex();
 		/** @} */
 
 	private:
-		/** @brief Called when a character is encountered in an unexpected place. */
-		[[noreturn]] void UnexpectedChar() const;
-		/** @brief Called when the end of input is unexpectedly reached. */
-		[[noreturn]] void UnexpectedEof() const;
-		
-		/** @brief Check if the end of input has been reached. */
-		bool IsInputEnd() const;
-		/** @brief Check if the next token has already been parsed. */
-		bool IsTokenParsed() const noexcept;
+		/** @{ */
+		[[noreturn]] void Error(gsl::czstring msg);
 
-		/** @brief Return the next character from the input without removing it. */
-		char PeekChar() const;
-		/** @brief Remove the next character only if it is equal to the given one. */
+		[[noreturn]] void UnexpectedChar();
+		[[noreturn]] void UnexpectedEof();
+		/** @} */
+
+		/** @{ */
+		char PeekChar();
 		bool SkipCharIf(char ch);
-		/** @brief Remove the next character from the input. */
 		void SkipChar();
-		/** @brief Remove the next character from the input and return it. */
 		char GetChar();
+		/** @} */
 
-		/** @brief Remove characters from the input until a non-whitespace character is found. */
+		/** @{ */
 		void SkipWhitespace();
 
-		/** @brief Check if the input starts a valid identifier. */
-		bool IsIdentStart() const;
-		/** @brief Parse an identifier token. */
-		void ParseIdent();
+		bool IsIdentStart();
+		BnfTokenKinds ParseIdent();
 
-		/** @brief Check if the next input start a valid regular expression. */
-		bool IsRegexStart() const;
-		/** @brief Parse a regular expression. */
-		void ParseRegex();
+		bool IsRegexStart();
+		BnfTokenKinds ParseRegex();
+		/** @} */
 
-		/** @brief Parse an operator. */
-		void ParseOperator();
-		/** @brief Parse the next token from the input. */
-		void ParseToken();
+		/** @{ */
+		BnfTokenKinds ParseOperator();
+		BnfTokenKinds ParseToken();
+		/** @} */
 
-		std::istream *input = nullptr;
+		std::istream *m_input = nullptr;
+		SourceLoc m_pos;
+		std::string m_buf;
 
-		gsl::index lineStart = 0;
-		gsl::index lineNo = 0, colNo = 0;
-		std::size_t colCount = 0;
-		
-		BnfTokenKinds tokKind = BnfTokenKinds::Eof;
-		std::string tokText;
+		std::optional<BnfToken> m_tok;
 	};
 }
 

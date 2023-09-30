@@ -1,7 +1,7 @@
 #ifndef PARSEC_ROOT_HEADER
 #define PARSEC_ROOT_HEADER
 
-#include "parsec-config.hpp"
+#include "Config.hpp"
 
 #include "RegExNodes.hpp"
 #include "RegExParser.hpp"
@@ -10,8 +10,8 @@
 #include "BnfLexer.hpp"
 #include "BnfParser.hpp"
 
-#include "LexGenerator.hpp"
-#include "LexCppGenerator.hpp"
+#include "LexGen.hpp"
+#include "CppLexGen.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

@@ -2,43 +2,43 @@
 
 namespace parsec {
 	void RegExPrinter::VisitNode(const RegExChar& n) {
-		*out << n.GetValue();
+		*m_out << n.GetValue();
 	}
 
 	void RegExPrinter::VisitNode(const RegExNil& n) {
-		*out << "()";
+		*m_out << "()";
 	}
 	
 	void RegExPrinter::VisitNode(const RegExOpt& n) {
-		*out << '(';
-		n.GetChild().TraverseWith(*this);
-		*out << "?)";
+		*m_out << '(';
+		n.GetInnerExpr()->TraverseWith(*this);
+		*m_out << "?)";
 	}
 
 	void RegExPrinter::VisitNode(const RegExPlus& n) {
-		*out << '(';
-		n.GetChild().TraverseWith(*this);
-		*out << "+)";
+		*m_out << '(';
+		n.GetInnerExpr()->TraverseWith(*this);
+		*m_out << "+)";
 	}
 
 	void RegExPrinter::VisitNode(const RegExStar& n) {
-		*out << '(';
-		n.GetChild().TraverseWith(*this);
-		*out << "*)";
+		*m_out << '(';
+		n.GetInnerExpr()->TraverseWith(*this);
+		*m_out << "*)";
 	}
 
 	void RegExPrinter::VisitNode(const RegExAltern& n) {
-		*out << '(';
-		n.GetLeftChild().TraverseWith(*this);
-		*out << '|';
-		n.GetRightChild().TraverseWith(*this);
-		*out << ')';
+		*m_out << '(';
+		n.GetLeftExpr()->TraverseWith(*this);
+		*m_out << '|';
+		n.GetRightExpr()->TraverseWith(*this);
+		*m_out << ')';
 	}
 
 	void RegExPrinter::VisitNode(const RegExConcat& n) {
-		*out << '(';
-		n.GetLeftChild().TraverseWith(*this);
-		n.GetRightChild().TraverseWith(*this);
-		*out << ')';
+		*m_out << '(';
+		n.GetLeftExpr()->TraverseWith(*this);
+		n.GetRightExpr()->TraverseWith(*this);
+		*m_out << ')';
 	}
 }

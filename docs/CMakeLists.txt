@@ -14,6 +14,7 @@ set(DOXYGEN_SHOW_NAMESPACES NO)
 set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_COLLABORATION_GRAPH NO)
+set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "README.md")
 
 # Ensure proper expansion of X-macros on Doxygen run
 set(DOXYGEN_MACRO_EXPANSION YES)
@@ -25,6 +26,6 @@ get_target_property(_INTERFACE_HEADERS
 	parsec-lib HEADER_SET
 )
 
-doxygen_add_docs(parsec-docs "${_INTERFACE_HEADERS}"
+doxygen_add_docs(parsec-docs "${_INTERFACE_HEADERS}" "../README.md"
 	ALL USE_STAMP_FILE
 )
