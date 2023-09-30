@@ -22,20 +22,20 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Destroy RegExNode. */
+		/** @brief Destroy the RegExNode. */
 		virtual ~RegExNode() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Perform a double dispatch on a visitor. */
+		/** @brief Perform a double dispatch on the RegExNode. */
 		virtual void AcceptVisitor(RegExVisitor& visitor) const = 0;
 		
-		/** @brief Prints out RegExNode to a stream. */
+		/** @brief Print the RegExNode to a @c std::ostream. */
 		void Print(std::ostream& out = std::cout) const;
 		/** @} */
 
 	protected:
-		/** @brief Construct a RegExNode. */
+		/** @brief Construct a new RegExNode. */
 		RegExNode() = default;
 	};
 
@@ -47,19 +47,19 @@ namespace parsec {
 	class RegExLiteral : public RegExNode {
 	public:
 		/** @{ */
-		/** @brief Construct a RegExLiteral from its value. */
+		/** @brief Construct a new RegExLiteral from its value. */
 		explicit RegExLiteral(char value) noexcept
 		 : value(value)
 		{ }
 
-		/** @brief Destroy RegExLiteral. */
+		/** @brief Destroy the RegExLiteral. */
 		~RegExLiteral() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 		
-		/** @brief Get value of RegExLiteral. */
+		/** @brief Get the value of the RegExLiteral. */
 		char GetValue() const noexcept {
 			return value;
 		}
@@ -77,19 +77,19 @@ namespace parsec {
 	class RegExStar : public RegExNode {
 	public:
 		/** @{ */
-		/** @brief Construct a RegExStar from its inner expression. */
+		/** @brief Construct a new RegExStar from its inner expression. */
 		explicit RegExStar(std::unique_ptr<RegExNode> expr) noexcept
 		 : innerExpr(std::move(expr))
 		{ }
 
-		/** @brief Destroy RegExStar. */
+		/** @brief Destroy the RegExStar. */
 		~RegExStar() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Get inner expression of RegExStar. */
+		/** @brief Get the inner expression of the RegExStar. */
 		const RegExNode& GetInnerExpr() const noexcept {
 			return *innerExpr;
 		}
@@ -107,23 +107,23 @@ namespace parsec {
 	class RegExAltern : public RegExNode {
 	public:
 		/** @{ */
-		/** @brief Construct a RegExAltern from its subexpressions. */
+		/** @brief Construct a new RegExAltern from its subexpressions. */
 		RegExAltern(std::unique_ptr<RegExNode> left, std::unique_ptr<RegExNode> right) noexcept
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
-		/** @brief Destroy RegExAltern. */
+		/** @brief Destroy the RegExAltern. */
 		~RegExAltern() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Get left subexpression of RegExAltern. */
+		/** @brief Get the left subexpression of the RegExAltern. */
 		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
-		/** @brief Get right subexpression of RegExAltern. */
+		/** @brief Get the right subexpression of the RegExAltern. */
 		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
 		}
@@ -146,18 +146,18 @@ namespace parsec {
 		 : leftExpr(std::move(left)), rightExpr(std::move(right))
 		{ }
 
-		/** @brief Destroy RegExConcat. */
+		/** @brief Destroy the RegExConcat. */
 		~RegExConcat() = default;
 		/** @} */
 
 		/** @{ */
 		void AcceptVisitor(RegExVisitor& visitor) const override;
 
-		/** @brief Get left subexpression of RegExConcat. */
+		/** @brief Get the left subexpression of the RegExConcat. */
 		const RegExNode& GetLeftExpr() const noexcept {
 			return *leftExpr;
 		}
-		/** @brief Get right subexpression of RegExConcat. */
+		/** @brief Get the right subexpression of the RegExConcat. */
 		const RegExNode& GetRightExpr() const noexcept {
 			return *rightExpr;
 		}
@@ -183,10 +183,10 @@ namespace parsec {
 
 	protected:
 		/** @{ */
-		/** @brief Construct a RegExVisitor. */
+		/** @brief Construct a new RegExVisitor. */
 		RegExVisitor() = default;
 
-		/** @brief Destroy RegExVisitor. */
+		/** @brief Destroy the RegExVisitor. */
 		~RegExVisitor() = default;
 		/** @} */
 

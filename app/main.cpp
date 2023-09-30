@@ -1,47 +1,50 @@
+#include "PrintUtils.hpp"
+
 #include <parsec/parsec.hpp>
-#include <iostream>
-#include <sstream>
+#include <fstream>
 
-int main() {
-	std::istringstream input(R"(
-	tokens {
-		left-paren = '(';
-		right-paren = ')';
-		ident = '<letter>*';
+/** @brief Parse the command line arguments for the name of the file to be processed. */
+gsl::czstring ParseCmdArgs(int argc, gsl::czstring* argv) noexcept {
+	if(argc != 2) {
+		PrintError("Usage: ", argv[0], " <filename>");
+		std::exit(1);
+	}
+	return argv[1];
+}
 
-		'ab(0|1)'
-	})");
+/** @brief Parse the file with the given name. */
+void ParseFile(gsl::czstring filename) {
+	std::ifstream fin(filename, std::ios_base::binary);
+	if(!fin.is_open()) {
+		PrintError("error: file not found: ", '\"', filename, '\"');
+		std::exit(1);
+	}
+	
+	parsec::BnfParser parser(fin);
+	try {
+		parser.Parse();
+	} catch(const parsec::ParseError& err) {
+		PrintParseError(err, fin, filename);
+		std::exit(1);
+	}
+}
 
-	parsec::Lexer lexer(input);
-	while(true) {
-		const auto tok = lexer.Lex();
-		if(tok.IsEof()) {
-			break;
-		}
-		std::cout << tok.GetText() << std::endl;
+int main(int argc, gsl::czstring* argv) {
+	try {
+		const auto filename = ParseCmdArgs(argc, argv);
+		ParseFile(filename);
+	} catch(const std::exception& err) {
+		PrintError("error: ", err.what());
+	} catch(...) {
+		PrintError("unknown error has occurred");
 	}
 }
 
 /*
 
-PrintRegex("a|b(");
+	token-def = ident '=' regex ';'
+	token-list = tokens '{' token-def* '}'
 
-void PrintRegex(std::string_view regex) {
-	parsec::RegExParser parser;
-	try {
-		const auto rgx = parser.Parse(regex);
-		rgx->Print();
-	} catch(const parsec::ParseError &err) {
-		std::cout << "error: " << err.what() << ":\n";
-		if(const auto& loc = err.location(); !loc.IsEmpty()) {
-			std::cout << "    " << regex << '\n';
-			std::cout << "    " << std::string(loc.GetStartPos(), ' ')
-				<< ((loc.GetSize() != 1) ? 
-					std::string(loc.GetSize(), '~')
-					 : std::string(1, '^'))
-				<< '\n';
-		}
-	}
-}
+	grammar-def = token-list
 
 */

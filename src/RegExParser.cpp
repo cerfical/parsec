@@ -3,10 +3,7 @@
 
 namespace parsec {
 	SourceLocation RegExParser::GetInputPos() const noexcept {
-		const auto loc = SourceLocation({
-			.chars = CharRange({ .startPos = pos, .size = 1 })
-		});
-		return loc;
+		return SourceLocation(0, pos, 1, 0);
 	}
 	bool RegExParser::IsInputEmpty() const noexcept {
 		return input.size() == pos;
@@ -93,5 +90,17 @@ namespace parsec {
 
 	void RegExParser::ParseRegex() {
 		ParseAltern();
+	}
+
+	std::unique_ptr<RegExNode> RegExParser::Parse(std::string_view regex) {
+		input = regex; pos = 0;
+		ParseRegex();
+		if(!IsInputEmpty()) {
+			const auto msg = (std::ostringstream()
+				<< "unexpected \'" << PeekChar() << '\''
+			).str();
+			throw ParseError(msg, GetInputPos());
+		}
+		return std::move(this->regex);
 	}
 }

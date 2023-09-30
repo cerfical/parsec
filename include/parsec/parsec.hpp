@@ -5,7 +5,8 @@
 #include "RegExParser.hpp"
 #include "RegExPrinter.hpp"
 
-#include "Lexer.hpp"
+#include "BnfLexer.hpp"
+#include "BnfParser.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

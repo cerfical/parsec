@@ -4,7 +4,7 @@
 #include "RegExNodes.hpp"
 #include "Utils.hpp"
 
-#include <gsl/util>
+#include <gsl/gsl>
 
 #include <string_view>
 #include <memory>
@@ -16,18 +16,18 @@ namespace parsec {
 	class RegExParser {
 	public:
 		/** @{ */
-		/** @brief Construct a RegExParser. */
+		/** @brief Construct a new RegExParser. */
 		RegExParser() = default;
 
-		/** @brief Destroy RegExParser. */
+		/** @brief Destroy the RegExParser. */
 		~RegExParser() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a RegExParser from a moved copy of RegExParser object. */
+		/** @brief Construct a new RegExParser by moving from another RegExParser. */
 		RegExParser(RegExParser&&) = default;
 
-		/** @brief Assign a moved copy of RegExParser object to RegExParser. */
+		/** @brief Move another RegExParser into the RegExParser. */
 		RegExParser& operator=(RegExParser&&) = default;
 		/** @} */
 
@@ -38,30 +38,26 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Analyse a string for a valid regular expression. */
-		std::unique_ptr<RegExNode> Parse(std::string_view regex) {
-			input = regex; pos = 0;
-			ParseRegex();
-			return std::move(this->regex);
-		}
+		std::unique_ptr<RegExNode> Parse(std::string_view regex);
 		/** @} */
 
 	private:
-		/** @brief Get position of RegExParser in input string. */
+		/** @brief Get the current position of the RegExParser in the input. */
 		SourceLocation GetInputPos() const noexcept;
-		/** @brief Check if input is empty. */
+		/** @brief Check if the input is empty. */
 		bool IsInputEmpty() const noexcept;
-		
-		/** @brief Return next character from input without removing it. */
+
+		/** @brief Return the next character from the input without removing it. */
 		char PeekChar() const noexcept; 
-		/** @brief Remove next character from input and return it. */
+		/** @brief Remove the next character from the input and return it. */
 		char GetChar() noexcept;
 		
-		/** @brief Remove next character only if it is equal to the given one. */
+		/** @brief Remove the next character only if it is equal to the given one. */
 		bool SkipCharIf(char ch) noexcept;
-		/** @brief Remove next character from input. */
+		/** @brief Remove the next character from the input. */
 		void SkipChar() noexcept;
 
-		/** @brief Check if next character starts an atom. */
+		/** @brief Check if the next character starts an atom. */
 		bool IsAtomStart() const noexcept;
 
 		/** @brief Parse an atom. */
@@ -78,7 +74,7 @@ namespace parsec {
 		std::unique_ptr<RegExNode> regex;
 
 		std::string_view input;
-		gsl::index pos = { };
+		gsl::index pos = 0;
 	};
 }
 

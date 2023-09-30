@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+
 # Search for Doxygen installation
 find_package(Doxygen REQUIRED)
 
@@ -16,18 +17,18 @@ set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_COLLABORATION_GRAPH NO)
 
-# Ensure proper expansion of X macros on Doxygen run
+# Ensure proper expansion of X-macros on Doxygen run
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-set(DOXYGEN_EXPAND_AS_DEFINED PARSEC_TOKEN PARSEC_TOKEN_LIST)
+set(DOXYGEN_EXPAND_AS_DEFINED PARSEC_BNF_TOKEN PARSEC_BNF_TOKEN_LIST)
 
 # Get the list of interface headers of the library
-get_property(${PARSEC_LIB}_INTERFACE_SOURCES
-	TARGET ${PARSEC_LIB}
+get_property(_parsec-lib_INTERFACE_SOURCES
+	TARGET parsec-lib
 	PROPERTY INTERFACE_SOURCES
 )
 
 # Add a target for documentation generation
-doxygen_add_docs(parsec-docs ${${PARSEC_LIB}_INTERFACE_SOURCES}
+doxygen_add_docs(parsec-docs "${_parsec-lib_INTERFACE_SOURCES}"
 	ALL USE_STAMP_FILE
 )

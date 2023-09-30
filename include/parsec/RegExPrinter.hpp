@@ -11,20 +11,20 @@ namespace parsec {
 	class RegExPrinter : public RegExVisitor {
 	public:
 		/** @{ */
-		/** @brief Constructs a RegExPrinter that sends its output to @c std::ostream. */
+		/** @brief Construct a new RegExPrinter that prints to a @c std::ostream. */
 		explicit RegExPrinter(std::ostream& out = std::cout) noexcept
 		 : out(&out)
 		{ }
 
-		/** @brief Destroy RegExPrinter. */
+		/** @brief Destroy the RegExPrinter. */
 		~RegExPrinter() = default;
 		/** @} */
 
 		/** @{ */
-		/** @brief Construct a RegExPrinter from a moved copy of RegExPrinter object. */
+		/** @brief Construct a new RegExPrinter by moving from another RegExPrinter. */
 		RegExPrinter(RegExPrinter&&) = default;
 
-		/** @brief Assign a moved copy of RegExPrinter object to RegExPrinter. */
+		/** @brief Move another RegExPrinter into the RegExPrinter. */
 		RegExPrinter& operator=(RegExPrinter&&) = default;
 		/** @} */
 
@@ -34,16 +34,16 @@ namespace parsec {
 		/** @} */
 
 		/** @{ */
-		/** @brief Prints out a literal. */
+		/** @brief Print a literal. */
 		void Visit(const RegExLiteral& literal) override;
 
-		/** @brief Prints out a star and its inner expression. */
+		/** @brief Print a star and its inner expression. */
 		void Visit(const RegExStar& star) override;
 		
-		/** @brief Prints out an alternation and its subexpressions. */
+		/** @brief Print an alternation and its subexpressions. */
 		void Visit(const RegExAltern& altern) override;
 		
-		/** @brief Prints out a concatenation and its subexpressions. */
+		/** @brief Print a concatenation and its subexpressions. */
 		void Visit(const RegExConcat& concat) override;
 		/** @} */
 
