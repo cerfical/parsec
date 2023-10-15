@@ -21,6 +21,10 @@ add_library(parsec-lib STATIC
 	"utils/TextScanner.cpp"
 	"utils/SourceLoc.cpp"
 	"utils/chars.cpp"
+
+	"cli/ConsoleApp.cpp"
+	"cli/OptionStore.cpp"
+	"cli/OptionBuilder.cpp"
 )
 
 
@@ -51,6 +55,11 @@ set(_HEADERS
 	"utils/SourceLoc.hpp"
 	"utils/ParseError.hpp"
 	"utils/chars.hpp"
+
+	"cli.hpp"
+	"cli/OptionStore.hpp"
+	"cli/OptionBuilder.hpp"
+	"cli/ConsoleApp.hpp"
 )
 list(TRANSFORM _HEADERS PREPEND "../include/parsec/")
 

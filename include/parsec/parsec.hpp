@@ -5,6 +5,7 @@
 #include "regex.hpp"
 #include "fg.hpp"
 #include "gen.hpp"
+#include "cli.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }
