@@ -99,9 +99,9 @@ private:
 
 
 		// to correctly position the marker visually, tab characters must be taken into account
-		for(const auto ch : line | views::take(markerPos)) {
-			if(ch == '\t') {
-				markerPos += tabSize - 1;
+		for(int i = 0; i < markerPos; i++) {
+			if(line[i] == '\t') {
+				markerPos += tabSize - (i % tabSize) - 1;
 			}
 		}
 
@@ -122,7 +122,7 @@ private:
 
 
 	/** @{ */
-	constexpr static auto tabSize = 4;
+	constexpr static auto tabSize = 8;
 	/** @} */
 	
 
