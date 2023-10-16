@@ -23,8 +23,7 @@ add_library(parsec-lib STATIC
 	"utils/chars.cpp"
 
 	"cli/ConsoleApp.cpp"
-	"cli/OptionStore.cpp"
-	"cli/OptionBuilder.cpp"
+	"cli/ConsoleApp.OptionBuilder.cpp"
 )
 
 
@@ -57,8 +56,6 @@ set(_HEADERS
 	"utils/chars.hpp"
 
 	"cli.hpp"
-	"cli/OptionStore.hpp"
-	"cli/OptionBuilder.hpp"
 	"cli/ConsoleApp.hpp"
 )
 list(TRANSFORM _HEADERS PREPEND "../include/parsec/")
@@ -79,6 +76,7 @@ target_include_directories(parsec-lib
 target_compile_features(parsec-lib PUBLIC cxx_std_20)
 target_link_libraries(parsec-lib
 	PUBLIC Microsoft.GSL::GSL
+	PUBLIC Boost::program_options
 	PRIVATE Boost::boost
 )
 
