@@ -1,7 +1,4 @@
-#include "regex/RegEx.hpp"
-
-#include "regex/Parser.hpp"
-#include "regex/nodes.hpp"
+#include "regex/regex.hpp"
 
 namespace parsec::regex {
 	std::ostream& operator<<(std::ostream& out, const RegEx& regex) {

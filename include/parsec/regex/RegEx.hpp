@@ -1,11 +1,17 @@
-#ifndef PARSEC_REGEX_REG_EX_HEADER
-#define PARSEC_REGEX_REG_EX_HEADER
+#ifndef PARSEC_REGEX_ROOT_HEADER
+#define PARSEC_REGEX_ROOT_HEADER
 
-#include "../utils.hpp"
+#include "../utils/utils.hpp"
+
+#include "Parser.hpp"
+#include "Traverser.hpp"
+#include "Printer.hpp"
+
 #include "nodes.hpp"
 
 #include <gsl/gsl>
 
+/** @brief Root namespace for regular expression classes and functions. */
 namespace parsec::regex {
 	/**
 	 * @brief Compiled regular expression.

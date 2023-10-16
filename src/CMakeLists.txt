@@ -1,5 +1,5 @@
 # Write project information to a header file
-configure_file("../include/parsec/config.hpp.in" "config.hpp")
+configure_file("config.hpp.in" "config.hpp")
 
 
 # Define the library from the source files
@@ -8,7 +8,7 @@ add_library(parsec-lib STATIC
 	"regex/ExprNode.cpp"
 	"regex/Printer.cpp"
 	"regex/Parser.cpp"
-	"regex/RegEx.cpp"
+	"regex/regex.cpp"
 
 	"fg/LangGrammar.cpp"
 	"fg/Token.cpp"
@@ -31,33 +31,33 @@ add_library(parsec-lib STATIC
 set(_HEADERS
 	"parsec.hpp"
 		
-	"regex.hpp"
+	"regex/regex.hpp"
 	"regex/Traverser.hpp"
 	"regex/ExprNode.hpp"
 	"regex/Printer.hpp"
 	"regex/Parser.hpp"
-	"regex/RegEx.hpp"
 	"regex/nodes.hpp"
 
-	"fg.hpp"
+	"fg/fg.hpp"
 	"fg/LangGrammar.hpp"
 	"fg/Token.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
 
-	"gen.hpp"
+	"gen/gen.hpp"
 	"gen/LexerGenerator.hpp"
 	"gen/CppLexerGenerator.hpp"
 
-	"utils.hpp"
+	"utils/utils.hpp"
 	"utils/TextScanner.hpp"
 	"utils/SourceLoc.hpp"
 	"utils/ParseError.hpp"
 	"utils/chars.hpp"
 
-	"cli.hpp"
+	"cli/cli.hpp"
 	"cli/ConsoleApp.hpp"
 )
+
 list(TRANSFORM _HEADERS PREPEND "../include/parsec/")
 
 target_sources(parsec-lib

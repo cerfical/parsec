@@ -1,7 +1,7 @@
 #ifndef PARSEC_FG_LANG_GRAMMAR_HEADER
 #define PARSEC_FG_LANG_GRAMMAR_HEADER
 
-#include "../regex/RegEx.hpp"
+#include "../regex/regex.hpp"
 #include <gsl/narrow>
 
 #include <vector>
