@@ -1,12 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.23)
 
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.6.1)
-
-
-# Set MSVC runtime library to static
-if(MSVC)
-	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif()
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.6.2)
 
 
 # Optional building of documentation
@@ -36,16 +30,19 @@ export(EXPORT parsec-targets)
 # Configure and install package config and version files
 include(CMakePackageConfigHelpers)
 
+
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/package-config.cmake.in" [[
 @PACKAGE_INIT@
 include("${CMAKE_CURRENT_LIST_DIR}/parsec-targets.cmake")
 ]])
+
 
 configure_package_config_file("${CMAKE_CURRENT_BINARY_DIR}/package-config.cmake.in" "parsec-config.cmake"
 	INSTALL_DESTINATION "cmake"
 )
 
 write_basic_package_version_file("parsec-config-version.cmake" COMPATIBILITY ExactVersion)
+
 
 install(
 	FILES
