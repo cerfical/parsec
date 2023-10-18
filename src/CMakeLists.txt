@@ -11,6 +11,9 @@ add_library(parsec-lib STATIC
 	"regex/regex.cpp"
 
 	"fg/LangGrammar.cpp"
+	
+	"fg/SyntaxRule.cpp"
+	"fg/TokenRule.cpp"
 	"fg/Token.cpp"
 	"fg/Lexer.cpp"
 	"fg/Parser.cpp"
@@ -40,9 +43,14 @@ set(_HEADERS
 
 	"fg/fg.hpp"
 	"fg/LangGrammar.hpp"
+	"fg/GrammarRule.hpp"
+	"fg/GrammarNode.hpp"
+	"fg/SyntaxRule.hpp"
+	"fg/TokenRule.hpp"
 	"fg/Token.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
+	"fg/nodes.hpp"
 
 	"gen/gen.hpp"
 	"gen/LexerGenerator.hpp"

@@ -1,4 +1,5 @@
 #include "fg/Parser.hpp"
+#include "fg/nodes.hpp"
 
 #include "regex/Parser.hpp"
 #include "regex/nodes.hpp"
@@ -29,6 +30,52 @@ namespace parsec::fg {
 				regex.location().line(), regex.location().pos()
 			));
 		}
+	}
+
+
+	bool Parser::ruleAtomStart(){
+		switch(m_lexer.peek().kind()) {
+			case Token::Ident: return true;
+			default: return false;
+		}
+	}
+
+	void Parser::parseRuleAtom() {
+		switch(m_lexer.peek().kind()) {
+			case Token::Ident: {
+				m_ruleExpr = std::make_unique<RuleRef>(m_lexer.lex().text());
+				break;
+			}
+			default: parseError("expected a rule identifier");
+		}
+	}
+
+	void Parser::parseRuleConcat() {
+		auto left = (parseRuleAtom(), std::move(m_ruleExpr));
+		while(ruleAtomStart()) {
+			auto right = (parseRuleAtom(), std::move(m_ruleExpr));
+			left = std::make_unique<ConcatNode>(
+				std::move(left),
+				std::move(right)
+			);
+		}
+		m_ruleExpr = std::move(left);
+	}
+
+	void Parser::parseRuleAltern() {
+		auto left = (parseRuleConcat(), std::move(m_ruleExpr));
+		while(m_lexer.skipIf(Token::Pipe)) {
+			auto right = (parseRuleConcat(), std::move(m_ruleExpr));
+			left = std::make_unique<AlternNode>(
+				std::move(left),
+				std::move(right)
+			);
+		}
+		m_ruleExpr = std::move(left);
+	}
+
+	void Parser::parseRuleExpr() {
+		parseRuleAltern();
 	}
 
 
@@ -70,11 +117,50 @@ namespace parsec::fg {
 		}
 	}
 
+
+	void Parser::parseRuleDef() {
+		const auto ruleName = m_lexer.lex().text();
+		
+		if(!m_lexer.skipIf(Token::Equals)) {
+			parseError("expected an '='");
+		}
+
+		parseRuleExpr();
+		auto& rule = *m_syntaxRules.try_emplace(ruleName).first;
+		if(rule.second) {
+			rule.second = std::make_unique<AlternNode>(std::move(rule.second), std::move(m_ruleExpr));
+		} else {
+			rule.second = std::move(m_ruleExpr);
+		}
+
+		if(!m_lexer.skipIf(Token::Semicolon)) {
+			parseError("expected a ';'");
+		}
+	}
+
+	void Parser::parseRuleList() {
+		if(!m_lexer.skipIf(Token::OpenBrace)) {
+			parseError("expected a '{'");
+		}
+
+		while(m_lexer.peek().is<Token::Ident>()) {
+			parseRuleDef();
+		}
+
+		if(!m_lexer.skipIf(Token::CloseBrace)) {
+			parseError("expected a '}'");
+		}
+	}
+
+
 	void Parser::parseGrammar() {
 		while(!m_lexer.peek().eof()) {
 			if(m_lexer.peek().text() == "tokens") {
 				m_lexer.skip();
 				parseTokenList();
+			} if(m_lexer.peek().text() == "rules") {
+				m_lexer.skip();
+				parseRuleList();
 			} else {
 				badTokenError();
 			}
@@ -82,13 +168,13 @@ namespace parsec::fg {
 	}
 
 
-	LangGrammar Parser::parse(std::string_view regex) {
-		auto input = std::istringstream(std::string(regex));
-		return parse(input);
+	LangGrammar Parser::parse(std::string_view input) {
+		auto str = std::istringstream(std::string(input));
+		return parse(str);
 	}
 
 	LangGrammar Parser::parse(std::istream& input) {
-		// ensure the parser state is reset after the parse is complete
+		// make the parser state to reset after the parse is complete
 		const auto sentry = gsl::finally([this]() {
 			m_lexer = Lexer();
 			m_tokens.clear();
@@ -97,10 +183,12 @@ namespace parsec::fg {
 
 		parseGrammar();
 
-		// initialize the grammar with the parsed token definitions
 		LangGrammar grammar;
 		for(auto& tok : m_tokens) {
 			grammar.addTokenRule(tok.first, regex::RegEx(std::move(tok.second)));
+		}
+		for(auto& rule : m_syntaxRules) {
+			grammar.addSyntaxRule(rule.first, std::move(rule.second));
 		}
 		return grammar;
 	}
