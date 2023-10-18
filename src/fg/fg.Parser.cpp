@@ -1,10 +1,9 @@
 #include "fg/Parser.hpp"
-#include "fg/nodes.hpp"
 
 #include "regex/Parser.hpp"
-#include "regex/nodes.hpp"
-
 #include "utils/ParseError.hpp"
+#include "fg/nodes.hpp"
+
 #include <sstream>
 
 namespace parsec::fg {
@@ -24,80 +23,37 @@ namespace parsec::fg {
 		try {
 			return regex::Parser().parse(regex.text());
 		} catch(const ParseError& err) {
-			// make in-regex location relative to the input
-			throw ParseError(err.what(), SourceLoc(
-				regex.location().startCol() + err.location().startCol() + 1,
-				err.location().colCount(),
-				regex.location().line(), regex.location().pos()
-			));
-		}
-	}
-
-
-	bool Parser::ruleAtomStart(){
-		switch(m_lexer.peek().kind()) {
-			case Token::Ident: return true;
-			default: return false;
-		}
-	}
-
-	void Parser::parseRuleAtom() {
-		switch(m_lexer.peek().kind()) {
-			case Token::Ident: {
-				m_ruleExpr = std::make_unique<RuleRef>(m_lexer.lex().text());
-				break;
-			}
-			default: parseError("expected a rule identifier");
-		}
-	}
-
-	void Parser::parseRuleConcat() {
-		auto left = (parseRuleAtom(), std::move(m_ruleExpr));
-		while(ruleAtomStart()) {
-			auto right = (parseRuleAtom(), std::move(m_ruleExpr));
-			left = std::make_unique<ConcatNode>(
-				std::move(left),
-				std::move(right)
+			/*
+				the error location needs to be adjusted as the regex::Parser operates only on a subset of the original input stream
+				also the "+ 1" term is needed to account for double/single quotes delimiting the regex token
+			*/
+			throw ParseError(
+				err.what(),
+				SourceLoc(
+					regex.location().startCol() + err.location().startCol() + 1,
+					err.location().colCount(),
+					regex.location().line(),
+					regex.location().pos()
+				)
 			);
 		}
-		m_ruleExpr = std::move(left);
 	}
-
-	void Parser::parseRuleAltern() {
-		auto left = (parseRuleConcat(), std::move(m_ruleExpr));
-		while(m_lexer.skipIf(Token::Pipe)) {
-			auto right = (parseRuleConcat(), std::move(m_ruleExpr));
-			left = std::make_unique<AlternNode>(
-				std::move(left),
-				std::move(right)
-			);
-		}
-		m_ruleExpr = std::move(left);
-	}
-
-	void Parser::parseRuleExpr() {
-		parseRuleAltern();
-	}
-
 
 	void Parser::parseTokenDef() {
-		// allocate space in the table for a new token
-		auto& tok = *m_tokens.try_emplace(m_lexer.lex().text()).first;
-		
+		const auto tokName = m_lexer.lex().text();
+		if(m_grammar.resolveRule(tokName)) {
+			parseError("duplicate rule name");
+		}
+
 		if(!m_lexer.skipIf(Token::Equals)) {
 			parseError("expected an '='");
 		}
+
 		if(!m_lexer.peek().is<Token::StringLiteral>()) {
 			parseError("expected a string literal");
 		}
 
-		// add a new pattern to the token
-		auto regex = parseRegex(m_lexer.lex());
-		if(tok.second) {
-			tok.second = std::make_unique<regex::AlternExpr>(std::move(tok.second), std::move(regex));
-		} else {
-			tok.second = std::move(regex);
-		}
+		m_grammar.addTokenRule(tokName, parseRegex(m_lexer.lex()));
 
 		if(!m_lexer.skipIf(Token::Semicolon)) {
 			parseError("expected a ';'");
@@ -119,20 +75,72 @@ namespace parsec::fg {
 	}
 
 
+	bool Parser::atomStart() {
+		switch(m_lexer.peek().kind()) {
+			case Token::Ident: return true;
+			case Token::OpenParen: return true;
+			default: return false;
+		}
+	}
+
+	void Parser::parseAtom() {
+		switch(m_lexer.peek().kind()) {
+			case Token::Ident: {
+				m_rule = std::make_unique<RuleRef>(m_lexer.lex().text());
+				break;
+			}
+			case Token::OpenParen: {
+				const auto tok = m_lexer.lex();
+				m_rule = (parseRule(), std::move(m_rule));
+				if(!m_lexer.skipIf(Token::CloseParen)) {
+					throw ParseError("unmatched parenthesis", tok.location());
+				}
+				break;
+			}
+			default: parseError("expected a rule identifier or a '('");
+		}
+	}
+
+	void Parser::parseConcat() {
+		auto left = (parseAtom(), std::move(m_rule));
+		while(atomStart()) {
+			auto right = (parseAtom(), std::move(m_rule));
+			left = std::make_unique<ConcatNode>(
+				std::move(left),
+				std::move(right)
+			);
+		}
+		m_rule = std::move(left);
+	}
+
+	void Parser::parseAltern() {
+		auto left = (parseConcat(), std::move(m_rule));
+		while(m_lexer.skipIf(Token::Pipe)) {
+			auto right = (parseConcat(), std::move(m_rule));
+			left = std::make_unique<AlternNode>(
+				std::move(left),
+				std::move(right)
+			);
+		}
+		m_rule = std::move(left);
+	}
+
+	void Parser::parseRule() {
+		parseAltern();
+	}
+
+
 	void Parser::parseRuleDef() {
 		const auto ruleName = m_lexer.lex().text();
-		
+		if(m_grammar.resolveRule(ruleName)) {
+			parseError("duplicate rule name");
+		}
+
 		if(!m_lexer.skipIf(Token::Equals)) {
 			parseError("expected an '='");
 		}
 
-		parseRuleExpr();
-		auto& rule = *m_syntaxRules.try_emplace(ruleName).first;
-		if(rule.second) {
-			rule.second = std::make_unique<AlternNode>(std::move(rule.second), std::move(m_ruleExpr));
-		} else {
-			rule.second = std::move(m_ruleExpr);
-		}
+		m_grammar.addSyntaxRule(ruleName, (parseRule(), std::move(m_rule)));
 
 		if(!m_lexer.skipIf(Token::Semicolon)) {
 			parseError("expected a ';'");
@@ -170,27 +178,13 @@ namespace parsec::fg {
 
 
 	Grammar Parser::parse(std::string_view input) {
-		auto str = std::istringstream(std::string(input));
-		return parse(str);
+		auto in = std::istringstream(std::string(input));
+		return parse(in);
 	}
 
 	Grammar Parser::parse(std::istream& input) {
-		// make the parser state to reset after the parse is complete
-		const auto sentry = gsl::finally([this]() {
-			m_lexer = Lexer();
-			m_tokens.clear();
-		});
 		m_lexer = Lexer(input);
-
 		parseGrammar();
-
-		Grammar grammar;
-		for(auto& tok : m_tokens) {
-			grammar.addTokenRule(tok.first, std::move(tok.second));
-		}
-		for(auto& rule : m_syntaxRules) {
-			grammar.addSyntaxRule(rule.first, std::move(rule.second));
-		}
-		return grammar;
+		return std::move(m_grammar);
 	}
 }

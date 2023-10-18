@@ -2,6 +2,7 @@
 #define PARSEC_FG_SYNTAX_RULE_HEADER
 
 #include "SyntaxNode.hpp"
+#include "GrammarRule.hpp"
 
 #include <memory>
 #include <vector>
@@ -10,7 +11,7 @@ namespace parsec::fg {
 	/**
 	 * @brief Inference rules for describing the syntactic structure of a language.
 	 */
-	class SyntaxRule {
+	class SyntaxRule : public GrammarRule {
 	public:
 		/** @{ */
 		/** @brief Output stream operator for syntax rules. */
@@ -19,9 +20,11 @@ namespace parsec::fg {
 
 
 		/** @{ */
+		SyntaxRule() = default;
+
 		/** @brief Construct a new named rule with a body. */
 		SyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body)
-			: m_name(name), m_body(std::move(body))
+			: GrammarRule(name), m_body(std::move(body))
 		{ }
 		/** @} */
 
@@ -39,12 +42,6 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		/** @brief Name of the rule. */
-		const std::string& name() const noexcept {
-			return m_name;
-		}
-
-
 		/** @brief Defining body of the rule. */
 		const SyntaxNode* body() const noexcept {
 			return m_body.get();
@@ -55,13 +52,12 @@ namespace parsec::fg {
 	private:
 		/** @{ */
 		std::unique_ptr<SyntaxNode> m_body;
-		std::string m_name;
 		/** @} */
 	};
 
 
 
-	/** @brief List of syntax rules. */
+	/** @brief List of @ref SyntaxRule "syntax rules". */
 	using SyntaxRuleList = std::vector<SyntaxRule>;
 }
 

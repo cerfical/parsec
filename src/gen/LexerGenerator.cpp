@@ -40,7 +40,7 @@ namespace parsec::gen {
 	LexerGenerator::State LexerGenerator::createStartState() const {
 		// combine firstpos sets of all rules to get the start state of the DFA
 		State startState;
-		for(const auto& rule : m_grammar->tokenRules()) {
+		for(const auto& rule : m_grammar->tokens()) {
 			const auto firstPos = rule.pattern()->firstPos();
 			startState.insert(firstPos.cbegin(), firstPos.cend());
 		}
@@ -49,7 +49,7 @@ namespace parsec::gen {
 
 	void LexerGenerator::registerEndMarkers() {
 		// save the mappings between end markers and corresponding rules
-		for(const auto& rule : m_grammar->tokenRules()) {
+		for(const auto& rule : m_grammar->tokens()) {
 			m_endMarkers.emplace(rule.endMarker(), &rule);
 		}
 	}

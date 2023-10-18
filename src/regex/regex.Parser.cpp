@@ -184,10 +184,6 @@ namespace parsec::regex {
 	}
 
 	std::unique_ptr<ExprNode> Parser::parse(std::istream& input) {
-		// force the input stream to reset after the parse is complete
-		const auto sentry = gsl::finally([this]() {
-			m_input = TextScanner();
-		});
 		m_input = TextScanner(input);
 		
 		// parse the expression if there is any input

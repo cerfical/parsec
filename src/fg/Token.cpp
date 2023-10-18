@@ -1,5 +1,4 @@
 #include "fg/Token.hpp"
-#include <sstream>
 
 namespace parsec::fg {
 	std::ostream& operator<<(std::ostream& out, Token::Kinds kind) {
@@ -20,10 +19,5 @@ namespace parsec::fg {
 		}
 		out << ')';
 		return out;
-	}
-
-
-	std::string Token::toStr() const {
-		return (std::ostringstream() << *this).str();
 	}
 }

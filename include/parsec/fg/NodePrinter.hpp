@@ -50,7 +50,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		std::ostream* m_out = &std::cout;
+		std::ostream* m_out = nullptr;
 		/** @} */
 	};
 }

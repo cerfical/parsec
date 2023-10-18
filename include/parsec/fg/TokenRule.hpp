@@ -4,13 +4,14 @@
 #include "../regex/BinaryExpr.hpp"
 #include "../regex/CharLiteral.hpp"
 
+#include "GrammarRule.hpp"
 #include <vector>
 
 namespace parsec::fg {
 	/**
 	 * @brief Defines a rule for forming a single instance of a named language token.
 	 */
-	class TokenRule {
+	class TokenRule : public GrammarRule {
 	public:
 		/** @{ */
 		/** @brief Output stream operator for token rules. */
@@ -19,6 +20,8 @@ namespace parsec::fg {
 
 
 		/** @{ */
+		TokenRule() = default;
+
 		/** @brief Construct a new rule from a regex pattern. */
 		TokenRule(const std::string& name, std::unique_ptr<regex::ExprNode> pattern, int priority);
 		/** @} */
@@ -37,12 +40,6 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		/** @brief Name of the rule. */
-		const std::string& name() const noexcept {
-			return m_name;
-		}
-
-
 		/** @brief Regex pattern defining the rule. */
 		const regex::ExprNode* pattern() const noexcept {
 			return static_cast<const regex::BinaryExpr*>(m_pattern.get())->left();
@@ -67,14 +64,13 @@ namespace parsec::fg {
 	private:
 		/** @{ */
 		std::unique_ptr<regex::ExprNode> m_pattern;
-		std::string m_name;
 		int m_priority = 0;
 		/** @} */
 	};
 
 
 
-	/** @brief List of token rules. */
+	/** @brief List of @ref TokenRule "token rules". */
 	using TokenRuleList = std::vector<TokenRule>;
 }
 

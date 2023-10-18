@@ -152,7 +152,7 @@ namespace parsec::gen {
 	void CppLexerGenerator::generateTokenKinds() {
 		m_out.printLine("enum ", tokenKinds, " {");
 		m_out.down().print(tokenKinds.eof);
-		for(const auto& rule : inputGrammar().tokenRules()) {
+		for(const auto& rule : inputGrammar().tokens()) {
 			if(rule.name() != wsToken) {
 				m_out.rawPrint(",\n").down().print(makeTokenKind(rule));
 			}

@@ -1,6 +1,7 @@
 #ifndef PARSEC_FG_TOKEN_HEADER
 #define PARSEC_FG_TOKEN_HEADER
 
+
 #define PARSEC_FG_TOKEN_LIST \
 	PARSEC_FG_TOKEN(Eof) /**< @brief End of file. */ \
 \
@@ -12,12 +13,17 @@
 	PARSEC_FG_TOKEN(Equals) /**< @brief Equals sign. */ \
 \
 	PARSEC_FG_TOKEN(OpenBrace) /**< @brief Opening brace. */ \
-	PARSEC_FG_TOKEN(CloseBrace) /**< @brief Closing brace. */
+	PARSEC_FG_TOKEN(CloseBrace) /**< @brief Closing brace. */ \
+\
+	PARSEC_FG_TOKEN(OpenParen) /**< @brief Opening parenthesis. */ \
+	PARSEC_FG_TOKEN(CloseParen) /**< @brief Closing parenthesis. */
+
 
 #include "../utils/SourceLoc.hpp"
 
 #include <string>
 #include <ostream>
+
 
 namespace parsec::fg {
 	/**
@@ -25,7 +31,7 @@ namespace parsec::fg {
 	 */
 	class Token {
 	public:
-
+		/** @{ */
 #define PARSEC_FG_TOKEN(tok) tok,
 
 		/**
@@ -36,17 +42,20 @@ namespace parsec::fg {
 		};
 
 #undef PARSEC_FG_TOKEN
-
-
-		/** @brief Print out a token to a @c std::ostream. */
-		friend std::ostream& operator<<(std::ostream& out, const Token& tok);
-
-		/** @brief Print out a token kind to a @c std::ostream. */
-		friend std::ostream& operator<<(std::ostream& out, Kinds kind);
+		/** @} */
 
 
 		/** @{ */
-		/** @brief Construct an empty Kinds::Eof token. */
+		/** @brief Prints out a token to a @c std::ostream. */
+		friend std::ostream& operator<<(std::ostream& out, const Token& tok);
+
+
+		/** @brief Prints out a token kind to a @c std::ostream. */
+		friend std::ostream& operator<<(std::ostream& out, Kinds kind);
+		/** @{ */
+
+
+		/** @{ */
 		Token() = default;
 
 		/** @brief Construct a new token from its classification, textual representation and location. */
@@ -61,6 +70,7 @@ namespace parsec::fg {
 		Token& operator=(const Token&) = default;
 		/** @} */
 
+
 		/** @{ */
 		Token(Token&&) = default;
 		Token& operator=(Token&&) = default;
@@ -73,38 +83,39 @@ namespace parsec::fg {
 			return m_text;
 		}
 
+
 		/** @brief Location in the source code where the token was found. */
 		const SourceLoc& location() const noexcept {
 			return m_loc;
 		}
 
-		/** @brief Classification of the token as reported by some Lexer. */
+
+		/** @brief Classification of the token as reported by a @ref Lexer "lexer". */
 		Kinds kind() const noexcept {
 			return m_kind;
 		}
 
+
 		/** @brief Check if the token is of the specified type. */
 		template <Kinds kind>
 		bool is() const noexcept {
-			return this->kind() == kind;
+			return m_kind == kind;
 		}
 
-		/** @brief Check if the token is a Kinds::Eof token. */
+
+		/** @brief Check if the token is a @ref Kinds::Eof "eof" token. */
 		bool eof() const noexcept {
 			return is<Eof>();
 		}
 		/** @} */
 
 
-		/** @{ */
-		/** @brief Retrieve the string representation of the token. */
-		std::string toStr() const;
-		/** @} */
-
 	private:
+		/** @{ */
 		std::string m_text;
 		SourceLoc m_loc;
 		Kinds m_kind = Eof;
+		/** @} */
 	};
 }
 

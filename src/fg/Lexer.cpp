@@ -16,11 +16,9 @@ namespace parsec::fg {
 	}
 
 	void Lexer::badCharError() {
-		const auto ch = m_input.peek();
 		const auto msg = (std::ostringstream()
-			<< "unexpected \'" << ch << '\''
+			<< "unexpected \'" << m_input.peek() << '\''
 		).str();
-
 		parseError(msg.c_str());
 	}
 	
@@ -80,6 +78,8 @@ namespace parsec::fg {
 		switch(m_input.peek()) {
 			case '{': tokKind = Token::OpenBrace; break;
 			case '}': tokKind = Token::CloseBrace; break;
+			case '(': tokKind = Token::OpenParen; break;
+			case ')': tokKind = Token::CloseParen; break;
 			case ';': tokKind = Token::Semicolon; break;
 			case '=': tokKind = Token::Equals; break;
 			case '|': tokKind = Token::Pipe; break;

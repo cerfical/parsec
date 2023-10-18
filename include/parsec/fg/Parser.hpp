@@ -3,9 +3,8 @@
 
 #include "Lexer.hpp"
 #include "Grammar.hpp"
-#include "SyntaxNode.hpp"
 
-#include <unordered_map>
+#include <gsl/gsl>
 
 namespace parsec::fg {
 	/**
@@ -14,12 +13,7 @@ namespace parsec::fg {
 	class Parser {
 	public:
 		/** @{ */
-		/** @brief Set up a new ready-for-work parser. */
 		Parser() = default;
-
-
-		/** @brief Destroy the parser. */
-		~Parser() = default;
 		/** @} */
 
 
@@ -54,40 +48,38 @@ namespace parsec::fg {
 
 		/** @{ */
 		std::unique_ptr<regex::ExprNode> parseRegex(const Token& regex);
-		/** @} */
 
-
-		/** @{ */
-		bool ruleAtomStart();
-		
-		void parseRuleAtom();
-		void parseRuleConcat();
-		void parseRuleAltern();
-
-		void parseRuleExpr();
-		/** @} */
-
-
-		/** @{ */
 		void parseTokenDef();
 		void parseTokenList();
+		/** @} */
+
+
+		/** @{ */
+		bool atomStart();
+		
+		void parseAtom();
+		void parseConcat();
+		void parseAltern();
+
+		void parseRule();
 
 		void parseRuleDef();
 		void parseRuleList();
+		/** @} */
 
+
+		/** @{ */
 		void parseGrammar();
 		/** @} */
 
 
 		/** @{ */
-		std::unique_ptr<SyntaxNode> m_ruleExpr;
+		std::unique_ptr<SyntaxNode> m_rule;
+		Grammar m_grammar;
 		/** @} */
 
 
 		/** @{ */
-		std::unordered_map<std::string, std::unique_ptr<regex::ExprNode>> m_tokens;
-		std::unordered_map<std::string, std::unique_ptr<SyntaxNode>> m_syntaxRules;
-
 		Lexer m_lexer;
 		/** @} */
 	};

@@ -86,6 +86,7 @@ set(_HEADERS
 	"fg/AlternNode.hpp"
 	"fg/ConcatNode.hpp"
 
+	"fg/GrammarRule.hpp"
 	"fg/TokenRule.hpp"
 	"fg/SyntaxRule.hpp"
 	"fg/Grammar.hpp"
