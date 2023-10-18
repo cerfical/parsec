@@ -6,6 +6,7 @@
 #include "fg/fg.hpp"
 #include "gen/gen.hpp"
 #include "cli/cli.hpp"
+#include "utils/utils.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

@@ -1,5 +1,8 @@
 #include "gen/LexerGenerator.hpp"
+#include "regex/nodes.hpp"
+
 #include <boost/functional/hash.hpp>
+#include <gsl/gsl>
 
 namespace parsec::gen {
 	std::size_t LexerGenerator::StateHasher::operator()(const State& state) const {
@@ -24,7 +27,7 @@ namespace parsec::gen {
 		TransitionMap transitions;
 		for(const auto ch : state->first) {
 			if(!isEndMarker(ch)) {
-				const auto followPos = ch->computeFollowPos();
+				const auto followPos = ch->followPos();
 				transitions[ch->value()].insert(
 					followPos.cbegin(), followPos.cend()
 				);
@@ -38,7 +41,7 @@ namespace parsec::gen {
 		// combine firstpos sets of all rules to get the start state of the DFA
 		State startState;
 		for(const auto& rule : m_grammar->tokenRules()) {
-			const auto firstPos = rule.pattern().rootNode()->computeFirstPos();
+			const auto firstPos = rule.pattern()->firstPos();
 			startState.insert(firstPos.cbegin(), firstPos.cend());
 		}
 		return startState;
@@ -47,7 +50,7 @@ namespace parsec::gen {
 	void LexerGenerator::registerEndMarkers() {
 		// save the mappings between end markers and corresponding rules
 		for(const auto& rule : m_grammar->tokenRules()) {
-			m_endMarkers.emplace(rule.pattern().endMarker(), &rule);
+			m_endMarkers.emplace(rule.endMarker(), &rule);
 		}
 	}
 

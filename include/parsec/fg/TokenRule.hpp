@@ -1,26 +1,30 @@
 #ifndef PARSEC_FG_TOKEN_RULE_HEADER
 #define PARSEC_FG_TOKEN_RULE_HEADER
 
-#include "../regex/regex.hpp"
+#include "../regex/BinaryExpr.hpp"
+#include "../regex/CharLiteral.hpp"
 
-#include "GrammarRule.hpp"
 #include <vector>
 
 namespace parsec::fg {
 	/**
 	 * @brief Defines a rule for forming a single instance of a named language token.
 	 */
-	class TokenRule : public GrammarRule {
+	class TokenRule {
 	public:
 		/** @{ */
-		/** @brief Construct a new named rule with a compiled regex pattern. */
-		TokenRule(const std::string& name, regex::RegEx pattern, int priority = 0)
-			: GrammarRule(name), m_pattern(std::move(pattern)), m_priority(priority)
-		{ }
+		/** @brief Output stream operator for a rule. */
+		friend std::ostream& operator<<(std::ostream& out, const TokenRule& r);
+		/** @} */
+
+
+		/** @{ */
+		/** @brief Construct a new rule from a regex pattern. */
+		TokenRule(const std::string& name, std::unique_ptr<regex::ExprNode> pattern, int priority);
 
 
 		/** @brief Destroy the rule. */
-		~TokenRule() override = default;
+		~TokenRule() = default;
 		/** @} */
 
 
@@ -37,14 +41,25 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		void print(std::ostream& out) const override;
-		/** @} */
+		/** @brief Name of the rule. */
+		const std::string& name() const noexcept {
+			return m_name;
+		}
 
 
-		/** @{ */
 		/** @brief Regex pattern defining the rule. */
-		const regex::RegEx& pattern() const noexcept {
-			return m_pattern;
+		const regex::ExprNode* pattern() const noexcept {
+			return static_cast<const regex::CharLiteral*>(
+				static_cast<const regex::BinaryExpr*>(m_pattern.get())->left()
+			);
+		}
+
+
+		/** @brief Special position in the regular expression that identifies its end. */
+		const regex::CharLiteral* endMarker() const noexcept {
+			return static_cast<const regex::CharLiteral*>(
+				static_cast<const regex::BinaryExpr*>(m_pattern.get())->right()
+			);
 		}
 
 
@@ -56,7 +71,8 @@ namespace parsec::fg {
 
 
 	private:
-		regex::RegEx m_pattern;
+		std::unique_ptr<regex::ExprNode> m_pattern;
+		std::string m_name;
 		int m_priority = 0;
 	};
 

@@ -9,11 +9,10 @@
 
 namespace parsec::regex {
 	void Parser::badSyntax() const {
-		const auto ch = m_input.peek();
 		const auto msg = (std::ostringstream()
-			<< "unexpected \'" << ch << '\''
+			<< "unexpected \'" << m_input.peek() << '\''
 		).str();
-
+		
 		throw ParseError(msg, m_input.pos());
 	}
 
@@ -74,16 +73,24 @@ namespace parsec::regex {
 				if(low > high) {
 					throw ParseError(
 						"character range is out of order",
-						SourceLoc(startPos, m_input.pos() - startPos)
+						SourceLoc(
+							startPos,
+							m_input.pos() - startPos
+						)
 					);
 				}
 
 				for(char ch = low; ch < high; ) {
-					auto right = std::make_unique<CharLiteral>(++ch);
-					e = std::make_unique<AlternExpr>(std::move(e), std::move(right));
+					e = std::make_unique<AlternExpr>(
+						std::move(e),
+						std::make_unique<CharLiteral>(++ch)
+					);
 				}
 			} else {
-				e = std::make_unique<AlternExpr>(std::move(e), std::make_unique<CharLiteral>('-'));
+				e = std::make_unique<AlternExpr>(
+					std::move(e),
+					std::make_unique<CharLiteral>('-')
+				);
 			}
 		}
 
@@ -95,7 +102,9 @@ namespace parsec::regex {
 			auto left = (parseCharRange(), std::move(m_regex));
 			while(m_input.peek() != ']') {
 				auto right = (parseCharRange(), std::move(m_regex));
-				left = std::make_unique<AlternExpr>(std::move(left), std::move(right));
+				left = std::make_unique<AlternExpr>(
+					std::move(left), std::move(right)
+				);
 			}
 			m_input.skip(); // skip ']'
 			m_regex = std::move(left);
@@ -146,7 +155,9 @@ namespace parsec::regex {
 		auto left = (parseRepeat(), std::move(m_regex));
 		while(atomStart()) {
 			auto right = (parseRepeat(), std::move(m_regex));
-			left = std::make_unique<ConcatExpr>(std::move(left), std::move(right));
+			left = std::make_unique<ConcatExpr>(
+				std::move(left), std::move(right)
+			);
 		}
 		m_regex = std::move(left);
 	}
@@ -155,7 +166,9 @@ namespace parsec::regex {
 		auto left = (parseConcat(), std::move(m_regex));
 		while(m_input.skipIf('|')) {
 			auto right = (parseConcat(), std::move(m_regex));
-			left = std::make_unique<AlternExpr>(std::move(left), std::move(right));
+			left = std::make_unique<AlternExpr>(
+				std::move(left), std::move(right)
+			);
 		}
 		m_regex = std::move(left);
 	}
@@ -171,7 +184,7 @@ namespace parsec::regex {
 	}
 
 	std::unique_ptr<ExprNode> Parser::parse(std::istream& input) {
-		// ensure the input stream is reset after the parse is complete
+		// force the input stream to reset after the parse is complete
 		const auto sentry = gsl::finally([this]() {
 			m_input = TextScanner();
 		});

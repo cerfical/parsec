@@ -13,8 +13,8 @@ namespace parsec::regex {
 	class Parser {
 	public:
 		/** @{ */
-		/** @brief Set up a new ready-for-work parser. */
 		Parser() = default;
+		~Parser() = default;
 		/** @} */
 
 
@@ -23,6 +23,7 @@ namespace parsec::regex {
 		Parser& operator=(Parser&&) = default;
 		/** @} */
 
+
 		/** @{ */
 		Parser(const Parser&) = delete;
 		Parser& operator=(const Parser&) = delete;
@@ -30,21 +31,25 @@ namespace parsec::regex {
 
 
 		/** @{ */
-		/** @brief Analyze an arbitrary sequence of characters for a valid regular expression. */
+		/** @brief Parses an arbitrary character sequence for a valid regular expression. */
 		std::unique_ptr<ExprNode> parse(std::string_view regex);
 
-		/** @brief Analyze characters from a @c std::istream for a valid regular expression. */
+
+		/** @brief Parses characters from a @c std::istream for a valid regular expression. */
 		std::unique_ptr<ExprNode> parse(std::istream& input);
 		/** @} */
+
 
 	private:
 		/** @{ */
 		[[noreturn]] void badSyntax() const;
 		/** @} */
 
+
 		/** @{ */
 		bool atomStart() const;
 		/** @} */
+
 
 		/** @{ */
 		char parseEscapeSeq();
@@ -59,8 +64,11 @@ namespace parsec::regex {
 		void parseExpr();
 		/** @} */
 
+
+		/** @} */
 		std::unique_ptr<ExprNode> m_regex;
 		TextScanner m_input;
+		/** @} */
 	};
 }
 

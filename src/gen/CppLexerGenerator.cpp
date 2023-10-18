@@ -2,6 +2,7 @@
 #include "utils/chars.hpp"
 
 #include <boost/tokenizer.hpp>
+#include <gsl/gsl>
 #include <sstream>
 
 namespace {

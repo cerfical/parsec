@@ -4,6 +4,7 @@
 #include "regex/Parser.hpp"
 #include "regex/nodes.hpp"
 
+#include "utils/ParseError.hpp"
 #include <sstream>
 
 namespace parsec::fg {
@@ -185,7 +186,7 @@ namespace parsec::fg {
 
 		LangGrammar grammar;
 		for(auto& tok : m_tokens) {
-			grammar.addTokenRule(tok.first, regex::RegEx(std::move(tok.second)));
+			grammar.addTokenRule(tok.first, std::move(tok.second));
 		}
 		for(auto& rule : m_syntaxRules) {
 			grammar.addSyntaxRule(rule.first, std::move(rule.second));
