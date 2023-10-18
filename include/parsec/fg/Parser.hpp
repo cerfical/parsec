@@ -2,8 +2,8 @@
 #define PARSEC_FG_PARSER_HEADER
 
 #include "Lexer.hpp"
-#include "LangGrammar.hpp"
-#include "GrammarNode.hpp"
+#include "Grammar.hpp"
+#include "SyntaxNode.hpp"
 
 #include <unordered_map>
 
@@ -37,11 +37,11 @@ namespace parsec::fg {
 
 		/** @{ */
 		/** @brief Parses an arbitrary sequence of characters for a valid grammar. */
-		LangGrammar parse(std::string_view input);
+		Grammar parse(std::string_view input);
 
 
 		/** @brief Parses characters from a @c std::istream for a valid grammar. */
-		LangGrammar parse(std::istream& input);
+		Grammar parse(std::istream& input);
 		/** @} */
 
 
@@ -80,13 +80,13 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		std::unique_ptr<GrammarNode> m_ruleExpr;
+		std::unique_ptr<SyntaxNode> m_ruleExpr;
 		/** @} */
 
 
 		/** @{ */
 		std::unordered_map<std::string, std::unique_ptr<regex::ExprNode>> m_tokens;
-		std::unordered_map<std::string, std::unique_ptr<GrammarNode>> m_syntaxRules;
+		std::unordered_map<std::string, std::unique_ptr<SyntaxNode>> m_syntaxRules;
 
 		Lexer m_lexer;
 		/** @} */

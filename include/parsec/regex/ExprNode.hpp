@@ -19,7 +19,7 @@ namespace parsec::regex {
 	class ExprNode {
 	public:
 		/** @{ */
-		/** @brief Output stream operator for a node. */
+		/** @brief Output stream operator for regex nodes. */
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
 		/** @} */
 

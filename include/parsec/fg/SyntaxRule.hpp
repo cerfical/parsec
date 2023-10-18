@@ -1,27 +1,28 @@
 #ifndef PARSEC_FG_SYNTAX_RULE_HEADER
 #define PARSEC_FG_SYNTAX_RULE_HEADER
 
-#include "GrammarRule.hpp"
-#include "GrammarNode.hpp"
+#include "SyntaxNode.hpp"
 
 #include <memory>
 #include <vector>
 
 namespace parsec::fg {
 	/**
-	 * @brief Forms the syntactic structure or sentences of a language.
+	 * @brief Inference rules for describing the syntactic structure of a language.
 	 */
-	class SyntaxRule : public GrammarRule {
+	class SyntaxRule {
 	public:
 		/** @{ */
-		/** @brief Construct a new named rule with a body. */
-		SyntaxRule(const std::string& name, std::unique_ptr<GrammarNode> body)
-			: GrammarRule(name), m_body(std::move(body))
-		{ }
+		/** @brief Output stream operator for syntax rules. */
+		friend std::ostream& operator<<(std::ostream& out, const SyntaxRule& r);
+		/** @} */
 
-	
-		/** @brief Destroy the rule. */
-		~SyntaxRule() override = default;
+
+		/** @{ */
+		/** @brief Construct a new named rule with a body. */
+		SyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body)
+			: m_name(name), m_body(std::move(body))
+		{ }
 		/** @} */
 
 
@@ -38,25 +39,29 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		void print(std::ostream& out) const override;
-		/** @} */
+		/** @brief Name of the rule. */
+		const std::string& name() const noexcept {
+			return m_name;
+		}
 
 
-		/** @{ */
 		/** @brief Defining body of the rule. */
-		const GrammarNode* body() const noexcept {
+		const SyntaxNode* body() const noexcept {
 			return m_body.get();
 		}
 		/** @} */
 		
 
 	private:
-		std::unique_ptr<GrammarNode> m_body;
+		/** @{ */
+		std::unique_ptr<SyntaxNode> m_body;
+		std::string m_name;
+		/** @} */
 	};
 
 
 
-	/** @brief List of @ref SyntaxRule "syntax rules". */
+	/** @brief List of syntax rules. */
 	using SyntaxRuleList = std::vector<SyntaxRule>;
 }
 

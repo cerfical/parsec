@@ -1,7 +1,7 @@
 #ifndef PARSEC_GEN_LEXER_GENERATOR_HEADER
 #define PARSEC_GEN_LEXER_GENERATOR_HEADER
 
-#include "../fg/LangGrammar.hpp"
+#include "../fg/Grammar.hpp"
 
 #include <unordered_set>
 #include <unordered_map>
@@ -119,7 +119,7 @@ namespace parsec::gen {
 	public:		
 		/** @{ */
 		/** @brief Generate a lexer for a language described by the grammar. */
-		void compile(const fg::LangGrammar& grammar);
+		void compile(const fg::Grammar& grammar);
 		/** @} */
 
 	protected:
@@ -150,7 +150,7 @@ namespace parsec::gen {
 
 		/** @{ */
 		/** @brief Input grammar for the compilation. */
-		const fg::LangGrammar& inputGrammar() const noexcept {
+		const fg::Grammar& inputGrammar() const noexcept {
 			return *m_grammar;
 		}
 
@@ -187,7 +187,7 @@ namespace parsec::gen {
 		StateHandle cacheState(State&& state);
 		/** @} */
 
-		const fg::LangGrammar* m_grammar = nullptr;
+		const fg::Grammar* m_grammar = nullptr;
 
 		std::map<const regex::CharLiteral*, const fg::TokenRule*> m_endMarkers;
 		std::queue<StateHandle> m_unprocessedStates;

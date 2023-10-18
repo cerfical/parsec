@@ -1,5 +1,5 @@
-#ifndef PARSEC_REGEX_PRINTER_HEADER
-#define PARSEC_REGEX_PRINTER_HEADER
+#ifndef PARSEC_REGEX_NODE_PRINTER_HEADER
+#define PARSEC_REGEX_NODE_PRINTER_HEADER
 
 #include "ExprNode.hpp"
 #include "NodeTraverser.hpp"
@@ -10,25 +10,25 @@ namespace parsec::regex {
 	/**
 	 * @brief Prints regular expressions.
 	 */
-	class Printer : public NodeTraverser {
+	class NodePrinter : public NodeTraverser {
 	public:
 		/** @{ */
 		/** @brief Construct a new printer that prints to a @c std::ostream. */
-		explicit Printer(std::ostream& out = std::cout) noexcept
+		explicit NodePrinter(std::ostream& out = std::cout) noexcept
 			: m_out(&out)
 		{ }
 		/** @} */
 
 
 		/** @{ */
-		Printer(Printer&&) = default;
-		Printer& operator=(Printer&&) = default;
+		NodePrinter(NodePrinter&&) = default;
+		NodePrinter& operator=(NodePrinter&&) = default;
 		/** @} */
 
 
 		/** @{ */
-		Printer(const Printer&) = delete;
-		Printer& operator=(const Printer&) = delete;
+		NodePrinter(const NodePrinter&) = delete;
+		NodePrinter& operator=(const NodePrinter&) = delete;
 		/** @} */
 
 

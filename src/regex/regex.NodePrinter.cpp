@@ -1,33 +1,33 @@
-#include "regex/Printer.hpp"
+#include "regex/NodePrinter.hpp"
 #include "regex/nodes.hpp"
 
 namespace parsec::regex {
-	void Printer::visitNode(const CharLiteral& n) {
+	void NodePrinter::visitNode(const CharLiteral& n) {
 		*m_out << n.value();
 	}
 
-	void Printer::visitNode(const NilExpr&) {
+	void NodePrinter::visitNode(const NilExpr&) {
 		*m_out << "()";
 	}
 
 	
-	void Printer::visitNode(const OptionalExpr& n) {
+	void NodePrinter::visitNode(const OptionalExpr& n) {
 		n.inner()->traverseWith(*this);
 		*m_out << '?';
 	}
 
-	void Printer::visitNode(const PlusExpr& n) {
+	void NodePrinter::visitNode(const PlusExpr& n) {
 		n.inner()->traverseWith(*this);
 		*m_out << '+';
 	}
 
-	void Printer::visitNode(const StarExpr& n) {
+	void NodePrinter::visitNode(const StarExpr& n) {
 		n.inner()->traverseWith(*this);
 		*m_out << '*';
 	}
 
 
-	void Printer::visitNode(const AlternExpr& n) {
+	void NodePrinter::visitNode(const AlternExpr& n) {
 		*m_out << '(';
 		n.left()->traverseWith(*this);
 		*m_out << '|';
@@ -35,7 +35,7 @@ namespace parsec::regex {
 		*m_out << ')';
 	}
 
-	void Printer::visitNode(const ConcatExpr& n) {
+	void NodePrinter::visitNode(const ConcatExpr& n) {
 		*m_out << '(';
 		n.left()->traverseWith(*this);
 		n.right()->traverseWith(*this);

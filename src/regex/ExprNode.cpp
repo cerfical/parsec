@@ -1,7 +1,7 @@
 #include "regex/ExprNode.hpp"
 
 #include "regex/NodeTraverser.hpp"
-#include "regex/Printer.hpp"
+#include "regex/NodePrinter.hpp"
 #include "regex/nodes.hpp"
 
 
@@ -127,7 +127,7 @@ namespace {
 
 namespace parsec::regex {
 	std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
-		Printer(out).print(n);
+		NodePrinter(out).print(n);
 		return out;
 	}
 

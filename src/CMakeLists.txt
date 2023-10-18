@@ -9,43 +9,52 @@ add_library(parsec-lib STATIC
 	"regex/NilExpr.cpp"
 	"regex/CharLiteral.cpp"
 
-	"regex/BinaryExpr.cpp"
 	"regex/ConcatExpr.cpp"
 	"regex/AlternExpr.cpp"
 
-	"regex/UnaryExpr.cpp"
 	"regex/PlusExpr.cpp"
 	"regex/StarExpr.cpp"
 	"regex/OptionalExpr.cpp"
 
-	"regex/Printer.cpp"
-	"regex/Parser.cpp"
+	"regex/regex.NodePrinter.cpp"
+	"regex/regex.Parser.cpp"
 	
 
-	"fg/LangGrammar.cpp"
-	
+	"fg/SyntaxNode.cpp"
+	"fg/RuleRef.cpp"
+	"fg/BinaryNode.cpp"
+	"fg/AlternNode.cpp"
+	"fg/ConcatNode.cpp"
+
+	"fg/Grammar.cpp"
 	"fg/SyntaxRule.cpp"
 	"fg/TokenRule.cpp"
+
 	"fg/Token.cpp"
 	"fg/Lexer.cpp"
-	"fg/Parser.cpp"
+	"fg/fg.NodePrinter.cpp"
+	"fg/fg.Parser.cpp"
+
 
 	"gen/LexerGenerator.cpp"
 	"gen/CppLexerGenerator.cpp"
+
 
 	"utils/TextScanner.cpp"
 	"utils/SourceLoc.cpp"
 	"utils/chars.cpp"
 
+
 	"cli/ConsoleApp.cpp"
-	"cli/ConsoleApp.OptionBuilder.cpp"
+	"cli/OptionBuilder.cpp"
 )
 
 
 # List header files for the library
 set(_HEADERS
 	"parsec.hpp"
-		
+
+
 	"regex/regex.hpp"
 	"regex/nodes.hpp"
 
@@ -64,29 +73,41 @@ set(_HEADERS
 	"regex/StarExpr.hpp"
 	"regex/OptionalExpr.hpp"
 	
-	"regex/Printer.hpp"
+	"regex/NodePrinter.hpp"
 	"regex/Parser.hpp"
 
+
 	"fg/fg.hpp"
-	"fg/LangGrammar.hpp"
-	"fg/GrammarRule.hpp"
-	"fg/GrammarNode.hpp"
-	"fg/SyntaxRule.hpp"
+	"fg/nodes.hpp"
+
+	"fg/NodeTraverser.hpp"
+	"fg/SyntaxNode.hpp"
+	"fg/BinaryNode.hpp"
+	"fg/AlternNode.hpp"
+	"fg/ConcatNode.hpp"
+
 	"fg/TokenRule.hpp"
+	"fg/SyntaxRule.hpp"
+	"fg/Grammar.hpp"
+	
+	"fg/NodePrinter.hpp"
 	"fg/Token.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
-	"fg/nodes.hpp"
+
 
 	"gen/gen.hpp"
 	"gen/LexerGenerator.hpp"
 	"gen/CppLexerGenerator.hpp"
 
+
 	"utils/utils.hpp"
+	"utils/chars.hpp"
+
 	"utils/TextScanner.hpp"
 	"utils/SourceLoc.hpp"
 	"utils/ParseError.hpp"
-	"utils/chars.hpp"
+
 
 	"cli/cli.hpp"
 	"cli/ConsoleApp.hpp"

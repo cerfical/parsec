@@ -14,7 +14,6 @@ namespace parsec::regex {
 	public:
 		/** @{ */
 		Parser() = default;
-		~Parser() = default;
 		/** @} */
 
 

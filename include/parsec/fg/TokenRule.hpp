@@ -13,7 +13,7 @@ namespace parsec::fg {
 	class TokenRule {
 	public:
 		/** @{ */
-		/** @brief Output stream operator for a rule. */
+		/** @brief Output stream operator for token rules. */
 		friend std::ostream& operator<<(std::ostream& out, const TokenRule& r);
 		/** @} */
 
@@ -21,10 +21,6 @@ namespace parsec::fg {
 		/** @{ */
 		/** @brief Construct a new rule from a regex pattern. */
 		TokenRule(const std::string& name, std::unique_ptr<regex::ExprNode> pattern, int priority);
-
-
-		/** @brief Destroy the rule. */
-		~TokenRule() = default;
 		/** @} */
 
 
@@ -49,13 +45,11 @@ namespace parsec::fg {
 
 		/** @brief Regex pattern defining the rule. */
 		const regex::ExprNode* pattern() const noexcept {
-			return static_cast<const regex::CharLiteral*>(
-				static_cast<const regex::BinaryExpr*>(m_pattern.get())->left()
-			);
+			return static_cast<const regex::BinaryExpr*>(m_pattern.get())->left();
 		}
 
 
-		/** @brief Special position in the regular expression that identifies its end. */
+		/** @brief Special position in the regex pattern that identifies its end. */
 		const regex::CharLiteral* endMarker() const noexcept {
 			return static_cast<const regex::CharLiteral*>(
 				static_cast<const regex::BinaryExpr*>(m_pattern.get())->right()
@@ -71,14 +65,16 @@ namespace parsec::fg {
 
 
 	private:
+		/** @{ */
 		std::unique_ptr<regex::ExprNode> m_pattern;
 		std::string m_name;
 		int m_priority = 0;
+		/** @} */
 	};
 
 
 
-	/** @brief List of @ref TokenRule "token rules". */
+	/** @brief List of token rules. */
 	using TokenRuleList = std::vector<TokenRule>;
 }
 

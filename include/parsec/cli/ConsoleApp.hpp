@@ -8,7 +8,7 @@
 
 #include <gsl/gsl>
 
-#include <string_view>
+#include <string>
 #include <iostream>
 #include <memory>
 
@@ -82,7 +82,7 @@ namespace parsec::cli {
 
 		private:
 			/** @{ */
-			OptionBuilder(AppInstance& app, std::string_view name);
+			OptionBuilder(AppInstance& app, const std::string& name);
 			/** @} */
 
 
@@ -124,19 +124,19 @@ namespace parsec::cli {
 
 		/** @{ */
 		/** @brief Register a new named option to search for on the command line. */
-		OptionBuilder addOption(std::string_view name) {
+		OptionBuilder addOption(const std::string& name) {
 			return OptionBuilder(instance(), name);
 		}
 
 
 		/** @brief Looks up the specified option on the command line and returns its value. */
 		template <typename T>
-		const T& option(std::string_view name, const T& value = T()) {
+		const T& option(const std::string& name, const T& value = T()) {
 			if(!m_instance) {
 				return value;
 			}
 
-			const auto it = m_instance->parsed.find(std::string(name));
+			const auto it = m_instance->parsed.find(name);
 			if(it != m_instance->parsed.cend()) {
 				if(!it->second.empty()) {
 					return it->second.as<T>();
@@ -148,9 +148,9 @@ namespace parsec::cli {
 
 
 		/** @brief Check if the specified option is present. */
-		bool option(std::string_view name) const {
+		bool option(const std::string& name) const {
 			if(m_instance) {
-				return m_instance->parsed.contains(std::string(name));
+				return m_instance->parsed.contains(name);
 			}
 			return false;
 		}

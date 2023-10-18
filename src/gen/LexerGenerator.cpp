@@ -88,7 +88,7 @@ namespace parsec::gen {
 		}
 	}
 
-	void LexerGenerator::compile(const fg::LangGrammar& grammar) {
+	void LexerGenerator::compile(const fg::Grammar& grammar) {
 		// reset the input grammar once the generation is complete
 		const auto sentry = gsl::finally([this]() {
 			m_grammar = nullptr;

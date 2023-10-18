@@ -12,7 +12,11 @@ namespace parsec::regex {
 	public:
 		/** @{ */
 		/** @brief Construct a new node with two child nodes. */
-		BinaryExpr(std::unique_ptr<ExprNode> left, std::unique_ptr<ExprNode> right) noexcept;
+		BinaryExpr(std::unique_ptr<ExprNode> left, std::unique_ptr<ExprNode> right) noexcept
+			: m_left(std::move(left)), m_right(std::move(right)) {
+			m_left->setParent(this);
+			m_right->setParent(this);
+		}
 
 		~BinaryExpr() override = default;
 		/** @} */

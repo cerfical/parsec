@@ -12,7 +12,10 @@ namespace parsec::regex {
 	public:
 		/** @{ */
 		/** @brief Construct a new node with a single child node. */
-		explicit UnaryExpr(std::unique_ptr<ExprNode> inner) noexcept;
+		explicit UnaryExpr(std::unique_ptr<ExprNode> inner) noexcept
+			: m_inner(std::move(inner)) {
+			m_inner->setParent(this);
+		}
 
 		~UnaryExpr() override = default;
 		/** @} */

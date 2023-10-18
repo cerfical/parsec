@@ -4,7 +4,7 @@
 namespace po = boost::program_options;
 
 namespace parsec::cli {
-	ConsoleApp::OptionBuilder::OptionBuilder(AppInstance& app, std::string_view name)
+	ConsoleApp::OptionBuilder::OptionBuilder(AppInstance& app, const std::string& name)
 		: m_value(std::make_unique<po::untyped_value>(true)) // by default the option is valueless
 		, m_name(name)
 		, m_app(app)

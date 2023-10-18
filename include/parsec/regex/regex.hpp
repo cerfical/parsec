@@ -3,7 +3,7 @@
 
 #include "Parser.hpp"
 #include "NodeTraverser.hpp"
-#include "Printer.hpp"
+#include "NodePrinter.hpp"
 
 #include "nodes.hpp"
 

@@ -169,12 +169,12 @@ namespace parsec::fg {
 	}
 
 
-	LangGrammar Parser::parse(std::string_view input) {
+	Grammar Parser::parse(std::string_view input) {
 		auto str = std::istringstream(std::string(input));
 		return parse(str);
 	}
 
-	LangGrammar Parser::parse(std::istream& input) {
+	Grammar Parser::parse(std::istream& input) {
 		// make the parser state to reset after the parse is complete
 		const auto sentry = gsl::finally([this]() {
 			m_lexer = Lexer();
@@ -184,7 +184,7 @@ namespace parsec::fg {
 
 		parseGrammar();
 
-		LangGrammar grammar;
+		Grammar grammar;
 		for(auto& tok : m_tokens) {
 			grammar.addTokenRule(tok.first, std::move(tok.second));
 		}

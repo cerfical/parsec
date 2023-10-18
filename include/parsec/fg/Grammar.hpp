@@ -1,5 +1,5 @@
-#ifndef PARSEC_FG_LANG_GRAMMAR_HEADER
-#define PARSEC_FG_LANG_GRAMMAR_HEADER
+#ifndef PARSEC_FG_GRAMMAR_HEADER
+#define PARSEC_FG_GRAMMAR_HEADER
 
 #include "TokenRule.hpp"
 #include "SyntaxRule.hpp"
@@ -8,27 +8,27 @@ namespace parsec::fg {
 	/**
 	 * @brief Defines a syntax for some language with the help of @ref GrammarRule "grammar rules".
 	 */
-	class LangGrammar {
+	class Grammar {
 	public:
 		/** @{ */
 		/** @brief Construct a new empty grammar for an empty language. */
-		LangGrammar() = default;
+		Grammar() = default;
 
 
 		/** @brief Destroy the grammar. */
-		~LangGrammar() = default;
+		~Grammar() = default;
 		/** @} */
 
 
 		/** @{ */
-		LangGrammar(LangGrammar&&) = default;
-		LangGrammar& operator=(LangGrammar&&) = default;
+		Grammar(Grammar&&) = default;
+		Grammar& operator=(Grammar&&) = default;
 		/** @} */
 
 
 		/** @{ */
-		LangGrammar(const LangGrammar&) = delete;
-		LangGrammar& operator=(const LangGrammar&) = delete;
+		Grammar(const Grammar&) = delete;
+		Grammar& operator=(const Grammar&) = delete;
 		/** @} */
 
 
@@ -46,7 +46,7 @@ namespace parsec::fg {
 
 		/** @{ */
 		/** @brief Add a new @ref SyntaxRule "syntax rule" to the grammar. */
-		void addSyntaxRule(const std::string& name, std::unique_ptr<GrammarNode> body);
+		void addSyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body);
 
 
 		/** @brief List of @ref SyntaxRule "syntax rules" forming the language. */
