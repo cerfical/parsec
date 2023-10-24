@@ -10,6 +10,8 @@
 
 #include "nodes.hpp"
 
+#include "rules/rules.hpp"
+
 /** @brief Root namespace for formal grammars management classes and functions. */
 namespace parsec::fg { }
 

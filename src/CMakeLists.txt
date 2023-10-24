@@ -36,6 +36,23 @@ add_library(parsec-lib STATIC
 	"fg/fg.Parser.cpp"
 
 
+	"fg/rules/RuleNode.cpp"
+	"fg/rules/NilRule.cpp"
+
+	"fg/rules/RulePos.cpp"
+	"fg/rules/CharLiteral.cpp"
+	"fg/rules/RuleRef.cpp"
+
+	"fg/rules/RuleConcat.cpp"
+	"fg/rules/RuleAltern.cpp"
+
+	"fg/rules/PlusRule.cpp"
+	"fg/rules/StarRule.cpp"
+	"fg/rules/OptRule.cpp"
+
+	"fg/rules/RulePrinter.cpp"
+
+
 	"gen/LexerGenerator.cpp"
 	"gen/CppLexerGenerator.cpp"
 
@@ -95,6 +112,28 @@ set(_HEADERS
 	"fg/Token.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
+
+
+	"fg/rules/rules.hpp"
+
+	"fg/rules/RuleNode.hpp"
+	"fg/rules/NilRule.hpp"
+	"fg/rules/RuleTraverser.hpp"
+
+	"fg/rules/RulePos.hpp"
+	"fg/rules/CharLiteral.hpp"
+	"fg/rules/RuleRef.hpp"
+	
+	"fg/rules/BinaryRule.hpp"
+	"fg/rules/RuleConcat.hpp"
+	"fg/rules/RuleAltern.hpp"
+	
+	"fg/rules/UnaryRule.hpp"
+	"fg/rules/PlusRule.hpp"
+	"fg/rules/StarRule.hpp"
+	"fg/rules/OptRule.hpp"
+	
+	"fg/rules/RulePrinter.hpp"
 
 
 	"gen/gen.hpp"
