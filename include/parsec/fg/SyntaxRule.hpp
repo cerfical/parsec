@@ -1,7 +1,7 @@
 #ifndef PARSEC_FG_SYNTAX_RULE_HEADER
 #define PARSEC_FG_SYNTAX_RULE_HEADER
 
-#include "SyntaxNode.hpp"
+#include "rules/Rule.hpp"
 #include "GrammarRule.hpp"
 
 #include <memory>
@@ -23,7 +23,7 @@ namespace parsec::fg {
 		SyntaxRule() = default;
 
 		/** @brief Construct a new named rule with a body. */
-		SyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body)
+		SyntaxRule(const std::string& name, std::unique_ptr<rules::Rule> body)
 			: GrammarRule(name), m_body(std::move(body))
 		{ }
 		/** @} */
@@ -43,7 +43,7 @@ namespace parsec::fg {
 
 		/** @{ */
 		/** @brief Defining body of the rule. */
-		const SyntaxNode* body() const noexcept {
+		const rules::Rule* body() const noexcept {
 			return m_body.get();
 		}
 		/** @} */
@@ -51,7 +51,7 @@ namespace parsec::fg {
 
 	private:
 		/** @{ */
-		std::unique_ptr<SyntaxNode> m_body;
+		std::unique_ptr<rules::Rule> m_body;
 		/** @} */
 	};
 

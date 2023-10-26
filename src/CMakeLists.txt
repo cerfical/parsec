@@ -20,19 +20,12 @@ add_library(parsec-lib STATIC
 	"regex/regex.Parser.cpp"
 	
 
-	"fg/SyntaxNode.cpp"
-	"fg/RuleRef.cpp"
-	"fg/BinaryNode.cpp"
-	"fg/AlternNode.cpp"
-	"fg/ConcatNode.cpp"
-
 	"fg/Grammar.cpp"
 	"fg/SyntaxRule.cpp"
 	"fg/TokenRule.cpp"
 
 	"fg/Token.cpp"
 	"fg/Lexer.cpp"
-	"fg/fg.NodePrinter.cpp"
 	"fg/fg.Parser.cpp"
 
 
@@ -93,20 +86,12 @@ set(_HEADERS
 
 
 	"fg/fg.hpp"
-	"fg/nodes.hpp"
-
-	"fg/NodeTraverser.hpp"
-	"fg/SyntaxNode.hpp"
-	"fg/BinaryNode.hpp"
-	"fg/AlternNode.hpp"
-	"fg/ConcatNode.hpp"
 
 	"fg/GrammarRule.hpp"
 	"fg/TokenRule.hpp"
 	"fg/SyntaxRule.hpp"
 	"fg/Grammar.hpp"
 	
-	"fg/NodePrinter.hpp"
 	"fg/Token.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
@@ -115,10 +100,11 @@ set(_HEADERS
 	"fg/rules/rules.hpp"
 
 	"fg/rules/Rule.hpp"
-	"fg/rules/NilRule.hpp"
 	"fg/rules/RuleTraverser.hpp"
+	"fg/rules/RulePrinter.hpp"
 
 	"fg/rules/Atom.hpp"
+	"fg/rules/NilRule.hpp"
 	
 	"fg/rules/BinaryRule.hpp"
 	"fg/rules/RuleConcat.hpp"
@@ -129,8 +115,6 @@ set(_HEADERS
 	"fg/rules/StarRule.hpp"
 	"fg/rules/OptRule.hpp"
 	
-	"fg/rules/RulePrinter.hpp"
-
 
 	"gen/gen.hpp"
 	"gen/LexerGenerator.hpp"

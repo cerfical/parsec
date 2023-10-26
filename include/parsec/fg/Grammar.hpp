@@ -35,7 +35,7 @@ namespace parsec::fg {
 
 
 		/** @brief Add a new @ref SyntaxRule "syntax rule" to the grammar. */
-		void addSyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body);
+		void addSyntaxRule(const std::string& name, std::unique_ptr<rules::Rule> body);
 		/** @} */
 
 

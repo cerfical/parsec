@@ -74,7 +74,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		std::unique_ptr<SyntaxNode> m_rule;
+		std::unique_ptr<rules::Rule> m_rule;
 		Grammar m_grammar;
 		/** @} */
 

@@ -17,7 +17,7 @@ namespace parsec::fg {
 		);
 	}
 
-	void Grammar::addSyntaxRule(const std::string& name, std::unique_ptr<SyntaxNode> body) {
+	void Grammar::addSyntaxRule(const std::string& name, std::unique_ptr<rules::Rule> body) {
 		const auto it = m_rules.try_emplace(name, m_syntax.size(), false);
 		if(!it.second) {
 			throw std::logic_error("duplicate grammar rule name");

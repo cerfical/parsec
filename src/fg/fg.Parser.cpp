@@ -2,7 +2,7 @@
 
 #include "regex/Parser.hpp"
 #include "utils/ParseError.hpp"
-#include "fg/nodes.hpp"
+#include "fg/rules/rules.hpp"
 
 #include <sstream>
 
@@ -86,7 +86,7 @@ namespace parsec::fg {
 	void Parser::parseAtom() {
 		switch(m_lexer.peek().kind()) {
 			case Token::Ident: {
-				m_rule = std::make_unique<RuleRef>(m_lexer.lex().text());
+				m_rule = std::make_unique<rules::Atom>(m_lexer.lex().text());
 				break;
 			}
 			case Token::OpenParen: {
@@ -105,7 +105,7 @@ namespace parsec::fg {
 		auto left = (parseAtom(), std::move(m_rule));
 		while(atomStart()) {
 			auto right = (parseAtom(), std::move(m_rule));
-			left = std::make_unique<ConcatNode>(
+			left = std::make_unique<rules::RuleConcat>(
 				std::move(left),
 				std::move(right)
 			);
@@ -117,7 +117,7 @@ namespace parsec::fg {
 		auto left = (parseConcat(), std::move(m_rule));
 		while(m_lexer.skipIf(Token::Pipe)) {
 			auto right = (parseConcat(), std::move(m_rule));
-			left = std::make_unique<AlternNode>(
+			left = std::make_unique<rules::RuleAltern>(
 				std::move(left),
 				std::move(right)
 			);
