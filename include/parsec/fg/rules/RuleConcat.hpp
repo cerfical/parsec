@@ -7,15 +7,14 @@ namespace parsec::fg::rules {
 	class RuleConcat : public BinaryRule {
 	public:
 		/** @{ */
-		RuleConcat(std::unique_ptr<RuleNode> left, std::unique_ptr<RuleNode> right) noexcept
+		RuleConcat(std::unique_ptr<Rule> left, std::unique_ptr<Rule> right) noexcept
 			: BinaryRule(std::move(left), std::move(right))
 		{ }
 		/** @} */
 
 
 		/** @{ */
-		void traverseWith(RuleTraverser& traverser) const override;
-		bool nullable() const noexcept override;
+		void traverse(RuleTraverser& traverser) const override;
 		/** @} */
 	};
 }

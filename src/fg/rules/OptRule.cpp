@@ -2,11 +2,7 @@
 #include "fg/rules/RuleTraverser.hpp"
 
 namespace parsec::fg::rules {
-	void OptRule::traverseWith(RuleTraverser& traverser) const {
-		traverser.visitNode(*this);
-	}
-
-	bool OptRule::nullable() const noexcept {
-		return true;
+	void OptRule::traverse(RuleTraverser& traverser) const {
+		traverser.visit(*this);
 	}
 }

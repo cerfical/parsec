@@ -1,8 +1,7 @@
 #ifndef PARSEC_FG_RULES_ROOT_HEADER
 #define PARSEC_FG_RULES_ROOT_HEADER
 
-#include "CharLiteral.hpp"
-#include "RuleRef.hpp"
+#include "Atom.hpp"
 #include "NilRule.hpp"
 
 #include "PlusRule.hpp"

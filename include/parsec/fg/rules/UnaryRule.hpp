@@ -1,14 +1,14 @@
 #ifndef PARSEC_FG_RULES_UNARY_RULE_HEADER
 #define PARSEC_FG_RULES_UNARY_RULE_HEADER
 
-#include "RuleNode.hpp"
+#include "Rule.hpp"
 #include <memory>
 
 namespace parsec::fg::rules {
-	class UnaryRule : public RuleNode {
+	class UnaryRule : public Rule {
 	public:
 		/** @{ */
-		explicit UnaryRule(std::unique_ptr<RuleNode> inner) noexcept
+		explicit UnaryRule(std::unique_ptr<Rule> inner) noexcept
 			: m_inner(std::move(inner)) {
 			m_inner->setParent(this);
 		}
@@ -18,7 +18,7 @@ namespace parsec::fg::rules {
 
 
 		/** @{ */
-		const RuleNode* inner() const noexcept {
+		const Rule* inner() const noexcept {
 			return m_inner.get();
 		}
 		/** @} */
@@ -26,7 +26,7 @@ namespace parsec::fg::rules {
 
 	private:
 		/** @{ */
-		std::unique_ptr<RuleNode> m_inner;
+		std::unique_ptr<Rule> m_inner;
 		/** @} */
 	};
 }

@@ -7,15 +7,14 @@ namespace parsec::fg::rules {
 	class RuleAltern : public BinaryRule {
 	public:
 		/** @{ */
-		RuleAltern(std::unique_ptr<RuleNode> left, std::unique_ptr<RuleNode> right) noexcept
+		RuleAltern(std::unique_ptr<Rule> left, std::unique_ptr<Rule> right) noexcept
 			: BinaryRule(std::move(left), std::move(right))
 		{ }
 		/** @} */
 
 
 		/** @{ */
-		void traverseWith(RuleTraverser& traverser) const override;
-		bool nullable() const noexcept override;
+		void traverse(RuleTraverser& traverser) const override;
 		/** @} */
 	};
 }

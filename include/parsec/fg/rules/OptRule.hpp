@@ -7,15 +7,14 @@ namespace parsec::fg::rules {
 	class OptRule : public UnaryRule {
 	public:
 		/** @{ */
-		explicit OptRule(std::unique_ptr<RuleNode> inner) noexcept
+		explicit OptRule(std::unique_ptr<Rule> inner) noexcept
 			: UnaryRule(std::move(inner))
 		{ }
 		/** @} */
 
 
 		/** @{ */
-		void traverseWith(RuleTraverser& traverser) const override;
-		bool nullable() const noexcept override;
+		void traverse(RuleTraverser& traverser) const override;
 		/** @} */
 	};
 }

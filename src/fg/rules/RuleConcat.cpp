@@ -2,11 +2,7 @@
 #include "fg/rules/RuleTraverser.hpp"
 
 namespace parsec::fg::rules {
-	void RuleConcat::traverseWith(RuleTraverser& traverser) const {
-		traverser.visitNode(*this);
-	}
-
-	bool RuleConcat::nullable() const noexcept {
-		return left()->nullable() && right()->nullable();
+	void RuleConcat::traverse(RuleTraverser& traverser) const {
+		traverser.visit(*this);
 	}
 }

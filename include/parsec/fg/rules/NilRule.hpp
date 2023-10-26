@@ -1,14 +1,13 @@
 #ifndef PARSEC_FG_RULES_NIL_RULE_HEADER
 #define PARSEC_FG_RULES_NIL_RULE_HEADER
 
-#include "RuleNode.hpp"
+#include "Rule.hpp"
 
 namespace parsec::fg::rules {
-	class NilRule : public RuleNode {
+	class NilRule : public Rule {
 	public:
 		/** @{ */
-		void traverseWith(RuleTraverser& traverser) const override;
-		bool nullable() const noexcept override;
+		void traverse(RuleTraverser& traverser) const override;
 		/** @} */
 	};
 }
