@@ -10,18 +10,15 @@ namespace parsec {
 	class SourceLoc {
 	public:
 		/** @{ */
-		/** @brief Print out a location to a @c std::ostream. */
+		/** @brief Prints out a location to a @c std::ostream. */
 		friend std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Construct an empty location. */
-		SourceLoc() = default;
-
 		/** @brief Construct a new location. */
-		SourceLoc(int startCol, int colCount = 1, int line = 0, int pos = 0) noexcept
-			: m_startCol(startCol), m_colCount(colCount), m_line(line), m_pos(pos)
+		SourceLoc(int startCol = 0, int colCount = 1, int lineNo = 0, int linePos = 0) noexcept
+			: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos)
 		{ }
 		/** @} */
 
@@ -34,36 +31,49 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Positional index of the location. */
-		int pos() const noexcept {
-			return m_pos;
+		int linePos() const noexcept {
+			return m_linePos;
 		}
 
+
 		/** @brief Line number of the location. */
-		int line() const noexcept {
-			return m_line;
+		int lineNo() const noexcept {
+			return m_lineNo;
 		}
+
 
 		/** @brief Number of columns spanning the location. */
 		int colCount() const noexcept {
 			return m_colCount;
 		}
 
+
 		/** @brief Starting column of the location. */
 		int startCol() const noexcept {
 			return m_startCol;
 		}
 
+
 		/** @brief Ending column of the location. */
 		int endCol() const noexcept {
 			return startCol() + colCount();
 		}
+
+
+		/** @brief Absolute position of the location. */
+		int pos() const noexcept {
+			return linePos() + startCol();
+		}
 		/** @} */
 
+		
 	private:
-		int m_startCol = { };
-		int m_colCount = { };
-		int m_line = { };
-		int m_pos = { };
+		/** @{ */
+		int m_startCol;
+		int m_colCount;
+		int m_lineNo;
+		int m_linePos;
+		/** @} */
 	};
 }
 

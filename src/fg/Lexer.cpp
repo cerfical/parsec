@@ -3,94 +3,99 @@
 #include "utils/ParseError.hpp"
 #include "utils/chars.hpp"
 
-#include <sstream>
-
 namespace parsec::fg {
-	void Lexer::parseError(gsl::czstring msg) {
-		// construct a location that points to the offending symbol
-		const auto loc = SourceLoc(
-			m_input.pos() - m_input.linePos(), 1,
-			m_input.lineNo(), m_input.linePos()
+	void Lexer::invalidToken(const std::string& expected) const {
+		throw ParseError("expected "
+				+ expected
+				+ ", but found "
+				+ describeToken(peek().kind()),
+			peek().loc()
 		);
-		throw ParseError(msg, loc);
 	}
 
-	void Lexer::badCharError() {
-		const auto msg = (std::ostringstream()
-			<< "unexpected \'" << m_input.peek() << '\''
-		).str();
-		parseError(msg.c_str());
+	void Lexer::unexpectedEol() const {
+		throw ParseError(
+			"unexpected end of line",
+			m_scanner.loc()
+		);
+	}
+
+	void Lexer::unexpectedChar() const {
+		throw ParseError("unexpected '"
+				+ escapeChar(m_scanner.peek())
+				+ "'",
+			m_scanner.loc()
+		);
 	}
 	
 
-	void Lexer::skipWhitespace() {
-		while(!m_input.eof() && isSpace(m_input.peek())) {
-			m_input.skip();
+	bool Lexer::stringLiteralStart() const {
+		return !m_scanner.eof()
+			&& (m_scanner.peek() == '\''
+				|| m_scanner.peek() == '\"'
+			);
+	}
+
+	bool Lexer::identStart() const {
+		return !m_scanner.eof()
+			&& (isAlnum(m_scanner.peek())
+				|| m_scanner.peek() == '-'
+				|| m_scanner.peek() == '_'
+			);
+	}
+
+
+	void Lexer::skipWhitespace() const {
+		while(!m_scanner.eof() && isSpace(m_scanner.peek())) {
+			m_scanner.skip();
 		}
 	}
-
-
-	bool Lexer::identStart() {
-		return !m_input.eof() && (isAlnum(m_input.peek())
-				|| m_input.peek() == '-'
-				|| m_input.peek() == '_'
-		);
-	}
 	
-	Token::Kinds Lexer::parseIdent() {
+	TokenKinds Lexer::parseIdent() const {
 		while(identStart()) {
-			m_buf += m_input.get();
+			m_buf += m_scanner.get();
 		}
-		return Token::Ident;
+		return TokenKinds::Ident;
 	}
 
-
-	bool Lexer::stringLiteralStart() {
-		return !m_input.eof() && (
-			m_input.peek() == '\'' || m_input.peek() == '\"'
-		);
-	}
-
-	Token::Kinds Lexer::parseStringLiteral() {
-		const auto delim = m_input.get();
+	TokenKinds Lexer::parseStringLiteral() const {
+		const auto delim = m_scanner.get();
 		while(true) {
-			if(m_input.peek() == '\n') {
-				parseError("unexpected end of line");
+			if(m_scanner.peek() == '\n') {
+				unexpectedEol();
 			}
-			if(m_input.skipIf(delim)) {
+			if(m_scanner.skipIf(delim)) {
 				break;
 			}
 			
-			const auto ch = m_input.get();
+			const auto ch = m_scanner.get();
 			m_buf += ch;
 
 			// ignore delimiters that are escaped with backslashes
-			if(ch == '\\' && m_input.peek() == delim) {
-				m_buf += m_input.get();
+			if(ch == '\\' && m_scanner.peek() == delim) {
+				m_buf += m_scanner.get();
 			}
 		}
-		return Token::StringLiteral;
+		return TokenKinds::StringLiteral;
 	}
 
-
-	Token::Kinds Lexer::parseOperator() {
-		auto tokKind = Token::Eof;
-		switch(m_input.peek()) {
-			case '{': tokKind = Token::OpenBrace; break;
-			case '}': tokKind = Token::CloseBrace; break;
-			case '(': tokKind = Token::OpenParen; break;
-			case ')': tokKind = Token::CloseParen; break;
-			case ';': tokKind = Token::Semicolon; break;
-			case '=': tokKind = Token::Equals; break;
-			case '|': tokKind = Token::Pipe; break;
-			default: badCharError();
+	TokenKinds Lexer::parseOperator() const {
+		auto tokKind = TokenKinds::Eof;
+		switch(m_scanner.peek()) {
+			case '{': tokKind = TokenKinds::OpenBrace; break;
+			case '}': tokKind = TokenKinds::CloseBrace; break;
+			case '(': tokKind = TokenKinds::OpenParen; break;
+			case ')': tokKind = TokenKinds::CloseParen; break;
+			case ';': tokKind = TokenKinds::Semicolon; break;
+			case '=': tokKind = TokenKinds::Equals; break;
+			case '|': tokKind = TokenKinds::Pipe; break;
+			default: unexpectedChar();
 		}
-		m_buf += m_input.get();
+		m_buf += m_scanner.get();
 		return tokKind;
 	}
 	
-
-	Token& Lexer::parseToken() {
+	Token& Lexer::parseToken() const {
 		// do nothing if the token is already parsed
 		if(m_tok) {
 			return *m_tok;
@@ -99,12 +104,12 @@ namespace parsec::fg {
 		// remove all whitespace from the input before parsing the token
 		skipWhitespace();
 
-		const auto startPos = m_input.pos();
-		m_buf.clear(); // clear the text buffer
+		const auto startPos = m_scanner.pos();
+		m_buf.clear();
 
 		// parse the token according to its type
-		auto tokKind = Token::Eof;
-		if(!m_input.eof()) {
+		auto tokKind = TokenKinds::Eof;
+		if(!m_scanner.eof()) {
 			if(identStart()) {
 				tokKind = parseIdent();
 			} else if(stringLiteralStart()) {
@@ -115,26 +120,18 @@ namespace parsec::fg {
 		}
 
 		// calculate proper values for the starting column and the number of columns of the token
-		const auto colCount = tokKind != Token::Eof ? m_input.pos() - startPos : 1;
-		const auto startCol = startPos - m_input.linePos();
+		const auto colCount = std::max(m_scanner.pos() - startPos, 1);
+		const auto startCol = startPos - m_scanner.linePos();
 
-		const auto loc = SourceLoc(startCol, colCount, m_input.lineNo(), m_input.linePos());
-		m_tok.emplace(tokKind, m_buf, loc);
+		m_tok.emplace(m_buf, tokKind,
+			SourceLoc(
+				startCol,
+				colCount,
+				m_scanner.lineNo(),
+				m_scanner.linePos()
+			)
+		);
+
 		return *m_tok;
-	}
-
-
-	bool Lexer::skipIf(Token::Kinds kind) {
-		if(peek().kind() == kind) {
-			skip();
-			return true;
-		}
-		return false;
-	}
-
-	Token Lexer::lex() {
-		auto tok = std::move(parseToken());
-		m_tok.reset();
-		return tok;
 	}
 }

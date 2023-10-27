@@ -108,8 +108,8 @@ namespace {
 		return (std::ostringstream() << lexer.lex.prefix << state).str();
 	}
 
-	std::string makeTokenKind(const fg::TokenRule& rule) {
-		return toPascalCase(rule.name());
+	std::string makeTokenKind(const fg::Symbol& symbol) {
+		return toPascalCase(symbol.name());
 	}
 	/** @} */
 }
@@ -152,9 +152,9 @@ namespace parsec::gen {
 	void CppLexerGenerator::generateTokenKinds() {
 		m_out.printLine("enum ", tokenKinds, " {");
 		m_out.down().print(tokenKinds.eof);
-		for(const auto& rule : inputGrammar().tokens()) {
-			if(rule.name() != wsToken) {
-				m_out.rawPrint(",\n").down().print(makeTokenKind(rule));
+		for(const auto& symbol : inputGrammar().symbols()) {
+			if(symbol.terminal() && symbol.name() != wsToken) {
+				m_out.rawPrint(",\n").down().print(makeTokenKind(symbol));
 			}
 		}
 		m_out.printLine();

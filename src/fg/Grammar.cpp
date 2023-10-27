@@ -1,40 +1,28 @@
 #include "fg/Grammar.hpp"
-
 #include <gsl/narrow>
-#include <stdexcept>
 
 namespace parsec::fg {
-	void Grammar::addTokenRule(const std::string& name, std::unique_ptr<regex::ExprNode> pattern) {
-		const auto it = m_rules.try_emplace(name, m_tokens.size(), true);
-		if(!it.second) {
-			throw std::logic_error("duplicate grammar rule name");
+	bool Grammar::addSymbol(const std::string& name, RulePtr rule, bool terminal) {
+		// assign an unique identifier to the new symbol and try to insert it into the grammar
+		const auto symbolId = gsl::narrow_cast<int>(m_symbols.size());
+		const auto [it, wasEmplaced] = m_symbolIds.try_emplace(name, symbolId);
+		
+		if(wasEmplaced) {
+			m_symbols.emplace_back(name,
+				std::move(rule),
+				terminal,
+				symbolId
+			);	
 		}
 		
-		m_tokens.emplace_back(
-			name,
-			std::move(pattern),
-			gsl::narrow_cast<int>(m_tokens.size())
-		);
+		return wasEmplaced;
 	}
 
-	void Grammar::addSyntaxRule(const std::string& name, std::unique_ptr<rules::Rule> body) {
-		const auto it = m_rules.try_emplace(name, m_syntax.size(), false);
-		if(!it.second) {
-			throw std::logic_error("duplicate grammar rule name");
-		}
-
-		m_syntax.emplace_back(name, std::move(body));
-	}
-
-
-	const GrammarRule* Grammar::resolveRule(const std::string& ruleName) const {
-		const auto it = m_rules.find(ruleName);
-		if(it != m_rules.cend()) {
-			if(it->second.second) {
-				return &m_tokens[it->second.first];
-			} else {
-				return &m_syntax[it->second.first];
-			}
+	const Symbol* Grammar::lookupSymbol(const std::string& name) const {
+		const auto it = m_symbolIds.find(name);
+		if(it != m_symbolIds.cend()) {
+			const auto id = it->second;
+			return &m_symbols[id];
 		}
 		return nullptr;
 	}

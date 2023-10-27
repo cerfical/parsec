@@ -78,12 +78,11 @@ private:
 	}
 
 	void dumpError(const parsec::ParseError& e) {
-		const auto& loc = e.location();
-		auto markerPos = loc.startCol();
+		auto markerPos = e.loc().startCol();
 
 		// save the current input position and then update the input pointer
 		const auto inputPos = m_input.tellg();
-		m_input.seekg(loc.pos());
+		m_input.seekg(e.loc().linePos());
 
 		// read the line of text represented by the location
 		std::string line;
@@ -107,11 +106,11 @@ private:
 
 
 		// finally print out the error message
-		std::cerr << m_inputPath.string() << ':' << loc.line() + 1 << ':' << loc.startCol() + 1 << ": "
+		std::cerr << m_inputPath.string() << ':' << e.loc() << ": "
 			<< "error: " << e.what() << ":\n";
 
 		// marker to visually highlight the location of the error
-		const auto marker = std::string(loc.colCount(), loc.colCount() != 1 ? '~' : '^');
+		const auto marker = std::string(e.loc().colCount(), e.loc().colCount() != 1 ? '~' : '^');
 		const auto spaces = std::string(markerPos, ' ');
 		const auto indent = std::string(tabSize, ' ');
 

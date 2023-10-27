@@ -4,44 +4,29 @@ configure_file("config.hpp.in" "config.hpp")
 
 # Define the library from the source files
 add_library(parsec-lib STATIC
-	"regex/ExprNode.cpp"
+	"regex/Parser.cpp"
 
-	"regex/NilExpr.cpp"
-	"regex/CharLiteral.cpp"
-
-	"regex/ConcatExpr.cpp"
-	"regex/AlternExpr.cpp"
-
-	"regex/PlusExpr.cpp"
-	"regex/StarExpr.cpp"
-	"regex/OptionalExpr.cpp"
-
-	"regex/regex.NodePrinter.cpp"
-	"regex/regex.Parser.cpp"
 	
-
 	"fg/Grammar.cpp"
-	"fg/SyntaxRule.cpp"
-	"fg/TokenRule.cpp"
 
 	"fg/Token.cpp"
+	"fg/TokenKinds.cpp"
 	"fg/Lexer.cpp"
-	"fg/fg.Parser.cpp"
+	
+	"fg/Parser.cpp"
 
+	"fg/Rule.cpp"
+	"fg/RulePrinter.cpp"
 
-	"fg/rules/Rule.cpp"
-	"fg/rules/NilRule.cpp"
+	"fg/NilRule.cpp"
+	"fg/Atom.cpp"
 
-	"fg/rules/Atom.cpp"
+	"fg/RuleConcat.cpp"
+	"fg/RuleAltern.cpp"
 
-	"fg/rules/RuleConcat.cpp"
-	"fg/rules/RuleAltern.cpp"
-
-	"fg/rules/PlusRule.cpp"
-	"fg/rules/StarRule.cpp"
-	"fg/rules/OptRule.cpp"
-
-	"fg/rules/RulePrinter.cpp"
+	"fg/PlusRule.cpp"
+	"fg/StarRule.cpp"
+	"fg/OptionalRule.cpp"
 
 
 	"gen/LexerGenerator.cpp"
@@ -64,56 +49,33 @@ set(_HEADERS
 
 
 	"regex/regex.hpp"
-	"regex/nodes.hpp"
-
-	"regex/ExprNode.hpp"
-	"regex/NodeTraverser.hpp"
-	
-	"regex/NilExpr.hpp"
-	"regex/CharLiteral.hpp"
-	
-	"regex/BinaryExpr.hpp"
-	"regex/ConcatExpr.hpp"
-	"regex/AlternExpr.hpp"
-	
-	"regex/UnaryExpr.hpp"
-	"regex/PlusExpr.hpp"
-	"regex/StarExpr.hpp"
-	"regex/OptionalExpr.hpp"
-	
-	"regex/NodePrinter.hpp"
 	"regex/Parser.hpp"
 
 
 	"fg/fg.hpp"
-
-	"fg/GrammarRule.hpp"
-	"fg/TokenRule.hpp"
-	"fg/SyntaxRule.hpp"
+	"fg/rules.hpp"
 	"fg/Grammar.hpp"
 	
 	"fg/Token.hpp"
+	"fg/TokenKinds.hpp"
 	"fg/Lexer.hpp"
 	"fg/Parser.hpp"
 
+	"fg/Rule.hpp"
+	"fg/RuleTraverser.hpp"
+	"fg/RulePrinter.hpp"
 
-	"fg/rules/rules.hpp"
-
-	"fg/rules/Rule.hpp"
-	"fg/rules/RuleTraverser.hpp"
-	"fg/rules/RulePrinter.hpp"
-
-	"fg/rules/Atom.hpp"
-	"fg/rules/NilRule.hpp"
+	"fg/Atom.hpp"
+	"fg/NilRule.hpp"
 	
-	"fg/rules/BinaryRule.hpp"
-	"fg/rules/RuleConcat.hpp"
-	"fg/rules/RuleAltern.hpp"
+	"fg/BinaryRule.hpp"
+	"fg/RuleConcat.hpp"
+	"fg/RuleAltern.hpp"
 	
-	"fg/rules/UnaryRule.hpp"
-	"fg/rules/PlusRule.hpp"
-	"fg/rules/StarRule.hpp"
-	"fg/rules/OptRule.hpp"
+	"fg/UnaryRule.hpp"
+	"fg/PlusRule.hpp"
+	"fg/StarRule.hpp"
+	"fg/OptionalRule.hpp"
 	
 
 	"gen/gen.hpp"

@@ -5,20 +5,13 @@
 #include "Token.hpp"
 
 #include <optional>
-#include <gsl/gsl>
 
 namespace parsec::fg {
-	/**
-	 * @brief Breaks down a character stream into a sequence of @ref Token "tokens".
-	 */
 	class Lexer {
 	public:
 		/** @{ */
-		Lexer() = default;
-
-		/** @brief Construct a new lexer that operates on a @c std::istream. */
-		explicit Lexer(std::istream& input) noexcept
-			: m_input(input)
+		explicit Lexer(std::istream& input = std::cin) noexcept
+			: m_scanner(input)
 		{ }
 		/** @} */
 
@@ -28,7 +21,6 @@ namespace parsec::fg {
 		Lexer& operator=(Lexer&&) = default;
 		/** @} */
 
-
 		/** @{ */
 		Lexer(const Lexer&) = delete;
 		Lexer& operator=(const Lexer&) = delete;
@@ -36,65 +28,93 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		/** @brief Look at the next token to be extracted, parsing it if necessary. */
-		const Token& peek() {
+		Token lex() {
+			auto tok = std::move(parseToken());
+			m_tok.reset();
+			return tok;
+		}
+
+		const Token& peek() const {
 			return parseToken();
 		}
 
-
-		/** @brief Check if the end of input was reached. */
-		bool eof() {
+		bool eof() const {
 			return peek().eof();
 		}
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Remove the next token from the input only if it is of the specified type. */
-		bool skipIf(Token::Kinds kind);
+		bool skipIf(TokenKinds tok) {
+			if(peek().kind() == tok) {
+				skip();
+				return true;
+			}
+			return false;
+		}
 
+		bool skipIf(const std::string& text) {
+			if(peek().text() == text) {
+				skip();
+				return true;
+			}
+			return false;
+		}
 
-		/** @brief Remove the next token from the input. */
 		void skip() {
 			lex();
 		}
 
 
-		/** @brief Extract the next token from the input stream. */
-		Token lex();
+		Token expect(TokenKinds tok) {
+			if(!peek().is(tok)) {
+				invalidToken(describeToken(tok));
+			}
+			return lex();
+		}
+
+		Token expect(const std::string& tok) {
+			if(peek().text() != tok) {
+				invalidToken(tok);
+			}
+			return lex();
+		}
 		/** @} */
 
 
 	private:
 		/** @{ */
-		[[noreturn]] void parseError(gsl::czstring msg);
-		[[noreturn]] void badCharError();
+		[[noreturn]] void invalidToken(const std::string& expected) const;
+		[[noreturn]] void unexpectedEol() const;
+		[[noreturn]] void unexpectedChar() const;
 		/** @} */
 
 
 		/** @{ */
-		void skipWhitespace();
-
-		bool identStart();
-		Token::Kinds parseIdent();
-
-		bool stringLiteralStart();
-		Token::Kinds parseStringLiteral();
-
-		Token::Kinds parseOperator();
+		bool stringLiteralStart() const;
+		bool identStart() const;
 		/** @} */
 
 
 		/** @{ */
-		Token& parseToken();
+		void skipWhitespace() const;
+
+		TokenKinds parseIdent() const;
+		TokenKinds parseStringLiteral() const;
+		TokenKinds parseOperator() const;
+		
+		Token& parseToken() const;
 		/** @} */
 		
+		
+		/** @{ */
+		mutable TextScanner m_scanner;
+		/** @} */
+
 
 		/** @{ */
-		std::optional<Token> m_tok;
-
-		TextScanner m_input;
-		std::string m_buf;
+		mutable std::optional<Token> m_tok;
+		mutable std::string m_buf;
 		/** @} */
 	};
 }

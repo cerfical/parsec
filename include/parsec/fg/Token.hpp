@@ -1,66 +1,29 @@
 #ifndef PARSEC_FG_TOKEN_HEADER
 #define PARSEC_FG_TOKEN_HEADER
 
-
-#define PARSEC_FG_TOKEN_LIST \
-	PARSEC_FG_TOKEN(Eof) /**< @brief End of file. */ \
-\
-	PARSEC_FG_TOKEN(Ident) /**< @brief Identifier. */ \
-	PARSEC_FG_TOKEN(StringLiteral) /**< @brief String literal. */ \
-\
-	PARSEC_FG_TOKEN(Pipe) /**< @brief Vertical bar. */ \
-	PARSEC_FG_TOKEN(Semicolon) /**< @brief Semicolon. */ \
-	PARSEC_FG_TOKEN(Equals) /**< @brief Equals sign. */ \
-\
-	PARSEC_FG_TOKEN(OpenBrace) /**< @brief Opening brace. */ \
-	PARSEC_FG_TOKEN(CloseBrace) /**< @brief Closing brace. */ \
-\
-	PARSEC_FG_TOKEN(OpenParen) /**< @brief Opening parenthesis. */ \
-	PARSEC_FG_TOKEN(CloseParen) /**< @brief Closing parenthesis. */
-
-
 #include "../utils/SourceLoc.hpp"
+#include "TokenKinds.hpp"
 
 #include <string>
 #include <ostream>
 
-
 namespace parsec::fg {
-	/**
-	 * @brief Description of a single character sequence from a grammar definition.
-	 */
 	class Token {
 	public:
 		/** @{ */
-#define PARSEC_FG_TOKEN(tok) tok,
-
-		/**
-		 * @brief Defines available type codes for classifying tokens.
-		 */
-		enum Kinds {
-			PARSEC_FG_TOKEN_LIST
-		};
-
-#undef PARSEC_FG_TOKEN
-		/** @} */
-
-
-		/** @{ */
-		/** @brief Prints out a token to a @c std::ostream. */
 		friend std::ostream& operator<<(std::ostream& out, const Token& tok);
-
-
-		/** @brief Prints out a token kind to a @c std::ostream. */
-		friend std::ostream& operator<<(std::ostream& out, Kinds kind);
 		/** @{ */
 
 
 		/** @{ */
-		Token() = default;
-
-		/** @brief Construct a new token from its classification, textual representation and location. */
-		Token(Kinds kind, const std::string& text, const SourceLoc& loc)
-			: m_text(text), m_loc(loc), m_kind(kind)
+		Token(
+			const std::string& text = "",
+			TokenKinds kind = TokenKinds::Eof,
+			const SourceLoc& loc = {}
+		)
+			: m_text(text)
+			, m_loc(loc)
+			, m_kind(kind)
 		{ }
 		/** @} */
 
@@ -70,7 +33,6 @@ namespace parsec::fg {
 		Token& operator=(const Token&) = default;
 		/** @} */
 
-
 		/** @{ */
 		Token(Token&&) = default;
 		Token& operator=(Token&&) = default;
@@ -78,34 +40,27 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		/** @brief Textual representation of the token. */
 		const std::string& text() const noexcept {
 			return m_text;
 		}
 
-
-		/** @brief Location in the source code where the token was found. */
-		const SourceLoc& location() const noexcept {
+		const SourceLoc& loc() const noexcept {
 			return m_loc;
 		}
 
-
-		/** @brief Classification of the token as reported by a @ref Lexer "lexer". */
-		Kinds kind() const noexcept {
+		TokenKinds kind() const noexcept {
 			return m_kind;
 		}
+		/** @} */
 
 
-		/** @brief Check if the token is of the specified type. */
-		template <Kinds kind>
-		bool is() const noexcept {
+		/** @{ */
+		bool is(TokenKinds kind) const noexcept {
 			return m_kind == kind;
 		}
 
-
-		/** @brief Check if the token is a @ref Kinds::Eof "eof" token. */
 		bool eof() const noexcept {
-			return is<Eof>();
+			return is(TokenKinds::Eof);
 		}
 		/** @} */
 
@@ -114,7 +69,7 @@ namespace parsec::fg {
 		/** @{ */
 		std::string m_text;
 		SourceLoc m_loc;
-		Kinds m_kind = Eof;
+		TokenKinds m_kind;
 		/** @} */
 	};
 }

@@ -5,7 +5,7 @@
 #include "Parser.hpp"
 #include "Grammar.hpp"
 
-#include "rules/rules.hpp"
+#include "rules.hpp"
 
 /** @brief Root namespace for formal grammars management classes and functions. */
 namespace parsec::fg { }

@@ -1,10 +1,8 @@
 #ifndef PARSEC_FG_TOKEN_RULE_HEADER
 #define PARSEC_FG_TOKEN_RULE_HEADER
 
-#include "../regex/BinaryExpr.hpp"
-#include "../regex/CharLiteral.hpp"
-
 #include "GrammarRule.hpp"
+#include <memory>
 #include <vector>
 
 namespace parsec::fg {
@@ -23,7 +21,7 @@ namespace parsec::fg {
 		TokenRule() = default;
 
 		/** @brief Construct a new rule from a regex pattern. */
-		TokenRule(const std::string& name, std::unique_ptr<regex::ExprNode> pattern, int priority);
+		TokenRule(const std::string& name, std::unique_ptr<int> pattern, int priority);
 		/** @} */
 
 
@@ -41,16 +39,14 @@ namespace parsec::fg {
 
 		/** @{ */
 		/** @brief Regex pattern defining the rule. */
-		const regex::ExprNode* pattern() const noexcept {
-			return static_cast<const regex::BinaryExpr*>(m_pattern.get())->left();
+		int pattern() const noexcept {
+			return 0;
 		}
 
 
 		/** @brief Special position in the regex pattern that identifies its end. */
-		const regex::CharLiteral* endMarker() const noexcept {
-			return static_cast<const regex::CharLiteral*>(
-				static_cast<const regex::BinaryExpr*>(m_pattern.get())->right()
-			);
+		int endMarker() const noexcept {
+			return 0;
 		}
 
 
@@ -63,7 +59,7 @@ namespace parsec::fg {
 
 	private:
 		/** @{ */
-		std::unique_ptr<regex::ExprNode> m_pattern;
+		std::unique_ptr<int> m_pattern;
 		int m_priority = 0;
 		/** @} */
 	};

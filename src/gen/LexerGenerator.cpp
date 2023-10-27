@@ -1,6 +1,5 @@
 #include "gen/LexerGenerator.hpp"
-#include "regex/nodes.hpp"
-
+#include "fg/Atom.hpp"
 #include <boost/functional/hash.hpp>
 #include <gsl/gsl>
 
@@ -10,12 +9,12 @@ namespace parsec::gen {
 	}
 
 	
-	const fg::TokenRule* LexerGenerator::computeRuleMatch(StateHandle state) const {
-		const fg::TokenRule* match = nullptr;
+	const fg::Symbol* LexerGenerator::computeRuleMatch(StateHandle state) const {
+		const fg::Symbol* match = nullptr;
 		for(const auto ch : state->first) {
 			if(isEndMarker(ch)) {
 				const auto newMatch = m_endMarkers.find(ch)->second;
-				if(!match || newMatch->priority() < match->priority()) {
+				if(!match || newMatch->id() < match->id()) {
 					match = newMatch;
 				}
 			}
@@ -27,10 +26,10 @@ namespace parsec::gen {
 		TransitionMap transitions;
 		for(const auto ch : state->first) {
 			if(!isEndMarker(ch)) {
-				const auto followPos = ch->followPos();
+				/*const auto followPos = ch->nextAtoms();
 				transitions[ch->value()].insert(
 					followPos.cbegin(), followPos.cend()
-				);
+				);*/
 			}
 		}
 		return transitions;
@@ -40,18 +39,18 @@ namespace parsec::gen {
 	LexerGenerator::State LexerGenerator::createStartState() const {
 		// combine firstpos sets of all rules to get the start state of the DFA
 		State startState;
-		for(const auto& rule : m_grammar->tokens()) {
-			const auto firstPos = rule.pattern()->firstPos();
-			startState.insert(firstPos.cbegin(), firstPos.cend());
-		}
+		//for(const auto& rule : m_grammar->tokens()) {
+			/*const auto firstPos = rule.pattern()->firstPos();
+			startState.insert(firstPos.cbegin(), firstPos.cend());*/
+		//}
 		return startState;
 	}
 
 	void LexerGenerator::registerEndMarkers() {
 		// save the mappings between end markers and corresponding rules
-		for(const auto& rule : m_grammar->tokens()) {
-			m_endMarkers.emplace(rule.endMarker(), &rule);
-		}
+		//for(const auto& rule : m_grammar->tokens()) {
+			//m_endMarkers.emplace(rule.endMarker(), &rule);
+		//}
 	}
 
 

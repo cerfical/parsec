@@ -57,7 +57,7 @@ namespace parsec::gen {
 		LexerState() = default;
 
 		/** @brief Construct a new state with an ID and an optional match. */
-		LexerState(int id, const fg::TokenRule* match) noexcept
+		LexerState(int id, const fg::Symbol* match) noexcept
 			: m_match(match), m_id(id)
 		{ }
 		/** @} */
@@ -85,8 +85,7 @@ namespace parsec::gen {
 			return m_match != nullptr;
 		}
 
-		/** @brief A @ref fg::TokenRule "TokenRule", if any, that matches the analyzed input. */
-		const fg::TokenRule* match() const noexcept {
+		const fg::Symbol* match() const noexcept {
 			return m_match;
 		}
 
@@ -106,7 +105,7 @@ namespace parsec::gen {
 
 	private:
 		TransitionList m_transitions;
-		const fg::TokenRule* m_match = nullptr;
+		const fg::Symbol* m_match = nullptr;
 		int m_id = { };
 	};
 
@@ -160,7 +159,7 @@ namespace parsec::gen {
 
 	private:
 		/** @{ */
-		using State = std::unordered_set<const regex::CharLiteral*>;
+		using State = std::unordered_set<const fg::Atom*>;
 
 		struct StateHasher {
 			std::size_t operator()(const State& state) const;
@@ -173,11 +172,11 @@ namespace parsec::gen {
 		/** @} */
 		
 		/** @{ */
-		bool isEndMarker(const regex::CharLiteral* ch) const {
+		bool isEndMarker(const fg::Atom* ch) const {
 			return m_endMarkers.contains(ch);
 		}
 		
-		const fg::TokenRule* computeRuleMatch(StateHandle state) const;
+		const fg::Symbol* computeRuleMatch(StateHandle state) const;
 		TransitionMap computeTransitions(StateHandle state) const;
 
 		State createStartState() const;
@@ -189,7 +188,7 @@ namespace parsec::gen {
 
 		const fg::Grammar* m_grammar = nullptr;
 
-		std::map<const regex::CharLiteral*, const fg::TokenRule*> m_endMarkers;
+		std::map<const fg::Atom*, const fg::Symbol*> m_endMarkers;
 		std::queue<StateHandle> m_unprocessedStates;
 		
 		StateCache m_dfaStates;

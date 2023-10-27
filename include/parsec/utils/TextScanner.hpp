@@ -1,7 +1,8 @@
 #ifndef PARSEC_UTILS_TEXT_SCANNER_HEADER
 #define PARSEC_UTILS_TEXT_SCANNER_HEADER
 
-#include <istream>
+#include "SourceLoc.hpp"
+#include <iostream>
 
 namespace parsec {
 	/**
@@ -10,11 +11,8 @@ namespace parsec {
 	class TextScanner {
 	public:
 		/** @{ */
-		/** @brief Construct a defaulted scanner that does nothing. */
-		TextScanner() = default;
-
 		/** @brief Construct a new scanner that operates on a @c std::istream. */
-		explicit TextScanner(std::istream& input) noexcept
+		explicit TextScanner(std::istream& input = std::cin) noexcept
 			: m_input(&input)
 		{ }
 		/** @} */
@@ -32,55 +30,80 @@ namespace parsec {
 
 
 		/** @{ */
-		/** @brief Check if the end of input was reached. */
-		bool eof() const;
+		/** @brief Removes the next character from the input and returns it. */
+		char get();
 
-		/** @brief Return the next character from the input without removing it. */
+
+		/** @brief Returns the next character from the input without removing it. */
 		char peek() const;
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Remove the next character only if it is equal to the given one. */
+		/** @brief Removes the next character only if it is equal to the given one. */
 		bool skipIf(char ch);
+
 
 		/** @brief Remove the next character from the input. */
 		void skip() {
 			get();
 		}
 
-		/** @brief Remove the next character from the input and return it. */
-		char get();
+
+		/** @brief Check if the end of input has been reached. */
+		bool eof() const {
+			return m_input->peek() == std::char_traits<char>::eof();
+		}
 		/** @} */
 
 
 		/** @{ */
-		/** @brief The current line number where the scanner is positioned. */
+		/** @brief Current line number where the scanner is positioned. */
 		int lineNo() const noexcept {
 			return m_lineNo;
 		}
+
 
 		/** @brief Position of the current line in the input. */
 		int linePos() const noexcept {
 			return m_linePos;
 		}
 
-		/** @brief The position of the scanner in the input stream. */
+
+		/** @brief Absolute position of the scanner in the input stream. */
 		int pos() const noexcept {
 			return m_pos;
 		}
+
+
+		/** @brief All information about the location of the scanner in a compact form. */
+		SourceLoc loc() const noexcept {
+			return SourceLoc(
+				pos() - linePos(),
+				1,
+				lineNo(),
+				linePos()
+			);
+		}
 		/** @} */
+
 
 	private:
 		/** @{ */
-		[[noreturn]] void badEof() const;
+		[[noreturn]] void unexpectedEof() const;
 		/** @} */
 
-		std::istream* m_input = nullptr;
-		
+
+		/** @{ */
+		std::istream* m_input;
+		/** @} */
+
+
+		/** @{ */
 		int m_linePos = 0;
 		int m_lineNo = 0;
 		int m_pos = 0;
+		/** @} */
 	};
 }
 
