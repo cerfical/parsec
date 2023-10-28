@@ -43,28 +43,29 @@ namespace parsec::fg {
 				);
 			}
 
-			[[noreturn]] void duplicateName() {
+			[[noreturn]] void duplicateName(const SourceLoc& loc) {
 				throw ParseError(
 					"duplicate grammar symbol name",
-					m_lexer.peek().loc()
+					loc
 				);
 			}
 			/** @} */
 
 
 			/** @{ */
-			RulePtr parseRegex(const Token& tok) {
+			RulePtr parseRegex() {
+				const auto pattern = m_lexer.expect(TokenKinds::StringLiteral);
 				try {
 					// parse the regex into its rule representation
-					return regex::Parser().parse(tok.text());
+					return regex::Parser().parse(pattern.text());
 				} catch(const ParseError& e) {
 					// adjust the error location to take into account the relative position of the regex
 					throw ParseError(e.what(),
 						SourceLoc(
-							tok.loc().startCol() + e.loc().startCol() + 1,
+							pattern.loc().startCol() + e.loc().startCol() + 1,
 							e.loc().colCount(),
-							tok.loc().lineNo(),
-							tok.loc().linePos()
+							pattern.loc().lineNo(),
+							pattern.loc().linePos()
 						)
 					);
 				}
@@ -133,61 +134,42 @@ namespace parsec::fg {
 
 			/** @{ */
 			void parseTokenDef() {
-				// token definition is of the form: name = "pattern";
+				// token definitions are of the form: name = "pattern"
 				const auto name = m_lexer.expect(TokenKinds::Ident);
 				if(m_grammar.lookupSymbol(name.text())) {
-					duplicateName();
+					duplicateName(name.loc());
 				}
 				m_lexer.expect(TokenKinds::Equals);
 
-				// store the parsed regex pattern in the grammar
-				const auto pattern = m_lexer.expect(TokenKinds::StringLiteral);
-				m_grammar.putSymbol(name.text(), parseRegex(pattern));
-
-				m_lexer.expect(TokenKinds::Semicolon);
-			}
-
-			void parseTokenDefList() {
-				m_lexer.expect(TokenKinds::OpenBrace);
-
-				while(m_lexer.peek().is(TokenKinds::Ident)) {
-					parseTokenDef();
-				}
-
-				m_lexer.expect(TokenKinds::CloseBrace);
+				m_grammar.putSymbol(name.text(), parseRegex());
 			}
 
 			void parseRuleDef() {
-				// syntax rule are of the form: name = rule;
-				const auto name = m_lexer.expect(TokenKinds::Ident).text();
-				if(m_grammar.lookupSymbol(name)) {
-					duplicateName();
+				// syntax rules are of the form: name = rule
+				const auto name = m_lexer.expect(TokenKinds::Ident);
+				if(m_grammar.lookupSymbol(name.text())) {
+					duplicateName(name.loc());
 				}
-
 				m_lexer.expect(TokenKinds::Equals);
-				m_grammar.putSymbol(name, parseRule(), false);
-
-				m_lexer.expect(TokenKinds::Semicolon);
-			}
-
-			void parseRuleDefList() {
-				m_lexer.expect(TokenKinds::OpenBrace);
-
-				while(m_lexer.peek().is(TokenKinds::Ident)) {
-					parseRuleDef();
-				}
-
-				m_lexer.expect(TokenKinds::CloseBrace);
+				
+				m_grammar.putSymbol(name.text(), parseRule(), false);
 			}
 
 			void parseGrammar() {
 				while(!m_lexer.peek().eof()) {
-					if(m_lexer.skipIf("tokens")) {
-						parseTokenDefList();
-					} else if(m_lexer.skipIf("rules")) {
-						parseRuleDefList();
-					} else {
-						unexpectedToken();
+					const auto listType = m_lexer.expect(TokenKinds::Ident);
+					m_lexer.expect(TokenKinds::OpenBrace);
+
+					while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
+						if(listType.text() == "tokens") {
+							parseTokenDef();
+						} else if(listType.text() == "rules") {
+							parseRuleDef();
+						} else {
+							m_lexer.skip();
+							continue;
+						}
+						m_lexer.expect(TokenKinds::Semicolon);
 					}
 				}
 			}
