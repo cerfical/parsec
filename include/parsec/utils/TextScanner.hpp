@@ -2,19 +2,25 @@
 #define PARSEC_UTILS_TEXT_SCANNER_HEADER
 
 #include "SourceLoc.hpp"
+
+#include <string_view>
 #include <iostream>
+#include <string>
 
 namespace parsec {
 	/**
-	 * @brief Auxiliary wrapper class for @c std::istream input streams.
+	 * @brief Facilitates textual data analysis using standard stream classes.
 	 */
 	class TextScanner {
 	public:
 		/** @{ */
-		/** @brief Construct a new scanner that operates on a @c std::istream. */
+		/** @brief Construct a new scanner that operates on a specified @c std::istream. */
 		explicit TextScanner(std::istream& input = std::cin) noexcept
-			: m_input(&input)
-		{ }
+			: m_input(&input) {
+			m_input->exceptions(
+				std::ios::badbit | std::ios::failbit
+			);
+		}
 		/** @} */
 
 
@@ -33,26 +39,30 @@ namespace parsec {
 		/** @brief Removes the next character from the input and returns it. */
 		char get();
 
+		
+		/** @brief Returns the character at the specified offset from the current position without removing it from the stream. */
+		char peek(int i = 0) const;
 
-		/** @brief Returns the next character from the input without removing it. */
-		char peek() const;
+
+		/** @brief Checks if the end of input has been reached. */
+		bool eof() const {
+			return m_labuf.empty() && safeEof();
+		}
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Removes the next character only if it is equal to the given one. */
+		/** @brief Removes specified character from the beginning of the input. */
 		bool skipIf(char ch);
+
+
+		/** @brief Removes specified text from the beginning of the input. */
+		bool skipIf(std::string_view text);
 
 
 		/** @brief Remove the next character from the input. */
 		void skip() {
 			get();
-		}
-
-
-		/** @brief Check if the end of input has been reached. */
-		bool eof() const {
-			return m_input->peek() == std::char_traits<char>::eof();
 		}
 		/** @} */
 
@@ -93,11 +103,16 @@ namespace parsec {
 		[[noreturn]] void unexpectedEof() const;
 		/** @} */
 
-
 		/** @{ */
-		std::istream* m_input;
+		bool safeEof() const;
+		bool fillBuf(int size) const;
 		/** @} */
 
+
+		/** @{ */
+		mutable std::string m_labuf;
+		std::istream* m_input;
+		/** @} */
 
 		/** @{ */
 		int m_linePos = 0;
