@@ -135,13 +135,14 @@ namespace parsec::fg {
 			void parseTokenDef() {
 				// token definition is of the form: name = "pattern";
 				const auto name = m_lexer.expect(TokenKinds::Ident);
+				if(m_grammar.lookupSymbol(name.text())) {
+					duplicateName();
+				}
 				m_lexer.expect(TokenKinds::Equals);
 
 				// store the parsed regex pattern in the grammar
 				const auto pattern = m_lexer.expect(TokenKinds::StringLiteral);
-				if(!m_grammar.addSymbol(name.text(), parseRegex(pattern))) {
-					duplicateName();
-				}
+				m_grammar.putSymbol(name.text(), parseRegex(pattern));
 
 				m_lexer.expect(TokenKinds::Semicolon);
 			}
@@ -159,10 +160,12 @@ namespace parsec::fg {
 			void parseRuleDef() {
 				// syntax rule are of the form: name = rule;
 				const auto name = m_lexer.expect(TokenKinds::Ident).text();
-				m_lexer.expect(TokenKinds::Equals);
-				if(!m_grammar.addSymbol(name, parseRule(), false)) {
+				if(m_grammar.lookupSymbol(name)) {
 					duplicateName();
 				}
+
+				m_lexer.expect(TokenKinds::Equals);
+				m_grammar.putSymbol(name, parseRule(), false);
 
 				m_lexer.expect(TokenKinds::Semicolon);
 			}

@@ -25,7 +25,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		bool addSymbol(const std::string& name, RulePtr rule, bool terminal = true);
+		void putSymbol(const std::string& name, RulePtr rule, bool terminal = true);
 		
 		const Symbol* lookupSymbol(const std::string& name) const;
 
