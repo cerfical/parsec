@@ -11,13 +11,13 @@
 	PARSEC_FG_TOKEN_KIND(Semicolon, "a ';'") /**< @brief Semicolon. */ \
 	PARSEC_FG_TOKEN_KIND(Equals, "an '='") /**< @brief Equals sign. */ \
 \
-	PARSEC_FG_TOKEN_KIND(OpenBrace, "an '{'") /**< @brief Opening brace. */ \
+	PARSEC_FG_TOKEN_KIND(OpenBrace, "a '{'") /**< @brief Opening brace. */ \
 	PARSEC_FG_TOKEN_KIND(CloseBrace, "a '}'") /**< @brief Closing brace. */ \
 \
-	PARSEC_FG_TOKEN_KIND(OpenParen, "an '('") /**< @brief Opening parenthesis. */ \
+	PARSEC_FG_TOKEN_KIND(OpenParen, "a '('") /**< @brief Opening parenthesis. */ \
 	PARSEC_FG_TOKEN_KIND(CloseParen, "a ')'") /**< @brief Closing parenthesis. */
 
-#include <string>
+#include <string_view>
 #include <ostream>
 
 namespace parsec::fg {
@@ -32,7 +32,7 @@ namespace parsec::fg {
 
 	std::ostream& operator<<(std::ostream& out, TokenKinds tok);
 
-	std::string describeToken(TokenKinds tok);
+	std::string_view describeToken(TokenKinds tok);
 }
 
 #endif

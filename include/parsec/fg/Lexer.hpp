@@ -45,15 +45,15 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		bool skipIf(TokenKinds tok) {
-			if(peek().kind() == tok) {
+		bool skipIf(TokenKinds kind) {
+			if(peek().kind() == kind) {
 				skip();
 				return true;
 			}
 			return false;
 		}
 
-		bool skipIf(const std::string& text) {
+		bool skipIf(std::string_view text) {
 			if(peek().text() == text) {
 				skip();
 				return true;
@@ -64,18 +64,20 @@ namespace parsec::fg {
 		void skip() {
 			lex();
 		}
+		/** @} */
 
 
-		Token expect(TokenKinds tok) {
-			if(!peek().is(tok)) {
-				invalidToken(describeToken(tok));
+		/** @{ */
+		Token expect(TokenKinds kind) {
+			if(!peek().is(kind)) {
+				invalidToken(describeToken(kind));
 			}
 			return lex();
 		}
 
-		Token expect(const std::string& tok) {
-			if(peek().text() != tok) {
-				invalidToken(tok);
+		Token expect(std::string_view text) {
+			if(peek().text() != text) {
+				invalidToken(text);
 			}
 			return lex();
 		}
@@ -84,7 +86,7 @@ namespace parsec::fg {
 
 	private:
 		/** @{ */
-		[[noreturn]] void invalidToken(const std::string& expected) const;
+		[[noreturn]] void invalidToken(std::string_view expected) const;
 		[[noreturn]] void unexpectedEol() const;
 		[[noreturn]] void unexpectedChar() const;
 		/** @} */

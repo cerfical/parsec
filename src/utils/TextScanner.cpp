@@ -5,7 +5,7 @@
 
 namespace parsec {
 	void TextScanner::unexpectedEof() const {
-		throw ParseError("unexpected end of input",
+		throw ParseError("unexpected end of file",
 			loc()
 		);
 	}

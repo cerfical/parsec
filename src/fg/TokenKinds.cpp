@@ -15,7 +15,7 @@ namespace parsec::fg {
 		return out;
 	}
 
-	std::string describeToken(TokenKinds tok) {
+	std::string_view describeToken(TokenKinds tok) {
 		switch(tok) {
 #define PARSEC_FG_TOKEN_KIND(kind, desc) \
 			case TokenKinds::kind: return desc;

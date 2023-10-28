@@ -4,11 +4,13 @@
 #include "utils/chars.hpp"
 
 namespace parsec::fg {
-	void Lexer::invalidToken(const std::string& expected) const {
+	void Lexer::invalidToken(std::string_view expected) const {
 		throw ParseError("expected "
-				+ expected
+				+ std::string(expected)
 				+ ", but found "
-				+ describeToken(peek().kind()),
+				+ std::string(describeToken(
+					peek().kind()
+				)),
 			peek().loc()
 		);
 	}
@@ -46,8 +48,26 @@ namespace parsec::fg {
 
 
 	void Lexer::skipWhitespace() const {
-		while(!m_scanner.eof() && isSpace(m_scanner.peek())) {
-			m_scanner.skip();
+		while(true) {
+			// nothing to skip, the input is empty
+			if(m_scanner.eof()) {
+				break;
+			}
+
+			if(isSpace(m_scanner.peek())) { // space characters
+				m_scanner.skip();
+			} else if(m_scanner.skipIf("//")) { // single-line comments
+				while(!m_scanner.eof() && m_scanner.get() != '\n') {
+					// skip until the end of line or file
+				}
+			} else if(m_scanner.skipIf("/*")) { // multi-line comments
+				while(!m_scanner.skipIf("*/")) {
+					// skip all characters until the end of comment token is encountered
+					m_scanner.skip();
+				}
+			} else {
+				break;
+			}
 		}
 	}
 	
