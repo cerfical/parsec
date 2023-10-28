@@ -105,6 +105,8 @@ namespace parsec {
 
 		/** @{ */
 		bool safeEof() const;
+		void updateLoc(char ch);
+
 		bool fillBuf(int size) const;
 		/** @} */
 
