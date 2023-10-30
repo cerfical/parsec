@@ -116,7 +116,7 @@ private:
 
 
 		// finally print out the error message
-		std::cerr << m_inputPath.string() << ':' << e.loc() << ": "
+		std::cerr << m_inputPath.generic_string() << ':' << e.loc() << ": "
 			<< msg << ": " << e.what() << '\n';
 
 		// marker to visually highlight the location of the error
