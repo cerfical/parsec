@@ -46,7 +46,8 @@ private:
 		try {
 			throw;
 		} catch(const parsec::ParseError& e) {
-			dumpError(e);
+			printError("error", e);
+			printNotes(e);
 		} catch(...) {
 			ConsoleApp::onError();
 		}
@@ -77,7 +78,16 @@ private:
 			.compile(grammar);
 	}
 
-	void dumpError(const parsec::ParseError& e) {
+	void printNotes(const parsec::ParseError& e) {
+		try {
+			std::rethrow_if_nested(e);
+		} catch(const parsec::ParseError& e) {
+			printError("note", e);
+			printNotes(e);
+		}
+	}
+
+	void printError(const std::string& msg, const parsec::ParseError& e) {
 		auto markerPos = e.loc().startCol();
 
 		// save the current input position and then update the input pointer
@@ -107,7 +117,7 @@ private:
 
 		// finally print out the error message
 		std::cerr << m_inputPath.string() << ':' << e.loc() << ": "
-			<< "error: " << e.what() << ":\n";
+			<< msg << ": " << e.what() << '\n';
 
 		// marker to visually highlight the location of the error
 		const auto marker = std::string(e.loc().colCount(), e.loc().colCount() != 1 ? '~' : '^');

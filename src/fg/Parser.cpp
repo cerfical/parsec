@@ -28,7 +28,8 @@ namespace parsec::fg {
 
 		private:
 			/** @{ */
-			[[noreturn]] void unexpectedToken() const {
+			[[noreturn]]
+			void unexpectedToken() const {
 				throw ParseError("unexpected \""
 						+ m_lexer.peek().text()
 						+ '"',
@@ -36,18 +37,29 @@ namespace parsec::fg {
 				);
 			}
 
-			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
+			[[noreturn]]
+			void unmatchedParen(const SourceLoc& loc) const {
 				throw ParseError(
 					"unmatched parenthesis",
 					loc
 				);
 			}
 
-			[[noreturn]] void duplicateName(const SourceLoc& loc) {
-				throw ParseError(
-					"duplicate grammar symbol name",
-					loc
-				);
+			[[noreturn]]
+			void symbolRedefinition(const Symbol& sym, const SourceLoc& loc) {
+				// attach additional info to the parse error using nested exceptions
+				try {
+					throw ParseError("previous definition of \""
+							+ sym.name()
+							+ "\" was here",
+						sym.loc()
+					);
+				} catch(...) {
+					std::throw_with_nested(ParseError(
+						"redifinition of \"" + sym.name() + '"',
+						loc
+					));
+				}
 			}
 			/** @} */
 
@@ -136,41 +148,45 @@ namespace parsec::fg {
 			void parseTokenDef() {
 				// token definitions are of the form: name = "pattern"
 				const auto name = m_lexer.expect(TokenKinds::Ident);
-				if(m_grammar.lookupSymbol(name.text())) {
-					duplicateName(name.loc());
+				if(const auto symbol = m_grammar.lookupSymbol(name.text())) {
+					symbolRedefinition(*symbol, name.loc());
 				}
 				m_lexer.expect(TokenKinds::Equals);
 
-				m_grammar.putSymbol(name.text(), parseRegex());
+				m_grammar.putSymbol(name.text(), parseRegex(), true, name.loc());
 			}
 
 			void parseRuleDef() {
 				// syntax rules are of the form: name = rule
 				const auto name = m_lexer.expect(TokenKinds::Ident);
-				if(m_grammar.lookupSymbol(name.text())) {
-					duplicateName(name.loc());
+				if(const auto symbol = m_grammar.lookupSymbol(name.text())) {
+					symbolRedefinition(*symbol, name.loc());
 				}
 				m_lexer.expect(TokenKinds::Equals);
 				
-				m_grammar.putSymbol(name.text(), parseRule(), false);
+				m_grammar.putSymbol(name.text(), parseRule(), false, name.loc());
+			}
+
+			void parseDefList() {
+				const auto listType = m_lexer.expect(TokenKinds::Ident);
+				m_lexer.expect(TokenKinds::OpenBrace);
+
+				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
+					if(listType.text() == "tokens") {
+						parseTokenDef();
+					} else if(listType.text() == "rules") {
+						parseRuleDef();
+					} else {
+						m_lexer.skip();
+						continue;
+					}
+					m_lexer.expect(TokenKinds::Semicolon);
+				}
 			}
 
 			void parseGrammar() {
 				while(!m_lexer.peek().eof()) {
-					const auto listType = m_lexer.expect(TokenKinds::Ident);
-					m_lexer.expect(TokenKinds::OpenBrace);
-
-					while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
-						if(listType.text() == "tokens") {
-							parseTokenDef();
-						} else if(listType.text() == "rules") {
-							parseRuleDef();
-						} else {
-							m_lexer.skip();
-							continue;
-						}
-						m_lexer.expect(TokenKinds::Semicolon);
-					}
+					parseDefList();
 				}
 			}
 			/** @} */

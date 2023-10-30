@@ -17,7 +17,7 @@ namespace parsec {
 
 		/** @{ */
 		/** @brief Construct a new location. */
-		SourceLoc(int startCol = 0, int colCount = 1, int lineNo = 0, int linePos = 0) noexcept
+		SourceLoc(int startCol = 0, int colCount = 0, int lineNo = 0, int linePos = 0) noexcept
 			: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos)
 		{ }
 		/** @} */
@@ -63,6 +63,12 @@ namespace parsec {
 		/** @brief Absolute position of the location. */
 		int pos() const noexcept {
 			return linePos() + startCol();
+		}
+
+
+		/** @brief Checks if the location contains any useful information. */
+		bool empty() const noexcept {
+			return m_colCount == 0;
 		}
 		/** @} */
 

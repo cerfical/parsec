@@ -7,7 +7,7 @@
 #include <iostream>
 
 namespace parsec::fg {
-	class RulePrinter : public RuleTraverser {
+	class RulePrinter : RuleTraverser {
 	public:
 		/** @{ */
 		explicit RulePrinter(std::ostream& out = std::cout) noexcept

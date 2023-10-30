@@ -2,7 +2,7 @@
 #include <gsl/narrow>
 
 namespace parsec::fg {
-	void Grammar::putSymbol(const std::string& name, RulePtr rule, bool terminal) {
+	void Grammar::putSymbol(const std::string& name, RulePtr rule, bool terminal, const SourceLoc& loc) {
 		// allocate a new unique symbol identifier if a symbol with the same name is not yet defined
 		const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
 		const auto [it, wasEmplaced] = m_symbolIds.try_emplace(name, newSymbolId);
@@ -13,10 +13,11 @@ namespace parsec::fg {
 			m_symbols.emplace_back(name,
 				std::move(rule),
 				terminal,
-				newSymbolId
+				newSymbolId,
+				loc
 			);	
 		} else {
-			m_symbols[oldSymbolId] = Symbol(name, std::move(rule), terminal, oldSymbolId);
+			m_symbols[oldSymbolId] = Symbol(name, std::move(rule), terminal, oldSymbolId, loc);
 		}
 	}
 

@@ -1,6 +1,8 @@
 #ifndef PARSEC_FG_SYMBOL_HEADER
 #define PARSEC_FG_SYMBOL_HEADER
 
+#include "../utils/SourceLoc.hpp"
+
 #include "Rule.hpp"
 #include "RuleConcat.hpp"
 #include "Atom.hpp"
@@ -25,8 +27,9 @@ namespace parsec::fg {
 			const std::string& name = "",
 			RulePtr rule = nullptr,
 			bool terminal = true,
-			int id = 0
-		) : m_name(name), m_id(id), m_terminal(terminal) {
+			int id = 0,
+			const SourceLoc& loc = {}
+		) : m_name(name), m_terminal(terminal), m_loc(loc), m_id(id) {
 			m_rule = makeRule<RuleConcat>(
 				std::move(rule),
 				makeRule<Atom>('#')
@@ -81,6 +84,10 @@ namespace parsec::fg {
 		const Rule* rule() const noexcept {
 			return m_rule.get();
 		}
+		
+		const SourceLoc& loc() const noexcept {
+			return m_loc;
+		}
 		/** @} */
 
 
@@ -88,8 +95,12 @@ namespace parsec::fg {
 		/** @{ */
 		RulePtr m_rule;
 		std::string m_name;
-		int m_id;
 		bool m_terminal;
+		/** @} */
+
+		/** @{ */
+		SourceLoc m_loc;
+		int m_id;
 		/** @} */
 	};
 

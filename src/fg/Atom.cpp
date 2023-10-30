@@ -2,7 +2,7 @@
 
 namespace parsec::fg {
 	namespace {
-		class ComputeNextAtoms : public RuleTraverser {
+		class ComputeNextAtoms : RuleTraverser {
 		public:
 			/** @{ */
 			AtomList operator()(const Rule& n) {

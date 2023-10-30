@@ -2,7 +2,7 @@
 
 namespace parsec::fg {
 	namespace {
-		class ComputeLeadingAtoms : public RuleTraverser {
+		class ComputeLeadingAtoms : RuleTraverser {
 		public:
 			/** @{ */
 			AtomList operator()(const Rule& n) {
@@ -62,7 +62,7 @@ namespace parsec::fg {
 			/** @} */
 		};
 
-		class ComputeTrailingAtoms : public RuleTraverser {
+		class ComputeTrailingAtoms : RuleTraverser {
 		public:
 			/** @{ */
 			AtomList operator()(const Rule& n) {
@@ -122,7 +122,7 @@ namespace parsec::fg {
 			/** @} */
 		};
 	
-		class ComputeNullable : public RuleTraverser {
+		class ComputeNullable : RuleTraverser {
 		public:
 			/** @{ */
 			bool operator()(const Rule& n) noexcept {
