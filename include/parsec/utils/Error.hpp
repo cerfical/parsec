@@ -1,5 +1,5 @@
-#ifndef PARSEC_UTILS_PARSE_ERROR_HEADER
-#define PARSEC_UTILS_PARSE_ERROR_HEADER
+#ifndef PARSEC_UTILS_ERROR_HEADER
+#define PARSEC_UTILS_ERROR_HEADER
 
 #include "SourceLoc.hpp"
 #include <stdexcept>
@@ -8,11 +8,11 @@ namespace parsec {
 	/**
 	 * @brief Indicates a syntax error in the source code.
 	 */
-	class ParseError : public std::runtime_error {
+	class Error : public std::runtime_error {
 	public:
 		/** @{ */
-		/** @brief Construct an error with a message and some location information. */
-		ParseError(const std::string& msg, const SourceLoc& loc)
+		/** @brief Construct a new error with a message and an optional location. */
+		explicit Error(const std::string& msg, const SourceLoc& loc = {})
 			: runtime_error(msg), m_loc(loc)
 		{ }
 		/** @} */

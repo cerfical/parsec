@@ -1,7 +1,7 @@
 #include "regex/Parser.hpp"
 
 #include "utils/TextScanner.hpp"
-#include "utils/ParseError.hpp"
+#include "utils/Error.hpp"
 #include "utils/chars.hpp"
 
 #include "fg/rules.hpp"
@@ -40,7 +40,7 @@ namespace parsec::regex {
 		private:
 			/** @{ */
 			[[noreturn]] void unexpected() const {
-				throw ParseError("unexpected '"
+				throw Error("unexpected '"
 						+ escapeChar(m_scanner.peek())
 						+ '\'',
 					m_scanner.loc()
@@ -48,18 +48,18 @@ namespace parsec::regex {
 			}
 			
 			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
-				throw ParseError("unmatched parenthesis", loc);
+				throw Error("unmatched parenthesis", loc);
 			}
 
 			[[noreturn]] void invalidHexSeq() const {
-				throw ParseError(
+				throw Error(
 					"expected at least one hexadecimal digit",
 					m_scanner.loc()
 				);
 			}
 
 			[[noreturn]] void rangeBadOrder(const SourceLoc& loc) const {
-				throw ParseError(
+				throw Error(
 					"character range is out of order", {
 						loc.startCol(),
 						m_scanner.pos() - loc.pos(),
@@ -71,7 +71,7 @@ namespace parsec::regex {
 
 			[[noreturn]] void invalidEscapeSeq() const {
 				const auto loc = m_scanner.loc();
-				throw ParseError(
+				throw Error(
 					"invalid escape sequence", {
 						loc.startCol() - 1,
 						2,

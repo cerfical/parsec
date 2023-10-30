@@ -45,7 +45,7 @@ private:
 	void onError() override {
 		try {
 			throw;
-		} catch(const parsec::ParseError& e) {
+		} catch(const parsec::Error& e) {
 			printError("error", e);
 			printNotes(e);
 		} catch(...) {
@@ -78,16 +78,16 @@ private:
 			.compile(grammar);
 	}
 
-	void printNotes(const parsec::ParseError& e) {
+	void printNotes(const parsec::Error& e) {
 		try {
 			std::rethrow_if_nested(e);
-		} catch(const parsec::ParseError& e) {
+		} catch(const parsec::Error& e) {
 			printError("note", e);
 			printNotes(e);
 		}
 	}
 
-	void printError(const std::string& msg, const parsec::ParseError& e) {
+	void printError(const std::string& msg, const parsec::Error& e) {
 		auto markerPos = e.loc().startCol();
 
 		// save the current input position and then update the input pointer

@@ -1,6 +1,6 @@
 #include "fg/Lexer.hpp"
 
-#include "utils/ParseError.hpp"
+#include "utils/Error.hpp"
 #include "utils/chars.hpp"
 
 #include <sstream>
@@ -13,19 +13,19 @@ namespace parsec::fg {
 			<< ", but found "
 			<< describeToken(peek().kind())
 		).str();
-
-		throw ParseError(msg,peek().loc());
+		
+		throw Error(msg,peek().loc());
 	}
 
 	void Lexer::unexpectedEol() const {
-		throw ParseError(
+		throw Error(
 			"unexpected end of line",
 			m_scanner.loc()
 		);
 	}
 
 	void Lexer::unexpectedChar() const {
-		throw ParseError("unexpected '"
+		throw Error("unexpected '"
 				+ escapeChar(m_scanner.peek())
 				+ "'",
 			m_scanner.loc()

@@ -88,7 +88,7 @@ set(_HEADERS
 
 	"utils/TextScanner.hpp"
 	"utils/SourceLoc.hpp"
-	"utils/ParseError.hpp"
+	"utils/Error.hpp"
 
 
 	"cli/cli.hpp"

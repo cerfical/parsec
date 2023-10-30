@@ -4,7 +4,7 @@
 #include "fg/rules.hpp"
 
 #include "regex/Parser.hpp"
-#include "utils/ParseError.hpp"
+#include "utils/Error.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -56,8 +56,8 @@ namespace parsec::fg {
 
 		private:
 			/** @{ */
-			static ParseError makeError(const Symbol& sym) {
-				return ParseError(
+			static Error makeError(const Symbol& sym) {
+				return Error(
 					"ambiguous start symbol \"" + sym.name() + '"',
 					sym.loc()
 				);
@@ -158,7 +158,7 @@ namespace parsec::fg {
 			/** @{ */
 			[[noreturn]]
 			void unexpectedToken() const {
-				throw ParseError("unexpected \""
+				throw Error("unexpected \""
 						+ m_lexer.peek().text()
 						+ '"',
 					m_lexer.peek().loc()
@@ -167,7 +167,7 @@ namespace parsec::fg {
 
 			[[noreturn]]
 			void unmatchedParen(const SourceLoc& loc) const {
-				throw ParseError(
+				throw Error(
 					"unmatched parenthesis",
 					loc
 				);
@@ -177,13 +177,13 @@ namespace parsec::fg {
 			void symbolRedefinition(const Symbol& sym, const SourceLoc& loc) {
 				// attach additional info to the parse error using nested exceptions
 				try {
-					throw ParseError("previous definition of \""
+					throw Error("previous definition of \""
 							+ sym.name()
 							+ "\" was here",
 						sym.loc()
 					);
 				} catch(...) {
-					std::throw_with_nested(ParseError(
+					std::throw_with_nested(Error(
 						"redifinition of \"" + sym.name() + '"',
 						loc
 					));
@@ -198,16 +198,14 @@ namespace parsec::fg {
 				try {
 					// parse the regex into its rule representation
 					return regex::Parser().parse(pattern.text());
-				} catch(const ParseError& e) {
+				} catch(const Error& e) {
 					// adjust the error location to take into account the relative position of the regex
-					throw ParseError(e.what(),
-						SourceLoc(
-							pattern.loc().startCol() + e.loc().startCol() + 1,
-							e.loc().colCount(),
-							pattern.loc().lineNo(),
-							pattern.loc().linePos()
-						)
-					);
+					throw Error(e.what(), {
+						pattern.loc().startCol() + e.loc().startCol() + 1,
+						e.loc().colCount(),
+						pattern.loc().lineNo(),
+						pattern.loc().linePos()
+					});
 				}
 			}
 			/** @} */
