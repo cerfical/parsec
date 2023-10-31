@@ -34,27 +34,10 @@ namespace parsec::fg {
 		/** @} */
 
 
-		/** @{ */
-		void setStartSymbol(const Symbol* sym) {
-			if(!sym || !sym->terminal()) {
-				m_start = sym;
-			}
-		}
-
-		const Symbol* startSymbol() const noexcept {
-			return m_start;
-		}
-		/** @} */
-
-
 	private:
 		/** @{ */
 		std::unordered_map<std::string, int> m_symbolIds;
 		SymbolList m_symbols;
-		/** @} */
-
-		/** @{ */
-		const Symbol* m_start = nullptr;
 		/** @} */
 	};
 }

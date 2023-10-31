@@ -10,6 +10,89 @@
 
 namespace parsec::lr {
 	namespace {
+		/** @{ */
+		class FindStartSymbols : fg::RuleTraverser {
+		public:
+			/** @{ */
+			explicit FindStartSymbols(const fg::Grammar& grammar) noexcept
+				: m_grammar(grammar)
+			{ }
+			/** @} */
+
+
+			/** @{ */
+			std::vector<const fg::Symbol*> operator()() {
+				// find all symbols that have no references
+				m_startSymbols.resize(m_grammar.symbols().size(), true);
+				for(const auto& sym : m_grammar.symbols()) {
+					if(!sym.terminal()) {
+						m_currentSymbol = &sym;
+						sym.ruleBody()->traverse(*this);
+					} else {
+						// terminal symbols cannot be start symbols
+						m_startSymbols[sym.id()] = false;
+					}
+				}
+
+				// collect all found starting symbols into one list
+				std::vector<const fg::Symbol*> syms;
+				for(std::size_t i = 0; i < m_startSymbols.size(); i++) {
+					if(m_startSymbols[i]) {
+						syms.push_back(&m_grammar.symbols()[i]);
+					}
+				}
+				return syms;
+			}
+			/** @} */
+
+
+		private:
+			/** @{ */
+			void visit(const fg::Atom& n) override {
+				const auto sym = m_grammar.lookupSymbol(n.value());
+				if(sym && sym != m_currentSymbol) {
+					m_startSymbols[sym->id()] = false;
+				}
+			}
+
+			void visit(const fg::NilRule& n) override {
+				// nothing to do
+			}
+
+			void visit(const fg::PlusRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+			void visit(const fg::StarRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+			void visit(const fg::OptionalRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+			void visit(const fg::RuleAltern& n) override {
+				n.left()->traverse(*this);
+				n.right()->traverse(*this);
+			}
+
+			void visit(const fg::RuleConcat& n) override {
+				n.left()->traverse(*this);
+				n.right()->traverse(*this);
+			}
+			/** @} */
+
+
+			/** @{ */
+			const fg::Symbol* m_currentSymbol = nullptr;
+			std::vector<bool> m_startSymbols;
+			const fg::Grammar& m_grammar;
+			/** @} */
+		};
+		/** @} */
+
+
+		/** @{ */
 		struct Item {
 			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
@@ -100,7 +183,7 @@ namespace parsec::lr {
 
 			ItemSet createStartState() {
 				ItemSet items;
-				if(const auto sym = m_grammar.startSymbol()) {
+				for(const auto sym : FindStartSymbols(m_grammar)()) {
 					for(const auto atom : sym->ruleBody()->leadingAtoms()) {
 						items.emplace(atom, sym, 0);
 					}
