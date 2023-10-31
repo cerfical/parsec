@@ -12,7 +12,6 @@ namespace parsec::fg {
 	class RuleAltern;
 	class RuleConcat;
 
-
 	class RuleTraverser {
 	public:
 		/** @{ */
@@ -26,7 +25,6 @@ namespace parsec::fg {
 		virtual void visit(const RuleAltern& n) = 0;
 		virtual void visit(const RuleConcat& n) = 0;
 		/** @} */
-
 
 	protected:
 		/** @{ */

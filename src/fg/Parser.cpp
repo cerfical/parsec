@@ -6,11 +6,12 @@
 #include "regex/Parser.hpp"
 #include "utils/Error.hpp"
 
+#include <unordered_map>
 #include <sstream>
 
 namespace parsec::fg {
 	namespace {
-		class ParseImpl {
+		class ParseImpl : AtomVisitor {
 		public:
 			/** @{ */
 			explicit ParseImpl(std::istream& input) noexcept
@@ -21,12 +22,36 @@ namespace parsec::fg {
 
 			/** @{ */
 			Grammar operator()() {
-				return (parseGrammar(), std::move(m_grammar));
+				parseGrammar();
+				
+				// construct a grammar from the parsed symbol definitions
+				Grammar grammar;
+				for(auto& [name, rule] : m_symbols) {
+					// check the rule for any undefined symbol references and then add it to the grammar
+					if(!rule.second) { // skip terminal symbols
+						rule.first->traverse(*this);
+					}
+					grammar.putSymbol(name, std::move(rule.first), rule.second);
+				}
+				return grammar;
 			}
 			/** @} */
 
 
 		private:
+			/** @{ */
+			void visit(const Atom& n) override {
+				const auto it = m_symbols.find(n.value());
+				if(it == m_symbols.cend()) {
+					throw Error(
+						"reference to an undefined symbol \"" + n.value() + '"',
+						m_atomLocs[&n]
+					);
+				}
+			}
+			/** @} */
+
+
 			/** @{ */
 			[[noreturn]]
 			void unexpectedToken() const {
@@ -43,23 +68,6 @@ namespace parsec::fg {
 					"unmatched parenthesis",
 					loc
 				);
-			}
-
-			[[noreturn]]
-			void symbolRedefinition(const Symbol& sym, const SourceLoc& loc) {
-				// attach additional info to the parse error using nested exceptions
-				try {
-					throw Error("previous definition of \""
-							+ sym.name()
-							+ "\" was here",
-						sym.loc()
-					);
-				} catch(...) {
-					std::throw_with_nested(Error(
-						"redifinition of \"" + sym.name() + '"',
-						loc
-					));
-				}
 			}
 			/** @} */
 
@@ -95,9 +103,15 @@ namespace parsec::fg {
 			RulePtr parseAtom() {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident: {
-						return makeRule<Atom>(
-							m_lexer.lex().text()
+						const auto tok = m_lexer.lex();
+						auto atom = makeRule<Atom>(
+							tok.text()
 						);
+						
+						m_atomLocs.emplace(static_cast<const Atom*>(
+							atom.get()), tok.loc()
+						);
+						return atom;
 					}
 					case TokenKinds::OpenParen: {
 						const auto openParen = m_lexer.lex();
@@ -143,55 +157,60 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			void parseTokenDef() {
-				// token definitions are of the form: name = "pattern"
-				const auto name = m_lexer.expect(TokenKinds::Ident);
-				if(const auto sym = m_grammar.lookupSymbol(name.text())) {
-					symbolRedefinition(*sym, name.loc());
+			void addSymbol(const std::string& name, RulePtr rule, bool terminal) {
+				const auto [it, wasInserted] = m_symbols.try_emplace(name);
+				if(wasInserted) {
+					// the new symbol is inserted as is
+					it->second = { std::move(rule), terminal };
+				} else {
+					// combine the rules defined by the same name into one symbol
+					it->second.first = makeRule<RuleAltern>(
+						std::move(it->second).first, std::move(rule)
+					);
 				}
-				m_lexer.expect(TokenKinds::Equals);
-
-				m_grammar.putSymbol(name.text(), parseRegex(), true, name.loc());
 			}
 
-			void parseRuleDef() {
-				// syntax rules are of the form: name = rule
-				const auto name = m_lexer.expect(TokenKinds::Ident);
-				if(const auto sym = m_grammar.lookupSymbol(name.text())) {
-					symbolRedefinition(*sym, name.loc());
-				}
-				m_lexer.expect(TokenKinds::Equals);
-				
-				m_grammar.putSymbol(name.text(), parseRule(), false, name.loc());
-			}
-
-			void parseDefList() {
-				const auto listType = m_lexer.expect(TokenKinds::Ident);
+			void parseTokensList() {
 				m_lexer.expect(TokenKinds::OpenBrace);
-
 				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
-					if(listType.text() == "tokens") {
-						parseTokenDef();
-					} else if(listType.text() == "rules") {
-						parseRuleDef();
-					} else {
-						m_lexer.skip();
-						continue;
-					}
+					// terminal symbols are defined with "name = pattern;"
+					const auto name = m_lexer.expect(TokenKinds::Ident);
+					m_lexer.expect(TokenKinds::Equals);
+
+					addSymbol(name.text(), parseRegex(), true);
+					m_lexer.expect(TokenKinds::Semicolon);
+				}
+			}
+
+			void parseRulesList() {
+				m_lexer.expect(TokenKinds::OpenBrace);
+				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
+					// nonterminal symbols are defined with "name = rule;"
+					const auto name = m_lexer.expect(TokenKinds::Ident);
+					m_lexer.expect(TokenKinds::Equals);
+
+					addSymbol(name.text(), parseRule(), false);
 					m_lexer.expect(TokenKinds::Semicolon);
 				}
 			}
 
 			void parseGrammar() {
 				while(!m_lexer.peek().eof()) {
-					parseDefList();
+					if(m_lexer.skipIf("tokens")) {
+						parseTokensList();
+					} else if(m_lexer.skipIf("rules")) {
+						parseRulesList();
+					} else {
+						unexpectedToken();
+					}
 				}
 			}
 			/** @} */
 
 
 			/** @{ */
-			Grammar m_grammar;
+			std::unordered_map<const Atom*, SourceLoc> m_atomLocs;
+			std::unordered_map<std::string, std::pair<RulePtr, bool>> m_symbols;
 			Lexer m_lexer;
 			/** @} */
 		};

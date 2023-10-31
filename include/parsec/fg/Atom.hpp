@@ -9,7 +9,7 @@ namespace parsec::fg {
 	public:
 		/** @{ */
 		explicit Atom(char ch)
-			: m_value(1, ch)
+			: Atom(std::string(1, ch))
 		{ }
 
 		explicit Atom(const std::string& value)

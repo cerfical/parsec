@@ -18,8 +18,9 @@ add_library(parsec-lib STATIC
 	"fg/Rule.cpp"
 	"fg/RulePrinter.cpp"
 
-	"fg/NilRule.cpp"
 	"fg/Atom.cpp"
+	"fg/AtomVisitor.cpp"
+	"fg/NilRule.cpp"
 
 	"fg/RuleConcat.cpp"
 	"fg/RuleAltern.cpp"
@@ -69,6 +70,7 @@ set(_HEADERS
 	"fg/RulePrinter.hpp"
 
 	"fg/Atom.hpp"
+	"fg/AtomVisitor.hpp"
 	"fg/NilRule.hpp"
 	
 	"fg/BinaryRule.hpp"

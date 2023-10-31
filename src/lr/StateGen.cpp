@@ -11,14 +11,13 @@
 namespace parsec::lr {
 	namespace {
 		/** @{ */
-		class FindStartSymbols : fg::RuleTraverser {
+		class FindStartSymbols : fg::AtomVisitor {
 		public:
 			/** @{ */
 			explicit FindStartSymbols(const fg::Grammar& grammar) noexcept
 				: m_grammar(grammar)
 			{ }
 			/** @} */
-
 
 			/** @{ */
 			std::vector<const fg::Symbol*> operator()() {
@@ -45,43 +44,15 @@ namespace parsec::lr {
 			}
 			/** @} */
 
-
 		private:
 			/** @{ */
 			void visit(const fg::Atom& n) override {
 				const auto sym = m_grammar.lookupSymbol(n.value());
-				if(sym && sym != m_currentSymbol) {
+				if(sym != m_currentSymbol) {
 					m_startSymbols[sym->id()] = false;
 				}
 			}
-
-			void visit(const fg::NilRule& n) override {
-				// nothing to do
-			}
-
-			void visit(const fg::PlusRule& n) override {
-				n.inner()->traverse(*this);
-			}
-
-			void visit(const fg::StarRule& n) override {
-				n.inner()->traverse(*this);
-			}
-
-			void visit(const fg::OptionalRule& n) override {
-				n.inner()->traverse(*this);
-			}
-
-			void visit(const fg::RuleAltern& n) override {
-				n.left()->traverse(*this);
-				n.right()->traverse(*this);
-			}
-
-			void visit(const fg::RuleConcat& n) override {
-				n.left()->traverse(*this);
-				n.right()->traverse(*this);
-			}
 			/** @} */
-
 
 			/** @{ */
 			const fg::Symbol* m_currentSymbol = nullptr;
@@ -168,7 +139,7 @@ namespace parsec::lr {
 
 					// skip terminal and end marker symbols
 					const auto sym = m_grammar.lookupSymbol(item->atom->value());
-					if(!sym || sym->terminal()) {
+					if(item->atom == item->symbol->ruleEnd() || sym->terminal()) {
 						continue;
 					}
 
@@ -220,9 +191,10 @@ namespace parsec::lr {
 
 					// otherwise, construct the next state to transition to on the input symbol
 					for(const auto atom : item.atom->nextAtoms()) {
-						if(const auto sym = m_grammar.lookupSymbol(item.atom->value())) {
-							stateGoto[sym].emplace(atom, item.symbol, item.pos + 1);
-						}
+						const auto sym = m_grammar.lookupSymbol(item.atom->value());
+						stateGoto[sym].emplace(
+							atom, item.symbol, item.pos + 1
+						);
 					}
 				}
 
