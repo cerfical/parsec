@@ -7,6 +7,7 @@
 #include "fg/fg.hpp"
 #include "gen/gen.hpp"
 #include "lr/lr.hpp"
+#include "dfa/dfa.hpp"
 #include "cli/cli.hpp"
 
 #include "utils/utils.hpp"

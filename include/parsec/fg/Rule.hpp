@@ -75,6 +75,7 @@ namespace parsec::fg {
 
 
 	template <typename Rule, typename... Args>
+		requires std::constructible_from<Rule, Args...>
 	RulePtr makeRule(Args&&... args) {
 		return std::make_unique<Rule>(std::forward<Args>(args)...);
 	}

@@ -33,6 +33,9 @@ add_library(parsec-lib STATIC
 	"lr/StateGen.cpp"
 
 
+	"dfa/StateGen.cpp"
+
+
 	"gen/LexerGenerator.cpp"
 	"gen/CppLexerGenerator.cpp"
 
@@ -89,6 +92,14 @@ set(_HEADERS
 	"lr/ReduceAction.hpp"
 	"lr/State.hpp"
 	"lr/StateGen.hpp"
+
+	
+	"dfa/dfa.hpp"
+
+	"dfa/Match.hpp"
+	"dfa/Transition.hpp"
+	"dfa/State.hpp"
+	"dfa/StateGen.hpp"
 
 
 	"gen/gen.hpp"

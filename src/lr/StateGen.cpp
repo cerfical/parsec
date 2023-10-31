@@ -1,12 +1,12 @@
 #include "lr/StateGen.hpp"
 #include "fg/rules.hpp"
 
+#include <boost/functional/hash.hpp>
+#include <gsl/narrow>
+
 #include <unordered_set>
 #include <unordered_map>
 #include <stack>
-
-#include <boost/functional/hash.hpp>
-#include <gsl/narrow>
 
 namespace parsec::lr {
 	namespace {
@@ -18,6 +18,7 @@ namespace parsec::lr {
 				: m_grammar(grammar)
 			{ }
 			/** @} */
+
 
 			/** @{ */
 			std::vector<const fg::Symbol*> operator()() {
@@ -44,15 +45,17 @@ namespace parsec::lr {
 			}
 			/** @} */
 
+
 		private:
 			/** @{ */
 			void visit(const fg::Atom& n) override {
 				const auto sym = m_grammar.lookupSymbol(n.value());
-				if(sym != m_currentSymbol) {
+				if(sym && sym != m_currentSymbol) {
 					m_startSymbols[sym->id()] = false;
 				}
 			}
 			/** @} */
+
 
 			/** @{ */
 			const fg::Symbol* m_currentSymbol = nullptr;
@@ -67,20 +70,45 @@ namespace parsec::lr {
 		struct Item {
 			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
-				return lhs.atom == rhs.atom;
+				return lhs.currentAtom() == rhs.currentAtom();
 			}
 
 			friend std::size_t hash_value(const Item& item) {
-				return boost::hash_value(item.atom);
+				return boost::hash_value(item.currentAtom());
 			}
 			/** @} */
 
 
 			/** @{ */
-			const fg::Atom* atom = nullptr;
-			const fg::Symbol* symbol = nullptr;
-			int pos = 0;
+			Item(const fg::Atom* atom, const fg::Symbol* symbol, int pos) noexcept
+				: m_atom(atom), m_symbol(symbol), m_pos(pos)
+			{ }
 			/** @} */
+
+
+			/** @{ */
+			const fg::Atom* currentAtom() const noexcept {
+				return m_atom;
+			}
+
+			const fg::Symbol* originSymbol() const noexcept {
+				return m_symbol;
+			}
+			
+			int pos() const noexcept {
+				return m_pos;
+			}
+
+			bool atEnd() const noexcept {
+				return m_atom == m_symbol->ruleEnd();
+			}
+			/** @} */
+
+
+		private:
+			const fg::Atom* m_atom;
+			const fg::Symbol* m_symbol;
+			int m_pos;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
@@ -91,7 +119,7 @@ namespace parsec::lr {
 		class RunImpl {
 		public:
 			/** @{ */
-			explicit RunImpl(const fg::Grammar& grammar) noexcept
+			explicit RunImpl(const fg::Grammar& grammar)
 				: m_grammar(grammar)
 			{ }
 			/** @} */
@@ -137,14 +165,14 @@ namespace parsec::lr {
 						continue;
 					}
 
-					// skip terminal and end marker symbols
-					const auto sym = m_grammar.lookupSymbol(item->atom->value());
-					if(item->atom == item->symbol->ruleEnd() || sym->terminal()) {
+					// skip undefined and terminal symbols, end markers
+					const auto sym = m_grammar.lookupSymbol(item->currentAtom()->value());
+					if(!sym || item->atEnd() || sym->terminal()) {
 						continue;
 					}
 
 					// all atoms forming the beginning of some rule must also be processed
-					for(const auto atom : sym->ruleBody()->leadingAtoms()) {
+					for(const auto atom : sym->rule()->leadingAtoms()) {
 						unexpanded.emplace(atom, sym, 0);
 					}
 				}
@@ -152,31 +180,31 @@ namespace parsec::lr {
 				return closure;
 			}
 
-			ItemSet createStartState() {
+			ItemSet createStartState() const {
 				ItemSet items;
+
+				// add every leading atom of every rule to the start state
 				for(const auto sym : FindStartSymbols(m_grammar)()) {
-					for(const auto atom : sym->ruleBody()->leadingAtoms()) {
+					for(const auto atom : sym->rule()->leadingAtoms()) {
 						items.emplace(atom, sym, 0);
 					}
 				}
+
 				return items;
 			}
-			/** @} */
-
-
-			/** @{ */
-			State& putState(ItemSet&& stateItems) {
+			
+			int putState(ItemSet&& stateItems) {
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
-				const auto state = &(*it);
+				const auto& [items, id] = *it;
 
 				// construct a new state only if it differs from the previously created ones
 				if(wasInserted) {
 					m_states.emplace_back(newId);
-					m_unprocessed.push(state);
+					m_unprocessed.push(std::to_address(it));
 				}
 
-				return m_states[state->second];
+				return id;
 			}
 
 			void processState(const ItemSet& items, int id) {
@@ -184,24 +212,29 @@ namespace parsec::lr {
 
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
-					if(item.atom == item.symbol->ruleEnd()) {
-						m_states[id].addReduction(item.symbol, item.pos);
+					if(item.atEnd()) {
+						m_states[id].addReduction(item.originSymbol(), item.pos());
 						continue;
 					}
 
 					// otherwise, construct the next state to transition to on the input symbol
-					for(const auto atom : item.atom->nextAtoms()) {
-						const auto sym = m_grammar.lookupSymbol(item.atom->value());
+					for(const auto atom : item.currentAtom()->nextAtoms()) {
+						// just skip references to undefined symbols
+						const auto sym = m_grammar.lookupSymbol(item.currentAtom()->value());
+						if(!sym) {
+							continue;
+						}
+
 						stateGoto[sym].emplace(
-							atom, item.symbol, item.pos + 1
+							atom, item.originSymbol(), item.pos() + 1
 						);
 					}
 				}
 
 				// add shift actions for all generated transitions
 				for(auto& [symbol, items] : stateGoto) {
-					const auto& newState = putState(std::move(items));
-					m_states[id].addShift(symbol, newState.id());
+					const auto newState = putState(std::move(items));
+					m_states[id].addShift(symbol, newState);
 				}
 			}
 			/** @} */
