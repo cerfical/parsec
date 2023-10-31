@@ -29,6 +29,9 @@ add_library(parsec-lib STATIC
 	"fg/OptionalRule.cpp"
 
 
+	"lr/StateGen.cpp"
+
+
 	"gen/LexerGenerator.cpp"
 	"gen/CppLexerGenerator.cpp"
 
@@ -77,6 +80,14 @@ set(_HEADERS
 	"fg/StarRule.hpp"
 	"fg/OptionalRule.hpp"
 	
+
+	"lr/lr.hpp"
+
+	"lr/ShiftAction.hpp"
+	"lr/ReduceAction.hpp"
+	"lr/State.hpp"
+	"lr/StateGen.hpp"
+
 
 	"gen/gen.hpp"
 	"gen/LexerGenerator.hpp"
