@@ -1,7 +1,5 @@
 #include "utils/chars.hpp"
-
-#include <sstream>
-#include <iomanip>
+#include <format>
 
 namespace parsec {
 	std::string escapeChar(char ch) {
@@ -26,9 +24,7 @@ namespace parsec {
 			case '\t': return "\\t";
 			case '\v': return "\\v";
 			default: {
-				return (std::ostringstream()
-					<< "\\x" << std::setw(2) << std::setfill('0') << std::hex << charToInt(ch)
-				).str();
+				return std::format("\\x{:02x}", charToInt(ch));
 			}
 		}
 	}

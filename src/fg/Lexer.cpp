@@ -3,18 +3,20 @@
 #include "utils/Error.hpp"
 #include "utils/chars.hpp"
 
-#include <sstream>
+#include <format>
 
 namespace parsec::fg {
 	void Lexer::invalidToken(std::string_view expected) const {
-		const auto msg = (std::ostringstream()
-			<< "expected "
-			<< expected
-			<< ", but found "
-			<< describeToken(peek().kind())
-		).str();
-		
-		throw Error(msg,peek().loc());
+		throw Error(
+			std::format(
+				"expected {}, but found {}",
+				expected,
+				describeToken(
+					peek().kind()
+				)
+			),
+			peek().loc()
+		);
 	}
 
 	void Lexer::unexpectedEol() const {
