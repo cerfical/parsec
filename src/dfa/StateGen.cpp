@@ -66,11 +66,13 @@ namespace parsec::dfa {
 			
 			/** @{ */
 			StateList operator()() {
-				putState(createStartState());
-				while(!m_unprocessed.empty()) {
-					const auto state = m_unprocessed.top();
-					m_unprocessed.pop();
-					processState(state->first, state->second);
+				if(auto startState = createStartState(); !startState.empty()) {
+					putState(std::move(startState));
+					while(!m_unprocessed.empty()) {
+						const auto state = m_unprocessed.top();
+						m_unprocessed.pop();
+						processState(state->first, state->second);
+					}
 				}
 				return m_states;
 			}
@@ -105,6 +107,7 @@ namespace parsec::dfa {
 			}
 
 			int putState(ItemSet&& stateItems) {
+
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;

@@ -36,10 +36,6 @@ add_library(parsec-lib STATIC
 	"dfa/StateGen.cpp"
 
 
-	"gen/LexerGenerator.cpp"
-	"gen/CppLexerGenerator.cpp"
-
-
 	"utils/TextScanner.cpp"
 	"utils/SourceLoc.cpp"
 	"utils/chars.cpp"
@@ -47,6 +43,9 @@ add_library(parsec-lib STATIC
 
 	"cli/ConsoleApp.cpp"
 	"cli/OptionBuilder.cpp"
+
+
+	"gen/CppSrcGen.cpp"
 )
 
 
@@ -102,11 +101,6 @@ set(_HEADERS
 	"dfa/StateGen.hpp"
 
 
-	"gen/gen.hpp"
-	"gen/LexerGenerator.hpp"
-	"gen/CppLexerGenerator.hpp"
-
-
 	"utils/utils.hpp"
 	"utils/chars.hpp"
 
@@ -117,6 +111,10 @@ set(_HEADERS
 
 	"cli/cli.hpp"
 	"cli/ConsoleApp.hpp"
+
+
+	"gen/gen.hpp"
+	"gen/CppSrcGen.hpp"
 )
 
 list(TRANSFORM _HEADERS PREPEND "../include/parsec/")

@@ -47,7 +47,6 @@ private:
 			throw;
 		} catch(const parsec::Error& e) {
 			printError("error", e);
-			printNotes(e);
 		} catch(...) {
 			ConsoleApp::onError();
 		}
@@ -74,17 +73,8 @@ private:
 			throw std::runtime_error("failed to create the output file");
 		}
 
-		parsec::gen::CppLexerGenerator(m_output)
-			.compile(grammar);
-	}
-
-	void printNotes(const parsec::Error& e) {
-		try {
-			std::rethrow_if_nested(e);
-		} catch(const parsec::Error& e) {
-			printError("note", e);
-			printNotes(e);
-		}
+		parsec::gen::CppSrcGen(m_output)
+			.run(grammar);
 	}
 
 	void printError(const std::string& msg, const parsec::Error& e) {
