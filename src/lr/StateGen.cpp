@@ -127,7 +127,7 @@ namespace parsec::lr {
 
 			/** @{ */
 			StateList operator()() {
-				putState(createStartState());
+				putState(createStartState(), nullptr);
 
 				while(!m_unprocessed.empty()) {
 					const auto state = m_unprocessed.top();
@@ -193,14 +193,14 @@ namespace parsec::lr {
 				return items;
 			}
 			
-			int putState(ItemSet&& stateItems) {
+			int putState(ItemSet&& stateItems, const fg::Symbol* symbol) {
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;
 
 				// construct a new state only if it differs from the previously created ones
 				if(wasInserted) {
-					m_states.emplace_back(newId);
+					m_states.emplace_back(newId, symbol);
 					m_unprocessed.push(std::to_address(it));
 				}
 
@@ -233,7 +233,7 @@ namespace parsec::lr {
 
 				// add shift actions for all generated transitions
 				for(auto& [symbol, items] : stateGoto) {
-					const auto newState = putState(std::move(items));
+					const auto newState = putState(std::move(items), symbol);
 					m_states[id].addShift(symbol, newState);
 				}
 			}

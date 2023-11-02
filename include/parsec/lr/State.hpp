@@ -11,8 +11,8 @@ namespace parsec::lr {
 	class State {
 	public:
 		/** @{ */
-		explicit State(int id = 0) noexcept
-			: m_id(id)
+		explicit State(int id = 0, const fg::Symbol* symbol = nullptr) noexcept
+			: m_symbol(symbol), m_id(id)
 		{ }
 		/** @} */
 
@@ -55,6 +55,14 @@ namespace parsec::lr {
 
 
 		/** @{ */
+		const fg::Symbol* symbol() const noexcept {
+			return m_symbol;
+		}
+
+		bool initial() const noexcept {
+			return symbol() == nullptr;
+		}
+
 		int id() const noexcept {
 			return m_id;
 		}
@@ -62,11 +70,11 @@ namespace parsec::lr {
 
 
 	private:
-		/** @{ */
 		ShiftActionList m_shifts;
 		ReduceActionList m_reductions;
+
+		const fg::Symbol* m_symbol;
 		int m_id;
-		/** @} */
 	};
 
 
