@@ -72,7 +72,6 @@ namespace parsec::lr {
 	private:
 		ShiftActionList m_shifts;
 		ReduceActionList m_reductions;
-
 		const fg::Symbol* m_symbol;
 		int m_id;
 	};

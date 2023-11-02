@@ -16,7 +16,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		Token(
+		explicit Token(
 			const std::string& text = "",
 			TokenKinds kind = TokenKinds::Eof,
 			const SourceLoc& loc = {}
@@ -66,11 +66,9 @@ namespace parsec::fg {
 
 
 	private:
-		/** @{ */
 		std::string m_text;
 		SourceLoc m_loc;
 		TokenKinds m_kind;
-		/** @} */
 	};
 }
 

@@ -21,7 +21,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		Symbol(
+		explicit Symbol(
 			const std::string& name = "",
 			RulePtr rule = nullptr,
 			bool terminal = true,
@@ -85,12 +85,10 @@ namespace parsec::fg {
 
 
 	private:
-		/** @{ */
 		RulePtr m_rule;
 		std::string m_name;
 		bool m_terminal;
 		int m_id;
-		/** @} */
 	};
 
 
