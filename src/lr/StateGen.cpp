@@ -70,11 +70,15 @@ namespace parsec::lr {
 		struct Item {
 			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
-				return lhs.currentAtom() == rhs.currentAtom();
+				return lhs.currentAtom() == rhs.currentAtom()
+					&& lhs.pos() == rhs.pos();
 			}
 
 			friend std::size_t hash_value(const Item& item) {
-				return boost::hash_value(item.currentAtom());
+				std::size_t seed = 0;
+				boost::hash_combine(seed, boost::hash_value(item.currentAtom()));
+				boost::hash_combine(seed, boost::hash_value(item.pos()));
+				return seed;
 			}
 			/** @} */
 
