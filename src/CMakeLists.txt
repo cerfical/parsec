@@ -60,6 +60,8 @@ set(_HEADERS
 
 	"fg/fg.hpp"
 	"fg/rules.hpp"
+	"fg/Symbol.hpp"
+	"fg/SymbolTypes.hpp"
 	"fg/Grammar.hpp"
 	
 	"fg/Token.hpp"

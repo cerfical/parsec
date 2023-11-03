@@ -4,6 +4,7 @@
 #include "Rule.hpp"
 #include "RuleConcat.hpp"
 #include "Atom.hpp"
+#include "SymbolTypes.hpp"
 
 #include <string>
 #include <vector>
@@ -24,9 +25,9 @@ namespace parsec::fg {
 		explicit Symbol(
 			const std::string& name = "",
 			RulePtr rule = nullptr,
-			bool terminal = true,
+			SymbolTypes type = SymbolTypes::Terminal,
 			int id = 0
-		) : m_name(name), m_terminal(terminal), m_id(id) {
+		) : m_name(name), m_type(type), m_id(id) {
 			m_rule = makeRule<RuleConcat>(
 				std::move(rule),
 				makeRule<Atom>('#')
@@ -54,10 +55,6 @@ namespace parsec::fg {
 		int id() const noexcept {
 			return m_id;
 		}
-
-		bool terminal() const noexcept {
-			return m_terminal;
-		}
 		/** @} */
 
 
@@ -84,10 +81,25 @@ namespace parsec::fg {
 		/** @} */
 
 
+		/** @{ */
+		SymbolTypes type() const noexcept {
+			return m_type;
+		}
+
+		bool isTerminal() const noexcept {
+			return m_type == SymbolTypes::Terminal;
+		}
+
+		bool isNonterminal() const noexcept {
+			return m_type == SymbolTypes::Nonterminal;
+		}
+		/** @} */
+
+
 	private:
 		RulePtr m_rule;
 		std::string m_name;
-		bool m_terminal;
+		SymbolTypes m_type;
 		int m_id;
 	};
 

@@ -92,8 +92,8 @@ namespace parsec::dfa {
 				
 				// construct an initial state for DFA from the leading characters of all token rules
 				for(const auto& sym : m_grammar.symbols()) {
-					// skip nonterminal symbols
-					if(!sym.terminal()) {
+					// skip nonterminals
+					if(sym.isNonterminal()) {
 						continue;
 					}
 

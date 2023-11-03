@@ -31,7 +31,11 @@ namespace parsec::fg {
 					if(!rule.second) { // skip terminal symbols
 						rule.first->traverse(*this);
 					}
-					grammar.putSymbol(name, std::move(rule.first), rule.second);
+					if(rule.second) {
+						grammar.putTerminal(name, std::move(rule.first));
+					} else {
+						grammar.putNonterminal(name, std::move(rule.first));
+					}
 				}
 				return grammar;
 			}

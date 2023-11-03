@@ -24,8 +24,14 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		void putSymbol(const std::string& name, RulePtr rule, bool terminal = true);
-		
+		void putTerminal(const std::string& name, RulePtr rule) {
+			putSymbol(name, std::move(rule), SymbolTypes::Terminal);
+		}
+
+		void putNonterminal(const std::string& name, RulePtr rule) {
+			putSymbol(name, std::move(rule), SymbolTypes::Nonterminal);
+		}
+
 		const Symbol* lookupSymbol(const std::string& name) const;
 
 		const SymbolList& symbols() const noexcept {
@@ -35,6 +41,11 @@ namespace parsec::fg {
 
 
 	private:
+		/** @{ */
+		void putSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
+		/** @} */
+
+
 		/** @{ */
 		std::unordered_map<std::string, int> m_symbolIds;
 		SymbolList m_symbols;

@@ -25,7 +25,7 @@ namespace parsec::lr {
 				// find all symbols that have no references
 				m_startSymbols.resize(m_grammar.symbols().size(), true);
 				for(const auto& sym : m_grammar.symbols()) {
-					if(!sym.terminal()) {
+					if(sym.isNonterminal()) {
 						m_currentSymbol = &sym;
 						sym.ruleBody()->traverse(*this);
 					} else {
@@ -171,7 +171,7 @@ namespace parsec::lr {
 
 					// skip undefined and terminal symbols, end markers
 					const auto sym = m_grammar.lookupSymbol(item->currentAtom()->value());
-					if(!sym || item->atEnd() || sym->terminal()) {
+					if(!sym || item->atEnd() || sym->isTerminal()) {
 						continue;
 					}
 
