@@ -1,6 +1,5 @@
 #include "gen/CppSrcGen.hpp"
 
-#include "fg/AtomVisitor.hpp"
 #include "dfa/StateGen.hpp"
 #include "lr/StateGen.hpp"
 #include "utils/chars.hpp"
@@ -72,10 +71,7 @@ namespace parsec::gen {
 			}
 
 			static std::string makeSymbolName(const fg::Symbol* sym) {
-				if(!sym->isStart()) {
-					return "SymbolNames::" + toPascalCase(sym->name());
-				}
-				return "{}";
+				return "SymbolNames::" + toPascalCase(sym->name());
 			}
 
 			static std::string makeParseHook(const fg::Symbol* sym) {
@@ -425,21 +421,19 @@ private:
 
 				// take the first available reduce action, ignore the rest, if any
 				const auto& first = reductions.front();
-				auto states = std::format("{}", first.states());
+				m_out << indent << std::format(
+					"reduce({}{}, {}, {});\n",
+					first.states(),
+					first.symbol()->isStart() ? " + 1" : "", // pop the start state
+					first.tokens(),
+					first.symbol()->isStart() ? "{}" : makeSymbolName(first.symbol())
+				);
 
 				if(!first.symbol()->isStart()) {
 					m_out << indent << makeParseHook(first.symbol()) << ";\n";
-				} else {
-					// if the reduce is to the start symbol, pop the start state and exit the parse
-					states += " + 1";
 				}
-
-				m_out << indent << std::format(
-					"return reduce({}, {}, {});\n",
-					states,
-					0,
-					makeSymbolName(first.symbol())
-				);
+				
+				m_out << indent << "return;\n";
 			}
 
 			void emitStateShiftsSrc(const lr::State& state, std::string_view indent) {
@@ -490,9 +484,7 @@ private:
 				constexpr static std::string_view src[] = {
 R"(class Parser {
 public:
-	explicit Parser(std::istream& input = std::cin) noexcept
-		: m_lexer(input)
-	{ }
+	Parser() = default;
 
 
 	Parser(Parser&&) = default;
@@ -502,7 +494,8 @@ public:
 	Parser& operator=(const Parser&) = default;
 
 
-	void parse() {
+	void parse(std::istream& input) {
+		m_lexer = Lexer(input);
 		state0();
 	}
 
@@ -518,6 +511,7 @@ private:
 		m_reducedToSymbol = symbol;
 		m_statesToPop = states;
 
+		m_tokens.clear();
 		for(int i = 0; i < tokens; i++) {
 			m_tokens.emplace_back(std::move(m_parsedTokens.back()));
 			m_parsedTokens.pop_back();
@@ -548,7 +542,7 @@ private:
 				for(const auto& state : lr::StateGen().run(m_grammar)) {
 					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
 
-					if(!state.initial() && state.symbol()->isTerminal()) {
+					if(!state.initial() && state.symbol()->isTerminal() && !state.symbol()->isEnd()) {
 						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
 					}
 

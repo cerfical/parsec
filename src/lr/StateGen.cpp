@@ -9,41 +9,51 @@
 
 namespace parsec::lr {
 	namespace {
-		/** @{ */
 		struct Item {
 			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
-				return lhs.currentAtom() == rhs.currentAtom()
-					&& lhs.pos() == rhs.pos();
+				return lhs.atom() == rhs.atom() && lhs.symbols() == rhs.symbols();
 			}
 
 			friend std::size_t hash_value(const Item& item) {
 				std::size_t seed = 0;
-				boost::hash_combine(seed, boost::hash_value(item.currentAtom()));
-				boost::hash_combine(seed, boost::hash_value(item.pos()));
+				boost::hash_combine(seed, boost::hash_value(item.atom()));
+				boost::hash_combine(seed, boost::hash_value(item.symbols()));
 				return seed;
 			}
 			/** @} */
 
 
 			/** @{ */
-			Item(const fg::Atom* atom, const fg::Symbol* symbol, int pos) noexcept
-				: m_atom(atom), m_symbol(symbol), m_pos(pos)
+			Item(
+				const fg::Atom* atom,
+				const fg::Symbol* symbol,
+				int symbols = 0,
+				int terminals = 0
+			) noexcept
+				: m_atom(atom)
+				, m_symbol(symbol)
+				, m_terminals(terminals)
+				, m_symbols(symbols)
 			{ }
 			/** @} */
 
 
 			/** @{ */
-			const fg::Atom* currentAtom() const noexcept {
+			const fg::Atom* atom() const noexcept {
 				return m_atom;
 			}
 
-			const fg::Symbol* originSymbol() const noexcept {
+			const fg::Symbol* symbol() const noexcept {
 				return m_symbol;
 			}
 			
-			int pos() const noexcept {
-				return m_pos;
+			int terminals() const noexcept {
+				return m_terminals;
+			}
+
+			int symbols() const noexcept {
+				return m_symbols;
 			}
 
 			bool atEnd() const noexcept {
@@ -55,24 +65,19 @@ namespace parsec::lr {
 		private:
 			const fg::Atom* m_atom;
 			const fg::Symbol* m_symbol;
-			int m_pos;
+			int m_terminals;
+			int m_symbols;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
-		/** @} */
 
 
-		/** @{ */
 		class RunImpl {
 		public:
-			/** @{ */
 			explicit RunImpl(const fg::Grammar& grammar)
 				: m_grammar(grammar)
 			{ }
-			/** @} */
 
-
-			/** @{ */
 			StateList operator()() {
 				putState(createStartState(), nullptr);
 
@@ -84,14 +89,10 @@ namespace parsec::lr {
 
 				return std::move(m_states);
 			}
-			/** @} */
-
 
 		private:
-			/** @{ */
 			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
 			using StateHandle = const StateIdTable::value_type*;
-			/** @} */
 
 
 			/** @{ */
@@ -118,14 +119,14 @@ namespace parsec::lr {
 					}
 
 					// skip undefined and terminal symbols
-					const auto sym = m_grammar.symbolByName(item->currentAtom()->value());
+					const auto sym = m_grammar.symbolByName(item->atom()->value());
 					if(!sym || sym->isTerminal()) {
 						continue;
 					}
 
 					// all atoms forming the beginning of some rule must also be processed
 					for(const auto atom : sym->rule()->leadingAtoms()) {
-						unexpanded.emplace(atom, sym, 0);
+						unexpanded.emplace(atom, sym);
 					}
 				}
 
@@ -137,7 +138,7 @@ namespace parsec::lr {
 
 				const auto sym = m_grammar.startSymbol();
 				for(const auto atom : sym->rule()->leadingAtoms()) {
-					items.emplace(atom, sym, 0);
+					items.emplace(atom, sym);
 				}
 
 				return items;
@@ -163,21 +164,24 @@ namespace parsec::lr {
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
 					if(item.atEnd()) {
-						m_states[id].addReduction(item.originSymbol(), item.pos());
+						m_states[id].addReduction(
+							item.symbol(),
+							item.symbols(),
+							item.terminals()
+						);
 						continue;
 					}
 
 					// otherwise, construct the next state to transition to on the input symbol
-					for(const auto atom : item.currentAtom()->nextAtoms()) {
-						// just skip references to undefined symbols
-						const auto sym = m_grammar.symbolByName(item.currentAtom()->value());
-						if(!sym) {
-							continue;
+					for(const auto atom : item.atom()->nextAtoms()) {
+						if(const auto sym = m_grammar.symbolByName(item.atom()->value())) {
+							stateGoto[sym].emplace(
+								atom,
+								item.symbol(),
+								item.symbols() + 1,
+								item.terminals() + (sym->isTerminal() && !sym->isEnd() ? 1 : 0)
+							);
 						}
-
-						stateGoto[sym].emplace(
-							atom, item.originSymbol(), item.pos() + 1
-						);
 					}
 				}
 
@@ -190,17 +194,12 @@ namespace parsec::lr {
 			/** @} */
 
 
-			/** @{ */
 			std::stack<StateHandle> m_unprocessed;
 			StateIdTable m_stateIds;
 			StateList m_states;
-			/** @} */
 
-			/** @{ */
 			const fg::Grammar& m_grammar;
-			/** @} */
 		};
-		/** @} */
 	}
 
 

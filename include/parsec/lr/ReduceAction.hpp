@@ -8,8 +8,8 @@ namespace parsec::lr {
 	class ReduceAction {
 	public:
 		/** @{ */
-		ReduceAction(const fg::Symbol* symbol, int states) noexcept
-			: m_symbol(symbol), m_states(states)
+		ReduceAction(const fg::Symbol* symbol, int states, int tokens) noexcept
+			: m_symbol(symbol), m_states(states), m_tokens(tokens)
 		{ }
 		/** @} */
 
@@ -25,6 +25,10 @@ namespace parsec::lr {
 			return m_symbol;
 		}
 
+		int tokens() const noexcept {
+			return m_tokens;
+		}
+
 		int states() const noexcept {
 			return m_states;
 		}
@@ -32,10 +36,9 @@ namespace parsec::lr {
 
 
 	private:
-		/** @{ */
 		const fg::Symbol* m_symbol;
 		int m_states;
-		/** @} */
+		int m_tokens;
 	};
 
 
