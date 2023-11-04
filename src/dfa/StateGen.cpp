@@ -91,15 +91,10 @@ namespace parsec::dfa {
 				ItemSet items;
 				
 				// construct an initial state for DFA from the leading characters of all token rules
-				for(const auto& sym : m_grammar.symbols()) {
-					// skip nonterminals
-					if(sym.isNonterminal()) {
-						continue;
-					}
-
+				for(const auto tok : m_grammar.terminals()) {
 					// the initial state will contain all the atoms that can form the beginning of some rule
-					for(const auto atom : sym.rule()->leadingAtoms()) {
-						items.emplace(atom, &sym);
+					for(const auto atom : tok->rule()->leadingAtoms()) {
+						items.emplace(atom, tok);
 					}
 				}
 
@@ -107,7 +102,6 @@ namespace parsec::dfa {
 			}
 
 			int putState(ItemSet&& stateItems) {
-
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;
@@ -138,7 +132,8 @@ namespace parsec::dfa {
 							continue;
 						}
 
-						nextStates[item.currentAtom()->value().front()].emplace(
+						const auto ch = item.currentAtom()->value().front();
+						nextStates[ch].emplace(
 							nextAtom, item.originSymbol()
 						);
 					}

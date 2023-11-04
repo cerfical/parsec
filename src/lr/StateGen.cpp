@@ -1,5 +1,4 @@
 #include "lr/StateGen.hpp"
-#include "fg/rules.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <gsl/narrow>
@@ -10,62 +9,6 @@
 
 namespace parsec::lr {
 	namespace {
-		/** @{ */
-		class FindStartSymbols : fg::AtomVisitor {
-		public:
-			/** @{ */
-			explicit FindStartSymbols(const fg::Grammar& grammar) noexcept
-				: m_grammar(grammar)
-			{ }
-			/** @} */
-
-
-			/** @{ */
-			std::vector<const fg::Symbol*> operator()() {
-				// find all symbols that have no references
-				m_startSymbols.resize(m_grammar.symbols().size(), true);
-				for(const auto& sym : m_grammar.symbols()) {
-					if(sym.isNonterminal()) {
-						m_currentSymbol = &sym;
-						sym.ruleBody()->traverse(*this);
-					} else {
-						// terminal symbols cannot be start symbols
-						m_startSymbols[sym.id()] = false;
-					}
-				}
-
-				// collect all found starting symbols into one list
-				std::vector<const fg::Symbol*> syms;
-				for(std::size_t i = 0; i < m_startSymbols.size(); i++) {
-					if(m_startSymbols[i]) {
-						syms.push_back(&m_grammar.symbols()[i]);
-					}
-				}
-				return syms;
-			}
-			/** @} */
-
-
-		private:
-			/** @{ */
-			void visit(const fg::Atom& n) override {
-				const auto sym = m_grammar.lookupSymbol(n.value());
-				if(sym && sym != m_currentSymbol) {
-					m_startSymbols[sym->id()] = false;
-				}
-			}
-			/** @} */
-
-
-			/** @{ */
-			const fg::Symbol* m_currentSymbol = nullptr;
-			std::vector<bool> m_startSymbols;
-			const fg::Grammar& m_grammar;
-			/** @} */
-		};
-		/** @} */
-
-
 		/** @{ */
 		struct Item {
 			/** @{ */
@@ -169,9 +112,14 @@ namespace parsec::lr {
 						continue;
 					}
 
-					// skip undefined and terminal symbols, end markers
-					const auto sym = m_grammar.lookupSymbol(item->currentAtom()->value());
-					if(!sym || item->atEnd() || sym->isTerminal()) {
+					// skip end markers
+					if(item->atEnd()) {
+						continue;
+					}
+
+					// skip undefined and terminal symbols
+					const auto sym = m_grammar.symbolByName(item->currentAtom()->value());
+					if(!sym || sym->isTerminal()) {
 						continue;
 					}
 
@@ -187,11 +135,9 @@ namespace parsec::lr {
 			ItemSet createStartState() const {
 				ItemSet items;
 
-				// add every leading atom of every rule to the start state
-				for(const auto sym : FindStartSymbols(m_grammar)()) {
-					for(const auto atom : sym->rule()->leadingAtoms()) {
-						items.emplace(atom, sym, 0);
-					}
+				const auto sym = m_grammar.startSymbol();
+				for(const auto atom : sym->rule()->leadingAtoms()) {
+					items.emplace(atom, sym, 0);
 				}
 
 				return items;
@@ -224,7 +170,7 @@ namespace parsec::lr {
 					// otherwise, construct the next state to transition to on the input symbol
 					for(const auto atom : item.currentAtom()->nextAtoms()) {
 						// just skip references to undefined symbols
-						const auto sym = m_grammar.lookupSymbol(item.currentAtom()->value());
+						const auto sym = m_grammar.symbolByName(item.currentAtom()->value());
 						if(!sym) {
 							continue;
 						}

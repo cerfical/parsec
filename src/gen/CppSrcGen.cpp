@@ -328,11 +328,11 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 			/** @{ */
 			std::string printTokenKinds() const {
 				std::string str;
-				for(const auto& symbol : m_grammar.symbols()) {
-					if(symbol.terminal() && symbol.name() != sWsSymbol) {
+				for(const auto tok : m_grammar.terminals()) {
+					if(tok->name() != sWsSymbol) {
 						str += std::format(
 							"\n\t\tcase TokenKinds::{0}: out << \"{0}\"; break;",
-							toTokenName(symbol)
+							toTokenName(*tok)
 						);
 					}
 				}
@@ -341,9 +341,9 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 
 			std::string tokenKinds() const {
 				std::string str;
-				for(const auto& symbol : m_grammar.symbols()) {
-					if(symbol.terminal() && symbol.name() != sWsSymbol) {
-						str += ",\n\t" + toTokenName(symbol);
+				for(const auto tok : m_grammar.terminals()) {
+					if(tok->name() != sWsSymbol) {
+						str += ",\n\t" + toTokenName(*tok);
 					}
 				}
 				return str;

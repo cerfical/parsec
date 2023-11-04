@@ -1,10 +1,9 @@
 #ifndef PARSEC_FG_SYMBOL_HEADER
 #define PARSEC_FG_SYMBOL_HEADER
 
-#include "Rule.hpp"
+#include "SymbolTypes.hpp"
 #include "RuleConcat.hpp"
 #include "Atom.hpp"
-#include "SymbolTypes.hpp"
 
 #include <string>
 #include <vector>
@@ -14,20 +13,16 @@ namespace parsec::fg {
 	class Symbol {
 	public:
 		/** @{ */
-		friend std::ostream& operator<<(std::ostream& out, const Symbol& s) {
-			out << s.name();
+		friend std::ostream& operator<<(std::ostream& out, const Symbol& sym) {
+			out << sym.name();
 			return out;
 		}
 		/** @} */
 
 
 		/** @{ */
-		explicit Symbol(
-			const std::string& name = "",
-			RulePtr rule = nullptr,
-			SymbolTypes type = SymbolTypes::Terminal,
-			int id = 0
-		) : m_name(name), m_type(type), m_id(id) {
+		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id)
+			: m_name(name), m_type(type), m_id(id) {
 			m_rule = makeRule<RuleConcat>(
 				std::move(rule),
 				makeRule<Atom>('#')
@@ -87,11 +82,19 @@ namespace parsec::fg {
 		}
 
 		bool isTerminal() const noexcept {
-			return m_type == SymbolTypes::Terminal;
+			return m_type == SymbolTypes::Terminal || m_type == SymbolTypes::End;
 		}
 
 		bool isNonterminal() const noexcept {
 			return m_type == SymbolTypes::Nonterminal;
+		}
+
+		bool isStart() const noexcept {
+			return m_type == SymbolTypes::Start;
+		}
+
+		bool isEnd() const noexcept {
+			return m_type == SymbolTypes::End;
 		}
 		/** @} */
 
@@ -104,7 +107,7 @@ namespace parsec::fg {
 	};
 
 
-	using SymbolList = std::vector<Symbol>;
+	using SymbolList = std::vector<const Symbol*>;
 }
 
 #endif

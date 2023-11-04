@@ -28,13 +28,11 @@ namespace parsec::fg {
 				Grammar grammar;
 				for(auto& [name, rule] : m_symbols) {
 					// check the rule for any undefined symbol references and then add it to the grammar
-					if(!rule.second) { // skip terminal symbols
+					if(!rule.second) {
 						rule.first->traverse(*this);
-					}
-					if(rule.second) {
-						grammar.putTerminal(name, std::move(rule.first));
+						grammar.addNonterminal(name, std::move(rule.first));
 					} else {
-						grammar.putNonterminal(name, std::move(rule.first));
+						grammar.addTerminal(name, std::move(rule.first));
 					}
 				}
 				return grammar;
