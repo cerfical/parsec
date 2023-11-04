@@ -1,20 +1,120 @@
 #include "gen/CppSrcGen.hpp"
 
+#include "fg/AtomVisitor.hpp"
 #include "dfa/StateGen.hpp"
+#include "lr/StateGen.hpp"
 #include "utils/chars.hpp"
 
 #include <boost/tokenizer.hpp>
 #include <format>
+#include <ranges>
+
+namespace views = std::ranges::views;
 
 namespace parsec::gen {
 	namespace {
-		/** @{ */
-		constexpr std::string_view sWsSymbol = "ws";
-		/** @} */
+		class RunImpl {
+		public:
+			RunImpl(std::ostream& out, const fg::Grammar& grammar) noexcept
+				: m_grammar(grammar), m_out(out)
+			{ }
+
+			void operator()() {
+				emitLocationSrc();
+				m_out << '\n';
+
+				emitErrorSrc();
+				m_out << "\n\n";
+
+				emitEnumSrc("TokenKinds", views::filter(
+					m_grammar.terminals(), [](const auto tok) {
+						return tok->name() != "ws";
+					})
+				);
+				m_out << '\n';
+
+				emitTokenSrc();
+				m_out << "\n\n";
+				
+				emitLexerSrc();
+				m_out << "\n\n";
+
+				emitParserSrc();
+				m_out << "\n\n";
+
+				emitHelpersSrc();
+			}
+
+		private:
+			/** @{ */
+			static std::string capitalized(const std::string& str) {
+				auto t = str;
+				if(!str.empty()) {
+					t.front() = std::toupper(t.front());
+				}
+				return t;
+			}
+
+			static std::string toPascalCase(const std::string& str) {
+				const static boost::char_separator<char> delims(" \f\n\r\t\v-_");
+				const auto toks = boost::tokenizer(str, delims);
+
+				// capitalize each word in the string
+				std::string id;
+				for(const auto& tok : toks) {
+					id += capitalized(tok);
+				}
+				return id;
+			}
+
+			static std::string makeTokenKind(const fg::Symbol* sym) {
+				return "TokenKinds::" + toPascalCase(sym->name());
+			}
+
+			static std::string makeSymbolName(const fg::Symbol* sym) {
+				if(!sym->isStart()) {
+					return "SymbolNames::" + toPascalCase(sym->name());
+				}
+				return "{}";
+			}
+
+			static std::string makeParseHook(const fg::Symbol* sym) {
+				return "on" + toPascalCase(sym->name()) + "()";
+			}
+		
+			static std::string makeStateLabel(int state) {
+				return std::format("state{}", state);
+			}
+
+			static std::string makeStateFunc(int state) {
+				return makeStateLabel(state) + "()";
+			}
+			
+			template <typename R>
+			void emitEnumSrc(std::string_view name, R&& symbols, std::string_view indent = "") {
+				m_out << indent << std::format("enum class {} {{", name);
+
+				bool firstVal = true;
+				for(const auto sym : symbols) {
+					if(!std::exchange(firstVal, false)) {
+						m_out << ',';
+					}
+					m_out << "\n\t" << indent << toPascalCase(sym->name());
+				}
+
+				if(!firstVal) {
+					m_out << '\n' << indent;
+				} else {
+					m_out << ' ';
+				}
+				m_out << "};\n";
+			}
+			/** @} */
 
 
-		/** @{ */
-		constexpr std::string_view sLoc = {
+			/** @{ */
+			void emitLocationSrc() {
+				constexpr static std::string_view src = {
 R"(class SourceLoc {
 public:
 	SourceLoc() = default;
@@ -65,9 +165,13 @@ private:
 	int m_linePos = 0;
 };
 )"
-		};
+				};
+				
+				m_out << src;
+			}
 
-		constexpr std::string_view sError = {
+			void emitErrorSrc() {
+				constexpr static std::string_view src = {
 R"(class Error : public std::runtime_error {
 public:
 	Error(const std::string& msg, const SourceLoc& loc)
@@ -85,16 +189,13 @@ private:
 	SourceLoc m_loc;
 };
 )"
-		};
+				};
 
-		constexpr std::string_view sTokens[] = {
-R"(enum TokenKinds {
-	Eof)", R"(
-};
-)"
-		};
+				m_out << src;
+			}
 
-		constexpr std::string_view sToken = {
+			void emitTokenSrc() {
+				constexpr static std::string_view src = {
 R"(class Token {
 public:
 	explicit Token(
@@ -128,7 +229,7 @@ public:
 	}
 
 
-	bool eof() const noexcept {
+	bool isEof() const noexcept {
 		return m_kind == TokenKinds::Eof;
 	}
 
@@ -138,10 +239,16 @@ private:
 	SourceLoc m_loc;
 	TokenKinds m_kind;
 };
-)"
-		};
 
-		constexpr std::string_view sLexer[] = {
+using TokenList = std::vector<Token>;
+)"
+				};
+			
+				m_out << src;
+			}
+
+			void emitLexerSrc() {
+				constexpr static std::string_view src[] = {
 R"(class Lexer {
 public:
 	explicit Lexer(std::istream& input = std::cin) noexcept
@@ -157,17 +264,21 @@ public:
 
 
 	Token lex() {
-		if(m_tok) return *std::exchange(m_tok, {});
+		if(m_tok) {
+			return *std::exchange(m_tok, {});
+		}
 		return parseToken();
 	}
 
 	const Token& peek() const {
-		if(!m_tok) m_tok = parseToken();
+		if(!m_tok) {
+			m_tok = parseToken();
+		}
 		return *m_tok;
 	}
 
-	bool eof() const {
-		return peek().eof();
+	bool isEof() const {
+		return peek().isEof();
 	}
 
 
@@ -203,7 +314,7 @@ private:
 	}
 
 
-	bool inputEnd() const {
+	bool isInputEnd() const {
 		if(m_input->peek() == std::char_traits<char>::eof()) {
 			m_input->clear(m_input->rdstate() ^ std::ios::eofbit);
 			return true;
@@ -232,7 +343,10 @@ private:
 		TokenKinds kind = TokenKinds::Eof;
 		m_buf.clear();
 
-		if(inputEnd()) goto accept;
+		if(isInputEnd()) {
+			goto accept;
+		}
+		goto start;
 )", R"(
 	accept:
 		return Token(m_buf, kind, makeLoc(startPos));
@@ -252,13 +366,207 @@ private:
 	mutable int m_pos = 0;
 };
 )"
-		};
-		
-		constexpr std::string_view sHelpers[] = {
-R"(std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
-	switch(tok) {
-		case TokenKinds::Eof: out << "Eof"; break;)", R"(
+				};
+
+				m_out << src[0];
+
+				for(const auto& s : dfa::StateGen().run(m_grammar)) {
+					m_out << std::format("\n\t{}:\n", makeStateLabel(s.id()));
+					m_out << "\t\tnextChar();\n";
+					if(s.id() == 0) {
+						m_out << "\tstart:\n";
+					}
+
+					if(!s.transitions().empty()) {
+						m_out << "\t\tif(!isInputEnd()) switch(peekChar()) {\n";
+						for(const auto& t : s.transitions()) {
+							m_out << std::format("\t\t\tcase '{}': goto {};\n",
+								escapeChar(t.label()),
+								makeStateLabel(t.state())
+							);
+						}
+						m_out << "\t\t}\n";
+					}
+
+					if(s.accepting()) {
+						const auto matchedSym = s.matches().front().symbol();
+						if(matchedSym->name() != "ws") {
+							m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
+							m_out << "\t\tgoto accept;\n";
+						} else {
+							m_out << "\t\tgoto reset;\n";
+						}
+					} else {
+						m_out << "\t\tgoto error;\n";
+					}
+				}
+
+				m_out << src[1];
+			}
+			/** @} */
+
+
+			/** @{ */
+			void emitParseHooksSrc(std::string_view indent) {
+				if(!m_grammar.nonterminals().empty()) {
+					m_out << '\n';
+			
+					for(const auto sym : m_grammar.nonterminals()) {
+						m_out << indent << "virtual void " << makeParseHook(sym) << " { }\n";
+					}
+				}
+			}
+
+			void emitReduceActionSrc(const lr::ReduceActionList& reductions, std::string_view indent) {
+				if(reductions.empty()) {
+					m_out << indent << "error();\n";
+					return;
+				}
+
+				// take the first available reduce action, ignore the rest, if any
+				const auto& first = reductions.front();
+				auto states = std::format("{}", first.states());
+
+				if(!first.symbol()->isStart()) {
+					m_out << indent << makeParseHook(first.symbol()) << ";\n";
+				} else {
+					// if the reduce is to the start symbol, pop the start state and exit the parse
+					states += " + 1";
+				}
+
+				m_out << indent << std::format(
+					"return reduce({}, {}, {});\n",
+					states,
+					0,
+					makeSymbolName(first.symbol())
+				);
+			}
+
+			void emitStateShiftsSrc(const lr::State& state, std::string_view indent) {
+				m_out << indent << "switch(m_lexer.peek().kind()) {\n";
+				for(const auto& sh : state.shifts()) {
+					if(sh.symbol()->isNonterminal()) {
+						continue;
+					}
+
+					m_out << indent<< "\tcase " << makeTokenKind(sh.symbol());
+					m_out << ": " << makeStateFunc(sh.state()) << "; break;\n";
+				}
+
+				m_out << indent << "\tdefault: {\n";
+				emitReduceActionSrc(state.reductions(), std::string(indent) + "\t\t");
+				m_out << indent << "\t}\n";
+				m_out << indent << "}\n";
+			}
+
+			void emitStateGotoSrc(const lr::State& state, std::string_view indent)  {
+				bool firstNonterm = true;
+				m_out << '\n';
+				
+				for(const auto& sh : state.shifts()) {
+					if(sh.symbol()->isTerminal()) {
+						continue;
+					}
+
+					if(std::exchange(firstNonterm, false)) {
+						m_out << indent << "while(--m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
+					}
+
+					m_out << indent << std::format(
+						"\tcase {}: {}; break;\n",
+						makeSymbolName(sh.symbol()),
+						makeStateFunc(sh.state())
+					);
+				}
+				
+				if(!firstNonterm) {
+					m_out << indent << "}\n";
+				} else {
+					m_out << indent << "--m_statesToPop;\n";
+				}
+			}
+
+			void emitParserSrc() {
+				constexpr static std::string_view src[] = {
+R"(class Parser {
+public:
+	explicit Parser(std::istream& input = std::cin) noexcept
+		: m_lexer(input)
+	{ }
+
+
+	Parser(Parser&&) = default;
+	Parser& operator=(Parser&&) = default;
+
+	Parser(const Parser&) = default;
+	Parser& operator=(const Parser&) = default;
+
+
+	void parse() {
+		state0();
 	}
+
+
+protected:
+	const TokenList& tokens() const noexcept {
+		return m_tokens;
+	}
+)", R"(
+private:
+)",R"(
+	void reduce(int states, int tokens, SymbolNames symbol) {
+		m_reducedToSymbol = symbol;
+		m_statesToPop = states;
+
+		for(int i = 0; i < tokens; i++) {
+			m_tokens.emplace_back(std::move(m_parsedTokens.back()));
+			m_parsedTokens.pop_back();
+		}
+	}
+
+	[[noreturn]] void error() const {
+		throw Error("unexpected token", m_lexer.peek().loc());
+	}
+
+
+	TokenList m_parsedTokens;
+	TokenList m_tokens;
+	SymbolNames m_reducedToSymbol = {};
+	int m_statesToPop = 0;
+
+	Lexer m_lexer;
+};
+)"
+				};
+
+				m_out << src[0];
+				emitParseHooksSrc("\t");
+				m_out << src[1];
+				emitEnumSrc("SymbolNames", m_grammar.nonterminals(), "\t");
+				m_out << "\n\n";
+				
+				for(const auto& state : lr::StateGen().run(m_grammar)) {
+					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
+
+					if(!state.initial() && state.symbol()->isTerminal()) {
+						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
+					}
+
+					emitStateShiftsSrc(state, "\t\t");
+					emitStateGotoSrc(state, "\t\t");
+
+					m_out << "\t}\n\n";
+				}
+
+				m_out << src[2];
+			}
+			/** @} */
+
+
+			/** @{ */
+			void emitHelpersSrc() {
+				constexpr static std::string_view src[] = {
+R"(std::ostream& operator<<(std::ostream& out, TokenKinds tok) {)", R"(
 	return out;
 }
 
@@ -267,141 +575,37 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 	return out;
 }
 )"
-		};
-		/** @} */
+				};
 
+				const auto& tokens = m_grammar.terminals();
+				m_out << src[0];
+				
+				if(!tokens.empty() && (tokens.size() != 1 || tokens[0]->name() != "ws")) {
+					m_out << "\n\tswitch(tok) {\n";
 
-		/** @{ */
-		class RunImpl {
-		public:
-			/** @{ */
-			RunImpl(std::ostream& out, const fg::Grammar& grammar) noexcept
-				: m_grammar(grammar), m_out(out)
-			{ }
-			/** @} */
+					for(const auto tok : tokens) {
+						if(tok->name() == "ws") {
+							continue;
+						}
 
-
-			/** @{ */
-			void operator()() const {
-				m_out << sLoc << '\n';
-				m_out << sError << "\n\n";
-				m_out << sTokens[0] << tokenKinds() << sTokens[1]<< '\n';
-				m_out << sToken << "\n\n";
-				m_out << sLexer[0] << lexStates() << sLexer[1] << "\n\n";
-				m_out << sHelpers[0] << printTokenKinds() << sHelpers[1];
-			}
-			/** @} */
-
-
-		private:
-			/** @{ */
-			static std::string capitalized(const std::string& str) {
-				auto t = str;
-				if(!str.empty()) {
-					t.front() = std::toupper(t.front());
-				}
-				return t;
-			}
-
-			static std::string toPascalCase(const std::string& str) {
-				const static boost::char_separator<char> delims(" \f\n\r\t\v-_");
-				const auto toks = boost::tokenizer(str, delims);
-
-				// capitalize each word in the string
-				std::string id;
-				for(const auto& tok : toks) {
-					id += capitalized(tok);
-				}
-				return id;
-			}
-		
-			static std::string toTokenName(const fg::Symbol& sym) {
-				return toPascalCase(sym.name());
-			}
-
-			static std::string toStateLabel(int state) {
-				return std::format("state{}", state);
-			}
-			/** @} */
-
-
-			/** @{ */
-			std::string printTokenKinds() const {
-				std::string str;
-				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() != sWsSymbol) {
-						str += std::format(
-							"\n\t\tcase TokenKinds::{0}: out << \"{0}\"; break;",
-							toTokenName(*tok)
+						m_out << std::format(
+							"\t\tcase {}: out << \"{}\"; break;\n",
+							makeTokenKind(tok),
+							toPascalCase(tok->name())
 						);
 					}
-				}
-				return str;
-			}
 
-			std::string tokenKinds() const {
-				std::string str;
-				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() != sWsSymbol) {
-						str += ",\n\t" + toTokenName(*tok);
-					}
-				}
-				return str;
-			}
-
-			std::string lexStates() const {
-				const auto states = dfa::StateGen().run(m_grammar);
-				std::string str;
-
-				if(states.empty()) {
-					str += "\t\tgoto error;\n";
-					return str;
-				}
-				str += "\t\tgoto start;\n";
-
-				for(const auto& s : states) {
-					str += std::format("\n\t{}:\n", toStateLabel(s.id()));
-					str += "\t\tnextChar();\n";
-					if(s.id() == 0) {
-						str += "\tstart:\n";
-					}
-
-					if(!s.transitions().empty()) {
-						str += "\t\tif(!inputEnd()) switch(peekChar()) {\n";
-						for(const auto& t : s.transitions()) {
-							str += std::format(
-								"\t\t\tcase '{}': goto {};\n",
-								escapeChar(t.label()),
-								toStateLabel(t.state())
-							);
-						}
-						str += "\t\t}\n";
-					}
-
-					if(s.accepting()) {
-						const auto matchedSym = s.matches().front().symbol();
-						if(matchedSym->name() != sWsSymbol) {
-							str += std::format("\t\tkind = TokenKinds::{};\n", toTokenName(*matchedSym));
-							str += "\t\tgoto accept;\n";
-						} else {
-							str += "\t\tgoto reset;\n";
-						}
-					} else {
-						str += "\t\tgoto error;\n";
-					}
+					m_out << "\t}";
 				}
 
-				return str;
+				m_out << src[1];
 			}
 			/** @} */
 
 
-			/** @{ */
 			const fg::Grammar& m_grammar;
 			std::ostream& m_out;
-			/** @} */
 		};
-		/** @} */
 	}
 
 
