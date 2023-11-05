@@ -4,16 +4,12 @@ namespace parsec::fg {
 	namespace {
 		class ComputeLeadingAtoms : RuleTraverser {
 		public:
-			/** @{ */
 			AtomList operator()(const Rule& n) {
 				n.traverse(*this);
 				return std::move(m_atoms);
 			}
-			/** @} */
-
 
 		private:
-			/** @{ */
 			void visit(const Atom& n) override {
 				m_atoms.push_back(&n);
 			}
@@ -54,26 +50,19 @@ namespace parsec::fg {
 					n.right()->traverse(*this);
 				}
 			}
-			/** @} */
 
 
-			/** @{ */
 			AtomList m_atoms;
-			/** @} */
 		};
 
 		class ComputeTrailingAtoms : RuleTraverser {
 		public:
-			/** @{ */
 			AtomList operator()(const Rule& n) {
 				n.traverse(*this);
 				return std::move(m_atoms);
 			}
-			/** @} */
-
 
 		private:
-			/** @{ */
 			void visit(const Atom& n) override {
 				m_atoms.push_back(&n);
 			}
@@ -114,26 +103,19 @@ namespace parsec::fg {
 					n.left()->traverse(*this);
 				}
 			}
-			/** @} */
 
 
-			/** @{ */
 			AtomList m_atoms;
-			/** @} */
 		};
 	
 		class ComputeNullable : RuleTraverser {
 		public:
-			/** @{ */
 			bool operator()(const Rule& n) noexcept {
 				n.traverse(*this);
 				return m_nullable;
 			}
-			/** @} */
-
 
 		private:
-			/** @{ */
 			void visit(const Atom&) override {
 				m_nullable = false;
 			}
@@ -169,12 +151,9 @@ namespace parsec::fg {
 					n.right()->traverse(*this);
 				}
 			}
-			/** @} */
 
 
-			/** @{ */
 			bool m_nullable = false;
-			/** @} */
 		};
 	}
 

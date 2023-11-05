@@ -33,7 +33,6 @@ namespace parsec::fg {
 		Rule& operator=(const Rule&) = delete;
 		/** @} */
 
-
 		/** @{ */
 		Rule(Rule&&) = delete;
 		Rule& operator=(Rule&&) = delete;
@@ -65,9 +64,7 @@ namespace parsec::fg {
 
 
 	private:
-		/** @{ */
 		const Rule* m_parent;
-		/** @} */
 	};
 
 

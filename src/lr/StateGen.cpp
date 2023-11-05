@@ -79,23 +79,29 @@ namespace parsec::lr {
 			{ }
 
 			StateList operator()() {
-				putState(createStartState(), nullptr);
+				const auto start = m_grammar.startSymbol();
+				ItemSet startItems;
 
-				while(!m_unprocessed.empty()) {
-					const auto state = m_unprocessed.top();
-					m_unprocessed.pop();
-					processState(state->first, state->second);
+				// construct the initial state from the first symbols of each rule
+				for(const auto atom : start->rule()->leadingAtoms()) {
+					startItems.emplace(atom, start);
 				}
 
-				return std::move(m_states);
+				createState(std::move(startItems), nullptr);
+				while(!m_unprocessed.empty()) {
+					const auto& [items, id] = *m_unprocessed.top();
+					m_unprocessed.pop();
+					
+					processState(
+						items,
+						id
+					);
+				}
+
+				return m_states;
 			}
 
 		private:
-			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
-			using StateHandle = const StateIdTable::value_type*;
-
-
-			/** @{ */
 			ItemSet computeClosure(const ItemSet& items) const {
 				std::stack<Item> unexpanded;
 				ItemSet closure;
@@ -133,18 +139,7 @@ namespace parsec::lr {
 				return closure;
 			}
 
-			ItemSet createStartState() const {
-				ItemSet items;
-
-				const auto start = m_grammar.startSymbol();
-				for(const auto atom : start->rule()->leadingAtoms()) {
-					items.emplace(atom, start);
-				}
-
-				return items;
-			}
-			
-			int putState(ItemSet&& stateItems, const fg::Symbol* symbol) {
+			int createState(ItemSet&& stateItems, const fg::Symbol* symbol) {
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;
@@ -160,7 +155,6 @@ namespace parsec::lr {
 
 			void processState(const ItemSet& items, int id) {
 				std::unordered_map<const fg::Symbol*, ItemSet> stateGoto;
-
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
 					if(item.atEnd()) {
@@ -187,14 +181,18 @@ namespace parsec::lr {
 
 				// add shift actions for all generated transitions
 				for(auto& [symbol, items] : stateGoto) {
-					const auto newState = putState(std::move(items), symbol);
-					m_states[id].addShift(symbol, newState);
+					const auto newState = createState(std::move(items), symbol);
+					m_states[id].addShift(
+						symbol,
+						newState
+					);
 				}
 			}
-			/** @} */
 
 
-			std::stack<StateHandle> m_unprocessed;
+			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
+
+			std::stack<const StateIdTable::value_type*> m_unprocessed;
 			StateIdTable m_stateIds;
 			StateList m_states;
 

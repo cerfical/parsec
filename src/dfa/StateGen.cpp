@@ -59,40 +59,34 @@ namespace parsec::dfa {
 			{ }
 			
 			StateList operator()() {
-				if(auto startState = createStartState(); !startState.empty()) {
-					putState(std::move(startState));
+				// initial state consists of the first characters of each rule
+				ItemSet startItems;
+				for(const auto tok : m_grammar.terminals()) {
+					for(const auto atom : tok->rule()->leadingAtoms()) {
+						startItems.emplace(atom, tok);
+					}
+				}
+
+				// no items, no start state, no states at all
+				if(!startItems.empty()) {
+					createState(std::move(startItems));
+
 					while(!m_unprocessed.empty()) {
-						const auto state = m_unprocessed.top();
+						const auto& [items, id] = *m_unprocessed.top();
 						m_unprocessed.pop();
+
 						processState(
-							state->first,
-							state->second
+							items,
+							id
 						);
 					}
 				}
+
 				return m_states;
 			}
 
 		private:
-			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
-			using StateHandle = const StateIdTable::value_type*;
-
-
-			/** @{ */
-			ItemSet createStartState() const {
-				ItemSet items;
-
-				// the initial state will contain all the atoms that form the beginning of some rule
-				for(const auto tok : m_grammar.terminals()) {
-					for(const auto atom : tok->rule()->leadingAtoms()) {
-						items.emplace(atom, tok);
-					}
-				}
-
-				return items;
-			}
-
-			int putState(ItemSet&& stateItems) {
+			int createState(ItemSet&& stateItems) {
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
 				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;
@@ -107,16 +101,17 @@ namespace parsec::dfa {
 			}
 
 			void processState(const ItemSet& items, int id) {
-				// all items, that are located at the rule end, represent possible matches
+				// use map to sort transitions alphabetically
+				std::map<char, ItemSet> nextStates;
+				
+				// incrementally build up all states to which there is a transition
 				for(const auto& item : items) {
+					// items that are located at the rule end represent possible matches
 					if(item.atEnd()) {
 						m_states[id].addMatch(item.symbol());
+						continue;
 					}
-				}
 
-				// incrementally build up all states to which there is a transition
-				std::map<char, ItemSet> nextStates;
-				for(const auto& item : items) {
 					for(const auto nextAtom : item.atom()->nextAtoms()) {
 						// just skip ill-defined atoms
 						if(item.atom()->value().size() != 1) {
@@ -131,15 +126,20 @@ namespace parsec::dfa {
 					}
 				}
 
-				for(auto& trans : nextStates) {
-					const auto newState = putState(std::move(trans.second));
-					m_states[id].addTransition(newState, trans.first);
+				// store the computed transitions in a State object
+				for(auto& [label, stateItems] : nextStates) {
+					const auto nextStateId = createState(std::move(stateItems));
+					m_states[id].addTransition(
+						nextStateId,
+						label
+					);
 				}
 			}
-			/** @} */
 
 
-			std::stack<StateHandle> m_unprocessed;
+			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
+
+			std::stack<const StateIdTable::value_type*> m_unprocessed;
 			StateIdTable m_stateIds;
 			StateList m_states;
 

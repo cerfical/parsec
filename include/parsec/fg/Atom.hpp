@@ -35,9 +35,7 @@ namespace parsec::fg {
 
 
 	private:
-		/** @{ */
 		std::string m_value;
-		/** @} */
 	};
 }
 
