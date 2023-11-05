@@ -57,7 +57,10 @@ namespace parsec::fg {
 
 		/** @{ */
 		AtomList leadingAtoms() const;
+		
 		AtomList trailingAtoms() const;
+		
+		const Atom* endAtom() const noexcept;
 
 		bool nullable() const noexcept;
 		/** @} */

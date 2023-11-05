@@ -2,7 +2,9 @@
 
 #include "fg/AtomVisitor.hpp"
 #include "fg/RuleAltern.hpp"
+#include "fg/RuleConcat.hpp"
 #include "fg/NilRule.hpp"
+#include "fg/Atom.hpp"
 
 #include <gsl/narrow>
 #include <set>
@@ -24,7 +26,7 @@ namespace parsec::fg {
 				// find all unreferenced symbols
 				for(const auto sym : m_grammar.nonterminals()) {
 					m_currentSymbol = sym;
-					sym->ruleBody()->traverse(*this);
+					sym->rule()->traverse(*this);
 				}
 
 				// combine found symbols into one
@@ -67,11 +69,11 @@ namespace parsec::fg {
 
 
 	Grammar::Grammar() {
-		putSymbol("eof", makeRule<NilRule>(), SymbolTypes::End);
+		addSymbol("eof", makeRule<NilRule>(), SymbolTypes::End);
 	}
 
 
-	void Grammar::putSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
+	void Grammar::addSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
 		// try to construct a new named symbol if it doesn't already exist
 		const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
 		const auto [it, wasInserted] = m_symbolTable.try_emplace(

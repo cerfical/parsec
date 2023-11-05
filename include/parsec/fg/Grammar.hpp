@@ -27,11 +27,11 @@ namespace parsec::fg {
 
 		/** @{ */
 		void addTerminal(const std::string& name, RulePtr rule) {
-			putSymbol(name, std::move(rule), SymbolTypes::Terminal);
+			addSymbol(name, std::move(rule), SymbolTypes::Terminal);
 		}
 
 		void addNonterminal(const std::string& name, RulePtr rule) {
-			putSymbol(name, std::move(rule), SymbolTypes::Nonterminal);
+			addSymbol(name, std::move(rule), SymbolTypes::Nonterminal);
 		}
 		/** @} */
 
@@ -70,7 +70,7 @@ namespace parsec::fg {
 
 
 	private:
-		void putSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
+		void addSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
 
 
 		mutable std::optional<Symbol> m_startSymbol;

@@ -1,4 +1,5 @@
 #include "lr/StateGen.hpp"
+#include "fg/Atom.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <gsl/narrow>
@@ -57,7 +58,7 @@ namespace parsec::lr {
 			}
 
 			bool atEnd() const noexcept {
-				return m_atom == m_symbol->ruleEnd();
+				return m_symbol->rule()->endAtom() == m_atom;
 			}
 			/** @} */
 

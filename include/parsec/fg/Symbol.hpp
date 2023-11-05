@@ -2,8 +2,7 @@
 #define PARSEC_FG_SYMBOL_HEADER
 
 #include "SymbolTypes.hpp"
-#include "RuleConcat.hpp"
-#include "Atom.hpp"
+#include "Rule.hpp"
 
 #include <string>
 #include <vector>
@@ -21,13 +20,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id)
-			: m_name(name), m_type(type), m_id(id) {
-			m_rule = makeRule<RuleConcat>(
-				std::move(rule),
-				makeRule<Atom>('#')
-			);
-		}
+		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id);
 		/** @} */
 
 
@@ -49,25 +42,6 @@ namespace parsec::fg {
 
 		int id() const noexcept {
 			return m_id;
-		}
-		/** @} */
-
-
-		/** @{ */
-		const Rule* ruleBody() const noexcept {
-			return static_cast<const Atom*>(
-				static_cast<const RuleConcat*>(
-					m_rule.get()
-				)->left()
-			);
-		}
-
-		const Atom* ruleEnd() const noexcept {
-			return static_cast<const Atom*>(
-				static_cast<const RuleConcat*>(
-					m_rule.get()
-				)->right()
-			);
 		}
 
 		const Rule* rule() const noexcept {

@@ -108,6 +108,54 @@ namespace parsec::fg {
 			AtomList m_atoms;
 		};
 	
+		class ComputeEndAtom : RuleTraverser {
+		public:
+			const Atom* operator()(const Rule& n) noexcept {
+				n.traverse(*this);
+				return m_atom;
+			}
+
+		private:
+			void visit(const Atom& n) override {
+				m_atom = &n;
+			}
+
+			void visit(const NilRule&) override {
+				// nothing to do
+			}
+
+
+			void visit(const OptionalRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+			void visit(const PlusRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+			void visit(const StarRule& n) override {
+				n.inner()->traverse(*this);
+			}
+
+
+			void visit(const RuleAltern& n) override {
+				n.right()->traverse(*this);
+				if(!m_atom) {
+					n.left()->traverse(*this);
+				}
+			}
+
+			void visit(const RuleConcat& n) override {
+				n.right()->traverse(*this);
+				if(!m_atom) {
+					n.left()->traverse(*this);
+				}
+			}
+
+
+			const Atom* m_atom = nullptr;
+		};
+
 		class ComputeNullable : RuleTraverser {
 		public:
 			bool operator()(const Rule& n) noexcept {
@@ -170,6 +218,10 @@ namespace parsec::fg {
 
 	AtomList Rule::trailingAtoms() const {
 		return ComputeTrailingAtoms()(*this);
+	}
+
+	const Atom* Rule::endAtom() const noexcept {
+		return ComputeEndAtom()(*this);
 	}
 
 	bool Rule::nullable() const noexcept {

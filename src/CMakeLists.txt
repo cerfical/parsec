@@ -7,6 +7,7 @@ add_library(parsec-lib STATIC
 	"regex/Parser.cpp"
 
 	
+	"fg/Symbol.cpp"
 	"fg/Grammar.cpp"
 
 	"fg/Token.cpp"
