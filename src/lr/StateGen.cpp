@@ -118,9 +118,9 @@ namespace parsec::lr {
 						continue;
 					}
 
-					// skip undefined and terminal symbols
+					// skip any undefined, terminal and end symbols
 					const auto sym = m_grammar.symbolByName(item->atom()->value());
-					if(!sym || sym->isTerminal()) {
+					if(!sym || sym->isTerminal() || sym->isEnd()) {
 						continue;
 					}
 
@@ -136,9 +136,9 @@ namespace parsec::lr {
 			ItemSet createStartState() const {
 				ItemSet items;
 
-				const auto sym = m_grammar.startSymbol();
-				for(const auto atom : sym->rule()->leadingAtoms()) {
-					items.emplace(atom, sym);
+				const auto start = m_grammar.startSymbol();
+				for(const auto atom : start->rule()->leadingAtoms()) {
+					items.emplace(atom, start);
 				}
 
 				return items;
@@ -179,7 +179,7 @@ namespace parsec::lr {
 								atom,
 								item.symbol(),
 								item.symbols() + 1,
-								item.terminals() + (sym->isTerminal() && !sym->isEnd() ? 1 : 0)
+								item.terminals() + (sym->isTerminal() ? 1 : 0)
 							);
 						}
 					}

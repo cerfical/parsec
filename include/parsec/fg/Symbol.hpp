@@ -82,7 +82,7 @@ namespace parsec::fg {
 		}
 
 		bool isTerminal() const noexcept {
-			return m_type == SymbolTypes::Terminal || m_type == SymbolTypes::End;
+			return m_type == SymbolTypes::Terminal;
 		}
 
 		bool isNonterminal() const noexcept {

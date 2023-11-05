@@ -1,14 +1,11 @@
 #include "gen/CppSrcGen.hpp"
 
+#include "utils/chars.hpp"
 #include "dfa/StateGen.hpp"
 #include "lr/StateGen.hpp"
-#include "utils/chars.hpp"
 
 #include <boost/tokenizer.hpp>
 #include <format>
-#include <ranges>
-
-namespace views = std::ranges::views;
 
 namespace parsec::gen {
 	namespace {
@@ -21,15 +18,11 @@ namespace parsec::gen {
 			void operator()() {
 				emitLocationSrc();
 				m_out << '\n';
-
+				
 				emitErrorSrc();
 				m_out << "\n\n";
 
-				emitEnumSrc("TokenKinds", views::filter(
-					m_grammar.terminals(), [](const auto tok) {
-						return tok->name() != "ws";
-					})
-				);
+				emitTokenKindsSrc();
 				m_out << '\n';
 
 				emitTokenSrc();
@@ -84,26 +77,6 @@ namespace parsec::gen {
 
 			static std::string makeStateFunc(int state) {
 				return makeStateLabel(state) + "()";
-			}
-			
-			template <typename R>
-			void emitEnumSrc(std::string_view name, R&& symbols, std::string_view indent = "") {
-				m_out << indent << std::format("enum class {} {{", name);
-
-				bool firstVal = true;
-				for(const auto sym : symbols) {
-					if(!std::exchange(firstVal, false)) {
-						m_out << ',';
-					}
-					m_out << "\n\t" << indent << toPascalCase(sym->name());
-				}
-
-				if(!firstVal) {
-					m_out << '\n' << indent;
-				} else {
-					m_out << ' ';
-				}
-				m_out << "};\n";
 			}
 			/** @} */
 
@@ -190,6 +163,19 @@ private:
 				m_out << src;
 			}
 
+
+			void emitTokenKindsSrc() {
+				m_out << "enum class TokenKinds {\n";
+				m_out << "\t" << toPascalCase(m_grammar.eofSymbol()->name());
+
+				for(const auto tok : m_grammar.terminals()) {
+					if(tok->name() != "ws") {
+						m_out << ",\n\t" << toPascalCase(tok->name());
+					}
+				}
+				m_out << "\n};\n";
+			}
+
 			void emitTokenSrc() {
 				constexpr static std::string_view src = {
 R"(class Token {
@@ -242,6 +228,7 @@ using TokenList = std::vector<Token>;
 			
 				m_out << src;
 			}
+
 
 			void emitLexerSrc() {
 				constexpr static std::string_view src[] = {
@@ -342,7 +329,6 @@ private:
 		if(isInputEnd()) {
 			goto accept;
 		}
-		goto start;
 )", R"(
 	accept:
 		return Token(m_buf, kind, makeLoc(startPos));
@@ -364,9 +350,16 @@ private:
 )"
 				};
 
+				const auto states = dfa::StateGen().run(m_grammar);
 				m_out << src[0];
 
-				for(const auto& s : dfa::StateGen().run(m_grammar)) {
+				if(!states.empty()) {
+					m_out << "\t\tgoto start;\n";
+				} else {
+					m_out << "\t\tgoto error;\n";
+				}
+
+				for(const auto& s : states) {
 					m_out << std::format("\n\t{}:\n", makeStateLabel(s.id()));
 					m_out << "\t\tnextChar();\n";
 					if(s.id() == 0) {
@@ -403,6 +396,25 @@ private:
 
 
 			/** @{ */
+			void emitSymbolNamesSrc(std::string_view indent) {
+				m_out << indent << "enum class SymbolNames {";
+
+				bool firstNonterm = true;
+				for(const auto sym : m_grammar.nonterminals()) {
+					if(!std::exchange(firstNonterm, false)) {
+						m_out << ',';
+					}
+					m_out << "\n\t" << indent << toPascalCase(sym->name());
+				}
+
+				if(!firstNonterm) {
+					m_out << '\n' << indent;
+				} else {
+					m_out << ' ';
+				}
+				m_out << "};\n";
+			}
+
 			void emitParseHooksSrc(std::string_view indent) {
 				if(!m_grammar.nonterminals().empty()) {
 					m_out << '\n';
@@ -458,7 +470,7 @@ private:
 				m_out << '\n';
 				
 				for(const auto& sh : state.shifts()) {
-					if(sh.symbol()->isTerminal()) {
+					if(sh.symbol()->isTerminal() || sh.symbol()->isEnd()) {
 						continue;
 					}
 
@@ -536,13 +548,13 @@ private:
 				m_out << src[0];
 				emitParseHooksSrc("\t");
 				m_out << src[1];
-				emitEnumSrc("SymbolNames", m_grammar.nonterminals(), "\t");
+				emitSymbolNamesSrc("\t");
 				m_out << "\n\n";
 				
 				for(const auto& state : lr::StateGen().run(m_grammar)) {
 					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
 
-					if(!state.initial() && state.symbol()->isTerminal() && !state.symbol()->isEnd()) {
+					if(!state.initial() && state.symbol()->isTerminal()) {
 						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
 					}
 
@@ -560,7 +572,9 @@ private:
 			/** @{ */
 			void emitHelpersSrc() {
 				constexpr static std::string_view src[] = {
-R"(std::ostream& operator<<(std::ostream& out, TokenKinds tok) {)", R"(
+R"(std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
+	switch(tok) {
+)", "\t\tcase {}: out << \"{}\"; break;\n", R"(	}
 	return out;
 }
 
@@ -568,31 +582,27 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 	out << "{ " << tok.kind() << ": \"" << tok.text() << "\" }";
 	return out;
 }
-)"
+)", 
 				};
-
-				const auto& tokens = m_grammar.terminals();
-				m_out << src[0];
 				
-				if(!tokens.empty() && (tokens.size() != 1 || tokens[0]->name() != "ws")) {
-					m_out << "\n\tswitch(tok) {\n";
+				m_out << src[0];
+				m_out << std::format(src[1],
+					makeTokenKind(m_grammar.eofSymbol()),
+					toPascalCase(m_grammar.eofSymbol()->name())
+				);
 
-					for(const auto tok : tokens) {
-						if(tok->name() == "ws") {
-							continue;
-						}
-
-						m_out << std::format(
-							"\t\tcase {}: out << \"{}\"; break;\n",
-							makeTokenKind(tok),
-							toPascalCase(tok->name())
-						);
+				for(const auto tok : m_grammar.terminals()) {
+					if(tok->name() == "ws") {
+						continue;
 					}
 
-					m_out << "\t}";
+					m_out << std::format(src[1],
+						makeTokenKind(tok),
+						toPascalCase(tok->name())
+					);
 				}
 
-				m_out << src[1];
+				m_out << src[2];
 			}
 			/** @} */
 
