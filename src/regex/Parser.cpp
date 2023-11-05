@@ -187,18 +187,15 @@ namespace parsec::regex {
 					unexpected();
 				}
 
-				if(m_scanner.skipIf('(')) {
+				if(const auto openParen = m_scanner.loc(); m_scanner.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_scanner.skipIf(')')) {
 						return fg::makeRule<fg::NilRule>();
 					}
 
 					auto e = parseExpr();
-					if(!m_scanner.eof()) {
-						if(m_scanner.peek() == ')') {
-							unmatchedParen(m_scanner.loc());
-						}
-						unexpected();
+					if(!m_scanner.skipIf(')')) {
+						unmatchedParen(openParen);
 					}
 					return e;
 				}
