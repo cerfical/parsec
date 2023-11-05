@@ -13,14 +13,10 @@ namespace parsec::regex {
 	namespace {
 		class ParseImpl {
 		public:
-			/** @{ */
 			explicit ParseImpl(std::istream& input) noexcept
 				: m_scanner(input)
 			{ }
-			/** @} */
 			
-			
-			/** @{ */
 			fg::RulePtr operator()() {
 				// no input, nothing to parse
 				if(m_scanner.eof()) {
@@ -34,8 +30,6 @@ namespace parsec::regex {
 				}
 				return e;
 			}
-			/** @} */
-
 
 		private:
 			/** @{ */
@@ -152,7 +146,7 @@ namespace parsec::regex {
 						rangeBadOrder(rangeLoc);
 					}
 
-					for(auto ch = low; ch < high; ) {
+					for(auto ch = low; ch <= high; ) {
 						r = fg::makeRule<fg::RuleAltern>(
 							std::move(r),
 							fg::makeRule<fg::Atom>(ch++)
@@ -262,9 +256,7 @@ namespace parsec::regex {
 			/** @} */
 
 
-			/** @{ */
 			TextScanner m_scanner;
-			/** @} */
 		};
 	}
 
