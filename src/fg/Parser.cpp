@@ -7,46 +7,40 @@
 #include "utils/Error.hpp"
 
 #include <unordered_map>
+#include <format>
 #include <sstream>
 
 namespace parsec::fg {
 	namespace {
 		class ParseImpl : AtomVisitor {
 		public:
-			/** @{ */
 			explicit ParseImpl(std::istream& input) noexcept
 				: m_lexer(input)
 			{ }
-			/** @} */
 
-
-			/** @{ */
 			Grammar operator()() {
 				parseGrammar();
 				
-				// construct a grammar from the parsed symbol definitions
-				Grammar grammar;
-				for(auto& [name, rule] : m_symbols) {
-					// check the rule for any undefined symbol references and then add it to the grammar
-					if(!rule.second) {
-						rule.first->traverse(*this);
-						grammar.addNonterminal(name, std::move(rule.first));
-					} else {
-						grammar.addTerminal(name, std::move(rule.first));
-					}
+				// check the grammar for undefined symbols
+				for(const auto sym : m_grammar.nonterminals()) {
+					m_currentEnd = sym->rule()->endAtom();
+					sym->rule()->traverse(*this);
 				}
-				return grammar;
-			}
-			/** @} */
 
+				return std::move(m_grammar);
+			}
 
 		private:
 			/** @{ */
 			void visit(const Atom& n) override {
-				const auto it = m_symbols.find(n.value());
-				if(it == m_symbols.cend()) {
+				// skip end atoms as a special case
+				if(&n == m_currentEnd) {
+					return;
+				}
+
+				if(!m_grammar.symbolByName(n.value())) {
 					throw Error(
-						"reference to an undefined symbol \"" + n.value() + '"',
+						std::format("reference to an undefined symbol \"{}\"", n.value()),
 						m_atomLocs[&n]
 					);
 				}
@@ -57,9 +51,11 @@ namespace parsec::fg {
 			/** @{ */
 			[[noreturn]]
 			void unexpectedToken() const {
-				throw Error("unexpected \""
-						+ m_lexer.peek().text()
-						+ '"',
+				throw Error(
+					std::format(
+						"unexpected \"{}\"",
+						m_lexer.peek().text()
+					),
 					m_lexer.peek().loc()
 				);
 			}
@@ -69,6 +65,14 @@ namespace parsec::fg {
 				throw Error(
 					"unmatched parenthesis",
 					loc
+				);
+			}
+			
+			[[noreturn]]
+			void symbolRedefinition(const Token& name) const {
+				throw Error(
+					std::format("redifinition of \"{}\"", name.text()),
+					name.loc()
 				);
 			}
 			/** @} */
@@ -159,16 +163,12 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			void addSymbol(const std::string& name, RulePtr rule, bool terminal) {
-				const auto [it, wasInserted] = m_symbols.try_emplace(name);
-				if(wasInserted) {
-					// the new symbol is inserted as is
-					it->second = { std::move(rule), terminal };
-				} else {
-					// combine the rules defined by the same name into one symbol
-					it->second.first = makeRule<RuleAltern>(
-						std::move(it->second).first, std::move(rule)
-					);
+			void addSymbol(const Token& name, RulePtr rule, bool terminal) {
+				if(terminal
+					&& !m_grammar.addTerminal(name.text(), std::move(rule)) || !terminal
+					&& !m_grammar.addNonterminal(name.text(), std::move(rule))
+				) {
+					symbolRedefinition(name);
 				}
 			}
 
@@ -179,7 +179,7 @@ namespace parsec::fg {
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
 
-					addSymbol(name.text(), parseRegex(), true);
+					addSymbol(name, parseRegex(), true);
 					m_lexer.expect(TokenKinds::Semicolon);
 				}
 			}
@@ -191,7 +191,7 @@ namespace parsec::fg {
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
 
-					addSymbol(name.text(), parseRule(), false);
+					addSymbol(name, parseRule(), false);
 					m_lexer.expect(TokenKinds::Semicolon);
 				}
 			}
@@ -210,11 +210,11 @@ namespace parsec::fg {
 			/** @} */
 
 
-			/** @{ */
 			std::unordered_map<const Atom*, SourceLoc> m_atomLocs;
-			std::unordered_map<std::string, std::pair<RulePtr, bool>> m_symbols;
 			Lexer m_lexer;
-			/** @} */
+
+			const Atom* m_currentEnd = nullptr;
+			Grammar m_grammar;
 		};
 	}
 
