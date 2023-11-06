@@ -55,6 +55,7 @@ set(_HEADERS
 
 
 	"regex/regex.hpp"
+	"regex/ParseOptions.hpp"
 	"regex/Parser.hpp"
 
 

@@ -17,13 +17,16 @@ namespace parsec::regex {
 				: m_scanner(input)
 			{ }
 			
-			fg::RulePtr operator()() {
+			fg::RulePtr operator()(ParseOptions options) {
 				// no input, nothing to parse
 				if(m_scanner.isEof()) {
 					return fg::makeRule<fg::NilRule>();
 				}
 
-				// parse the input if there is any
+				if(options == ParseOptions::NoRegexSyntax) {
+					return parseString();
+				}
+
 				auto e = parseExpr();
 				if(!m_scanner.isEof()) {
 					unexpected();
@@ -62,18 +65,6 @@ namespace parsec::regex {
 					}
 				);
 			}
-
-			[[noreturn]] void invalidEscapeSeq() const {
-				const auto loc = m_scanner.loc();
-				throw Error(
-					"invalid escape sequence", {
-						loc.startCol() - 1,
-						2,
-						loc.lineNo(),
-						loc.linePos()
-					}
-				);
-			}
 			/** @} */
 
 
@@ -93,8 +84,6 @@ namespace parsec::regex {
 			/** @{ */
 			char parseEscapeSeq() {
 				switch(m_scanner.peek()) {
-					case '*': case '|': case '(': case ')': case '[': case ']': case '?': case '+':
-					case '\\': case '\'': case '\"': { return m_scanner.get(); }
 					case '0': { m_scanner.skip(); return '\0'; }
 					case 'a': { m_scanner.skip(); return '\a'; }
 					case 'b': { m_scanner.skip(); return '\b'; }
@@ -115,14 +104,29 @@ namespace parsec::regex {
 						invalidHexSeq();
 					}
 				}
-				invalidEscapeSeq();
+				return m_scanner.get();
 			}
 			
-			char parseCharLiteral() {
+			char parseChar() {
 				if(m_scanner.skipIf('\\')) {
 					return parseEscapeSeq();
 				}
 				return m_scanner.get();
+			}
+			
+			fg::RulePtr parseString() {
+				auto lhs = fg::makeRule<fg::Atom>(parseChar());
+				
+				while(!m_scanner.isEof()) {
+					lhs = fg::makeRule<fg::RuleConcat>(
+						std::move(lhs),
+						fg::makeRule<fg::Atom>(
+							parseChar()
+						)
+					);
+				}
+
+				return lhs;
 			}
 			/** @} */
 
@@ -131,7 +135,7 @@ namespace parsec::regex {
 			fg::RulePtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
 				const auto rangeLoc = m_scanner.loc();
-				const auto low = parseCharLiteral();
+				const auto low = parseChar();
 
 				// no char range, just a single character
 				auto r = fg::makeRule<fg::Atom>(low);
@@ -141,7 +145,7 @@ namespace parsec::regex {
 
 				// string of the form 'l-h' is a character range
 				if(m_scanner.peek() != ']') {
-					const auto high = parseCharLiteral();
+					const auto high = parseChar();
 					if(low > high) {
 						rangeBadOrder(rangeLoc);
 					}
@@ -204,7 +208,7 @@ namespace parsec::regex {
 					return parseCharSet();
 				}
 
-				return fg::makeRule<fg::Atom>(parseCharLiteral());
+				return fg::makeRule<fg::Atom>(parseChar());
 			}
 
 			fg::RulePtr parseRepeat() {
@@ -264,6 +268,6 @@ namespace parsec::regex {
 	}
 
 	fg::RulePtr Parser::parse(std::istream& input) {
-		return ParseImpl(input)();
+		return ParseImpl(input)(m_options);
 	}
 }

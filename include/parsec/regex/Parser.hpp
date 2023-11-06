@@ -2,6 +2,7 @@
 #define PARSEC_REGEX_PARSER_HEADER
 
 #include "../fg/Rule.hpp"
+#include "ParseOptions.hpp"
 
 #include <string_view>
 #include <istream>
@@ -10,7 +11,9 @@ namespace parsec::regex {
 	class Parser {
 	public:
 		/** @{ */
-		Parser() = default;
+		explicit Parser(ParseOptions options = {}) noexcept
+			: m_options(options)
+		{ }
 		/** @} */
 
 
@@ -29,6 +32,10 @@ namespace parsec::regex {
 		fg::RulePtr parse(std::string_view regex);
 		fg::RulePtr parse(std::istream& input);
 		/** @} */
+
+
+	private:
+		ParseOptions m_options;
 	};
 }
 
