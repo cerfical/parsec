@@ -20,7 +20,11 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id);
+		Symbol() = default;
+
+		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id)
+			: m_rule(std::move(rule)), m_name(name), m_type(type), m_id(id)
+		{ }
 		/** @} */
 
 
@@ -76,8 +80,8 @@ namespace parsec::fg {
 	private:
 		RulePtr m_rule;
 		std::string m_name;
-		SymbolTypes m_type;
-		int m_id;
+		SymbolTypes m_type = SymbolTypes::End;
+		int m_id = 0;
 	};
 
 

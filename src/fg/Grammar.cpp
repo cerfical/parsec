@@ -11,6 +11,13 @@
 
 namespace parsec::fg {
 	namespace {
+		RulePtr appendEndAtom(RulePtr rule, const std::string& value) {
+			return makeRule<RuleConcat>(
+				std::move(rule),
+				makeRule<Atom>(value)
+			);
+		}
+
 		class BuildStartSymbol : AtomVisitor {
 		public:
 			explicit BuildStartSymbol(const Grammar& grammar)
@@ -26,6 +33,7 @@ namespace parsec::fg {
 				// find all unreferenced symbols
 				for(const auto sym : m_grammar.nonterminals()) {
 					m_currentSymbol = sym;
+					m_endAtom = sym->rule()->endAtom();
 					sym->rule()->traverse(*this);
 				}
 
@@ -43,18 +51,23 @@ namespace parsec::fg {
 					rule = makeRule<NilRule>();
 				}
 
-				// create a symbol of the form: start = (root1 | root2 | ... ) eof
+				// create a symbol of the form: start = (root1 | root2 | ... ) eof $
 				return Symbol("start",
-					makeRule<RuleConcat>(
-						std::move(rule), makeRule<Atom>("eof")
+					appendEndAtom(
+						appendEndAtom(std::move(rule), "eof"),
+						"$"
 					),
-					SymbolTypes::Start,
-					0
+					SymbolTypes::Start, 0
 				);
 			}
 
 		private:
 			void visit(const Atom& n) override {
+				// skip end atoms as a special case
+				if(&n == m_endAtom) {
+					return;
+				}
+
 				const auto sym = m_grammar.symbolByName(n.value());
 				if(sym && sym != m_currentSymbol) { // a root symbol can be a reference to itself
 					m_rootSymbols.erase(sym->id());
@@ -62,6 +75,7 @@ namespace parsec::fg {
 			}
 
 			const Symbol* m_currentSymbol = nullptr;
+			const Atom* m_endAtom = nullptr;
 			std::set<int> m_rootSymbols;
 			const Grammar& m_grammar;
 		};
@@ -72,32 +86,47 @@ namespace parsec::fg {
 		addSymbol("eof", makeRule<NilRule>(), SymbolTypes::End);
 	}
 
+	Symbol* Grammar::addSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
+		// allocate a new defaulted symbol if it doesn't already exist
+		const auto [it, wasInserted] = m_symbolTable.try_emplace(name);
+		auto& sym = it->second;
 
-	void Grammar::addSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
-		// try to construct a new named symbol if it doesn't already exist
-		const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
-		const auto [it, wasInserted] = m_symbolTable.try_emplace(
-			name, name, std::move(rule), type, newSymbolId
-		);
-		const auto& sym = it->second;
+		if(wasInserted) {
+			const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
+			sym = Symbol(
+				name,
+				appendEndAtom(std::move(rule), "$"),
+				type,
+				newSymbolId
+			);
 
-		// for now just ignore duplicate symbols
-		if(!wasInserted) {
-			return;
-		}
+			// classify the symbol for easier access later
+			m_symbols.push_back(&sym);
+			if(sym.isTerminal()) {
+				m_terminals.push_back(&sym);
+			} else if(sym.isNonterminal()) {
+				m_nonterminals.push_back(&sym);
+			}
+		} else {
+			if(sym.type() != type) {
+				return nullptr;
+			}
 
-		// classify the symbol for easier access later
-		m_symbols.push_back(&sym);
-		if(sym.isTerminal()) {
-			m_terminals.push_back(&sym);
-		} else if(sym.isNonterminal()) {
-			m_nonterminals.push_back(&sym);
+			// if the symbol is not new, add the rule to its definition
+			auto& lhs = static_cast<RuleConcat*>(
+				const_cast<Rule*>(sym.rule())
+			)->left();
+
+			lhs = makeRule<RuleAltern>(
+				std::move(lhs),
+				std::move(rule)
+			);
 		}
 
 		// reset the start symbol, as it might need to be recalculated due to the grammar modification
 		m_startSymbol.reset();
+		return &sym;
 	}
-
 
 	const Symbol* Grammar::symbolByName(const std::string& name) const {
 		const auto it = m_symbolTable.find(name);
