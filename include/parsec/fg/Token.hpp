@@ -16,9 +16,11 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		explicit Token(
-			const std::string& text = "",
-			TokenKinds kind = TokenKinds::Eof,
+		Token() = default;
+
+		Token(
+			const std::string& text,
+			TokenKinds kind,
 			const SourceLoc& loc = {}
 		)
 			: m_text(text)
@@ -59,7 +61,7 @@ namespace parsec::fg {
 			return m_kind == kind;
 		}
 
-		bool eof() const noexcept {
+		bool isEof() const noexcept {
 			return is(TokenKinds::Eof);
 		}
 		/** @} */
@@ -68,7 +70,7 @@ namespace parsec::fg {
 	private:
 		std::string m_text;
 		SourceLoc m_loc;
-		TokenKinds m_kind;
+		TokenKinds m_kind = TokenKinds::Eof;
 	};
 }
 

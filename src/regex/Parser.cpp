@@ -19,13 +19,13 @@ namespace parsec::regex {
 			
 			fg::RulePtr operator()() {
 				// no input, nothing to parse
-				if(m_scanner.eof()) {
+				if(m_scanner.isEof()) {
 					return fg::makeRule<fg::NilRule>();
 				}
 
 				// parse the input if there is any
 				auto e = parseExpr();
-				if(!m_scanner.eof()) {
+				if(!m_scanner.isEof()) {
 					unexpected();
 				}
 				return e;
@@ -78,8 +78,8 @@ namespace parsec::regex {
 
 
 			/** @{ */
-			bool atomStart() const {
-				if(!m_scanner.eof()) {
+			bool isAtom() const {
+				if(!m_scanner.isEof()) {
 					switch(m_scanner.peek()) {
 						case '*': case '|': case ')': case ']': case '?': case '+': break;
 						case '(': case '[': case '\\': default: return true;
@@ -107,7 +107,7 @@ namespace parsec::regex {
 						m_scanner.skip();
 						if(isHexDigit(m_scanner.peek())) {
 							auto ch = evalHexDigit(m_scanner.get());
-							if(!m_scanner.eof() && isHexDigit(m_scanner.peek())) {
+							if(!m_scanner.isEof() && isHexDigit(m_scanner.peek())) {
 								ch = ch * 16 + evalHexDigit(m_scanner.get());
 							}
 							return gsl::narrow_cast<char>(ch);
@@ -183,7 +183,7 @@ namespace parsec::regex {
 
 			/** @{ */
 			fg::RulePtr parseAtom() {
-				if(!atomStart()) {
+				if(!isAtom()) {
 					unexpected();
 				}
 
@@ -227,7 +227,7 @@ namespace parsec::regex {
 
 			fg::RulePtr parseConcat() {
 				auto lhs = parseRepeat();
-				while(atomStart()) {
+				while(isAtom()) {
 					lhs = fg::makeRule<fg::RuleConcat>(
 						std::move(lhs),
 						parseRepeat()

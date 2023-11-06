@@ -35,15 +35,15 @@ namespace parsec::fg {
 	}
 	
 
-	bool Lexer::stringLiteralStart() const {
-		return !m_scanner.eof()
+	bool Lexer::isStringLiteral() const {
+		return !m_scanner.isEof()
 			&& (m_scanner.peek() == '\''
 				|| m_scanner.peek() == '\"'
 			);
 	}
 
-	bool Lexer::identStart() const {
-		return !m_scanner.eof()
+	bool Lexer::isIdent() const {
+		return !m_scanner.isEof()
 			&& (isAlnum(m_scanner.peek())
 				|| m_scanner.peek() == '-'
 				|| m_scanner.peek() == '_'
@@ -54,14 +54,14 @@ namespace parsec::fg {
 	void Lexer::skipWhitespace() const {
 		while(true) {
 			// nothing to skip, the input is empty
-			if(m_scanner.eof()) {
+			if(m_scanner.isEof()) {
 				break;
 			}
 
 			if(isSpace(m_scanner.peek())) { // space characters
 				m_scanner.skip();
 			} else if(m_scanner.skipIf("//")) { // single-line comments
-				while(!m_scanner.eof() && m_scanner.get() != '\n') {
+				while(!m_scanner.isEof() && m_scanner.get() != '\n') {
 					// skip until the end of line or file
 				}
 			} else if(m_scanner.skipIf("/*")) { // multi-line comments
@@ -76,7 +76,7 @@ namespace parsec::fg {
 	}
 	
 	TokenKinds Lexer::parseIdent() const {
-		while(identStart()) {
+		while(isIdent()) {
 			m_buf += m_scanner.get();
 		}
 		return TokenKinds::Ident;
@@ -133,10 +133,10 @@ namespace parsec::fg {
 
 		// parse the token according to its type
 		auto tokKind = TokenKinds::Eof;
-		if(!m_scanner.eof()) {
-			if(identStart()) {
+		if(!m_scanner.isEof()) {
+			if(isIdent()) {
 				tokKind = parseIdent();
-			} else if(stringLiteralStart()) {
+			} else if(isStringLiteral()) {
 				tokKind = parseStringLiteral();
 			} else {
 				tokKind = parseOperator();

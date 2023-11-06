@@ -98,7 +98,7 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			bool atomStart() const {
+			bool isAtom() const {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident: return true;
 					case TokenKinds::OpenParen: return true;
@@ -136,7 +136,7 @@ namespace parsec::fg {
 
 			RulePtr parseConcat() {
 				auto lhs = parseAtom();
-				while(atomStart()) {
+				while(isAtom()) {
 					lhs = makeRule<RuleConcat>(
 						std::move(lhs),
 						parseAtom()
@@ -197,7 +197,7 @@ namespace parsec::fg {
 			}
 
 			void parseGrammar() {
-				while(!m_lexer.peek().eof()) {
+				while(!m_lexer.isEof()) {
 					if(m_lexer.skipIf("tokens")) {
 						parseTokensList();
 					} else if(m_lexer.skipIf("rules")) {

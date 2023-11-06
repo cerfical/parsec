@@ -362,7 +362,7 @@ private:
 				for(const auto& s : states) {
 					m_out << std::format("\n\t{}:\n", makeStateLabel(s.id()));
 					m_out << "\t\tnextChar();\n";
-					if(s.id() == 0) {
+					if(s.isStart()) {
 						m_out << "\tstart:\n";
 					}
 
@@ -377,7 +377,7 @@ private:
 						m_out << "\t\t}\n";
 					}
 
-					if(s.accepting()) {
+					if(s.isAccepting()) {
 						const auto matchedSym = s.matches().front().symbol();
 						if(matchedSym->name() != "ws") {
 							m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
@@ -554,7 +554,7 @@ private:
 				for(const auto& state : lr::StateGen().run(m_grammar)) {
 					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
 
-					if(!state.initial() && state.symbol()->isTerminal()) {
+					if(!state.isStart() && state.symbol()->isTerminal()) {
 						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
 					}
 
@@ -572,7 +572,12 @@ private:
 			/** @{ */
 			void emitHelpersSrc() {
 				constexpr static std::string_view src[] = {
-R"(std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
+R"(std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
+	out << loc.lineNo() + 1 << ':' << loc.startCol() + 1 << '-' << loc.endCol() + 1;
+	return out;
+}
+
+std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
 	switch(tok) {
 )", "\t\tcase {}: out << \"{}\"; break;\n", R"(	}
 	return out;

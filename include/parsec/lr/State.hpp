@@ -59,8 +59,8 @@ namespace parsec::lr {
 			return m_symbol;
 		}
 
-		bool initial() const noexcept {
-			return symbol() == nullptr;
+		bool isStart() const noexcept {
+			return m_id == 0;
 		}
 
 		int id() const noexcept {
@@ -75,7 +75,6 @@ namespace parsec::lr {
 		const fg::Symbol* m_symbol;
 		int m_id;
 	};
-
 
 	using StateList = std::vector<State>;
 }

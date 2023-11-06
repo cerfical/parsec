@@ -16,9 +16,15 @@ namespace parsec {
 
 
 		/** @{ */
+		/** @brief Construct a new empty location. */
+		SourceLoc() = default;
+
 		/** @brief Construct a new location. */
-		SourceLoc(int startCol = 0, int colCount = 0, int lineNo = 0, int linePos = 0) noexcept
-			: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos)
+		SourceLoc(int startCol, int colCount, int lineNo, int linePos) noexcept
+			: m_startCol(startCol)
+			, m_colCount(colCount)
+			, m_lineNo(lineNo)
+			, m_linePos(linePos)
 		{ }
 		/** @} */
 
@@ -67,19 +73,17 @@ namespace parsec {
 
 
 		/** @brief Checks if the location contains any useful information. */
-		bool empty() const noexcept {
+		bool isEmpty() const noexcept {
 			return m_colCount == 0;
 		}
 		/** @} */
 
 		
 	private:
-		/** @{ */
-		int m_startCol;
-		int m_colCount;
-		int m_lineNo;
-		int m_linePos;
-		/** @} */
+		int m_startCol = 0;
+		int m_colCount = 0;
+		int m_lineNo = 0;
+		int m_linePos = 0;
 	};
 }
 

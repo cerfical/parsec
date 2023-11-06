@@ -57,7 +57,7 @@ namespace parsec::lr {
 				return m_symbols;
 			}
 
-			bool atEnd() const noexcept {
+			bool isAtEnd() const noexcept {
 				return m_symbol->rule()->endAtom() == m_atom;
 			}
 			/** @} */
@@ -121,7 +121,7 @@ namespace parsec::lr {
 					}
 
 					// skip end markers
-					if(item->atEnd()) {
+					if(item->isAtEnd()) {
 						continue;
 					}
 
@@ -158,7 +158,7 @@ namespace parsec::lr {
 				std::unordered_map<const fg::Symbol*, ItemSet> stateGoto;
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
-					if(item.atEnd()) {
+					if(item.isAtEnd()) {
 						m_states[id].addReduction(
 							item.symbol(),
 							item.symbols(),

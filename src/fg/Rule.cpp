@@ -45,7 +45,7 @@ namespace parsec::fg {
 			void visit(const RuleConcat& n) override {
 				// add leading atoms of the left child
 				n.left()->traverse(*this);
-				if(n.left()->nullable()) {
+				if(n.left()->isNullable()) {
 					// add leading atoms of the right child
 					n.right()->traverse(*this);
 				}
@@ -98,7 +98,7 @@ namespace parsec::fg {
 			void visit(const RuleConcat& n) override {
 				// add trailing atoms of the right child
 				n.right()->traverse(*this);
-				if(n.right()->nullable()) {
+				if(n.right()->isNullable()) {
 					// add trailing atoms of the left child
 					n.left()->traverse(*this);
 				}
@@ -224,7 +224,7 @@ namespace parsec::fg {
 		return ComputeEndAtom()(*this);
 	}
 
-	bool Rule::nullable() const noexcept {
+	bool Rule::isNullable() const noexcept {
 		return ComputeNullable()(*this);
 	}
 }

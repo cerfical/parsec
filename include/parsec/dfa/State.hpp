@@ -54,8 +54,12 @@ namespace parsec::dfa {
 
 
 		/** @{ */
-		bool accepting() const noexcept {
+		bool isAccepting() const noexcept {
 			return !m_matches.empty();
+		}
+
+		bool isStart() const noexcept {
+			return m_id == 0;
 		}
 
 		int id() const noexcept {
@@ -65,13 +69,10 @@ namespace parsec::dfa {
 
 
 	private:
-		/** @{ */
 		TransitionList m_transitions;
 		MatchList m_matches;
 		int m_id;
-		/** @} */
 	};
-
 
 	using StateList = std::vector<State>;
 }

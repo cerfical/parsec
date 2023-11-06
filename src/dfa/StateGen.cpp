@@ -39,7 +39,7 @@ namespace parsec::dfa {
 				return m_symbol;
 			}
 
-			bool atEnd() const noexcept {
+			bool isAtEnd() const noexcept {
 				return m_symbol->rule()->endAtom() == m_atom;
 			}
 			/** @} */
@@ -108,7 +108,7 @@ namespace parsec::dfa {
 				// incrementally build up all states to which there is a transition
 				for(const auto& item : items) {
 					// items that are located at the rule end represent possible matches
-					if(item.atEnd()) {
+					if(item.isAtEnd()) {
 						m_states[id].addMatch(item.symbol());
 						continue;
 					}

@@ -45,8 +45,8 @@ namespace parsec {
 
 
 		/** @brief Checks if the end of input has been reached. */
-		bool eof() const {
-			return m_labuf.empty() && safeEof();
+		bool isEof() const {
+			return m_labuf.empty() && checkForEof();
 		}
 		/** @} */
 
@@ -99,28 +99,23 @@ namespace parsec {
 
 
 	private:
-		/** @{ */
 		[[noreturn]] void unexpectedEof() const;
-		/** @} */
+
 
 		/** @{ */
-		bool safeEof() const;
+		bool checkForEof() const;
 		void updateLoc(char ch);
 
 		bool fillBuf(int size) const;
 		/** @} */
 
 
-		/** @{ */
 		mutable std::string m_labuf;
 		std::istream* m_input;
-		/** @} */
 
-		/** @{ */
 		int m_linePos = 0;
 		int m_lineNo = 0;
 		int m_pos = 0;
-		/** @} */
 	};
 }
 

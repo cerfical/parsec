@@ -38,8 +38,8 @@ namespace parsec::fg {
 			return parseToken();
 		}
 
-		bool eof() const {
-			return peek().eof();
+		bool isEof() const {
+			return peek().isEof();
 		}
 		/** @} */
 
@@ -93,8 +93,8 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		bool stringLiteralStart() const;
-		bool identStart() const;
+		bool isStringLiteral() const;
+		bool isIdent() const;
 		/** @} */
 
 
@@ -109,15 +109,10 @@ namespace parsec::fg {
 		/** @} */
 		
 		
-		/** @{ */
 		mutable TextScanner m_scanner;
-		/** @} */
 
-
-		/** @{ */
 		mutable std::optional<Token> m_tok;
 		mutable std::string m_buf;
-		/** @} */
 	};
 }
 

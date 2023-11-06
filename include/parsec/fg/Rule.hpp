@@ -62,14 +62,13 @@ namespace parsec::fg {
 		
 		const Atom* endAtom() const noexcept;
 
-		bool nullable() const noexcept;
+		bool isNullable() const noexcept;
 		/** @} */
 
 
 	private:
 		const Rule* m_parent;
 	};
-
 
 	using RulePtr = std::unique_ptr<Rule>;
 

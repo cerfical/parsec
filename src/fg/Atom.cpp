@@ -45,7 +45,7 @@ namespace parsec::fg {
 			void visit(const RuleConcat& n) override {
 				if(m_child == n.left()) {
 					storeLeadingAtoms(*n.right());
-					if(n.right()->nullable()) {
+					if(n.right()->isNullable()) {
 						traverseParent(n);
 					}
 				} else {

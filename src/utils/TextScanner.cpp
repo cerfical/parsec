@@ -11,7 +11,7 @@ namespace parsec {
 	}
 
 
-	bool TextScanner::safeEof() const {
+	bool TextScanner::checkForEof() const {
 		if(m_input->peek() == std::char_traits<char>::eof()) {
 			m_input->clear(m_input->rdstate() ^ std::ios::eofbit);
 			return true;
@@ -31,7 +31,7 @@ namespace parsec {
 	bool TextScanner::fillBuf(int size) const {
 		// fill the lookahead buffer with the required number of characters
 		while(m_labuf.size() < size) {
-			if(safeEof()) {
+			if(checkForEof()) {
 				return false;
 			}
 			m_labuf += m_input->get();
@@ -46,7 +46,7 @@ namespace parsec {
 		if(!m_labuf.empty()) {
 			ch = m_labuf.front();
 			m_labuf.erase(0, 1);
-		} else if(!safeEof()) {
+		} else if(!checkForEof()) {
 			// otherwise fallback to calling iostreams api
 			ch = gsl::narrow_cast<char>(m_input->get());
 		} else {
@@ -67,7 +67,7 @@ namespace parsec {
 
 
 	bool TextScanner::skipIf(char ch) {
-		if(!eof()) {
+		if(!isEof()) {
 			if(peek() == ch) {
 				skip();
 				return true;
