@@ -80,30 +80,43 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			RulePtr parseRegex() {
-				const auto pattern = m_lexer.expect(TokenKinds::StringLiteral);
-				try {
-					// parse the regex into its rule representation
-					return regex::Parser().parse(pattern.text());
-				} catch(const Error& e) {
-					// adjust the error location to take into account the relative position of the regex
-					throw Error(e.what(), {
-						pattern.loc().startCol() + e.loc().startCol() + 1,
-						e.loc().colCount(),
-						pattern.loc().lineNo(),
-						pattern.loc().linePos()
-					});
+			bool isAtom() const {
+				switch(m_lexer.peek().kind()) {
+					case TokenKinds::Ident: return true;
+					case TokenKinds::OpenParen: return true;
+					default: return false;
 				}
 			}
 			/** @} */
 
 
 			/** @{ */
-			bool isAtom() const {
+			RulePtr parseRegex() {
+				Token pattern;
 				switch(m_lexer.peek().kind()) {
-					case TokenKinds::Ident: return true;
-					case TokenKinds::OpenParen: return true;
-					default: return false;
+					case TokenKinds::StringLiteral: case TokenKinds::RegularExpr: {
+						pattern = m_lexer.lex();
+						break;
+					}
+					default: {
+						unexpectedToken();
+					}
+				}
+				
+				try {
+					// parse the regex into its rule representation
+					return regex::Parser(
+						pattern.kind() == TokenKinds::StringLiteral ?
+							regex::ParseOptions::NoRegexSyntax : regex::ParseOptions::None
+					).parse(pattern.text());
+				} catch(const Error& e) {
+					// adjust the error location to take into account regex position
+					throw Error(e.what(), {
+						pattern.loc().startCol() + e.loc().startCol() + 1,
+						e.loc().colCount(),
+						pattern.loc().lineNo(),
+						pattern.loc().linePos()
+					});
 				}
 			}
 

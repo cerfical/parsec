@@ -6,6 +6,7 @@
 \
 	PARSEC_FG_TOKEN_KIND(Ident, "an identifier") /**< @brief Identifier. */ \
 	PARSEC_FG_TOKEN_KIND(StringLiteral, "a string literal") /**< @brief String literal. */ \
+	PARSEC_FG_TOKEN_KIND(RegularExpr, "a regular expression") /**< @brief Regular expression. */ \
 \
 	PARSEC_FG_TOKEN_KIND(Pipe, "a '|'") /**< @brief Vertical bar. */ \
 	PARSEC_FG_TOKEN_KIND(Semicolon, "a ';'") /**< @brief Semicolon. */ \

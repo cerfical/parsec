@@ -36,10 +36,12 @@ namespace parsec::fg {
 	
 
 	bool Lexer::isStringLiteral() const {
-		return !m_scanner.isEof()
-			&& (m_scanner.peek() == '\''
-				|| m_scanner.peek() == '\"'
-			);
+		if(m_scanner.isEof()) {
+			return false;
+		}
+
+		return m_scanner.peek() == '\''
+			|| m_scanner.peek() == '\"';
 	}
 
 	bool Lexer::isIdent() const {
@@ -75,6 +77,7 @@ namespace parsec::fg {
 		}
 	}
 	
+
 	TokenKinds Lexer::parseIdent() const {
 		while(isIdent()) {
 			m_buf += m_scanner.get();
@@ -100,7 +103,8 @@ namespace parsec::fg {
 				m_buf += m_scanner.get();
 			}
 		}
-		return TokenKinds::StringLiteral;
+
+		return delim == '\'' ? TokenKinds::StringLiteral : TokenKinds::RegularExpr;
 	}
 
 	TokenKinds Lexer::parseOperator() const {
