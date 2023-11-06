@@ -70,8 +70,9 @@ namespace parsec::fg {
 			
 			[[noreturn]]
 			void symbolRedefinition(const Token& name) const {
+				const auto sym = m_grammar.symbolByName(name.text());
 				throw Error(
-					std::format("redifinition of \"{}\"", name.text()),
+					std::format("redifinition of \"{}\"", sym->name()),
 					name.loc()
 				);
 			}

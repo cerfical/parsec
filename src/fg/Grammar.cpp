@@ -1,5 +1,7 @@
 #include "fg/Grammar.hpp"
 
+#include <boost/algorithm/string/case_conv.hpp>
+
 #include "fg/AtomVisitor.hpp"
 #include "fg/RuleAltern.hpp"
 #include "fg/RuleConcat.hpp"
@@ -87,14 +89,17 @@ namespace parsec::fg {
 	}
 
 	Symbol* Grammar::addSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
+		// enforce symbol names to be in lower case
+		const auto symbolName = boost::to_lower_copy(name);
+
 		// allocate a new defaulted symbol if it doesn't already exist
-		const auto [it, wasInserted] = m_symbolTable.try_emplace(name);
+		const auto [it, wasInserted] = m_symbolTable.try_emplace(symbolName);
 		auto& sym = it->second;
 
 		if(wasInserted) {
 			const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
 			sym = Symbol(
-				name,
+				symbolName,
 				appendEndAtom(std::move(rule), "$"),
 				type,
 				newSymbolId
@@ -129,10 +134,13 @@ namespace parsec::fg {
 	}
 
 	const Symbol* Grammar::symbolByName(const std::string& name) const {
-		const auto it = m_symbolTable.find(name);
+		const auto symbolName = boost::to_lower_copy(name);
+		const auto it = m_symbolTable.find(symbolName);
+		
 		if(it != m_symbolTable.cend()) {
 			return &it->second;
 		}
+		
 		return nullptr;
 	}
 
