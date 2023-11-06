@@ -22,17 +22,26 @@ namespace parsec::fg {
 			return m_left.get();
 		}
 
-		const Rule* right() const noexcept {
-			return m_right.get();
+		RulePtr& left() noexcept {
+			return m_left;
 		}
 		/** @} */
 
 
-	private:
 		/** @{ */
+		const Rule* right() const noexcept {
+			return m_right.get();
+		}
+		
+		RulePtr& right() noexcept {
+			return m_right;
+		}
+		/** @} */
+
+		
+	private:
 		RulePtr m_left;
 		RulePtr m_right;
-		/** @} */
 	};
 }
 

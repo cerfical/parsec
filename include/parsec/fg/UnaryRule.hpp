@@ -20,13 +20,15 @@ namespace parsec::fg {
 		const Rule* inner() const noexcept {
 			return m_inner.get();
 		}
+
+		RulePtr& inner() noexcept {
+			return m_inner;
+		}
 		/** @} */
 
 
 	private:
-		/** @{ */
 		RulePtr m_inner;
-		/** @} */
 	};
 }
 
