@@ -33,18 +33,8 @@ namespace parsec::fg {
 		const Symbol* addNonterminal(const std::string& name, RulePtr rule) {
 			return addSymbol(name, std::move(rule), SymbolTypes::Nonterminal);
 		}
-		/** @} */
-
-
-		/** @{ */
+		
 		const Symbol* symbolByName(const std::string& name) const;
-
-		const Symbol* symbolById(int id) const noexcept {
-			if(id < m_symbols.size()) {
-				return m_symbols[id];
-			}
-			return nullptr;
-		}
 		/** @} */
 
 
@@ -57,14 +47,10 @@ namespace parsec::fg {
 			return m_nonterminals;
 		}
 		
-		const SymbolList& symbols() const noexcept {
-			return m_symbols;
-		}
-
 		const Symbol* startSymbol() const;
 
 		const Symbol* eofSymbol() const {
-			return symbolById(0);
+			return symbolByName("eof");
 		}
 		/** @} */
 
@@ -78,7 +64,6 @@ namespace parsec::fg {
 		std::unordered_map<std::string, Symbol> m_symbolTable;
 		SymbolList m_nonterminals;
 		SymbolList m_terminals;
-		SymbolList m_symbols;
 	};
 }
 

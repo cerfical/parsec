@@ -9,7 +9,9 @@
 #include "fg/Atom.hpp"
 
 #include <gsl/narrow>
-#include <set>
+#include <ranges>
+
+namespace views = std::ranges::views;
 
 namespace parsec::fg {
 	namespace {
@@ -28,9 +30,10 @@ namespace parsec::fg {
 
 			Symbol operator()() {
 				// any nonterminal symbol can be a root symbol
-				for(const auto sym : m_grammar.nonterminals()) {
-					m_rootSymbols.insert(sym->id());
-				}
+				m_rootSymbols.resize(
+					m_grammar.nonterminals().size(),
+					true
+				);
 
 				// find all unreferenced symbols
 				for(const auto sym : m_grammar.nonterminals()) {
@@ -41,8 +44,12 @@ namespace parsec::fg {
 
 				// combine found symbols into one
 				RulePtr rule;
-				for(const auto id : m_rootSymbols) {
-					const auto sym = m_grammar.symbolById(id);
+				for(const auto i : views::iota(0) | views::take(m_rootSymbols.size())) {
+					if(!m_rootSymbols[i]) {
+						continue;
+					}
+
+					const auto sym = m_grammar.nonterminals()[i];
 					if(auto lhs = std::exchange(rule, makeRule<Atom>(sym->name()))) {
 						rule = makeRule<RuleAltern>(std::move(lhs), std::move(rule));
 					}
@@ -71,14 +78,24 @@ namespace parsec::fg {
 				}
 
 				const auto sym = m_grammar.symbolByName(n.value());
-				if(sym && sym != m_currentSymbol) { // a root symbol can be a reference to itself
-					m_rootSymbols.erase(sym->id());
+				if(!sym) {
+					return;
+				}
+				
+				// a root symbol can have a reference to itself
+				if(sym == m_currentSymbol) {
+					return;
+				}
+
+				// but cannot have references to other symbols
+				if(sym->isNonterminal()) {
+					m_rootSymbols[sym->id()] = false;
 				}
 			}
 
 			const Symbol* m_currentSymbol = nullptr;
 			const Atom* m_endAtom = nullptr;
-			std::set<int> m_rootSymbols;
+			std::vector<bool> m_rootSymbols;
 			const Grammar& m_grammar;
 		};
 	}
@@ -97,7 +114,15 @@ namespace parsec::fg {
 		auto& sym = it->second;
 
 		if(wasInserted) {
-			const auto newSymbolId = gsl::narrow_cast<int>(m_symbols.size());
+			// terminals and nonterminals have separate namespaces of unique identifiers
+			const auto newSymbolId = gsl::narrow_cast<int>(
+				type == SymbolTypes::Terminal ?
+					m_terminals.size() : (
+						type == SymbolTypes::Nonterminal ?
+							m_nonterminals.size() : 0
+					)
+			);
+
 			sym = Symbol(
 				symbolName,
 				appendEndAtom(std::move(rule), "$"),
@@ -106,7 +131,6 @@ namespace parsec::fg {
 			);
 
 			// classify the symbol for easier access later
-			m_symbols.push_back(&sym);
 			if(sym.isTerminal()) {
 				m_terminals.push_back(&sym);
 			} else if(sym.isNonterminal()) {
