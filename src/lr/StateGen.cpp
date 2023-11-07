@@ -159,7 +159,7 @@ namespace parsec::lr {
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
 					if(item.isAtEnd()) {
-						m_states[id].addReduction(
+						m_states[id].addReduce(
 							item.symbol(),
 							item.symbols(),
 							item.terminals()
@@ -183,10 +183,11 @@ namespace parsec::lr {
 				// add shift actions for all generated transitions
 				for(auto& [symbol, items] : stateGoto) {
 					const auto newState = createState(std::move(items), symbol);
-					m_states[id].addShift(
-						symbol,
-						newState
-					);
+					if(symbol->isTerminal() || symbol->isEnd()) {
+						m_states[id].addShift(symbol, newState);
+					} else {
+						m_states[id].addGoto(symbol, newState);
+					}
 				}
 			}
 

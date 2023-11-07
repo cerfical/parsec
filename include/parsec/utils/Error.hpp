@@ -27,9 +27,7 @@ namespace parsec {
 
 
 	private:
-		/** @{ */
 		SourceLoc m_loc;
-		/** @} */
 	};
 }
 

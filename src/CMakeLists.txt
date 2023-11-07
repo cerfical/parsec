@@ -90,8 +90,9 @@ set(_HEADERS
 
 	"lr/lr.hpp"
 
-	"lr/ShiftAction.hpp"
-	"lr/ReduceAction.hpp"
+	"lr/StateGoto.hpp"
+	"lr/StateShift.hpp"
+	"lr/StateReduce.hpp"
 	"lr/State.hpp"
 	"lr/StateGen.hpp"
 

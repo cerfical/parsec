@@ -176,7 +176,11 @@ private:
 					if(sym->name().starts_with('<')) {
 						continue;
 					}
-					m_out << ",\n\t" << toPascalCase(sym->name()) << " = " << sym->id() + 1;
+					
+					m_out << std::format(",\n\t{} = {}",
+						toPascalCase(sym->name()),
+						sym->id() + 1
+					);
 				}
 
 				m_out << "\n};\n";
@@ -420,6 +424,7 @@ private:
 				} else {
 					m_out << ' ';
 				}
+
 				m_out << "};\n";
 			}
 
@@ -433,24 +438,26 @@ private:
 				}
 			}
 
-			void emitReduceActionSrc(const lr::ReduceActionList& reductions, std::string_view indent) {
-				if(reductions.empty()) {
+			void emitStateReducesSrc(const lr::ReduceList& reduces, std::string_view indent) {
+				if(reduces.empty()) {
 					m_out << indent << "error();\n";
 					return;
 				}
 
 				// take the first available reduce action, ignore the rest, if any
-				const auto& first = reductions.front();
+				const auto& first = reduces.front();
+				const auto sym = first.newSymbol();
+				
 				m_out << indent << std::format(
 					"reduce({}{}, {}, {});\n",
-					first.states(),
-					first.symbol()->isStart() ? " + 1" : "", // pop the start state
-					first.tokens(),
-					first.symbol()->isStart() ? "{}" : makeSymbolName(first.symbol())
+					first.poppedStates(),
+					sym->isStart() ? " + 1" : "", // pop the start state
+					first.poppedTokens(),
+					sym->isStart() ? "{}" : makeSymbolName(sym)
 				);
 
-				if(!first.symbol()->isStart()) {
-					m_out << indent << makeParseHook(first.symbol()) << ";\n";
+				if(!sym->isStart()) {
+					m_out << indent << makeParseHook(sym) << ";\n";
 				}
 				
 				m_out << indent << "return;\n";
@@ -458,42 +465,29 @@ private:
 
 			void emitStateShiftsSrc(const lr::State& state, std::string_view indent) {
 				m_out << indent << "switch(m_lexer.peek().kind()) {\n";
-				for(const auto& sh : state.shifts()) {
-					if(sh.symbol()->isNonterminal()) {
-						continue;
-					}
-
-					m_out << indent<< "\tcase " << makeTokenKind(sh.symbol());
-					m_out << ": " << makeStateFunc(sh.state()) << "; break;\n";
+				
+				for(const auto& trans : state.shifts()) {
+					m_out << indent<< "\tcase " << makeTokenKind(trans.inputSymbol());
+					m_out << ": " << makeStateFunc(trans.newState()) << "; break;\n";
 				}
 
 				m_out << indent << "\tdefault: {\n";
-				emitReduceActionSrc(state.reductions(), std::string(indent) + "\t\t");
+				emitStateReducesSrc(state.reduces(), std::string(indent) + "\t\t");
 				m_out << indent << "\t}\n";
 				m_out << indent << "}\n";
 			}
 
-			void emitStateGotoSrc(const lr::State& state, std::string_view indent)  {
-				bool firstNonterm = true;
-				m_out << '\n';
-				
-				for(const auto& sh : state.shifts()) {
-					if(sh.symbol()->isTerminal() || sh.symbol()->isEnd()) {
-						continue;
+			void emitStateGotosSrc(const lr::State& state, std::string_view indent)  {
+				if(state.anyGotos()) {
+					m_out << indent << "while(--m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
+					
+					for(const auto& trans : state.gotos()) {
+						m_out << indent << std::format("\tcase {}: {}; break;\n",
+							makeSymbolName(trans.inputSymbol()),
+							makeStateFunc(trans.newState())
+						);
 					}
 
-					if(std::exchange(firstNonterm, false)) {
-						m_out << indent << "while(--m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
-					}
-
-					m_out << indent << std::format(
-						"\tcase {}: {}; break;\n",
-						makeSymbolName(sh.symbol()),
-						makeStateFunc(sh.state())
-					);
-				}
-				
-				if(!firstNonterm) {
 					m_out << indent << "}\n";
 				} else {
 					m_out << indent << "--m_statesToPop;\n";
@@ -568,7 +562,8 @@ private:
 					}
 
 					emitStateShiftsSrc(state, "\t\t");
-					emitStateGotoSrc(state, "\t\t");
+					m_out << '\n';
+					emitStateGotosSrc(state, "\t\t");
 
 					m_out << "\t}\n\n";
 				}
@@ -588,7 +583,8 @@ R"(std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
 
 std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
 	switch(tok) {
-)", "\t\tcase {}: out << \"{}\"; break;\n", R"(	}
+		case TokenKinds::Eof: out << "Eof"; break;
+)", R"(	}
 	return out;
 }
 
@@ -600,24 +596,18 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				};
 				
 				m_out << src[0];
-				m_out << std::format(src[1],
-					makeTokenKind(m_grammar.eofSymbol()),
-					toPascalCase(m_grammar.eofSymbol()->name())
-				);
-
-				for(const auto tok : m_grammar.terminals()) {
+				for(const auto sym : m_grammar.terminals()) {
 					// skip anonymously defined terminals
-					if(tok->name().starts_with('<')) {
+					if(sym->name().starts_with('<')) {
 						continue;
 					}
 
-					m_out << std::format(src[1],
-						makeTokenKind(tok),
-						toPascalCase(tok->name())
+					m_out << std::format("\t\tcase {}: out << \"{}\"; break;\n",
+						makeTokenKind(sym),
+						toPascalCase(sym->name())
 					);
 				}
-
-				m_out << src[2];
+				m_out << src[1];
 			}
 			/** @} */
 
