@@ -68,6 +68,13 @@ namespace parsec::dfa {
 					}
 				}
 
+				// special handling of whitespace symbol
+				if(const auto ws = m_grammar.wsSymbol(); ws->rule()) {
+					for(const auto atom : ws->rule()->leadingAtoms()) {
+						startItems.emplace(atom, ws);
+					}
+				}
+
 				// no items, no start state, no states at all
 				if(!startItems.empty()) {
 					createState(std::move(startItems));

@@ -171,10 +171,12 @@ private:
 				m_out << "enum class TokenKinds {\n";
 				m_out << "\tEof = 0";
 
-				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() != "ws" && !tok->name().starts_with('<')) {
-						m_out << ",\n\t" << toPascalCase(tok->name()) << " = " << tok->id() + 1;
+				for(const auto sym : m_grammar.terminals()) {
+					// skip anonymously defined terminals
+					if(sym->name().starts_with('<')) {
+						continue;
 					}
+					m_out << ",\n\t" << toPascalCase(sym->name()) << " = " << sym->id() + 1;
 				}
 
 				m_out << "\n};\n";
@@ -385,7 +387,7 @@ private:
 
 					if(s.isAccepting()) {
 						const auto matchedSym = s.matches().front().symbol();
-						if(matchedSym->name() != "ws") {
+						if(!matchedSym->isWs()) {
 							m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
 							m_out << "\t\tgoto accept;\n";
 						} else {
@@ -604,7 +606,8 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				);
 
 				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() == "ws" || tok->name().starts_with('<')) {
+					// skip anonymously defined terminals
+					if(tok->name().starts_with('<')) {
 						continue;
 					}
 

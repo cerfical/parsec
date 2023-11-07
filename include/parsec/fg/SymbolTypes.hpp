@@ -3,8 +3,10 @@
 
 namespace parsec::fg {
 	enum class SymbolTypes {
+		None,
 		End,
 		Start,
+		Ws,
 		Terminal,
 		Nonterminal
 	};

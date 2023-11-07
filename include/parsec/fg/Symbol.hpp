@@ -22,8 +22,16 @@ namespace parsec::fg {
 		/** @{ */
 		Symbol() = default;
 
-		Symbol(const std::string& name, RulePtr rule, SymbolTypes type, int id)
-			: m_rule(std::move(rule)), m_name(name), m_type(type), m_id(id)
+		explicit Symbol(
+			const std::string& name,
+			SymbolTypes type = {},
+			RulePtr rule = {},
+			int id = 0
+		)
+			: m_rule(std::move(rule))
+			, m_name(name)
+			, m_type(type)
+			, m_id(id)
 		{ }
 		/** @} */
 
@@ -40,31 +48,62 @@ namespace parsec::fg {
 
 
 		/** @{ */
+		void setName(const std::string& name) {
+			m_name = name;
+		}
+
 		const std::string& name() const noexcept {
 			return m_name;
+		}
+
+		std::string& name() noexcept {
+			return m_name;
+		}
+
+
+		void setId(int id) noexcept {
+			m_id = id;
 		}
 
 		int id() const noexcept {
 			return m_id;
 		}
 
+
+		void setRule(RulePtr rule) noexcept {
+			m_rule = std::move(rule);
+		}
+
 		const Rule* rule() const noexcept {
 			return m_rule.get();
+		}
+		
+		RulePtr& rule() noexcept {
+			return m_rule;
+		}
+
+		
+		void setType(SymbolTypes type) noexcept {
+			m_type = type;
+		}
+		
+		SymbolTypes type() const noexcept {
+			return m_type;
 		}
 		/** @} */
 
 
 		/** @{ */
-		SymbolTypes type() const noexcept {
-			return m_type;
-		}
-
 		bool isTerminal() const noexcept {
 			return m_type == SymbolTypes::Terminal;
 		}
 
 		bool isNonterminal() const noexcept {
 			return m_type == SymbolTypes::Nonterminal;
+		}
+
+		bool isWs() const noexcept {
+			return m_type == SymbolTypes::Ws;
 		}
 
 		bool isStart() const noexcept {
@@ -80,10 +119,9 @@ namespace parsec::fg {
 	private:
 		RulePtr m_rule;
 		std::string m_name;
-		SymbolTypes m_type = SymbolTypes::End;
-		int m_id = 0;
+		SymbolTypes m_type;
+		int m_id;
 	};
-
 
 	using SymbolList = std::vector<const Symbol*>;
 }

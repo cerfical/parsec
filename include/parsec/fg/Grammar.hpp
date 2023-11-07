@@ -50,13 +50,26 @@ namespace parsec::fg {
 		const Symbol* startSymbol() const;
 
 		const Symbol* eofSymbol() const {
-			return symbolByName("eof");
+			return symbolByName(eofSymbolName);
+		}
+
+		const Symbol* wsSymbol() const {
+			return symbolByName(wsSymbolName);
 		}
 		/** @} */
 
 
 	private:
+		/** @{ */
+		constexpr static auto wsSymbolName = "ws";
+		constexpr static auto eofSymbolName = "eof";
+		constexpr static auto ruleEndMark = "$";
+		/** @} */
+
+
+		/** @{ */
 		Symbol* addSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
+		/** @} */
 
 
 		mutable std::optional<Symbol> m_startSymbol;
