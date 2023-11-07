@@ -117,6 +117,9 @@ namespace parsec::fg {
 			case ';': tokKind = TokenKinds::Semicolon; break;
 			case '=': tokKind = TokenKinds::Equals; break;
 			case '|': tokKind = TokenKinds::Pipe; break;
+			case '*': tokKind = TokenKinds::Star; break;
+			case '+': tokKind = TokenKinds::Plus; break;
+			case '?': tokKind = TokenKinds::Qo; break;
 			default: unexpectedChar();
 		}
 		m_buf += m_scanner.get();

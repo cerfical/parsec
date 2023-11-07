@@ -8,6 +8,10 @@
 	PARSEC_FG_TOKEN_KIND(StringLiteral, "a string literal") /**< @brief String literal. */ \
 	PARSEC_FG_TOKEN_KIND(RegularExpr, "a regular expression") /**< @brief Regular expression. */ \
 \
+	PARSEC_FG_TOKEN_KIND(Star, "a '*'") /**< @brief Asterisk symbol. */ \
+	PARSEC_FG_TOKEN_KIND(Plus, "a '+'") /**< @brief Plus symbol. */ \
+	PARSEC_FG_TOKEN_KIND(Qo, "a '?'") /**< @brief Question mark. */ \
+\
 	PARSEC_FG_TOKEN_KIND(Pipe, "a '|'") /**< @brief Vertical bar. */ \
 	PARSEC_FG_TOKEN_KIND(Semicolon, "a ';'") /**< @brief Semicolon. */ \
 	PARSEC_FG_TOKEN_KIND(Equals, "an '='") /**< @brief Equals sign. */ \
