@@ -60,7 +60,10 @@ namespace parsec::gen {
 			}
 
 			static std::string makeTokenKind(const fg::Symbol* sym) {
-				return "TokenKinds::" + toPascalCase(sym->name());
+				if(!sym->name().starts_with('<')) {
+					return "TokenKinds::" + toPascalCase(sym->name());
+				}
+				return std::format("static_cast<TokenKinds>({})", sym->id() + 1);
 			}
 
 			static std::string makeSymbolName(const fg::Symbol* sym) {
@@ -166,13 +169,14 @@ private:
 
 			void emitTokenKindsSrc() {
 				m_out << "enum class TokenKinds {\n";
-				m_out << "\t" << toPascalCase(m_grammar.eofSymbol()->name());
+				m_out << "\tEof = 0";
 
 				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() != "ws") {
-						m_out << ",\n\t" << toPascalCase(tok->name());
+					if(tok->name() != "ws" && !tok->name().starts_with('<')) {
+						m_out << ",\n\t" << toPascalCase(tok->name()) << " = " << tok->id() + 1;
 					}
 				}
+
 				m_out << "\n};\n";
 			}
 
@@ -180,9 +184,11 @@ private:
 				constexpr static std::string_view src = {
 R"(class Token {
 public:
-	explicit Token(
-		const std::string& text = "",
-		TokenKinds kind = TokenKinds::Eof,
+	Token() = default;
+
+	Token(
+		const std::string& text,
+		TokenKinds kind,
 		const SourceLoc& loc = {}
 	)
 		: m_text(text)
@@ -219,7 +225,7 @@ public:
 private:
 	std::string m_text;
 	SourceLoc m_loc;
-	TokenKinds m_kind;
+	TokenKinds m_kind = {};
 };
 
 using TokenList = std::vector<Token>;
@@ -517,6 +523,7 @@ protected:
 		return m_tokens;
 	}
 )", R"(
+
 private:
 )",R"(
 	void reduce(int states, int tokens, SymbolNames symbol) {
@@ -597,7 +604,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				);
 
 				for(const auto tok : m_grammar.terminals()) {
-					if(tok->name() == "ws") {
+					if(tok->name() == "ws" || tok->name().starts_with('<')) {
 						continue;
 					}
 

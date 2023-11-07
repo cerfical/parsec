@@ -82,27 +82,22 @@ namespace parsec::fg {
 			/** @{ */
 			bool isAtom() const {
 				switch(m_lexer.peek().kind()) {
-					case TokenKinds::Ident: return true;
-					case TokenKinds::OpenParen: return true;
-					default: return false;
+					case TokenKinds::Ident:
+					case TokenKinds::OpenParen:
+					case TokenKinds::StringLiteral:
+					case TokenKinds::RegularExpr: {
+						return true;
+					}
+					default: {
+						return false;
+					}
 				}
 			}
 			/** @} */
 
 
 			/** @{ */
-			RulePtr parseRegex() {
-				Token pattern;
-				switch(m_lexer.peek().kind()) {
-					case TokenKinds::StringLiteral: case TokenKinds::RegularExpr: {
-						pattern = m_lexer.lex();
-						break;
-					}
-					default: {
-						unexpectedToken();
-					}
-				}
-				
+			RulePtr parseRegex(const Token& pattern) {
 				try {
 					// parse the regex into its rule representation
 					return regex::Parser(
@@ -119,7 +114,22 @@ namespace parsec::fg {
 					});
 				}
 			}
+			
+			RulePtr parseRegex() {
+				switch(m_lexer.peek().kind()) {
+					case TokenKinds::StringLiteral:
+					case TokenKinds::RegularExpr: {
+						return parseRegex(m_lexer.lex());
+					}
+					default: {
+						unexpectedToken();
+					}
+				}
+			}
+			/** @} */
 
+
+			/** @{ */
 			RulePtr parseAtom() {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident: {
@@ -141,6 +151,21 @@ namespace parsec::fg {
 							unmatchedParen(openParen.loc());
 						}
 						return e;
+					}
+					case TokenKinds::StringLiteral:
+					case TokenKinds::RegularExpr: {
+						const auto tokPattern = m_lexer.lex();
+						const auto tokName = std::format(
+							"<{0}{1}{0}>",
+							tokPattern.kind() == TokenKinds::RegularExpr ? '"' : '\'',
+							tokPattern.text()
+						);
+
+						m_grammar.addTerminal(
+							tokName, parseRegex(tokPattern)
+						);
+
+						return makeRule<Atom>(tokName);
 					}
 					default: {
 						unexpectedToken();
