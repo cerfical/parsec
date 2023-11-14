@@ -1,10 +1,10 @@
 #ifndef PARSEC_FG_ATOM_VISITOR_HEADER
 #define PARSEC_FG_ATOM_VISITOR_HEADER
 
-#include "RuleTraverser.hpp"
+#include "RuleVisitor.hpp"
 
 namespace parsec::fg {
-	class AtomVisitor : public RuleTraverser {
+	class AtomVisitor : public RuleVisitor {
 	public:
 		/** @{ */
 		void visit(const NilRule& n) override;

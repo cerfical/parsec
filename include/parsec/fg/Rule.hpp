@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace parsec::fg {
-	class RuleTraverser;
+	class RuleVisitor;
 	class Atom;
 
 	using AtomList = std::vector<const Atom*>;
@@ -40,7 +40,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		virtual void traverse(RuleTraverser& traverser) const = 0;
+		virtual void acceptVisitor(RuleVisitor& visitor) const = 0;
 		/** @} */
 
 

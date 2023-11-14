@@ -1,8 +1,8 @@
 #include "fg/PlusRule.hpp"
-#include "fg/RuleTraverser.hpp"
+#include "fg/RuleVisitor.hpp"
 
 namespace parsec::fg {
-	void PlusRule::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void PlusRule::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 }

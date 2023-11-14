@@ -40,7 +40,7 @@ namespace parsec::fg {
 					m_currentSymbol = sym;
 					m_endAtom = sym->rule()->endAtom();
 
-					sym->rule()->traverse(*this);
+					sym->rule()->acceptVisitor(*this);
 				}
 
 				// combine found symbols into one

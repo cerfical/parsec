@@ -2,10 +2,10 @@
 
 namespace parsec::fg {
 	namespace {
-		class ComputeLeadingAtoms : RuleTraverser {
+		class ComputeLeadingAtoms : RuleVisitor {
 		public:
 			AtomList operator()(const Rule& n) {
-				n.traverse(*this);
+				n.acceptVisitor(*this);
 				return std::move(m_atoms);
 			}
 
@@ -21,33 +21,33 @@ namespace parsec::fg {
 
 			void visit(const OptionalRule& n) override {
 				// add leading atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const PlusRule& n) override {
 				// add leading atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const StarRule& n) override {
 				// add leading atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 
 			void visit(const RuleAltern& n) override {
 				// add leading atoms of the left child
-				n.left()->traverse(*this);
+				n.left()->acceptVisitor(*this);
 				// add leading atoms of the right child
-				n.right()->traverse(*this);
+				n.right()->acceptVisitor(*this);
 			}
 
 			void visit(const RuleConcat& n) override {
 				// add leading atoms of the left child
-				n.left()->traverse(*this);
+				n.left()->acceptVisitor(*this);
 				if(n.left()->isNullable()) {
 					// add leading atoms of the right child
-					n.right()->traverse(*this);
+					n.right()->acceptVisitor(*this);
 				}
 			}
 
@@ -55,10 +55,10 @@ namespace parsec::fg {
 			AtomList m_atoms;
 		};
 
-		class ComputeTrailingAtoms : RuleTraverser {
+		class ComputeTrailingAtoms : RuleVisitor {
 		public:
 			AtomList operator()(const Rule& n) {
-				n.traverse(*this);
+				n.acceptVisitor(*this);
 				return std::move(m_atoms);
 			}
 
@@ -74,33 +74,33 @@ namespace parsec::fg {
 
 			void visit(const OptionalRule& n) override {
 				// add trailing atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const PlusRule& n) override {
 				// add trailing atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const StarRule& n) override {
 				// add trailing atoms of the inner expression
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 
 			void visit(const RuleAltern& n) override {
 				// add trailing atoms of the left child
-				n.left()->traverse(*this);
+				n.left()->acceptVisitor(*this);
 				// add trailing atoms of the right child
-				n.right()->traverse(*this);
+				n.right()->acceptVisitor(*this);
 			}
 
 			void visit(const RuleConcat& n) override {
 				// add trailing atoms of the right child
-				n.right()->traverse(*this);
+				n.right()->acceptVisitor(*this);
 				if(n.right()->isNullable()) {
 					// add trailing atoms of the left child
-					n.left()->traverse(*this);
+					n.left()->acceptVisitor(*this);
 				}
 			}
 
@@ -108,10 +108,10 @@ namespace parsec::fg {
 			AtomList m_atoms;
 		};
 	
-		class ComputeEndAtom : RuleTraverser {
+		class FindEndAtom : RuleVisitor {
 		public:
 			const Atom* operator()(const Rule& n) noexcept {
-				n.traverse(*this);
+				n.acceptVisitor(*this);
 				return m_atom;
 			}
 
@@ -126,29 +126,29 @@ namespace parsec::fg {
 
 
 			void visit(const OptionalRule& n) override {
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const PlusRule& n) override {
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 			void visit(const StarRule& n) override {
-				n.inner()->traverse(*this);
+				n.inner()->acceptVisitor(*this);
 			}
 
 
 			void visit(const RuleAltern& n) override {
-				n.right()->traverse(*this);
+				n.right()->acceptVisitor(*this);
 				if(!m_atom) {
-					n.left()->traverse(*this);
+					n.left()->acceptVisitor(*this);
 				}
 			}
 
 			void visit(const RuleConcat& n) override {
-				n.right()->traverse(*this);
+				n.right()->acceptVisitor(*this);
 				if(!m_atom) {
-					n.left()->traverse(*this);
+					n.left()->acceptVisitor(*this);
 				}
 			}
 
@@ -156,10 +156,10 @@ namespace parsec::fg {
 			const Atom* m_atom = nullptr;
 		};
 
-		class ComputeNullable : RuleTraverser {
+		class IsNullable : RuleVisitor {
 		public:
 			bool operator()(const Rule& n) noexcept {
-				n.traverse(*this);
+				n.acceptVisitor(*this);
 				return m_nullable;
 			}
 
@@ -187,16 +187,16 @@ namespace parsec::fg {
 
 
 			void visit(const RuleAltern& n) override {
-				n.left()->traverse(*this); // check if the left child is nullable
+				n.left()->acceptVisitor(*this); // check if the left child is nullable
 				if(!m_nullable) { // if it is not, check the right child
-					n.right()->traverse(*this);
+					n.right()->acceptVisitor(*this);
 				}
 			}
 
 			void visit(const RuleConcat& n) override {
-				n.left()->traverse(*this); // check if the left child is nullable
+				n.left()->acceptVisitor(*this); // check if the left child is nullable
 				if(m_nullable) { // if it is, check the right child
-					n.right()->traverse(*this);
+					n.right()->acceptVisitor(*this);
 				}
 			}
 
@@ -221,10 +221,10 @@ namespace parsec::fg {
 	}
 
 	const Atom* Rule::endAtom() const noexcept {
-		return ComputeEndAtom()(*this);
+		return FindEndAtom()(*this);
 	}
 
 	bool Rule::isNullable() const noexcept {
-		return ComputeNullable()(*this);
+		return IsNullable()(*this);
 	}
 }

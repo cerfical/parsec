@@ -16,33 +16,33 @@ namespace parsec::fg {
 
 
 	void RulePrinter::visit(const OptionalRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 		*m_out << '?';
 	}
 
 	void RulePrinter::visit(const PlusRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 		*m_out << '+';
 	}
 
 	void RulePrinter::visit(const StarRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 		*m_out << '*';
 	}
 
 
 	void RulePrinter::visit(const RuleAltern& n) {
 		*m_out << '(';
-		n.left()->traverse(*this);
+		n.left()->acceptVisitor(*this);
 		*m_out << '|';
-		n.right()->traverse(*this);
+		n.right()->acceptVisitor(*this);
 		*m_out << ')';
 	}
 
 	void RulePrinter::visit(const RuleConcat& n) {
 		*m_out << '(';
-		n.left()->traverse(*this);
-		n.right()->traverse(*this);
+		n.left()->acceptVisitor(*this);
+		n.right()->acceptVisitor(*this);
 		*m_out << ')';
 	}
 }

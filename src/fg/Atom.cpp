@@ -2,18 +2,14 @@
 
 namespace parsec::fg {
 	namespace {
-		class ComputeNextAtoms : RuleTraverser {
+		class ComputeNextAtoms : RuleVisitor {
 		public:
-			/** @{ */
 			AtomList operator()(const Rule& n) {
-				n.traverse(*this);
+				n.acceptVisitor(*this);
 				return std::move(m_atoms);
 			}
-			/** @} */
-
 
 		private:
-			/** @{ */
 			void visit(const Atom& n) override {
 				traverseParent(n);
 			}
@@ -52,15 +48,13 @@ namespace parsec::fg {
 					traverseParent(n);
 				}
 			}
-			/** @} */
 
 
-			/** @{ */
 			void traverseParent(const Rule& n) {
 				// recursively traverse the parent node to find all atoms following the given one
 				if(n.parent()) {
 					const auto oldChild = std::exchange(m_child, &n);
-					n.parent()->traverse(*this);
+					n.parent()->acceptVisitor(*this);
 					m_child = oldChild;
 				}
 			}
@@ -73,19 +67,16 @@ namespace parsec::fg {
 					atoms.cend()
 				);
 			}
-			/** @} */
 
 
-			/** @{ */
-			AtomList m_atoms;
 			const Rule* m_child = nullptr;
-			/** @} */
+			AtomList m_atoms;
 		};
 	}
 
 
-	void Atom::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void Atom::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 
 	AtomList Atom::nextAtoms() const {

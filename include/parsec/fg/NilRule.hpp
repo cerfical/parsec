@@ -7,7 +7,7 @@ namespace parsec::fg {
 	class NilRule : public Rule {
 	public:
 		/** @{ */
-		void traverse(RuleTraverser& traverser) const override;
+		void acceptVisitor(RuleVisitor& visitor) const override;
 		/** @} */
 	};
 }

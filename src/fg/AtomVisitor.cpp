@@ -6,24 +6,24 @@ namespace parsec::fg {
 	}
 
 	void AtomVisitor::visit(const PlusRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 	}
 
 	void AtomVisitor::visit(const StarRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 	}
 
 	void AtomVisitor::visit(const OptionalRule& n) {
-		n.inner()->traverse(*this);
+		n.inner()->acceptVisitor(*this);
 	}
 
 	void AtomVisitor::visit(const RuleAltern& n) {
-		n.left()->traverse(*this);
-		n.right()->traverse(*this);
+		n.left()->acceptVisitor(*this);
+		n.right()->acceptVisitor(*this);
 	}
 
 	void AtomVisitor::visit(const RuleConcat& n) {
-		n.left()->traverse(*this);
-		n.right()->traverse(*this);
+		n.left()->acceptVisitor(*this);
+		n.right()->acceptVisitor(*this);
 	}
 }

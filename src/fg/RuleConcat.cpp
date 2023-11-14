@@ -1,8 +1,8 @@
 #include "fg/RuleConcat.hpp"
-#include "fg/RuleTraverser.hpp"
+#include "fg/RuleVisitor.hpp"
 
 namespace parsec::fg {
-	void RuleConcat::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void RuleConcat::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 }

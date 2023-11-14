@@ -12,9 +12,8 @@ namespace parsec::fg {
 		{ }
 		/** @} */
 
-
 		/** @{ */
-		void traverse(RuleTraverser& traverser) const override;
+		void acceptVisitor(RuleVisitor& visitor) const override;
 		/** @} */
 	};
 }

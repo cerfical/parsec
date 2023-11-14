@@ -1,8 +1,8 @@
 #include "fg/RuleAltern.hpp"
-#include "fg/RuleTraverser.hpp"
+#include "fg/RuleVisitor.hpp"
 
 namespace parsec::fg {
-	void RuleAltern::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void RuleAltern::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 }

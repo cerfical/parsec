@@ -24,7 +24,7 @@ namespace parsec::fg {
 				// check the grammar for undefined symbols
 				for(const auto sym : m_grammar.nonterminals()) {
 					m_currentEnd = sym->rule()->endAtom();
-					sym->rule()->traverse(*this);
+					sym->rule()->acceptVisitor(*this);
 				}
 
 				return std::move(m_grammar);

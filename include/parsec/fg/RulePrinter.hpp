@@ -2,12 +2,12 @@
 #define PARSEC_FG_RULE_PRINTER_HEADER
 
 #include "Rule.hpp"
-#include "RuleTraverser.hpp"
+#include "RuleVisitor.hpp"
 
 #include <iostream>
 
 namespace parsec::fg {
-	class RulePrinter : RuleTraverser {
+	class RulePrinter : RuleVisitor {
 	public:
 		/** @{ */
 		explicit RulePrinter(std::ostream& out = std::cout) noexcept
@@ -21,7 +21,6 @@ namespace parsec::fg {
 		RulePrinter& operator=(RulePrinter&&) = default;
 		/** @} */
 
-
 		/** @{ */
 		RulePrinter(const RulePrinter&) = delete;
 		RulePrinter& operator=(const RulePrinter&) = delete;
@@ -30,13 +29,12 @@ namespace parsec::fg {
 
 		/** @{ */
 		void print(const Rule& n) {
-			n.traverse(*this);
+			n.acceptVisitor(*this);
 		}
 		/** @} */
 
 
 	private:
-		/** @{ */
 		void visit(const Atom& n) override;
 		void visit(const NilRule& n) override;
 
@@ -46,12 +44,9 @@ namespace parsec::fg {
 
 		void visit(const RuleAltern& n) override;
 		void visit(const RuleConcat& n) override;
-		/** @} */
 
 
-		/** @{ */
 		std::ostream* m_out;
-		/** @} */
 	};
 }
 

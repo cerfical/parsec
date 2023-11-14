@@ -1,5 +1,5 @@
-#ifndef PARSEC_FG_RULE_TRAVERSER_HEADER
-#define PARSEC_FG_RULE_TRAVERSER_HEADER
+#ifndef PARSEC_FG_RULE_VISITOR_HEADER
+#define PARSEC_FG_RULE_VISITOR_HEADER
 
 namespace parsec::fg {
 	class Atom;
@@ -12,7 +12,8 @@ namespace parsec::fg {
 	class RuleAltern;
 	class RuleConcat;
 
-	class RuleTraverser {
+
+	class RuleVisitor {
 	public:
 		/** @{ */
 		virtual void visit(const Atom& n) = 0;
@@ -28,7 +29,7 @@ namespace parsec::fg {
 
 	protected:
 		/** @{ */
-		~RuleTraverser() = default;
+		~RuleVisitor() = default;
 		/** @} */
 	};
 }

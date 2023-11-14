@@ -71,7 +71,7 @@ set(_HEADERS
 	"fg/Parser.hpp"
 
 	"fg/Rule.hpp"
-	"fg/RuleTraverser.hpp"
+	"fg/RuleVisitor.hpp"
 	"fg/RulePrinter.hpp"
 
 	"fg/Atom.hpp"

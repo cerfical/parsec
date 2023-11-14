@@ -1,8 +1,8 @@
 #include "fg/StarRule.hpp"
-#include "fg/RuleTraverser.hpp"
+#include "fg/RuleVisitor.hpp"
 
 namespace parsec::fg {
-	void StarRule::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void StarRule::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 }

@@ -12,7 +12,7 @@
 #include "RuleConcat.hpp"
 #include "RuleAltern.hpp"
 
-#include "RuleTraverser.hpp"
+#include "RuleVisitor.hpp"
 #include "RulePrinter.hpp"
 
 #endif

@@ -1,8 +1,8 @@
 #include "fg/NilRule.hpp"
-#include "fg/RuleTraverser.hpp"
+#include "fg/RuleVisitor.hpp"
 
 namespace parsec::fg {
-	void NilRule::traverse(RuleTraverser& traverser) const {
-		traverser.visit(*this);
+	void NilRule::acceptVisitor(RuleVisitor& visitor) const {
+		visitor.visit(*this);
 	}
 }
