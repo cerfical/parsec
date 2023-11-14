@@ -30,10 +30,6 @@ namespace parsec::fg {
 			return m_value;
 		}
 		
-		std::string& value() noexcept {
-			return m_value;
-		}
-
 		AtomList nextAtoms() const;
 		/** @} */
 

@@ -2,7 +2,6 @@
 #define PARSEC_FG_RULES_HEADER
 
 #include "Atom.hpp"
-#include "RuleTraverser.hpp"
 #include "NilRule.hpp"
 
 #include "PlusRule.hpp"
@@ -11,8 +10,5 @@
 
 #include "RuleConcat.hpp"
 #include "RuleAltern.hpp"
-
-#include "RuleVisitor.hpp"
-#include "RulePrinter.hpp"
 
 #endif

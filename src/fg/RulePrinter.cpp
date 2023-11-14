@@ -1,5 +1,7 @@
-#include "fg/rules.hpp"
+#include "fg/RulePrinter.hpp"
+
 #include "utils/chars.hpp"
+#include "fg/rules.hpp"
 
 namespace parsec::fg {
 	void RulePrinter::visit(const Atom& n) {

@@ -20,9 +20,7 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		explicit Rule(const Rule* parent = nullptr) noexcept
-			: m_parent(parent)
-		{ }
+		Rule() = default;
 
 		virtual ~Rule() = default;
 		/** @} */
@@ -49,6 +47,10 @@ namespace parsec::fg {
 			m_parent = parent;
 		}
 
+		void clearParent() noexcept {
+			setParent(nullptr);
+		}
+
 		const Rule* parent() const noexcept {
 			return m_parent;
 		}
@@ -58,8 +60,6 @@ namespace parsec::fg {
 		/** @{ */
 		AtomList leadingAtoms() const;
 		
-		AtomList trailingAtoms() const;
-		
 		const Atom* endAtom() const noexcept;
 
 		bool isNullable() const noexcept;
@@ -67,7 +67,7 @@ namespace parsec::fg {
 
 
 	private:
-		const Rule* m_parent;
+		const Rule* m_parent = nullptr;
 	};
 
 	using RulePtr = std::unique_ptr<Rule>;

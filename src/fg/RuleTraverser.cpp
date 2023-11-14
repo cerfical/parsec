@@ -1,3 +1,4 @@
+#include "fg/RuleTraverser.hpp"
 #include "fg/rules.hpp"
 
 namespace parsec::fg {

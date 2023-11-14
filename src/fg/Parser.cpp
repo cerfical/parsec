@@ -1,6 +1,7 @@
 #include "fg/Parser.hpp"
-
 #include "fg/Lexer.hpp"
+
+#include "fg/RuleTraverser.hpp"
 #include "fg/rules.hpp"
 
 #include "regex/Parser.hpp"

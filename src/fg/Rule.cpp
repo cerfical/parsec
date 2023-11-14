@@ -1,5 +1,8 @@
 #include "fg/rules.hpp"
 
+#include "fg/RuleVisitor.hpp"
+#include "fg/RulePrinter.hpp"
+
 namespace parsec::fg {
 	namespace {
 		class ComputeLeadingAtoms : RuleVisitor {
@@ -55,59 +58,6 @@ namespace parsec::fg {
 			AtomList m_atoms;
 		};
 
-		class ComputeTrailingAtoms : RuleVisitor {
-		public:
-			AtomList operator()(const Rule& n) {
-				n.acceptVisitor(*this);
-				return std::move(m_atoms);
-			}
-
-		private:
-			void visit(const Atom& n) override {
-				m_atoms.push_back(&n);
-			}
-
-			void visit(const NilRule&) override {
-				// nothing to do
-			}
-
-
-			void visit(const OptionalRule& n) override {
-				// add trailing atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const PlusRule& n) override {
-				// add trailing atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const StarRule& n) override {
-				// add trailing atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
-			}
-
-
-			void visit(const RuleAltern& n) override {
-				// add trailing atoms of the left child
-				n.left()->acceptVisitor(*this);
-				// add trailing atoms of the right child
-				n.right()->acceptVisitor(*this);
-			}
-
-			void visit(const RuleConcat& n) override {
-				// add trailing atoms of the right child
-				n.right()->acceptVisitor(*this);
-				if(n.right()->isNullable()) {
-					// add trailing atoms of the left child
-					n.left()->acceptVisitor(*this);
-				}
-			}
-
-
-			AtomList m_atoms;
-		};
-	
 		class FindEndAtom : RuleVisitor {
 		public:
 			const Atom* operator()(const Rule& n) noexcept {
@@ -214,10 +164,6 @@ namespace parsec::fg {
 
 	AtomList Rule::leadingAtoms() const {
 		return ComputeLeadingAtoms()(*this);
-	}
-
-	AtomList Rule::trailingAtoms() const {
-		return ComputeTrailingAtoms()(*this);
 	}
 
 	const Atom* Rule::endAtom() const noexcept {

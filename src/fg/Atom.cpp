@@ -1,3 +1,4 @@
+#include "fg/RuleVisitor.hpp"
 #include "fg/rules.hpp"
 
 namespace parsec::fg {
