@@ -1,6 +1,6 @@
 #include "fg/Grammar.hpp"
 
-#include "fg/AtomVisitor.hpp"
+#include "fg/RuleTraverser.hpp"
 #include "fg/RuleAltern.hpp"
 #include "fg/RuleConcat.hpp"
 #include "fg/NilRule.hpp"
@@ -22,7 +22,8 @@ namespace parsec::fg {
 			);
 		}
 
-		class BuildStartRule : AtomVisitor {
+
+		class BuildStartRule : RuleTraverser {
 		public:
 			explicit BuildStartRule(const Grammar& grammar)
 				: m_grammar(grammar)
@@ -40,7 +41,7 @@ namespace parsec::fg {
 					m_currentSymbol = sym;
 					m_endAtom = sym->rule()->endAtom();
 
-					sym->rule()->acceptVisitor(*this);
+					traverse(*sym->rule());
 				}
 
 				// combine found symbols into one

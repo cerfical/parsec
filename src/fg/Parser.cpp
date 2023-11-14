@@ -12,7 +12,7 @@
 
 namespace parsec::fg {
 	namespace {
-		class ParseImpl : AtomVisitor {
+		class ParseImpl : RuleTraverser {
 		public:
 			explicit ParseImpl(std::istream& input) noexcept
 				: m_lexer(input)
@@ -24,7 +24,7 @@ namespace parsec::fg {
 				// check the grammar for undefined symbols
 				for(const auto sym : m_grammar.nonterminals()) {
 					m_currentEnd = sym->rule()->endAtom();
-					sym->rule()->acceptVisitor(*this);
+					traverse(*sym->rule());
 				}
 
 				return std::move(m_grammar);
