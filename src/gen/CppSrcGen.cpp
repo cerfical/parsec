@@ -171,7 +171,7 @@ private:
 				m_out << "enum class TokenKinds {\n";
 				m_out << "\tEof = 0";
 
-				for(const auto sym : m_grammar.terminals()) {
+				for(const auto sym : m_grammar.tokens()) {
 					// skip anonymously defined terminals
 					if(sym->name().starts_with('<')) {
 						continue;
@@ -391,7 +391,7 @@ private:
 
 					if(s.isAccepting()) {
 						const auto matchedSym = s.matches().front().symbol();
-						if(!matchedSym->isWs()) {
+						if(matchedSym != m_grammar.wsToken()) {
 							m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
 							m_out << "\t\tgoto accept;\n";
 						} else {
@@ -412,7 +412,7 @@ private:
 				m_out << indent << "enum class SymbolNames {";
 
 				bool firstNonterm = true;
-				for(const auto sym : m_grammar.nonterminals()) {
+				for(const auto sym : m_grammar.rules()) {
 					if(!std::exchange(firstNonterm, false)) {
 						m_out << ',';
 					}
@@ -429,10 +429,10 @@ private:
 			}
 
 			void emitParseHooksSrc(std::string_view indent) {
-				if(!m_grammar.nonterminals().empty()) {
+				if(!m_grammar.anyRules()) {
 					m_out << '\n';
 			
-					for(const auto sym : m_grammar.nonterminals()) {
+					for(const auto sym : m_grammar.rules()) {
 						m_out << indent << "virtual void " << makeParseHook(sym) << " { }\n";
 					}
 				}
@@ -447,16 +447,17 @@ private:
 				// take the first available reduce action, ignore the rest, if any
 				const auto& first = reduces.front();
 				const auto sym = first.newSymbol();
+				const auto isStart = sym == m_grammar.startSymbol();
 				
 				m_out << indent << std::format(
 					"reduce({}{}, {}, {});\n",
 					first.poppedStates(),
-					sym->isStart() ? " + 1" : "", // pop the start state
+					isStart ? " + 1" : "", // pop the start state
 					first.poppedTokens(),
-					sym->isStart() ? "{}" : makeSymbolName(sym)
+					isStart ? "{}" : makeSymbolName(sym)
 				);
 
-				if(!sym->isStart()) {
+				if(!isStart) {
 					m_out << indent << makeParseHook(sym) << ";\n";
 				}
 				
@@ -557,7 +558,7 @@ private:
 				for(const auto& state : lr::StateGen().run(m_grammar)) {
 					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
 
-					if(!state.isStart() && state.symbol()->isTerminal()) {
+					if(!state.isStart() && state.symbol()->definesToken()) {
 						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
 					}
 
@@ -596,7 +597,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				};
 				
 				m_out << src[0];
-				for(const auto sym : m_grammar.terminals()) {
+				for(const auto sym : m_grammar.tokens()) {
 					// skip anonymously defined terminals
 					if(sym->name().starts_with('<')) {
 						continue;

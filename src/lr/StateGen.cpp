@@ -127,7 +127,7 @@ namespace parsec::lr {
 
 					// skip any undefined, terminal and end symbols
 					const auto sym = m_grammar.symbolByName(item->atom()->value());
-					if(!sym || sym->isTerminal() || sym->isEnd()) {
+					if(!sym || sym->definesToken() || sym == m_grammar.eofToken()) {
 						continue;
 					}
 
@@ -174,7 +174,7 @@ namespace parsec::lr {
 								atom,
 								item.symbol(),
 								item.symbols() + 1,
-								item.terminals() + (sym->isTerminal() ? 1 : 0)
+								item.terminals() + (sym->definesToken() ? 1 : 0)
 							);
 						}
 					}
@@ -183,7 +183,7 @@ namespace parsec::lr {
 				// add shift actions for all generated transitions
 				for(auto& [symbol, items] : stateGoto) {
 					const auto newState = createState(std::move(items), symbol);
-					if(symbol->isTerminal() || symbol->isEnd()) {
+					if(symbol->definesToken() || symbol == m_grammar.eofToken()) {
 						m_states[id].addShift(symbol, newState);
 					} else {
 						m_states[id].addGoto(symbol, newState);

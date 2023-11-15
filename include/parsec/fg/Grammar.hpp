@@ -4,7 +4,7 @@
 #include "Symbol.hpp"
 
 #include <unordered_map>
-#include <optional>
+#include <gsl/narrow>
 
 namespace parsec::fg {
 	class Grammar {
@@ -26,57 +26,86 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		const Symbol* addTerminal(const std::string& name, RulePtr rule) {
-			return addSymbol(name, std::move(rule), SymbolTypes::Terminal);
+		const Symbol* insertToken(const std::string& name, RulePtr rule) {
+			return insertSymbol(name, std::move(rule), SymbolTypes::Token);
 		}
 
-		const Symbol* addNonterminal(const std::string& name, RulePtr rule) {
-			return addSymbol(name, std::move(rule), SymbolTypes::Nonterminal);
+		const Symbol* insertRule(const std::string& name, RulePtr rule) {
+			return insertSymbol(name, std::move(rule), SymbolTypes::Rule);
 		}
-		
-		const Symbol* symbolByName(const std::string& name) const;
 		/** @} */
 
 
 		/** @{ */
-		const SymbolList& terminals() const noexcept {
-			return m_terminals;
+		const Symbol* symbolByName(const std::string& name) const;
+
+
+		const SymbolList& tokens() const noexcept {
+			return m_tokens;
 		}
 
-		const SymbolList& nonterminals() const noexcept {
-			return m_nonterminals;
+		int tokenCount() const noexcept {
+			return gsl::narrow_cast<int>(m_tokens.size());
+		}
+
+		bool anyTokens() const noexcept {
+			return !m_tokens.empty();
+		}
+
+
+		const SymbolList& rules() const noexcept {
+			return m_rules;
 		}
 		
-		const Symbol* startSymbol() const;
-
-		const Symbol* eofSymbol() const {
-			return symbolByName(eofSymbolName);
+		int ruleCount() const noexcept {
+			return gsl::narrow_cast<int>(m_rules.size());
 		}
 
-		const Symbol* wsSymbol() const {
-			return symbolByName(wsSymbolName);
+		bool anyRules() const noexcept {
+			return !m_rules.empty();
+		}
+
+
+		const SymbolList& symbols() const noexcept {
+			startSymbol();
+			return m_symbols;
+		}
+
+		int symbolCount() const noexcept {
+			return gsl::narrow_cast<int>(m_symbols.size());
+		}
+
+		bool anySymbols() const noexcept {
+			return !m_symbols.empty();
+		}
+		/** @} */
+
+
+		/** @{ */
+		const Symbol* startSymbol() const;
+
+		const Symbol* eofToken() const {
+			return symbols()[1];
+		}
+
+		const Symbol* wsToken() const {
+			return symbols()[2];
 		}
 		/** @} */
 
 
 	private:
-		/** @{ */
-		constexpr static auto wsSymbolName = "ws";
-		constexpr static auto eofSymbolName = "eof";
-		constexpr static auto ruleEndMark = "$";
-		/** @} */
-
-
-		/** @{ */
-		Symbol* addSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
-		/** @} */
-
-
-		mutable std::optional<Symbol> m_startSymbol;
+		Symbol* insertSymbol(const std::string& name, RulePtr rule, SymbolTypes type);
+		
+		void initNewSymbol(Symbol& sym, RulePtr rule);
+		void appendRuleToSymbol(Symbol& sym, RulePtr rule) const;
+		
 
 		std::unordered_map<std::string, Symbol> m_symbolTable;
-		SymbolList m_nonterminals;
-		SymbolList m_terminals;
+		
+		SymbolList m_symbols;
+		SymbolList m_tokens;
+		SymbolList m_rules;
 	};
 }
 

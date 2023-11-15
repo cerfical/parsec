@@ -6,52 +6,54 @@
 #include "fg/NilRule.hpp"
 #include "fg/Atom.hpp"
 
-#include <boost/algorithm/string/case_conv.hpp>
-
-#include <gsl/narrow>
+#include <format>
 #include <ranges>
 
 namespace views = std::ranges::views;
 
 namespace parsec::fg {
 	namespace {
-		RulePtr appendEndAtom(RulePtr rule, const std::string& value) {
+		constexpr auto wsName = "Ws";
+		constexpr auto eofName = "Eof";
+		constexpr auto startName = "_Start";
+		constexpr auto endMark = "$";
+
+		RulePtr appendEndAtom(RulePtr rule, const std::string& value = endMark) {
 			return makeRule<RuleConcat>(
 				std::move(rule),
 				makeRule<Atom>(value)
 			);
 		}
 
-
 		class BuildStartRule : RuleTraverser {
 		public:
-			explicit BuildStartRule(const Grammar& grammar)
+			explicit BuildStartRule(const Grammar& grammar) noexcept
 				: m_grammar(grammar)
 			{ }
 
 			RulePtr operator()() {
 				// any nonterminal symbol can be a root symbol
 				m_rootSymbols.resize(
-					m_grammar.nonterminals().size(),
+					m_grammar.ruleCount(),
 					true
 				);
 
 				// find all unreferenced symbols
-				for(const auto sym : m_grammar.nonterminals()) {
-					m_currentSymbol = sym;
-					m_endAtom = sym->rule()->endAtom();
+				for(const auto sym : m_grammar.rules()) {
+					m_symbolEndAtom = sym->rule()->endAtom();
+					m_ruleSymbol = sym;
 
 					traverse(*sym->rule());
 				}
 
 				// combine found symbols into one
 				RulePtr rule;
-				for(const auto i : views::iota(0) | views::take(m_rootSymbols.size())) {
+				for(const auto i : views::iota(std::size_t(0), m_rootSymbols.size())) {
 					if(!m_rootSymbols[i]) {
 						continue;
 					}
 
-					const auto sym = m_grammar.nonterminals()[i];
+					const auto sym = m_grammar.rules()[i];
 					if(auto lhs = std::exchange(rule, makeRule<Atom>(sym->name()))) {
 						rule = makeRule<RuleAltern>(
 							std::move(lhs),
@@ -71,7 +73,7 @@ namespace parsec::fg {
 		private:
 			void visit(const Atom& n) override {
 				// skip end atoms as a special case
-				if(&n == m_endAtom) {
+				if(&n == m_symbolEndAtom) {
 					return;
 				}
 
@@ -82,18 +84,19 @@ namespace parsec::fg {
 				}
 				
 				// a root symbol can have a reference to itself
-				if(sym == m_currentSymbol) {
+				if(sym == m_ruleSymbol) {
 					return;
 				}
 
-				// but cannot have references to other symbols
-				if(sym->isNonterminal()) {
+				// but cannot be referenced by other symbols
+				if(sym->definesRule()) {
 					m_rootSymbols[sym->id()] = false;
 				}
 			}
 
-			const Symbol* m_currentSymbol = nullptr;
-			const Atom* m_endAtom = nullptr;
+
+			const Atom* m_symbolEndAtom = nullptr;
+			const Symbol* m_ruleSymbol = 0;
 
 			std::vector<bool> m_rootSymbols;
 			const Grammar& m_grammar;
@@ -102,102 +105,84 @@ namespace parsec::fg {
 
 
 	Grammar::Grammar() {
-		m_symbolTable.emplace(std::piecewise_construct,
-			std::forward_as_tuple(eofSymbolName),
-			std::forward_as_tuple(eofSymbolName, SymbolTypes::End)
-		);
+		auto& start = m_symbolTable[startName] = Symbol(startName, SymbolTypes::Rule);
+		auto& eof = m_symbolTable[eofName] = Symbol(eofName, SymbolTypes::Token);
+		auto& ws = m_symbolTable[wsName] = Symbol(wsName, SymbolTypes::Token);
 		
-		m_symbolTable.emplace(std::piecewise_construct,
-			std::forward_as_tuple(wsSymbolName),
-			std::forward_as_tuple(wsSymbolName, SymbolTypes::Ws)
-		);
+		m_symbols.push_back(&start);
+		m_symbols.push_back(&eof);
+		m_symbols.push_back(&ws);
 	}
 
 
-	Symbol* Grammar::addSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
-		// enforce symbol names to be in lower case
-		const auto symName = boost::to_lower_copy(name);
+	void Grammar::initNewSymbol(Symbol& sym, RulePtr rule) {
+		sym.setRule(appendEndAtom(std::move(rule)));
 
-		// allocate a new symbol if it doesn't already exist
-		const auto [it, wasInserted] = m_symbolTable.try_emplace(symName, symName);
-		auto& sym = it->second;
-		
-		if(wasInserted) {
-			// terminals and nonterminals have separate namespaces of unique ids
-			sym.setId(gsl::narrow_cast<int>(
-				type == SymbolTypes::Terminal ? m_terminals.size() : m_nonterminals.size()
-			));
-
-			sym.setRule(appendEndAtom(std::move(rule), ruleEndMark));
-			sym.setType(type);
-
-			// classify the symbol for easier access later
-			if(sym.isTerminal()) {
-				m_terminals.push_back(&sym);
-			} else if(sym.isNonterminal()) {
-				m_nonterminals.push_back(&sym);
-			}
+		if(sym.definesToken()) {
+			sym.setId(tokenCount());
+			m_tokens.push_back(&sym);
 		} else {
-			if(sym.isWs()) {
-				// cannot combine nonterminal and ws symbols
-				if(type == SymbolTypes::Nonterminal) {
-					return nullptr;
-				}
+			sym.setId(ruleCount());
+			m_rules.push_back(&sym);
+		}
+		
+		m_symbols.push_back(&sym);
+	}
 
-				// if the rule for the ws symbol was not yet defined, define one
-				if(!sym.rule()) {
-					sym.setRule(appendEndAtom(std::move(rule), ruleEndMark));
-					return &sym;
-				}
-			} else if(sym.type() != type) {
-				// if the symbol types don't match, fail to insert the symbol
-				return nullptr;
-			}
-
-			// if the symbol is not new, add the rule to its definition
-			auto& lhs = static_cast<RuleConcat*>(
-				sym.rule().get()
-			)->left();
-
-			lhs = makeRule<RuleAltern>(
-				std::move(lhs),
-				std::move(rule)
+	void Grammar::appendRuleToSymbol(Symbol& sym, RulePtr rule) const {
+		if(!sym.hasRule()) {
+			// if there is no rule attached to the symbol, attach one
+			sym.setRule(appendEndAtom(std::move(rule)));
+		} else {
+			// otherwise combine two alternative rules into one
+			const auto symRule = static_cast<RuleConcat*>(sym.rule());
+			symRule->setLeft(
+				makeRule<RuleAltern>(
+					symRule->takeLeft(),
+					std::move(rule)
+				)
 			);
 		}
+	}
 
-		// reset the start symbol, as it might need to be recalculated due to the grammar modification
-		if(type == SymbolTypes::Nonterminal) {
-			m_startSymbol.reset();
+	Symbol* Grammar::insertSymbol(const std::string& name, RulePtr rule, SymbolTypes type) {
+		// allocate a new symbol if it doesn't already exist
+		const auto [it, wasInserted] = m_symbolTable.try_emplace(name, name, type);
+		auto& sym = it->second;
+
+		if(wasInserted) {
+			initNewSymbol(sym, std::move(rule));
+		} else if(sym.type() == type) {
+			appendRuleToSymbol(sym, std::move(rule));
+		} else {
+			return nullptr;
 		}
+
 		return &sym;
 	}
 
 
 	const Symbol* Grammar::symbolByName(const std::string& name) const {
-		const auto symbolName = boost::to_lower_copy(name);
-		const auto it = m_symbolTable.find(symbolName);
-		
+		const auto it = m_symbolTable.find(name);
 		if(it != m_symbolTable.cend()) {
 			return &it->second;
 		}
-		
 		return nullptr;
 	}
 
 	const Symbol* Grammar::startSymbol() const {
-		if(!m_startSymbol) {
-			// create a symbol of the form: start = (root1 | root2 | ... ) eof $
-			m_startSymbol.emplace(
-				"start", SymbolTypes::Start,
+		const auto startSymbol = m_symbols[0];
+		if(!startSymbol->hasRule()) {
+			// create a symbol of the form: _Start = (root1 | root2 | ... ) Eof $
+			const_cast<Symbol*>(startSymbol)->setRule(
 				appendEndAtom(
 					appendEndAtom(
 						BuildStartRule(*this)(),
-						eofSymbolName
-					),
-					ruleEndMark
+						eofName
+					)
 				)
 			);
 		}
-		return std::to_address(m_startSymbol);
+		return startSymbol;
 	}
 }

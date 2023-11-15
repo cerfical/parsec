@@ -12,18 +12,13 @@ namespace parsec::fg {
 	class Symbol {
 	public:
 		/** @{ */
-		friend std::ostream& operator<<(std::ostream& out, const Symbol& sym) {
-			out << sym.name();
-			return out;
-		}
+		friend std::ostream& operator<<(std::ostream& out, const Symbol& sym);
 		/** @} */
 
 
 		/** @{ */
-		Symbol() = default;
-
 		explicit Symbol(
-			const std::string& name,
+			const std::string& name = "",
 			SymbolTypes type = {},
 			RulePtr rule = {},
 			int id = 0
@@ -56,10 +51,6 @@ namespace parsec::fg {
 			return m_name;
 		}
 
-		std::string& name() noexcept {
-			return m_name;
-		}
-
 
 		void setId(int id) noexcept {
 			m_id = id;
@@ -74,12 +65,25 @@ namespace parsec::fg {
 			m_rule = std::move(rule);
 		}
 
+		void clearRule() noexcept {
+			setRule(nullptr);
+		}
+
+		RulePtr takeRule() noexcept {
+			return std::move(m_rule);
+		}
+
+		Rule* rule() noexcept {
+			return m_rule.get();
+		}
+
+
 		const Rule* rule() const noexcept {
 			return m_rule.get();
 		}
 		
-		RulePtr& rule() noexcept {
-			return m_rule;
+		bool hasRule() const noexcept {
+			return static_cast<bool>(m_rule);
 		}
 
 		
@@ -94,24 +98,12 @@ namespace parsec::fg {
 
 
 		/** @{ */
-		bool isTerminal() const noexcept {
-			return m_type == SymbolTypes::Terminal;
+		bool definesToken() const noexcept {
+			return m_type == SymbolTypes::Token;
 		}
 
-		bool isNonterminal() const noexcept {
-			return m_type == SymbolTypes::Nonterminal;
-		}
-
-		bool isWs() const noexcept {
-			return m_type == SymbolTypes::Ws;
-		}
-
-		bool isStart() const noexcept {
-			return m_type == SymbolTypes::Start;
-		}
-
-		bool isEnd() const noexcept {
-			return m_type == SymbolTypes::End;
+		bool definesRule() const noexcept {
+			return m_type == SymbolTypes::Rule;
 		}
 		/** @} */
 

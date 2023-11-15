@@ -23,7 +23,7 @@ namespace parsec::fg {
 				parseGrammar();
 				
 				// check the grammar for undefined symbols
-				for(const auto sym : m_grammar.nonterminals()) {
+				for(const auto sym : m_grammar.rules()) {
 					m_currentEnd = sym->rule()->endAtom();
 					traverse(*sym->rule());
 				}
@@ -162,7 +162,7 @@ namespace parsec::fg {
 							tokPattern.text()
 						);
 
-						m_grammar.addTerminal(
+						m_grammar.insertToken(
 							tokName, parseRegex(tokPattern)
 						);
 
@@ -203,35 +203,43 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			void addSymbol(const Token& name, RulePtr rule, bool terminal) {
-				if(terminal
-					&& !m_grammar.addTerminal(name.text(), std::move(rule)) || !terminal
-					&& !m_grammar.addNonterminal(name.text(), std::move(rule))
-				) {
-					symbolRedefinition(name);
-				}
-			}
-
-			void parseTokensList() {
+			void parseTokenList() {
 				m_lexer.expect(TokenKinds::OpenBrace);
 				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
-					// terminal symbols are defined with "name = pattern;"
+					// tokens are defined with "token-name = token-regex-pattern;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
 
-					addSymbol(name, parseRegex(), true);
+					// parse and store the token definition in the grammar
+					switch(m_lexer.peek().kind()) {
+						case TokenKinds::StringLiteral:
+						case TokenKinds::RegularExpr: {
+							if(!m_grammar.insertToken(name.text(), parseRegex())) {
+								symbolRedefinition(name);
+							}
+							break;
+						}
+						default: {
+							unexpectedToken();
+						}
+					}
+
 					m_lexer.expect(TokenKinds::Semicolon);
 				}
 			}
 
-			void parseRulesList() {
+			void parseRuleList() {
 				m_lexer.expect(TokenKinds::OpenBrace);
 				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
-					// nonterminal symbols are defined with "name = rule;"
+					// rules are defined with "rule-name = rule;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
 
-					addSymbol(name, parseRule(), false);
+					// parse and store the rule in the grammar
+					if(!m_grammar.insertRule(name.text(), parseRule())) {
+						symbolRedefinition(name);
+					}
+
 					m_lexer.expect(TokenKinds::Semicolon);
 				}
 			}
@@ -239,9 +247,9 @@ namespace parsec::fg {
 			void parseGrammar() {
 				while(!m_lexer.isEof()) {
 					if(m_lexer.skipIf("tokens")) {
-						parseTokensList();
+						parseTokenList();
 					} else if(m_lexer.skipIf("rules")) {
-						parseRulesList();
+						parseRuleList();
 					} else {
 						unexpectedToken();
 					}

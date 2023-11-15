@@ -62,14 +62,14 @@ namespace parsec::dfa {
 			StateList operator()() {
 				// initial state consists of the first characters of each rule
 				ItemSet startItems;
-				for(const auto tok : m_grammar.terminals()) {
+				for(const auto tok : m_grammar.tokens()) {
 					for(const auto atom : tok->rule()->leadingAtoms()) {
 						startItems.emplace(atom, tok);
 					}
 				}
 
 				// special handling of whitespace symbol
-				if(const auto ws = m_grammar.wsSymbol(); ws->rule()) {
+				if(const auto ws = m_grammar.wsToken(); ws->rule()) {
 					for(const auto atom : ws->rule()->leadingAtoms()) {
 						startItems.emplace(atom, ws);
 					}
