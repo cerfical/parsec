@@ -7,9 +7,8 @@ namespace parsec::fg {
 	class UnaryRule : public Rule {
 	public:
 		/** @{ */
-		explicit UnaryRule(RulePtr inner) noexcept
-			: m_inner(std::move(inner)) {
-			m_inner->setParent(this);
+		explicit UnaryRule(RulePtr inner) noexcept {
+			setInner(std::move(inner));
 		}
 
 		~UnaryRule() override = default;
@@ -21,8 +20,19 @@ namespace parsec::fg {
 			return m_inner.get();
 		}
 
-		RulePtr& inner() noexcept {
-			return m_inner;
+		Rule* inner() noexcept {
+			return m_inner.get();
+		}
+
+
+		void setInner(RulePtr rule) noexcept {
+			m_inner = std::move(rule);
+			m_inner->setParent(this);
+		}
+
+		RulePtr takeInner() noexcept {
+			m_inner->clearParent();
+			return std::move(m_inner);
 		}
 		/** @} */
 

@@ -7,10 +7,9 @@ namespace parsec::fg {
 	class BinaryRule : public Rule {
 	public:
 		/** @{ */
-		BinaryRule(RulePtr left, RulePtr right) noexcept
-			: m_left(std::move(left)), m_right(std::move(right)) {
-			m_left->setParent(this);
-			m_right->setParent(this);
+		BinaryRule(RulePtr left, RulePtr right) noexcept {
+			setLeft(std::move(left));
+			setRight(std::move(right));
 		}
 
 		~BinaryRule() override = default;
@@ -22,8 +21,19 @@ namespace parsec::fg {
 			return m_left.get();
 		}
 
-		RulePtr& left() noexcept {
-			return m_left;
+		Rule* left() noexcept {
+			return m_left.get();
+		}
+
+
+		void setLeft(RulePtr rule) noexcept {
+			m_left = std::move(rule);
+			m_left->setParent(this);
+		}
+
+		RulePtr takeLeft() noexcept {
+			m_left->clearParent();
+			return std::move(m_left);
 		}
 		/** @} */
 
@@ -33,15 +43,25 @@ namespace parsec::fg {
 			return m_right.get();
 		}
 		
-		RulePtr& right() noexcept {
-			return m_right;
+		Rule* right() noexcept {
+			return m_right.get();
+		}
+
+
+		void setRight(RulePtr rule) noexcept {
+			m_right = std::move(rule);
+			m_right->setParent(this);
+		}
+
+		RulePtr takeRight() noexcept {
+			m_right->clearParent();
+			return std::move(m_right);
 		}
 		/** @} */
 
 		
 	private:
-		RulePtr m_left;
-		RulePtr m_right;
+		RulePtr m_left, m_right;
 	};
 }
 
