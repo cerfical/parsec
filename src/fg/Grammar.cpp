@@ -13,9 +13,9 @@ namespace views = std::ranges::views;
 
 namespace parsec::fg {
 	namespace {
-		constexpr auto wsName = "Ws";
-		constexpr auto eofName = "Eof";
-		constexpr auto startName = "_Start";
+		constexpr auto wsName = "ws";
+		constexpr auto eofName = "eof";
+		constexpr auto startName = "_start";
 		constexpr auto endMark = "$";
 
 		RulePtr appendEndAtom(RulePtr rule, const std::string& value = endMark) {

@@ -98,13 +98,24 @@ namespace parsec::fg {
 
 
 			/** @{ */
-			RulePtr parseRegex(const Token& pattern) {
+			RulePtr parseRegex() {
+				const auto& pattern = m_lexer.peek();
 				try {
-					// parse the regex into its rule representation
-					return regex::Parser(
-						pattern.kind() == TokenKinds::StringLiteral ?
-							regex::ParseOptions::NoRegexSyntax : regex::ParseOptions::None
-					).parse(pattern.text());
+					auto parser = regex::Parser();
+					switch(pattern.kind()) {
+						case TokenKinds::StringLiteral: {
+							parser = regex::Parser(regex::ParseOptions::NoRegexSyntax);
+							break;
+						}
+						case TokenKinds::RegularExpr: break;
+						default: {
+							unexpectedToken();
+						}
+					}
+
+					auto e = parser.parse(pattern.text());
+					m_lexer.skip();
+					return e;
 				} catch(const Error& e) {
 					// adjust the error location to take into account regex position
 					throw Error(e.what(), {
@@ -116,16 +127,22 @@ namespace parsec::fg {
 				}
 			}
 			
-			RulePtr parseRegex() {
-				switch(m_lexer.peek().kind()) {
-					case TokenKinds::StringLiteral:
-					case TokenKinds::RegularExpr: {
-						return parseRegex(m_lexer.lex());
-					}
-					default: {
-						unexpectedToken();
-					}
+			RulePtr parseUnnamedToken() {
+				const auto& patternToken = m_lexer.peek();
+				const auto pattern = std::format("{0}{1}{0}",
+					patternToken.kind() == TokenKinds::RegularExpr ? '"' : '\'',
+					patternToken.text()
+				);
+
+				const auto fakeNameId = m_unnamedTokenFakeNames.size();
+				const auto [it, wasInserted] = m_unnamedTokenFakeNames.try_emplace(pattern);
+				auto& fakeName = it->second;
+				if(wasInserted) {
+					fakeName = std::format("Unnamed{}_", fakeNameId);
 				}
+
+				const auto tok = m_grammar.insertToken(fakeName, parseRegex());
+				return makeRule<Atom>(tok->name());
 			}
 			/** @} */
 
@@ -134,13 +151,13 @@ namespace parsec::fg {
 			RulePtr parseAtom() {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident: {
-						const auto tok = m_lexer.lex();
+						const auto ident = m_lexer.lex();
 						auto atom = makeRule<Atom>(
-							tok.text()
+							ident.text()
 						);
 						
 						m_atomLocs.emplace(static_cast<const Atom*>(
-							atom.get()), tok.loc()
+							atom.get()), ident.loc()
 						);
 						return atom;
 					}
@@ -155,18 +172,7 @@ namespace parsec::fg {
 					}
 					case TokenKinds::StringLiteral:
 					case TokenKinds::RegularExpr: {
-						const auto tokPattern = m_lexer.lex();
-						const auto tokName = std::format(
-							"<{0}{1}{0}>",
-							tokPattern.kind() == TokenKinds::RegularExpr ? '"' : '\'',
-							tokPattern.text()
-						);
-
-						m_grammar.insertToken(
-							tokName, parseRegex(tokPattern)
-						);
-
-						return makeRule<Atom>(tokName);
+						return parseUnnamedToken();
 					}
 					default: {
 						unexpectedToken();
@@ -174,12 +180,53 @@ namespace parsec::fg {
 				}
 			}
 
+			RulePtr parseRepeat() {
+				auto r = parseAtom();
+
+				while(true) {
+					if(m_lexer.skipIf(TokenKinds::Star)) {
+						const auto name = std::format("_{}{}", m_ruleSymbolName, m_subruleId);
+						m_grammar.insertRule(name,
+							makeRule<OptionalRule>(
+								makeRule<RuleConcat>(
+									makeRule<Atom>(name),
+									std::move(r)
+								)
+							)
+						);
+						m_subruleId++;
+
+						r = makeRule<Atom>(name);
+						//r = makeRule<StarRule>(std::move(r));
+					} else if(m_lexer.skipIf(TokenKinds::Plus)) {
+						const auto name = std::format("_{}{}", m_ruleSymbolName, m_subruleId);
+						m_grammar.insertRule(name,
+							makeRule<RuleConcat>(
+								makeRule<OptionalRule>(
+									makeRule<Atom>(name)
+								),
+								std::move(r)
+							)
+						);
+						m_subruleId++;
+						
+						r = makeRule<Atom>(name);
+					} else if(m_lexer.skipIf(TokenKinds::Qo)) {
+						r = makeRule<OptionalRule>(std::move(r));
+					} else {
+						break;
+					}
+				}
+
+				return r;
+			}
+
 			RulePtr parseConcat() {
-				auto lhs = parseAtom();
+				auto lhs = parseRepeat();
 				while(isAtom()) {
 					lhs = makeRule<RuleConcat>(
 						std::move(lhs),
-						parseAtom()
+						parseRepeat()
 					);
 				}
 				return lhs;
@@ -209,7 +256,7 @@ namespace parsec::fg {
 					// tokens are defined with "token-name = token-regex-pattern;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
-
+					
 					// parse and store the token definition in the grammar
 					switch(m_lexer.peek().kind()) {
 						case TokenKinds::StringLiteral:
@@ -234,8 +281,10 @@ namespace parsec::fg {
 					// rules are defined with "rule-name = rule;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.expect(TokenKinds::Equals);
-
+					
 					// parse and store the rule in the grammar
+					m_ruleSymbolName = name.text();
+					m_subruleId = 0;
 					if(!m_grammar.insertRule(name.text(), parseRule())) {
 						symbolRedefinition(name);
 					}
@@ -258,6 +307,10 @@ namespace parsec::fg {
 			/** @} */
 
 
+			std::string m_ruleSymbolName;
+			int m_subruleId = 0;
+
+			std::unordered_map<std::string, std::string> m_unnamedTokenFakeNames;
 			std::unordered_map<const Atom*, SourceLoc> m_atomLocs;
 			Lexer m_lexer;
 

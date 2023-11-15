@@ -60,10 +60,7 @@ namespace parsec::gen {
 			}
 
 			static std::string makeTokenKind(const fg::Symbol* sym) {
-				if(!sym->name().starts_with('<')) {
-					return "TokenKinds::" + toPascalCase(sym->name());
-				}
-				return std::format("static_cast<TokenKinds>({})", sym->id() + 1);
+				return "TokenKinds::" + toPascalCase(sym->name());
 			}
 
 			static std::string makeSymbolName(const fg::Symbol* sym) {
@@ -169,17 +166,11 @@ private:
 
 			void emitTokenKindsSrc() {
 				m_out << "enum class TokenKinds {\n";
-				m_out << "\tEof = 0";
+				m_out << "\tEof";
 
 				for(const auto sym : m_grammar.tokens()) {
-					// skip anonymously defined terminals
-					if(sym->name().starts_with('<')) {
-						continue;
-					}
-					
-					m_out << std::format(",\n\t{} = {}",
-						toPascalCase(sym->name()),
-						sym->id() + 1
+					m_out << std::format(",\n\t{}",
+						toPascalCase(sym->name())
 					);
 				}
 
@@ -429,7 +420,7 @@ private:
 			}
 
 			void emitParseHooksSrc(std::string_view indent) {
-				if(!m_grammar.anyRules()) {
+				if(m_grammar.anyRules()) {
 					m_out << '\n';
 			
 					for(const auto sym : m_grammar.rules()) {
@@ -449,19 +440,25 @@ private:
 				const auto sym = first.newSymbol();
 				const auto isStart = sym == m_grammar.startSymbol();
 				
-				m_out << indent << std::format(
-					"reduce({}{}, {}, {});\n",
-					first.poppedStates(),
-					isStart ? " + 1" : "", // pop the start state
+				const auto statesToPop = first.poppedStates() != 0 ? first.poppedStates() - 1 : 0;
+
+				m_out << indent << std::format("reduce({}{}, {}, {});\n",
+					statesToPop,
+					sym == m_grammar.startSymbol() ? " + 1" : "", // pop the start state
 					first.poppedTokens(),
-					isStart ? "{}" : makeSymbolName(sym)
+					sym == m_grammar.startSymbol() ? "{}" : makeSymbolName(sym)
 				);
 
-				if(!isStart) {
+				if(sym != m_grammar.startSymbol()) {
 					m_out << indent << makeParseHook(sym) << ";\n";
+					m_out << indent << "m_reducedTokens = 0;\n";
 				}
 				
-				m_out << indent << "return;\n";
+				if(first.poppedStates()) {
+					m_out << indent << "return;\n";
+				} else {
+					m_out << indent << "break;\n";
+				}
 			}
 
 			void emitStateShiftsSrc(const lr::State& state, std::string_view indent) {
@@ -480,7 +477,7 @@ private:
 
 			void emitStateGotosSrc(const lr::State& state, std::string_view indent)  {
 				if(state.anyGotos()) {
-					m_out << indent << "while(--m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
+					m_out << indent << "while(m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
 					
 					for(const auto& trans : state.gotos()) {
 						m_out << indent << std::format("\tcase {}: {}; break;\n",
@@ -490,9 +487,9 @@ private:
 					}
 
 					m_out << indent << "}\n";
-				} else {
-					m_out << indent << "--m_statesToPop;\n";
 				}
+
+				m_out << indent << "--m_statesToPop;\n";
 			}
 
 			void emitParserSrc() {
@@ -516,9 +513,14 @@ public:
 
 
 protected:
-	const TokenList& tokens() const noexcept {
-		return m_tokens;
+	const Token& tokenAt(int i) const noexcept {
+		return m_parsedTokens[m_parsedTokens.size() - m_reducedTokens + i];
 	}
+
+	int tokenCount() const noexcept {
+		return m_reducedTokens;
+	}
+
 )", R"(
 
 private:
@@ -526,12 +528,7 @@ private:
 	void reduce(int states, int tokens, SymbolNames symbol) {
 		m_reducedToSymbol = symbol;
 		m_statesToPop = states;
-
-		m_tokens.clear();
-		for(int i = 0; i < tokens; i++) {
-			m_tokens.emplace_back(std::move(m_parsedTokens.back()));
-			m_parsedTokens.pop_back();
-		}
+		m_reducedTokens += tokens;
 	}
 
 	[[noreturn]] void error() const {
@@ -540,7 +537,8 @@ private:
 
 
 	TokenList m_parsedTokens;
-	TokenList m_tokens;
+	int m_reducedTokens = 0;
+
 	SymbolNames m_reducedToSymbol = {};
 	int m_statesToPop = 0;
 
@@ -598,11 +596,6 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				
 				m_out << src[0];
 				for(const auto sym : m_grammar.tokens()) {
-					// skip anonymously defined terminals
-					if(sym->name().starts_with('<')) {
-						continue;
-					}
-
 					m_out << std::format("\t\tcase {}: out << \"{}\"; break;\n",
 						makeTokenKind(sym),
 						toPascalCase(sym->name())

@@ -13,13 +13,16 @@ namespace parsec::lr {
 		struct Item {
 			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
-				return lhs.atom() == rhs.atom() && lhs.symbols() == rhs.symbols();
+				return lhs.nextAtom() == rhs.nextAtom()
+					&& lhs.pushedStates() == rhs.pushedStates();
 			}
 
 			friend std::size_t hash_value(const Item& item) {
 				std::size_t seed = 0;
-				boost::hash_combine(seed, boost::hash_value(item.atom()));
-				boost::hash_combine(seed, boost::hash_value(item.symbols()));
+
+				boost::hash_combine(seed, boost::hash_value(item.nextAtom()));
+				boost::hash_combine(seed, boost::hash_value(item.pushedStates()));
+				
 				return seed;
 			}
 			/** @} */
@@ -29,19 +32,19 @@ namespace parsec::lr {
 			Item(
 				const fg::Atom* atom,
 				const fg::Symbol* symbol,
-				int symbols = 0,
-				int terminals = 0
+				int states = 0,
+				int tokens = 0
 			) noexcept
 				: m_atom(atom)
 				, m_symbol(symbol)
-				, m_terminals(terminals)
-				, m_symbols(symbols)
+				, m_tokens(tokens)
+				, m_states(states)
 			{ }
 			/** @} */
 
 
 			/** @{ */
-			const fg::Atom* atom() const noexcept {
+			const fg::Atom* nextAtom() const noexcept {
 				return m_atom;
 			}
 
@@ -49,12 +52,12 @@ namespace parsec::lr {
 				return m_symbol;
 			}
 			
-			int terminals() const noexcept {
-				return m_terminals;
+			int consumedTokens() const noexcept {
+				return m_tokens;
 			}
 
-			int symbols() const noexcept {
-				return m_symbols;
+			int pushedStates() const noexcept {
+				return m_states;
 			}
 
 			bool isAtEnd() const noexcept {
@@ -66,8 +69,8 @@ namespace parsec::lr {
 		private:
 			const fg::Atom* m_atom;
 			const fg::Symbol* m_symbol;
-			int m_terminals;
-			int m_symbols;
+			int m_tokens;
+			int m_states;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
@@ -125,8 +128,7 @@ namespace parsec::lr {
 						continue;
 					}
 
-					// skip any undefined, terminal and end symbols
-					const auto sym = m_grammar.symbolByName(item->atom()->value());
+					const auto sym = m_grammar.symbolByName(item->nextAtom()->value());
 					if(!sym || sym->definesToken() || sym == m_grammar.eofToken()) {
 						continue;
 					}
@@ -155,38 +157,39 @@ namespace parsec::lr {
 			}
 
 			void processState(const ItemSet& items, int id) {
-				std::unordered_map<const fg::Symbol*, ItemSet> stateGoto;
+				std::unordered_map<const fg::Symbol*, ItemSet> stateGotos;
+
 				for(const auto& item : computeClosure(items)) {
 					// if we have reached the end of the rule, add a reduce action
 					if(item.isAtEnd()) {
 						m_states[id].addReduce(
 							item.symbol(),
-							item.symbols(),
-							item.terminals()
+							item.pushedStates(),
+							item.consumedTokens()
 						);
 						continue;
 					}
 
 					// otherwise, construct the next state to transition to on the input symbol
-					for(const auto atom : item.atom()->nextAtoms()) {
-						if(const auto sym = m_grammar.symbolByName(item.atom()->value())) {
-							stateGoto[sym].emplace(
+					for(const auto atom : item.nextAtom()->nextAtoms()) {
+						if(const auto sym = m_grammar.symbolByName(item.nextAtom()->value())) {
+							stateGotos[sym].emplace(
 								atom,
 								item.symbol(),
-								item.symbols() + 1,
-								item.terminals() + (sym->definesToken() ? 1 : 0)
+								item.pushedStates() + 1,
+								item.consumedTokens() + (sym->definesToken() ? 1 : 0)
 							);
 						}
 					}
 				}
 
 				// add shift actions for all generated transitions
-				for(auto& [symbol, items] : stateGoto) {
-					const auto newState = createState(std::move(items), symbol);
-					if(symbol->definesToken() || symbol == m_grammar.eofToken()) {
-						m_states[id].addShift(symbol, newState);
+				for(auto& [sym, items] : stateGotos) {
+					const auto newState = createState(std::move(items), sym);
+					if(sym->definesToken() || sym == m_grammar.eofToken()) {
+						m_states[id].addShift(sym, newState);
 					} else {
-						m_states[id].addGoto(symbol, newState);
+						m_states[id].addGoto(sym, newState);
 					}
 				}
 			}
