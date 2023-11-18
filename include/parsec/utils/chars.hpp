@@ -27,6 +27,29 @@ namespace parsec {
 	std::string escapeChar(char ch);
 
 
+	/** @brief Convert a character to uppercase. */
+	inline char toUpper(char ch) {
+		return static_cast<char>(std::toupper(charToInt(ch)));
+	}
+
+
+	/** @brief Convert a character to lowercase. */
+	inline char toLower(char ch) {
+		return static_cast<char>(std::tolower(charToInt(ch)));
+	}
+
+
+	/** @brief Checks whether a character is in lowercase. */
+	inline bool isLower(char ch) noexcept {
+		return std::islower(charToInt(ch));
+	}
+
+
+	/** @brief Checks whether a character is in uppercase. */
+	inline bool isUpper(char ch) noexcept {
+		return std::isupper(charToInt(ch));
+	}
+
 
 	/** @brief Checks if a character is an alphabetic character. */
 	inline bool isAlpha(char ch) noexcept {
