@@ -1,8 +1,7 @@
 #ifndef PARSEC_REGEX_PARSER_HEADER
 #define PARSEC_REGEX_PARSER_HEADER
 
-#include "../fg/Rule.hpp"
-#include "ParseOptions.hpp"
+#include "ExprNode.hpp"
 
 #include <string_view>
 #include <istream>
@@ -11,9 +10,12 @@ namespace parsec::regex {
 	class Parser {
 	public:
 		/** @{ */
-		explicit Parser(ParseOptions options = {}) noexcept
-			: m_options(options)
-		{ }
+		static bool isMetachar(char ch) noexcept;
+		/** @} */
+
+
+		/** @{ */
+		Parser() = default;
 		/** @} */
 
 
@@ -29,13 +31,9 @@ namespace parsec::regex {
 
 
 		/** @{ */
-		fg::RulePtr parse(std::string_view regex);
-		fg::RulePtr parse(std::istream& input);
+		ExprPtr parse(std::string_view regex);
+		ExprPtr parse(std::istream& input);
 		/** @} */
-
-
-	private:
-		ParseOptions m_options;
 	};
 }
 

@@ -74,8 +74,6 @@ set(_HEADERS
 	"regex/regex.hpp"
 	"regex/nodes.hpp"
 	
-	"regex/ParseOptions.hpp"
-	
 	"regex/ExprNode.hpp"
 	"regex/NodeVisitor.hpp"
 	"regex/ExprTraverser.hpp"

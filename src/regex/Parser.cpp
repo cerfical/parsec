@@ -4,10 +4,11 @@
 #include "utils/Error.hpp"
 #include "utils/chars.hpp"
 
-#include "fg/rules.hpp"
+#include "regex/nodes.hpp"
 
 #include <gsl/narrow>
 #include <sstream>
+#include <format>
 
 namespace parsec::regex {
 	namespace {
@@ -17,14 +18,10 @@ namespace parsec::regex {
 				: m_scanner(input)
 			{ }
 			
-			fg::RulePtr operator()(ParseOptions options) {
+			ExprPtr operator()() {
 				// no input, nothing to parse
 				if(m_scanner.isEof()) {
-					return fg::makeRule<fg::NilRule>();
-				}
-
-				if(options == ParseOptions::NoRegexSyntax) {
-					return parseString();
+					return makeExpr<NilExpr>();
 				}
 
 				auto e = parseExpr();
@@ -37,9 +34,9 @@ namespace parsec::regex {
 		private:
 			/** @{ */
 			[[noreturn]] void unexpected() const {
-				throw Error("unexpected '"
-						+ escapeChar(m_scanner.peek())
-						+ '\'',
+				throw Error(std::format("unexpected '{}'",
+						escapeChar(m_scanner.peek())
+					),
 					m_scanner.loc()
 				);
 			}
@@ -49,21 +46,18 @@ namespace parsec::regex {
 			}
 
 			[[noreturn]] void invalidHexSeq() const {
-				throw Error(
-					"expected at least one hexadecimal digit",
+				throw Error("expected at least one hexadecimal digit",
 					m_scanner.loc()
 				);
 			}
 
 			[[noreturn]] void rangeBadOrder(const SourceLoc& loc) const {
-				throw Error(
-					"character range is out of order", {
-						loc.startCol(),
-						m_scanner.pos() - loc.pos(),
-						loc.lineNo(),
-						loc.linePos()
-					}
-				);
+				throw Error("character range is out of order", {
+					loc.startCol(),
+					m_scanner.pos() - loc.pos(),
+					loc.lineNo(),
+					loc.linePos()
+				});
 			}
 			/** @} */
 
@@ -113,34 +107,19 @@ namespace parsec::regex {
 				}
 				return m_scanner.get();
 			}
-			
-			fg::RulePtr parseString() {
-				auto lhs = fg::makeRule<fg::Atom>(parseChar());
-				
-				while(!m_scanner.isEof()) {
-					lhs = fg::makeRule<fg::RuleConcat>(
-						std::move(lhs),
-						fg::makeRule<fg::Atom>(
-							parseChar()
-						)
-					);
-				}
-
-				return lhs;
-			}
 			/** @} */
 
 
 			/** @{ */
-			fg::RulePtr parseCharRange() {
+			ExprPtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
 				const auto rangeLoc = m_scanner.loc();
 				const auto low = parseChar();
 
 				// no char range, just a single character
-				auto r = fg::makeRule<fg::Atom>(low);
+				auto e = makeExpr<CharAtom>(low);
 				if(!m_scanner.skipIf('-')) {
-					return r;
+					return e;
 				}
 
 				// string of the form 'l-h' is a character range
@@ -151,30 +130,30 @@ namespace parsec::regex {
 					}
 
 					for(auto ch = low; ch <= high; ) {
-						r = fg::makeRule<fg::RuleAltern>(
-							std::move(r),
-							fg::makeRule<fg::Atom>(ch++)
+						e = makeExpr<AlternExpr>(
+							std::move(e),
+							makeExpr<CharAtom>(ch++)
 						);
 					}
 				} else {
-					r = fg::makeRule<fg::RuleAltern>(
-						std::move(r),
-						fg::makeRule<fg::Atom>('-')
+					e = makeExpr<AlternExpr>(
+						std::move(e),
+						makeExpr<CharAtom>('-')
 					);
 				}
 
-				return r;
+				return e;
 			}
 			
-			fg::RulePtr parseCharSet() {
+			ExprPtr parseCharSet() {
 				// empty character set
 				if(m_scanner.skipIf(']')) {
-					return fg::makeRule<fg::NilRule>();
+					return makeExpr<NilExpr>();
 				}
 
 				auto lhs = parseCharRange();
 				while(m_scanner.peek() != ']') {
-					lhs = fg::makeRule<fg::RuleAltern>(
+					lhs = makeExpr<AlternExpr>(
 						std::move(lhs),
 						parseCharRange()
 					);
@@ -186,7 +165,7 @@ namespace parsec::regex {
 
 
 			/** @{ */
-			fg::RulePtr parseAtom() {
+			ExprPtr parseAtom() {
 				if(!isAtom()) {
 					unexpected();
 				}
@@ -194,7 +173,7 @@ namespace parsec::regex {
 				if(const auto openParen = m_scanner.loc(); m_scanner.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_scanner.skipIf(')')) {
-						return fg::makeRule<fg::NilRule>();
+						return makeExpr<NilExpr>();
 					}
 
 					auto e = parseExpr();
@@ -208,31 +187,29 @@ namespace parsec::regex {
 					return parseCharSet();
 				}
 
-				return fg::makeRule<fg::Atom>(parseChar());
+				return makeExpr<CharAtom>(parseChar());
 			}
 
-			fg::RulePtr parseRepeat() {
+			ExprPtr parseRepeat() {
 				auto e = parseAtom();
-				
 				while(true) {
 					if(m_scanner.skipIf('*')) {
-						e = fg::makeRule<fg::StarRule>(std::move(e));
+						e = makeExpr<StarExpr>(std::move(e));
 					} else if(m_scanner.skipIf('?')) {
-						e = fg::makeRule<fg::OptionalRule>(std::move(e));
+						e = makeExpr<OptionalExpr>(std::move(e));
 					} else if(m_scanner.skipIf('+')) {
-						e = fg::makeRule<fg::PlusRule>(std::move(e));
+						e = makeExpr<PlusExpr>(std::move(e));
 					} else {
 						break;
 					}
 				}
-
 				return e;
 			}
 
-			fg::RulePtr parseConcat() {
+			ExprPtr parseConcat() {
 				auto lhs = parseRepeat();
 				while(isAtom()) {
-					lhs = fg::makeRule<fg::RuleConcat>(
+					lhs = makeExpr<ConcatExpr>(
 						std::move(lhs),
 						parseRepeat()
 					);
@@ -240,10 +217,10 @@ namespace parsec::regex {
 				return lhs;
 			}
 
-			fg::RulePtr parseAltern() {
+			ExprPtr parseAltern() {
 				auto lhs = parseConcat();
 				while(m_scanner.skipIf('|')) {
-					lhs = fg::makeRule<fg::RuleAltern>(
+					lhs = makeExpr<AlternExpr>(
 						std::move(lhs),
 						parseConcat()
 					);
@@ -251,7 +228,7 @@ namespace parsec::regex {
 				return lhs;
 			}
 			
-			fg::RulePtr parseExpr() {
+			ExprPtr parseExpr() {
 				return parseAltern();
 			}
 			/** @} */
@@ -262,12 +239,25 @@ namespace parsec::regex {
 	}
 
 
-	fg::RulePtr Parser::parse(std::string_view regex) {
+	bool Parser::isMetachar(char ch) noexcept {
+		switch(ch) {
+			case '|':
+			case '*': case '?': case '+':
+			case '(': case ')':
+			case '[': case ']':
+				return true;
+			default:
+				return false;
+		}
+	}
+
+
+	ExprPtr Parser::parse(std::string_view regex) {
 		auto input = std::istringstream(std::string(regex));
 		return parse(input);
 	}
 
-	fg::RulePtr Parser::parse(std::istream& input) {
-		return ParseImpl(input)(m_options);
+	ExprPtr Parser::parse(std::istream& input) {
+		return ParseImpl(input)();
 	}
 }

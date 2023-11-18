@@ -4,7 +4,6 @@
 #include "fg/RuleTraverser.hpp"
 #include "fg/rules.hpp"
 
-#include "regex/Parser.hpp"
 #include "utils/Error.hpp"
 
 #include <unordered_map>
@@ -99,32 +98,7 @@ namespace parsec::fg {
 
 			/** @{ */
 			RulePtr parseRegex() {
-				const auto& pattern = m_lexer.peek();
-				try {
-					auto parser = regex::Parser();
-					switch(pattern.kind()) {
-						case TokenKinds::StringLiteral: {
-							parser = regex::Parser(regex::ParseOptions::NoRegexSyntax);
-							break;
-						}
-						case TokenKinds::RegularExpr: break;
-						default: {
-							unexpectedToken();
-						}
-					}
-
-					auto e = parser.parse(pattern.text());
-					m_lexer.skip();
-					return e;
-				} catch(const Error& e) {
-					// adjust the error location to take into account regex position
-					throw Error(e.what(), {
-						pattern.loc().startCol() + e.loc().startCol() + 1,
-						e.loc().colCount(),
-						pattern.loc().lineNo(),
-						pattern.loc().linePos()
-					});
-				}
+				return nullptr;
 			}
 			
 			RulePtr parseUnnamedToken() {
