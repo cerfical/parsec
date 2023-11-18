@@ -1,7 +1,7 @@
 #ifndef PARSEC_LEXER_HEADER
 #define PARSEC_LEXER_HEADER
 
-#include "utils/TextScanner.hpp"
+#include "TextScanner.hpp"
 #include "Token.hpp"
 
 #include <optional>

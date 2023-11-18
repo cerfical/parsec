@@ -1,4 +1,4 @@
-#include "utils/SourceLoc.hpp"
+#include "SourceLoc.hpp"
 
 namespace parsec {
 	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {

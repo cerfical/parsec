@@ -1,5 +1,5 @@
-#include "utils/TextScanner.hpp"
-#include "utils/Error.hpp"
+#include "TextScanner.hpp"
+#include "Error.hpp"
 
 #include <gsl/narrow>
 

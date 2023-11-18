@@ -1,7 +1,7 @@
 #ifndef PARSEC_TOKEN_HEADER
 #define PARSEC_TOKEN_HEADER
 
-#include "utils/SourceLoc.hpp"
+#include "SourceLoc.hpp"
 #include "TokenKinds.hpp"
 
 #include <string>

@@ -1,10 +1,10 @@
 #include "regex/Parser.hpp"
+#include "regex/nodes.hpp"
 
-#include "utils/TextScanner.hpp"
-#include "utils/Error.hpp"
 #include "utils/chars.hpp"
 
-#include "regex/nodes.hpp"
+#include "TextScanner.hpp"
+#include "Error.hpp"
 
 #include <gsl/narrow>
 #include <sstream>

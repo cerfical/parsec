@@ -1,11 +1,10 @@
 #include "Parser.hpp"
 #include "Lexer.hpp"
+#include "Error.hpp"
 
 #include "regex/Parser.hpp"
 #include "regex/NodeVisitor.hpp"
 #include "regex/nodes.hpp"
-
-#include "utils/Error.hpp"
 
 #include <sstream>
 #include <unordered_map>

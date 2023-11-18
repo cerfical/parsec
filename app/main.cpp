@@ -1,4 +1,6 @@
 #include <boost/algorithm/string/trim.hpp>
+
+#include <parsec/cli/ConsoleApp.hpp>
 #include <parsec/parsec.hpp>
 
 #include <filesystem>
@@ -73,7 +75,7 @@ private:
 			throw std::runtime_error("failed to create the output file");
 		}
 
-		parsec::gen::CppSrcGen(m_output)
+		parsec::CppSrcGen(m_output)
 			.run(grammar);
 	}
 

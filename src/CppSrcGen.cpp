@@ -1,4 +1,4 @@
-#include "gen/CppSrcGen.hpp"
+#include "CppSrcGen.hpp"
 
 #include "utils/chars.hpp"
 #include "dfa/StateGen.hpp"
@@ -7,7 +7,7 @@
 #include <ranges>
 #include <format>
 
-namespace parsec::gen {
+namespace parsec {
 	namespace {
 		class RunImpl {
 		public:

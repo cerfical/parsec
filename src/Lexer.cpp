@@ -1,7 +1,8 @@
 #include "Lexer.hpp"
+#include "Error.hpp"
 
-#include "utils/Error.hpp"
 #include "regex/Parser.hpp"
+
 #include "utils/strings.hpp"
 #include "utils/chars.hpp"
 

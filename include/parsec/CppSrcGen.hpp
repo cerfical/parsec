@@ -1,10 +1,10 @@
 #ifndef PARSEC_CPP_SRC_GEN_HEADER
 #define PARSEC_CPP_SRC_GEN_HEADER
 
-#include "../Grammar.hpp"
+#include "Grammar.hpp"
 #include <iostream>
 
-namespace parsec::gen {
+namespace parsec {
 	class CppSrcGen {
 	public:
 		/** @{ */

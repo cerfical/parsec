@@ -7,12 +7,15 @@ add_library(parsec-lib STATIC
 	"Pattern.cpp"
 	"Grammar.cpp"
 	
-	
+	"TextScanner.cpp"
+	"SourceLoc.cpp"
+
 	"TokenKinds.cpp"
 	"Token.cpp"
 	"Lexer.cpp"
-	
+
 	"Parser.cpp"
+	"CppSrcGen.cpp"
 
 
 	"regex/ExprNode.cpp"
@@ -33,22 +36,13 @@ add_library(parsec-lib STATIC
 
 	
 	"lr/StateGen.cpp"
-
-
 	"dfa/StateGen.cpp"
 
-
-	"utils/TextScanner.cpp"
-	"utils/SourceLoc.cpp"
 	"utils/strings.cpp"
 	"utils/chars.cpp"
 
-
 	"cli/ConsoleApp.cpp"
 	"cli/OptionBuilder.cpp"
-
-
-	"gen/CppSrcGen.cpp"
 )
 
 
@@ -57,20 +51,24 @@ set(_HEADERS
 	"parsec.hpp"
 
 
-	"Symbol.hpp"
 	"Rule.hpp"
+	"Symbol.hpp"
 	"Pattern.hpp"
 	"CharAtom.hpp"
 	"Grammar.hpp"
+
+	"TextScanner.hpp"
+	"SourceLoc.hpp"
+	"Error.hpp"
 
 	"TokenKinds.hpp"
 	"Token.hpp"
 	"Lexer.hpp"
 	
 	"Parser.hpp"
+	"CppSrcGen.hpp"
 
 
-	"regex/regex.hpp"
 	"regex/nodes.hpp"
 	
 	"regex/ExprNode.hpp"
@@ -93,37 +91,20 @@ set(_HEADERS
 	"regex/Parser.hpp"
 
 
-	"lr/lr.hpp"
-
 	"lr/StateGoto.hpp"
 	"lr/StateShift.hpp"
 	"lr/StateReduce.hpp"
 	"lr/State.hpp"
 	"lr/StateGen.hpp"
-
 	
-	"dfa/dfa.hpp"
-
 	"dfa/Transition.hpp"
 	"dfa/State.hpp"
 	"dfa/StateGen.hpp"
 
-
-	"utils/utils.hpp"
 	"utils/strings.hpp"
 	"utils/chars.hpp"
 
-	"utils/TextScanner.hpp"
-	"utils/SourceLoc.hpp"
-	"utils/Error.hpp"
-
-
-	"cli/cli.hpp"
 	"cli/ConsoleApp.hpp"
-
-
-	"gen/gen.hpp"
-	"gen/CppSrcGen.hpp"
 )
 
 list(TRANSFORM _HEADERS PREPEND "../include/parsec/")
