@@ -15,7 +15,7 @@ namespace parsec {
 	public:
 		/** @{ */
 		/** @brief Construct a new scanner that operates on a specified @c std::istream. */
-		explicit TextScanner(std::istream& input = std::cin) noexcept
+		TextScanner(std::istream& input = std::cin) noexcept
 			: m_input(&input) {
 			m_input->exceptions(
 				std::ios::badbit | std::ios::failbit
