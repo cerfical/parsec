@@ -32,31 +32,6 @@ add_library(parsec-lib STATIC
 	"regex/Parser.cpp"
 
 	
-	"fg/Symbol.cpp"
-	"fg/SymbolTypes.cpp"
-	"fg/Grammar.cpp"
-
-	"fg/Token.cpp"
-	"fg/TokenKinds.cpp"
-	"fg/Lexer.cpp"
-	
-	"fg/Parser.cpp"
-
-	"fg/Rule.cpp"
-	"fg/RuleTraverser.cpp"
-	"fg/RulePrinter.cpp"
-
-	"fg/Atom.cpp"
-	"fg/NilRule.cpp"
-
-	"fg/RuleConcat.cpp"
-	"fg/RuleAltern.cpp"
-
-	"fg/PlusRule.cpp"
-	"fg/StarRule.cpp"
-	"fg/OptionalRule.cpp"
-
-
 	"lr/StateGen.cpp"
 
 
@@ -117,35 +92,6 @@ set(_HEADERS
 
 	"regex/Parser.hpp"
 
-
-	"fg/fg.hpp"
-	"fg/rules.hpp"
-	"fg/Symbol.hpp"
-	"fg/SymbolTypes.hpp"
-	"fg/Grammar.hpp"
-	
-	"fg/Token.hpp"
-	"fg/TokenKinds.hpp"
-	"fg/Lexer.hpp"
-	"fg/Parser.hpp"
-
-	"fg/Rule.hpp"
-	"fg/RuleVisitor.hpp"
-	"fg/RuleTraverser.hpp"
-	"fg/RulePrinter.hpp"
-
-	"fg/Atom.hpp"
-	"fg/NilRule.hpp"
-	
-	"fg/BinaryRule.hpp"
-	"fg/RuleConcat.hpp"
-	"fg/RuleAltern.hpp"
-	
-	"fg/UnaryRule.hpp"
-	"fg/PlusRule.hpp"
-	"fg/StarRule.hpp"
-	"fg/OptionalRule.hpp"
-	
 
 	"lr/lr.hpp"
 
