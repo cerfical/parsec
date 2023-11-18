@@ -4,6 +4,20 @@ configure_file("config.hpp.in" "config.hpp")
 
 # Define the library from the source files
 add_library(parsec-lib STATIC
+	"regex/ExprNode.cpp"
+	"regex/ExprTraverser.cpp"
+	"regex/ExprPrinter.cpp"
+
+	"regex/CharAtom.cpp"
+	"regex/NilExpr.cpp"
+
+	"regex/AlternExpr.cpp"
+	"regex/ConcatExpr.cpp"
+
+	"regex/PlusExpr.cpp"
+	"regex/OptionalExpr.cpp"
+	"regex/StarExpr.cpp"
+
 	"regex/Parser.cpp"
 
 	
@@ -58,7 +72,27 @@ set(_HEADERS
 
 
 	"regex/regex.hpp"
+	"regex/nodes.hpp"
+	
 	"regex/ParseOptions.hpp"
+	
+	"regex/ExprNode.hpp"
+	"regex/NodeVisitor.hpp"
+	"regex/ExprTraverser.hpp"
+	"regex/ExprPrinter.hpp"
+
+	"regex/CharAtom.hpp"
+	"regex/NilExpr.hpp"
+
+	"regex/BinaryExpr.hpp"
+	"regex/AlternExpr.hpp"
+	"regex/ConcatExpr.hpp"
+
+	"regex/UnaryExpr.hpp"
+	"regex/PlusExpr.hpp"
+	"regex/OptionalExpr.hpp"
+	"regex/StarExpr.hpp"
+
 	"regex/Parser.hpp"
 
 
