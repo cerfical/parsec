@@ -1,6 +1,6 @@
 #include "CppSrcGen.hpp"
 
-#include "utils/chars.hpp"
+#include "utils/Chars.hpp"
 #include "dfa/StateGen.hpp"
 #include "lr/StateGen.hpp"
 
@@ -370,7 +370,7 @@ private:
 						m_out << "\n\t\tif(!isInputEnd()) switch(peekChar()) {\n";
 						for(const auto t : s.transitions()) {
 							m_out << std::format("\t\t\tcase '{}': goto {};\n",
-								escapeChar(t->inputChar()),
+								Chars::escapeChar(t->inputChar()),
 								makeStateLabel(t->newState())
 							);
 						}

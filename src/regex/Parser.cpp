@@ -1,7 +1,7 @@
 #include "regex/Parser.hpp"
 #include "regex/nodes.hpp"
 
-#include "utils/chars.hpp"
+#include "utils/Chars.hpp"
 
 #include "TextScanner.hpp"
 #include "Error.hpp"
@@ -35,7 +35,7 @@ namespace parsec::regex {
 			/** @{ */
 			[[noreturn]] void unexpected() const {
 				throw Error(std::format("unexpected '{}'",
-						escapeChar(m_scanner.peek())
+						Chars::escapeChar(m_scanner.peek())
 					),
 					m_scanner.loc()
 				);
@@ -88,10 +88,10 @@ namespace parsec::regex {
 					case 'v': { m_scanner.skip(); return '\v'; }
 					case 'x': {
 						m_scanner.skip();
-						if(isHexDigit(m_scanner.peek())) {
-							auto ch = evalHexDigit(m_scanner.get());
-							if(!m_scanner.isEof() && isHexDigit(m_scanner.peek())) {
-								ch = ch * 16 + evalHexDigit(m_scanner.get());
+						if(Chars::isHexDigit(m_scanner.peek())) {
+							auto ch = Chars::evalHexDigit(m_scanner.get());
+							if(!m_scanner.isEof() && Chars::isHexDigit(m_scanner.peek())) {
+								ch = ch * 16 + Chars::evalHexDigit(m_scanner.get());
 							}
 							return gsl::narrow_cast<char>(ch);
 						}

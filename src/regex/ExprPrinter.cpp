@@ -1,11 +1,11 @@
 #include "regex/ExprPrinter.hpp"
 #include "regex/nodes.hpp"
 
-#include "utils/chars.hpp"
+#include "utils/Chars.hpp"
 
 namespace parsec::regex {
 	void ExprPrinter::visit(const CharAtom& n) {
-		*m_out << escapeChar(n.value());
+		*m_out << Chars::escapeChar(n.value());
 	}
 
 	void ExprPrinter::visit(const NilExpr&) {

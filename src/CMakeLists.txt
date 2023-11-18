@@ -38,8 +38,8 @@ add_library(parsec-lib STATIC
 	"lr/StateGen.cpp"
 	"dfa/StateGen.cpp"
 
-	"utils/strings.cpp"
-	"utils/chars.cpp"
+	"utils/Strings.cpp"
+	"utils/Chars.cpp"
 
 	"cli/ConsoleApp.cpp"
 	"cli/OptionBuilder.cpp"
@@ -101,8 +101,8 @@ set(_HEADERS
 	"dfa/State.hpp"
 	"dfa/StateGen.hpp"
 
-	"utils/strings.hpp"
-	"utils/chars.hpp"
+	"utils/Strings.hpp"
+	"utils/Chars.hpp"
 
 	"cli/ConsoleApp.hpp"
 )

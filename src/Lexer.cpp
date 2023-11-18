@@ -3,8 +3,8 @@
 
 #include "regex/Parser.hpp"
 
-#include "utils/strings.hpp"
-#include "utils/chars.hpp"
+#include "utils/Strings.hpp"
+#include "utils/Chars.hpp"
 
 #include <format>
 
@@ -29,7 +29,7 @@ namespace parsec {
 
 	void Lexer::unexpectedChar() const {
 		throw Error(std::format("unexpected '{}'",
-				escapeChar(m_scanner.peek())
+				Chars::escapeChar(m_scanner.peek())
 			),
 			m_scanner.loc()
 		);
@@ -52,7 +52,7 @@ namespace parsec {
 	bool Lexer::isIdentStart() const {
 		// identifiers must start with a letter
 		return !m_scanner.isEof()
-			&& (isAlpha(m_scanner.peek()));
+			&& (Chars::isAlpha(m_scanner.peek()));
 	}
 
 	bool Lexer::isWordStart() const {
@@ -64,13 +64,13 @@ namespace parsec {
 		const auto ch1 = m_scanner.peek(1);
 		
 		// words inside the identifier are defined by either the presence of some delimeter
-		if((ch == '-' || ch == '_') && isAlnum(ch1)) {
+		if((ch == '-' || ch == '_') && Chars::isAlnum(ch1)) {
 			m_scanner.skip();
 			return true;
 		}
 
 		// or a letter
-		if(isAlpha(ch)) {
+		if(Chars::isAlpha(ch)) {
 			return true;
 		}
 
@@ -85,7 +85,7 @@ namespace parsec {
 				break;
 			}
 
-			if(isSpace(m_scanner.peek())) { // space characters
+			if(Chars::isSpace(m_scanner.peek())) { // space characters
 				m_scanner.skip();
 			} else if(m_scanner.skipIf("//")) { // single-line comments
 				while(!m_scanner.isEof() && m_scanner.get() != '\n') {
@@ -109,7 +109,7 @@ namespace parsec {
 			// read uppercase part of a word
 			while(!m_scanner.isEof()) {
 				const auto ch = m_scanner.peek();
-				if(!isUpper(ch) && !isDigit(ch)) {
+				if(!Chars::isUpper(ch) && !Chars::isDigit(ch)) {
 					break;
 				}
 				upper += m_scanner.get();
@@ -118,7 +118,7 @@ namespace parsec {
 			// read lowercase part of a word
 			while(!m_scanner.isEof()) {
 				const auto ch = m_scanner.peek();
-				if(!isLower(ch) && !isDigit(ch)) {
+				if(!Chars::isLower(ch) && !Chars::isDigit(ch)) {
 					break;
 				}
 				lower += m_scanner.get();

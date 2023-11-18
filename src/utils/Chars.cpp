@@ -1,8 +1,8 @@
-#include "utils/chars.hpp"
+#include "utils/Chars.hpp"
 #include <format>
 
 namespace parsec {
-	std::string escapeChar(char ch) {
+	std::string Chars::escapeChar(char ch) {
 		// printable characters are printed (???)
 		if(isPrint(ch)) {
 			switch(ch) {
