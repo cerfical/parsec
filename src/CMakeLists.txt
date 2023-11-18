@@ -4,6 +4,17 @@ configure_file("config.hpp.in" "config.hpp")
 
 # Define the library from the source files
 add_library(parsec-lib STATIC
+	"Pattern.cpp"
+	"Grammar.cpp"
+	
+	
+	"TokenKinds.cpp"
+	"Token.cpp"
+	"Lexer.cpp"
+	
+	"Parser.cpp"
+
+
 	"regex/ExprNode.cpp"
 	"regex/ExprTraverser.cpp"
 	"regex/ExprPrinter.cpp"
@@ -69,6 +80,19 @@ add_library(parsec-lib STATIC
 # List header files for the library
 set(_HEADERS
 	"parsec.hpp"
+
+
+	"Symbol.hpp"
+	"Rule.hpp"
+	"Pattern.hpp"
+	"CharAtom.hpp"
+	"Grammar.hpp"
+
+	"TokenKinds.hpp"
+	"Token.hpp"
+	"Lexer.hpp"
+	
+	"Parser.hpp"
 
 
 	"regex/regex.hpp"
