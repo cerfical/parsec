@@ -34,10 +34,13 @@ namespace parsec::regex {
 		private:
 			/** @{ */
 			[[noreturn]] void unexpected() const {
+				if(m_scanner.peek() == ')') {
+					unmatchedParen(m_scanner.loc());
+				}
+
 				throw Error(std::format("unexpected '{}'",
 						Chars::escapeChar(m_scanner.peek())
-					),
-					m_scanner.loc()
+					), m_scanner.loc()
 				);
 			}
 			

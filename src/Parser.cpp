@@ -285,18 +285,15 @@ namespace parsec {
 		private:
 			/** @{ */
 			[[noreturn]] void unexpectedToken() const {
-				throw Error(
-					std::format("unexpected \"{}\"",
-						m_lexer.peek().text()
-					),
-					m_lexer.peek().loc()
+				const auto& tok = m_lexer.peek();
+				throw Error(std::format("unexpected \"{}\"",
+						tok.text()
+					), tok.loc()
 				);
 			}
 
 			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
-				throw Error("unmatched parenthesis",
-					loc
-				);
+				throw Error("unmatched parenthesis", loc);
 			}
 			/** @} */
 
@@ -436,6 +433,9 @@ namespace parsec {
 					}
 					case TokenKinds::Pattern: {
 						return parseUnnamedPattern();
+					}
+					case TokenKinds::CloseParen: {
+						unmatchedParen(m_lexer.peek().loc());
 					}
 					default: {
 						unexpectedToken();
