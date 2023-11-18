@@ -86,9 +86,11 @@ private:
 
 		// read the line of text represented by the location
 		std::string line;
-		std::getline(m_input, line);
-		m_input.seekg(inputPos);
-		
+		if(m_input.peek() != -1) {
+			std::getline(m_input, line);
+			m_input.seekg(inputPos);
+		}
+
 
 		// get rid of trailing and leading whitespace and move the location marker properly
 		const auto lineSize = line.size();
