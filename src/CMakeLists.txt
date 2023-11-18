@@ -40,6 +40,7 @@ add_library(parsec-lib STATIC
 
 	"utils/TextScanner.cpp"
 	"utils/SourceLoc.cpp"
+	"utils/strings.cpp"
 	"utils/chars.cpp"
 
 
@@ -108,6 +109,7 @@ set(_HEADERS
 
 
 	"utils/utils.hpp"
+	"utils/strings.hpp"
 	"utils/chars.hpp"
 
 	"utils/TextScanner.hpp"
