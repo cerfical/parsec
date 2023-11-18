@@ -63,7 +63,7 @@ private:
 			throw std::runtime_error("could not open the input file");
 		}
 
-		const auto grammar = parsec::fg::Parser().parse(m_input);
+		const auto grammar = parsec::Parser().parse(m_input);
 		
 		
 		// ensure that the specified output file is open and write it

@@ -1,7 +1,7 @@
 #ifndef PARSEC_CPP_SRC_GEN_HEADER
 #define PARSEC_CPP_SRC_GEN_HEADER
 
-#include "../fg/Grammar.hpp"
+#include "../Grammar.hpp"
 #include <iostream>
 
 namespace parsec::gen {
@@ -26,7 +26,7 @@ namespace parsec::gen {
 
 
 		/** @{ */
-		void run(const fg::Grammar& grammar);
+		void run(const Grammar& grammar);
 		/** @} */
 
 

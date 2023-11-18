@@ -1,15 +1,14 @@
 #ifndef PARSEC_LR_STATE_GOTO_HEADER
 #define PARSEC_LR_STATE_GOTO_HEADER
 
-#include "../fg/Symbol.hpp"
-#include <vector>
+#include "../Symbol.hpp"
 
 namespace parsec::lr {
 	class StateGoto {
 	public:
 		/** @{ */
-		StateGoto(const fg::Symbol* symbol, int state) noexcept
-			: m_symbol(symbol), m_state(state)
+		StateGoto(const Symbol* inputSymbol, int newState) noexcept
+			: m_inputSymbol(inputSymbol), m_newState(newState)
 		{ }
 		/** @} */
 
@@ -21,22 +20,20 @@ namespace parsec::lr {
 
 
 		/** @{ */
-		const fg::Symbol* inputSymbol() const noexcept {
-			return m_symbol;
+		const Symbol* inputSymbol() const noexcept {
+			return m_inputSymbol;
 		}
 
 		int newState() const noexcept {
-			return m_state;
+			return m_newState;
 		}
 		/** @} */
 
 
 	private:
-		const fg::Symbol* m_symbol;
-		int m_state;
+		const Symbol* m_inputSymbol;
+		int m_newState;
 	};
-
-	using GotoList = std::vector<StateGoto>;
 }
 
 #endif

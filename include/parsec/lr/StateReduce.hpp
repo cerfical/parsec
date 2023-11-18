@@ -1,15 +1,20 @@
 #ifndef PARSEC_LR_STATE_REDUCE_HEADER
 #define PARSEC_LR_STATE_REDUCE_HEADER
 
-#include "../fg/Symbol.hpp"
-#include <vector>
+#include "../Symbol.hpp"
 
 namespace parsec::lr {
 	class StateReduce {
 	public:
 		/** @{ */
-		StateReduce(const fg::Symbol* symbol, int states, int tokens) noexcept
-			: m_symbol(symbol), m_states(states), m_tokens(tokens)
+		StateReduce(
+			const Symbol* newSymbol,
+			int reducedStates,
+			int consumedTokens
+		) noexcept
+			: m_newSymbol(newSymbol)
+			, m_reducedStates(reducedStates)
+			, m_consumedTokens(consumedTokens)
 		{ }
 		/** @} */
 
@@ -21,27 +26,25 @@ namespace parsec::lr {
 
 
 		/** @{ */
-		const fg::Symbol* newSymbol() const noexcept {
-			return m_symbol;
+		const Symbol* newSymbol() const noexcept {
+			return m_newSymbol;
 		}
 
-		int poppedTokens() const noexcept {
-			return m_tokens;
+		int consumedTokens() const noexcept {
+			return m_consumedTokens;
 		}
 
-		int poppedStates() const noexcept {
-			return m_states;
+		int reducedStates() const noexcept {
+			return m_reducedStates;
 		}
 		/** @} */
 
 
 	private:
-		const fg::Symbol* m_symbol;
-		int m_states;
-		int m_tokens;
+		const Symbol* m_newSymbol;
+		int m_reducedStates;
+		int m_consumedTokens;
 	};
-
-	using ReduceList = std::vector<StateReduce>;
 }
 
 #endif

@@ -4,14 +4,14 @@
 #include "dfa/StateGen.hpp"
 #include "lr/StateGen.hpp"
 
-#include <boost/tokenizer.hpp>
+#include <ranges>
 #include <format>
 
 namespace parsec::gen {
 	namespace {
 		class RunImpl {
 		public:
-			RunImpl(std::ostream& out, const fg::Grammar& grammar) noexcept
+			RunImpl(std::ostream& out, const Grammar& grammar) noexcept
 				: m_grammar(grammar), m_out(out)
 			{ }
 
@@ -39,36 +39,16 @@ namespace parsec::gen {
 
 		private:
 			/** @{ */
-			static std::string capitalized(const std::string& str) {
-				auto t = str;
-				if(!str.empty()) {
-					t.front() = std::toupper(t.front());
-				}
-				return t;
+			static std::string makeTokenKind(const Symbol* sym) {
+				return "TokenKinds::" + sym->name();
 			}
 
-			static std::string toPascalCase(const std::string& str) {
-				const static boost::char_separator<char> delims(" \f\n\r\t\v-_");
-				const auto toks = boost::tokenizer(str, delims);
-
-				// capitalize each word in the string
-				std::string id;
-				for(const auto& tok : toks) {
-					id += capitalized(tok);
-				}
-				return id;
+			static std::string makeSymbolName(const Symbol* sym) {
+				return "SymbolNames::" + sym->name();
 			}
 
-			static std::string makeTokenKind(const fg::Symbol* sym) {
-				return "TokenKinds::" + toPascalCase(sym->name());
-			}
-
-			static std::string makeSymbolName(const fg::Symbol* sym) {
-				return "SymbolNames::" + toPascalCase(sym->name());
-			}
-
-			static std::string makeParseHook(const fg::Symbol* sym) {
-				return "on" + toPascalCase(sym->name()) + "()";
+			static std::string makeParseHook(const Symbol* sym) {
+				return "on" + sym->name() + "()";
 			}
 		
 			static std::string makeStateLabel(int state) {
@@ -82,6 +62,26 @@ namespace parsec::gen {
 
 
 			/** @{ */
+			void emitEnumSrc(auto&& values, std::string_view name, std::string_view indent) {
+				m_out << std::format("{}enum class {} {{", indent, name);
+
+				bool firstValue = true;
+				for(const auto& value : values) {
+					if(!std::exchange(firstValue, false)) {
+						m_out << ',';
+					}
+					m_out << std::format("\n\t{}{}", indent, value);
+				}
+
+				if(!firstValue) {
+					m_out << '\n' << indent;
+				} else {
+					m_out << ' ';
+				}
+				m_out << "};\n";
+			}
+
+
 			void emitLocationSrc() {
 				constexpr static std::string_view src = {
 R"(class SourceLoc {
@@ -165,16 +165,10 @@ private:
 
 
 			void emitTokenKindsSrc() {
-				m_out << "enum class TokenKinds {\n";
-				m_out << "\tEof";
-
-				for(const auto sym : m_grammar.tokens()) {
-					m_out << std::format(",\n\t{}",
-						toPascalCase(sym->name())
-					);
-				}
-
-				m_out << "\n};\n";
+				emitEnumSrc(m_grammar.tokenSymbols() | std::views::transform(
+					[](auto sym) { return sym->name(); }
+					), "TokenKinds", ""
+				);
 			}
 
 			void emitTokenSrc() {
@@ -334,6 +328,9 @@ private:
 		}
 )", R"(
 	accept:
+		if(kind == TokenKinds::Ws) {
+			goto reset;
+		}
 		return Token(m_buf, kind, makeLoc(startPos));
 
 	error:
@@ -366,28 +363,25 @@ private:
 					m_out << std::format("\n\t{}:\n", makeStateLabel(s.id()));
 					m_out << "\t\tnextChar();\n";
 					if(s.isStart()) {
-						m_out << "\tstart:\n";
+						m_out << "\tstart:";
 					}
 
-					if(!s.transitions().empty()) {
-						m_out << "\t\tif(!isInputEnd()) switch(peekChar()) {\n";
-						for(const auto& t : s.transitions()) {
+					if(s.transitions()) {
+						m_out << "\n\t\tif(!isInputEnd()) switch(peekChar()) {\n";
+						for(const auto t : s.transitions()) {
 							m_out << std::format("\t\t\tcase '{}': goto {};\n",
-								escapeChar(t.label()),
-								makeStateLabel(t.state())
+								escapeChar(t->inputChar()),
+								makeStateLabel(t->newState())
 							);
 						}
 						m_out << "\t\t}\n";
 					}
 
+					m_out << '\n';
 					if(s.isAccepting()) {
-						const auto matchedSym = s.matches().front().symbol();
-						if(matchedSym != m_grammar.wsToken()) {
-							m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
-							m_out << "\t\tgoto accept;\n";
-						} else {
-							m_out << "\t\tgoto reset;\n";
-						}
+						const auto matchedSym = s.matches().front()->head();
+						m_out << std::format("\t\tkind = {};\n", makeTokenKind(matchedSym));
+						m_out << "\t\tgoto accept;\n";
 					} else {
 						m_out << "\t\tgoto error;\n";
 					}
@@ -400,61 +394,52 @@ private:
 
 			/** @{ */
 			void emitSymbolNamesSrc(std::string_view indent) {
-				m_out << indent << "enum class SymbolNames {";
-
-				bool firstNonterm = true;
-				for(const auto sym : m_grammar.rules()) {
-					if(!std::exchange(firstNonterm, false)) {
-						m_out << ',';
-					}
-					m_out << "\n\t" << indent << toPascalCase(sym->name());
-				}
-
-				if(!firstNonterm) {
-					m_out << '\n' << indent;
-				} else {
-					m_out << ' ';
-				}
-
-				m_out << "};\n";
+				emitEnumSrc(m_grammar.ruleSymbols() | std::views::transform(
+					[](auto sym) { return sym->name(); }
+					), "SymbolNames", indent
+				);
 			}
 
 			void emitParseHooksSrc(std::string_view indent) {
-				if(m_grammar.anyRules()) {
+				if(m_grammar.rules()) {
 					m_out << '\n';
 			
-					for(const auto sym : m_grammar.rules()) {
-						m_out << indent << "virtual void " << makeParseHook(sym) << " { }\n";
+					for(const auto symbol : m_grammar.ruleSymbols()) {
+						// skip generated symbols
+						if(symbol->name().ends_with('_')) {
+							continue;
+						}
+
+						m_out << indent << "virtual void " << makeParseHook(symbol) << " { }\n";
 					}
 				}
 			}
 
-			void emitStateReducesSrc(const lr::ReduceList& reduces, std::string_view indent) {
+			void emitStateReducesSrc(const auto& reduces, std::string_view indent) {
 				if(reduces.empty()) {
 					m_out << indent << "error();\n";
 					return;
 				}
 
 				// take the first available reduce action, ignore the rest, if any
-				const auto& first = reduces.front();
-				const auto sym = first.newSymbol();
-				const auto isStart = sym == m_grammar.startSymbol();
+				const auto first = reduces.front();
+				const auto symbol = first->newSymbol();
 				
-				const auto statesToPop = first.poppedStates() != 0 ? first.poppedStates() - 1 : 0;
+				const auto statesToPop = first->reducedStates() != 0 ? first->reducedStates() - 1 : 0;
 
 				m_out << indent << std::format("reduce({}{}, {}, {});\n",
 					statesToPop,
-					sym == m_grammar.startSymbol() ? " + 1" : "", // pop the start state
-					first.poppedTokens(),
-					sym == m_grammar.startSymbol() ? "{}" : makeSymbolName(sym)
+					symbol == m_grammar.root() ? " + 1" : "", // pop the start state
+					first->consumedTokens(),
+					makeSymbolName(symbol)
 				);
 
-				if(sym != m_grammar.startSymbol()) {
-					m_out << indent << makeParseHook(sym) << ";\n";
+				if(!symbol->name().ends_with('_')) {
+					m_out << indent << makeParseHook(symbol) << ";\n";
 					m_out << indent << "m_reducedTokens = 0;\n";
 				}
 				
-				if(first.poppedStates()) {
+				if(first->reducedStates()) {
 					m_out << indent << "return;\n";
 				} else {
 					m_out << indent << "break;\n";
@@ -464,9 +449,9 @@ private:
 			void emitStateShiftsSrc(const lr::State& state, std::string_view indent) {
 				m_out << indent << "switch(m_lexer.peek().kind()) {\n";
 				
-				for(const auto& trans : state.shifts()) {
-					m_out << indent<< "\tcase " << makeTokenKind(trans.inputSymbol());
-					m_out << ": " << makeStateFunc(trans.newState()) << "; break;\n";
+				for(const auto trans : state.shifts()) {
+					m_out << indent<< "\tcase " << makeTokenKind(trans->inputSymbol());
+					m_out << ": " << makeStateFunc(trans->newState()) << "; break;\n";
 				}
 
 				m_out << indent << "\tdefault: {\n";
@@ -476,13 +461,13 @@ private:
 			}
 
 			void emitStateGotosSrc(const lr::State& state, std::string_view indent)  {
-				if(state.anyGotos()) {
+				if(state.gotos()) {
 					m_out << indent << "while(m_statesToPop == 0) switch(m_reducedToSymbol) {\n";
 					
 					for(const auto& trans : state.gotos()) {
 						m_out << indent << std::format("\tcase {}: {}; break;\n",
-							makeSymbolName(trans.inputSymbol()),
-							makeStateFunc(trans.newState())
+							makeSymbolName(trans->inputSymbol()),
+							makeStateFunc(trans->newState())
 						);
 					}
 
@@ -512,7 +497,7 @@ public:
 	}
 
 
-protected:
+protected:)", R"(
 	const Token& tokenAt(int i) const noexcept {
 		return m_parsedTokens[m_parsedTokens.size() - m_reducedTokens + i];
 	}
@@ -520,8 +505,6 @@ protected:
 	int tokenCount() const noexcept {
 		return m_reducedTokens;
 	}
-
-)", R"(
 
 private:
 )",R"(
@@ -556,7 +539,7 @@ private:
 				for(const auto& state : lr::StateGen().run(m_grammar)) {
 					m_out << "\tvoid " << makeStateFunc(state.id()) << " {\n";
 
-					if(!state.isStart() && state.symbol()->definesToken()) {
+					if(!state.isStart() && state.inputSymbol()->pattern()) {
 						m_out << "\t\tm_parsedTokens.emplace_back(m_lexer.lex());\n";
 					}
 
@@ -582,7 +565,6 @@ R"(std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
 
 std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
 	switch(tok) {
-		case TokenKinds::Eof: out << "Eof"; break;
 )", R"(	}
 	return out;
 }
@@ -595,10 +577,10 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 				};
 				
 				m_out << src[0];
-				for(const auto sym : m_grammar.tokens()) {
+				for(const auto symbol : m_grammar.tokenSymbols()) {
 					m_out << std::format("\t\tcase {}: out << \"{}\"; break;\n",
-						makeTokenKind(sym),
-						toPascalCase(sym->name())
+						makeTokenKind(symbol),
+						symbol->name()
 					);
 				}
 				m_out << src[1];
@@ -606,13 +588,13 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 			/** @} */
 
 
-			const fg::Grammar& m_grammar;
+			const Grammar& m_grammar;
 			std::ostream& m_out;
 		};
 	}
 
 
-	void CppSrcGen::run(const fg::Grammar& grammar) {
+	void CppSrcGen::run(const Grammar& grammar) {
 		RunImpl(*m_out, grammar)();
 	}
 }

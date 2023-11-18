@@ -1,5 +1,4 @@
 #include "dfa/StateGen.hpp"
-#include "fg/Atom.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <gsl/narrow>
@@ -12,42 +11,42 @@
 namespace parsec::dfa {
 	namespace {
 		struct Item {
-			/** @{ */
 			friend bool operator==(const Item& lhs, const Item& rhs) noexcept {
-				return lhs.atom() == rhs.atom();
+				return lhs.pattern()->id() == rhs.pattern()->id()
+					&& lhs.atom()->id() == rhs.atom()->id();
 			}
 
 			friend std::size_t hash_value(const Item& item) {
-				return boost::hash_value(item.atom());
+				std::size_t seed = 0;
+
+				boost::hash_combine(seed, item.pattern()->id());
+				boost::hash_combine(seed, item.atom()->id());
+
+				return seed;
 			}
-			/** @} */
 
 
-			/** @{ */
-			Item(const fg::Atom* atom, const fg::Symbol* symbol) noexcept
-				: m_symbol(symbol), m_atom(atom)
+			Item(const CharAtom* atom, const Pattern* pattern) noexcept
+				: m_pattern(pattern), m_atom(atom)
 			{ }
-			/** @} */
 
 
-			/** @{ */
-			const fg::Atom* atom() const noexcept {
+			const CharAtom* atom() const noexcept {
 				return m_atom;
 			}
 
-			const fg::Symbol* symbol() const noexcept {
-				return m_symbol;
+			const Pattern* pattern() const noexcept {
+				return m_pattern;
 			}
 
 			bool isAtEnd() const noexcept {
-				return m_symbol->rule()->endAtom() == m_atom;
+				return m_pattern->endAtom() == m_atom;
 			}
-			/** @} */
 
 
 		private:
-			const fg::Symbol* m_symbol;
-			const fg::Atom* m_atom;
+			const Pattern* m_pattern;
+			const CharAtom* m_atom;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
@@ -55,23 +54,16 @@ namespace parsec::dfa {
 
 		class RunImpl {
 		public:
-			explicit RunImpl(const fg::Grammar& grammar)
+			explicit RunImpl(const Grammar& grammar)
 				: m_grammar(grammar)
 			{ }
 			
-			StateList operator()() {
-				// initial state consists of the first characters of each rule
+			auto operator()() {
+				// initial state consists of the first characters of each pattern
 				ItemSet startItems;
-				for(const auto tok : m_grammar.tokens()) {
-					for(const auto atom : tok->rule()->leadingAtoms()) {
-						startItems.emplace(atom, tok);
-					}
-				}
-
-				// special handling of whitespace symbol
-				if(const auto ws = m_grammar.wsToken(); ws->rule()) {
-					for(const auto atom : ws->rule()->leadingAtoms()) {
-						startItems.emplace(atom, ws);
+				for(const auto tok : m_grammar.tokenPatterns()) {
+					for(const auto root : tok->roots()) {
+						startItems.emplace(root, tok);
 					}
 				}
 
@@ -83,20 +75,17 @@ namespace parsec::dfa {
 						const auto& [items, id] = *m_unprocessed.top();
 						m_unprocessed.pop();
 
-						processState(
-							items,
-							id
-						);
+						processState(items, id);
 					}
 				}
 
-				return m_states;
+				return std::move(m_states);
 			}
 
 		private:
 			int createState(ItemSet&& stateItems) {
 				const auto newId = gsl::narrow_cast<int>(m_states.size()); // unique identifier for a new state
-				const auto [it, wasInserted] = m_stateIds.emplace(std::move(stateItems), newId);
+				const auto [it, wasInserted] = m_itemsToStates.emplace(std::move(stateItems), newId);
 				const auto& [items, id] = *it;
 
 				// construct a new state only if it differs from the previously created ones
@@ -116,20 +105,15 @@ namespace parsec::dfa {
 				for(const auto& item : items) {
 					// items that are located at the rule end represent possible matches
 					if(item.isAtEnd()) {
-						m_states[id].addMatch(item.symbol());
+						m_states[id].addMatch(item.pattern());
 						continue;
 					}
 
-					for(const auto nextAtom : item.atom()->nextAtoms()) {
-						// just skip ill-defined atoms
-						if(item.atom()->value().size() != 1) {
-							continue;
-						}
-
-						const auto ch = item.atom()->value().front();
+					for(const auto followAtom : item.atom()->follows()) {
+						const auto ch = item.atom()->value();
 						nextStates[ch].emplace(
-							nextAtom,
-							item.symbol()
+							followAtom,
+							item.pattern()
 						);
 					}
 				}
@@ -145,18 +129,16 @@ namespace parsec::dfa {
 			}
 
 
-			using StateIdTable = std::unordered_map<ItemSet, int, boost::hash<ItemSet>>;
-
-			std::stack<const StateIdTable::value_type*> m_unprocessed;
-			StateIdTable m_stateIds;
-			StateList m_states;
-
-			const fg::Grammar& m_grammar;
+			std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemsToStates;
+			std::stack<const std::pair<const ItemSet, int>*> m_unprocessed;
+			
+			std::vector<State> m_states;
+			const Grammar& m_grammar;
 		};
 	}
 
 
-	StateList StateGen::run(const fg::Grammar& grammar) {
+	std::vector<State> StateGen::run(const Grammar& grammar) {
 		return RunImpl(grammar)();
 	}
 }

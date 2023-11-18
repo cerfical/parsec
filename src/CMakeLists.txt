@@ -158,7 +158,6 @@ set(_HEADERS
 	
 	"dfa/dfa.hpp"
 
-	"dfa/Match.hpp"
 	"dfa/Transition.hpp"
 	"dfa/State.hpp"
 	"dfa/StateGen.hpp"

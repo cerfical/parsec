@@ -6,16 +6,15 @@
 #include "StateReduce.hpp"
 
 #include <concepts>
+#include <ranges>
 #include <vector>
 
 namespace parsec::lr {
 	class State {
 	public:
 		/** @{ */
-		State() = default;
-
-		State(int id, const fg::Symbol* symbol) noexcept
-			: m_symbol(symbol), m_id(id)
+		State(int id, const Symbol* inputSymbol) noexcept
+			: m_inputSymbol(inputSymbol), m_id(id)
 		{ }
 		/** @} */
 
@@ -38,12 +37,10 @@ namespace parsec::lr {
 			m_shifts.emplace_back(std::forward<Args>(args)...);
 		}
 
-		const ShiftList& shifts() const noexcept {
-			return m_shifts;
-		}
-		
-		bool anyShifts() const noexcept {
-			return !m_shifts.empty();
+		std::ranges::view auto shifts() const {
+			return m_shifts | std::views::transform(
+				[](const auto& sh) { return &sh; }
+			);
 		}
 		/** @} */
 
@@ -55,12 +52,10 @@ namespace parsec::lr {
 			m_gotos.emplace_back(std::forward<Args>(args)...);
 		}
 
-		const GotoList& gotos() const noexcept {
-			return m_gotos;
-		}
-
-		bool anyGotos() const noexcept {
-			return !m_gotos.empty();
+		std::ranges::view auto gotos() const {
+			return m_gotos | std::views::transform(
+				[](const auto& gt) { return &gt; }
+			);
 		}
 		/** @} */
 
@@ -72,25 +67,27 @@ namespace parsec::lr {
 			m_reduces.emplace_back(std::forward<Args>(args)...);
 		}
 
-		const ReduceList& reduces() const noexcept {
-			return m_reduces;
-		}
-		
-		bool isReducing() const noexcept {
-			return !m_reduces.empty();
+		std::ranges::view auto reduces() const {
+			return m_reduces | std::views::transform(
+				[](const auto& r) { return &r; }
+			);
 		}
 		/** @} */
 
 
 		/** @{ */
-		const fg::Symbol* symbol() const noexcept {
-			return m_symbol;
-		}
-
 		int id() const noexcept {
 			return m_id;
 		}
 		
+		const Symbol* inputSymbol() const noexcept {
+			return m_inputSymbol;
+		}
+		
+		bool isReducing() const noexcept {
+			return !m_reduces.empty();
+		}
+
 		bool isStart() const noexcept {
 			return m_id == 0;
 		}
@@ -98,15 +95,13 @@ namespace parsec::lr {
 
 
 	private:
-		ShiftList m_shifts;
-		GotoList m_gotos;
-		ReduceList m_reduces;
+		std::vector<StateShift> m_shifts;
+		std::vector<StateGoto> m_gotos;
+		std::vector<StateReduce> m_reduces;
 		
-		const fg::Symbol* m_symbol = {};
-		int m_id = 0;
+		const Symbol* m_inputSymbol;
+		int m_id;
 	};
-
-	using StateList = std::vector<State>;
 }
 
 #endif

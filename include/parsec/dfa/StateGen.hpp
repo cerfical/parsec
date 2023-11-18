@@ -1,8 +1,10 @@
 #ifndef PARSEC_DFA_STATE_GEN_HEADER
 #define PARSEC_DFA_STATE_GEN_HEADER
 
-#include "../fg/Grammar.hpp"
+#include "../Grammar.hpp"
+
 #include "State.hpp"
+#include <vector>
 
 namespace parsec::dfa {
 	class StateGen {
@@ -24,7 +26,7 @@ namespace parsec::dfa {
 
 
 		/** @{ */
-		StateList run(const fg::Grammar& grammar);
+		std::vector<State> run(const Grammar& grammar);
 		/** @} */
 	};
 }

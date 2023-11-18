@@ -1,16 +1,18 @@
 #ifndef PARSEC_DFA_STATE_HEADER
 #define PARSEC_DFA_STATE_HEADER
 
-#include "Match.hpp"
+#include "../Pattern.hpp"
 #include "Transition.hpp"
 
+#include <concepts>
 #include <vector>
+#include <ranges>
 
 namespace parsec::dfa {
 	class State {
 	public:
 		/** @{ */
-		explicit State(int id = 0) noexcept
+		explicit State(int id) noexcept
 			: m_id(id)
 		{ }
 		/** @} */
@@ -28,8 +30,10 @@ namespace parsec::dfa {
 
 
 		/** @{ */
-		const TransitionList& transitions() const noexcept {
-			return m_transitions;
+		std::ranges::view auto transitions() const {
+			return m_transitions | std::views::transform(
+				[](const auto& t) { return &t; }
+			);
 		}
 
 		template <typename... Args>
@@ -41,14 +45,12 @@ namespace parsec::dfa {
 
 
 		/** @{ */
-		const MatchList& matches() const noexcept {
-			return m_matches;
+		std::ranges::view auto matches() const {
+			return std::ranges::ref_view(m_matches);
 		}
 
-		template <typename... Args>
-			requires std::constructible_from<Match, Args...>
-		void addMatch(Args&&... args) {
-			m_matches.emplace_back(std::forward<Args>(args)...);
+		void addMatch(const Pattern* match) {
+			m_matches.push_back(match);
 		}
 		/** @} */
 
@@ -69,12 +71,11 @@ namespace parsec::dfa {
 
 
 	private:
-		TransitionList m_transitions;
-		MatchList m_matches;
+		std::vector<Transition> m_transitions;
+		std::vector<const Pattern*> m_matches;
+
 		int m_id;
 	};
-
-	using StateList = std::vector<State>;
 }
 
 #endif

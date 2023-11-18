@@ -3,8 +3,11 @@
 
 #include "config.hpp"
 
+#include "Grammar.hpp"
+#include "Parser.hpp"
+#include "Lexer.hpp"
+
 #include "regex/regex.hpp"
-#include "fg/fg.hpp"
 #include "gen/gen.hpp"
 #include "lr/lr.hpp"
 #include "dfa/dfa.hpp"
