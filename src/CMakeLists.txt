@@ -1,118 +1,104 @@
+
+# Finds and adds to project files all sources and headers
+function(collect_module_sources TARGET MODULE)
+	# Prefix all files with the name of the containing module
+	if(MODULE)
+		set(FILE_PREFIX "${MODULE}/")
+	else()
+		set(FILE_PREFIX "")
+	endif()
+
+	foreach(NAME ${ARGN})
+		# Add header files to the target's public headers
+		set(HEADER_FILE "${CMAKE_SOURCE_DIR}/include/parsec/${FILE_PREFIX}${NAME}.hpp")
+		if(EXISTS ${HEADER_FILE})
+			target_sources(${TARGET} PUBLIC FILE_SET HEADERS FILES ${HEADER_FILE} BASE_DIRS "../include/")
+		endif()
+
+		# Add header files to the target's private source files
+		set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/${FILE_PREFIX}${NAME}.cpp")
+		if(EXISTS ${SOURCE_FILE})
+			target_sources(${TARGET} PRIVATE ${SOURCE_FILE})
+		endif()
+	endforeach()
+endfunction()
+
+
 # Write project information to a header file
 configure_file("config.hpp.in" "config.hpp")
 
 
-# Define the library from the source files
-add_library(parsec-lib STATIC
-	"Pattern.cpp"
-	"Grammar.cpp"
-	
-	"TextScanner.cpp"
-	"SourceLoc.cpp"
+add_library(parsec-lib)
 
-	"TokenKinds.cpp"
-	"Token.cpp"
-	"Lexer.cpp"
-
-	"Parser.cpp"
-	"CppSrcGen.cpp"
-
-
-	"regex/ExprNode.cpp"
-	"regex/ExprTraverser.cpp"
-	"regex/ExprPrinter.cpp"
-
-	"regex/CharAtom.cpp"
-	"regex/NilExpr.cpp"
-
-	"regex/AlternExpr.cpp"
-	"regex/ConcatExpr.cpp"
-
-	"regex/PlusExpr.cpp"
-	"regex/OptionalExpr.cpp"
-	"regex/StarExpr.cpp"
-
-	"regex/Parser.cpp"
-
-	
-	"lr/StateGen.cpp"
-	"dfa/StateGen.cpp"
-
-	"utils/Strings.cpp"
-	"utils/Chars.cpp"
-
-	"cli/ConsoleApp.cpp"
-	"cli/OptionBuilder.cpp"
+set_target_properties(parsec-lib
+	PROPERTIES OUTPUT_NAME "${PROJECT_NAME}"
 )
 
 
-# List header files for the library
-set(_HEADERS
-	"parsec.hpp"
+collect_module_sources(parsec-lib ""
+	"parsec"
 
-
-	"Rule.hpp"
-	"Symbol.hpp"
-	"Pattern.hpp"
-	"CharAtom.hpp"
-	"Grammar.hpp"
-
-	"TextScanner.hpp"
-	"SourceLoc.hpp"
-	"Error.hpp"
-
-	"TokenKinds.hpp"
-	"Token.hpp"
-	"Lexer.hpp"
+	"Rule"
+	"Pattern"
+	"Symbol"
+	"CharAtom"
+	"Grammar"
 	
-	"Parser.hpp"
-	"CppSrcGen.hpp"
-
-
-	"regex/nodes.hpp"
+	"TextScanner"
+	"SourceLoc"
+	"Error"
+	"TokenKinds"
+	"Token"
+	"Lexer"
 	
-	"regex/ExprNode.hpp"
-	"regex/NodeVisitor.hpp"
-	"regex/ExprTraverser.hpp"
-	"regex/ExprPrinter.hpp"
-
-	"regex/CharAtom.hpp"
-	"regex/NilExpr.hpp"
-
-	"regex/BinaryExpr.hpp"
-	"regex/AlternExpr.hpp"
-	"regex/ConcatExpr.hpp"
-
-	"regex/UnaryExpr.hpp"
-	"regex/PlusExpr.hpp"
-	"regex/OptionalExpr.hpp"
-	"regex/StarExpr.hpp"
-
-	"regex/Parser.hpp"
-
-
-	"lr/StateGoto.hpp"
-	"lr/StateShift.hpp"
-	"lr/StateReduce.hpp"
-	"lr/State.hpp"
-	"lr/StateGen.hpp"
-	
-	"dfa/Transition.hpp"
-	"dfa/State.hpp"
-	"dfa/StateGen.hpp"
-
-	"utils/Strings.hpp"
-	"utils/Chars.hpp"
-
-	"cli/ConsoleApp.hpp"
+	"Parser"
+	"CppSrcGen"
 )
 
-list(TRANSFORM _HEADERS PREPEND "../include/parsec/")
 
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS
-	FILES ${_HEADERS}
-	BASE_DIRS "../include/"
+collect_module_sources(parsec-lib "regex"
+	"nodes"
+	
+	"ExprNode"
+	"NodeVisitor"
+	"ExprTraverser"
+	"ExprPrinter"
+
+	"CharAtom"
+	"NilExpr"
+
+	"BinaryExpr"
+	"AlternExpr"
+	"ConcatExpr"
+
+	"UnaryExpr"
+	"PlusExpr"
+	"OptionalExpr"
+	"StarExpr"
+
+	"Parser"
+)
+
+
+collect_module_sources(parsec-lib "lr"
+	"StateGoto"
+	"StateShift"
+	"StateReduce"
+	"StateGen"
+	"State"
+)
+
+
+collect_module_sources(parsec-lib "dfa"
+	"Transition" "StateGen" "State"
+)
+
+collect_module_sources(parsec-lib "utils"
+	"Strings" "Chars"
+)
+
+collect_module_sources(parsec-lib "cli"
+	"ConsoleApp" "OptionBuilder"
 )
 
 
@@ -128,5 +114,3 @@ target_link_libraries(parsec-lib
 	PUBLIC Boost::program_options
 	PRIVATE Boost::boost
 )
-
-set_target_properties(parsec-lib PROPERTIES OUTPUT_NAME "parsec")

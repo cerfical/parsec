@@ -6,6 +6,9 @@ project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.9.0
 # Optional building of documentation
 option(BUILD_DOC "Build the documentation" OFF)
 
+# By default build static libs
+option(BUILD_SHARED_LIBS "Enable building of shared libraries" OFF)
+
 
 # Require GSL and Boost libraries to be installed 
 find_package(Microsoft.GSL REQUIRED)
