@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.23)
 
-project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.9.0)
+project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.9.1)
 
 
 # Optional building of documentation
