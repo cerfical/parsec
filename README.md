@@ -2,7 +2,7 @@
 
 Simple command line tool for generating lexical/syntax analysers from corresponding grammar descriptions.
 
-Currently, only the generation of lexical analyzers is supported.
+
 
 ## Usage
 
@@ -22,39 +22,120 @@ Options:
   -i [ --input-file ] arg   input file
 ```
 
-## Lexer specification
 
-### Basics
 
-The *name=pattern* pairs enclosed in a `tokens` block define tokens for the generated lexer:
+## Syntax
+
+To produce source code for a parser, the syntax of a language, accepted by the parser, must be described using a **grammar**.
+In short, a grammar is a set of **symbols** with specifications for each symbol on how that symbol is formed.
+
+Symbols are just names, which in turn are case-insensitive and consist of words separated by `-` or `_` and containing only alphanumeric characters.
+`-` and `_` are just delimiters and don't contribute to the name.
+Thus, the names `add-op`, `AddOp`, `ADD_OP` are all refer to the same symbol.
+The first word of any name must begin with a letter.
+
+`root` is the **root** or **start symbol** of a grammar.
+
+
+
+### Tokens Specification
+
+Lexical analysis on some text is performed by breaking the text into a sequence of named **tokens**, or, more formally, **terminal symbols**.  
+Partitioning of the input into these tokens is defined with **string patterns**.
+
+The *name = pattern* pairs enclosed in a `tokens` block list and name such patterns.
+Patterns are either **raw string literals**, enclosed in single quotes like this: `'class'`; or, for more elaborate scenarios, **regular expressions**: `"[a-z]*"`.
+
+An example of this syntax would be:
 
 ```
 tokens {
-    open-paren = "\(";
-    close-paren = "\)";
-    letter = "[a-zA-Z]";
-    ws = "[\r\n ]+";
+	ws = "[ \f\n\r\t\v]+";
+	
+	number = "[1-9][0-9]*";
+	ident = "[A-Za-z_][A-Za-z_0-9]*";
+
+	open-paren = '(';
+	close-paren = ')';
+
+	add-op = '+';
+	sub-op = '-';
+	
+	mul-op = '*';
+	div-op = '/';
 }
 ```
 
-The special token `ws` resets lexical analysis process and can be used to skip whitespace characters from the input before parsing the token.
+A few pattern names are treated specially to provide useful functionality, such as the end-of-file detection or automatic handling of whitespace characters.
+Such tokens would be `eof` and `ws` respectively:
 
-### Regular expressions
+ - when `ws` token is encountered, the analysis process is reset and token parse starts over,
+ - when the end-of-file is reached, `eof` token is automatically spawned.
 
-Token patterns support a subset of the most common regular expressions operations, including:
- - Alternation, concatenation, grouping: `(a|b)c`
- - Repetition operators: `a*b+c?`
- - Character sets: `[abc]`
- - Character ranges: `[A-Za-z]`
- - Empty regexes: `[]` or `()`
 
-Special characters used by the regex syntax can be escaped with a backslash (`\`) to take the symbol literally.
 
-For convenience, additional escape sequences are available, such as `\n` or `\t`.
-Also, an arbitrary character literal may be specified using its hexadecimal code, e.g. `\xff`.
+### Regular Expressions
 
-### Conflict resolution
+Regex patterns support a subset of the most common regular expressions operations, including:
 
-Tokens with the same name are merged together with `|` (alternation).
+ - concatenation: `abc`,
+ - alternation: `a|b|c`,
+ - grouping: `(a)`,
+ - Kleene plus: `a+`,
+ - Kleene star: `a*`,
+ - optional expression: `a?`,
+ - character sets: `[abc]`,
+ - character ranges: `[A-Za-z]`,
+ - empty expressions: `[]` or `()`.
 
-If multiple patterns are matched, the pattern mentioned earlier in the specification takes precedence.
+Metacharacters used by the regex syntax itself can be escaped with a backslash (`\`) to take the character literally.
+
+For convenience, some standard `C` escape sequences are also available, such as `\n`, `\t`, or `\xff`.
+
+
+
+### Rules
+
+Similar syntax is used to formalize the syntactic structure of a language.
+
+The only differences are:
+ - slightly limited set of available operators: only `|`, `*`, `()`, `+` and `?` are supported,
+ - use of symbols instead of character atoms,
+ - absence of quotes.
+
+```
+rules {
+  root = expr;
+
+  expr = ( expr ( '+' | '-' ) )? term;
+  term = ( term ( '*' | '/' ) )? factor;
+
+  factor = ident | number;
+}
+```
+
+As an additional convinience, tokens alternatively can be referenced by their defining pattern instead of the name.
+If a token with the pattern doesn't exist, it will be created automatically with a generated name in the form `UnnamedN_`, where `N` is the relative numeric identifier for the generated token.
+
+
+
+### Conflict Resolution
+
+Tokens and rules with the same name are merged together with `|` (alternation).
+
+If some patterns/rules conflict the pattern/rule mentioned earlier takes precedence.
+
+
+
+## Generator Output
+
+The generated lexer is represented in the form of a class under the name `Lexer`, which takes as the input characters from standard `std::istream` streams and outputs recognized tokens as objects of a `Token` class.
+To differentiate lexer-emitted tokens, a `TokenKinds` enumeration is provided, populated with token names taken from the grammar.
+
+Similarly, a `Parser` class drives syntax analysis.
+The parser houses virtual methods of the form `void on<RuleName>()` for each rule symbol defined.
+They are called by the parser when some part of the input matches a rule with the corresponding name.
+
+All produced source code is placed inside a single header file.
+First include the `<parsec/deps.hpp>` header, which lists the generated source code dependencies, and then include the output file to make use of it.
+Furthermore, linkage to the `parsec-lib` library target may be required.
