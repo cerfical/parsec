@@ -20,6 +20,10 @@ function(collect_module_sources TARGET MODULE)
 		if(EXISTS ${SOURCE_FILE})
 			target_sources(${TARGET} PRIVATE ${SOURCE_FILE})
 		endif()
+
+		if(NOT EXISTS ${HEADER_FILE} AND NOT EXISTS ${SOURCE_FILE})
+			message(SEND_ERROR "Neither ${HEADER_FILE} or ${SOURCE_FILE} were found")
+		endif()
 	endforeach()
 endfunction()
 
