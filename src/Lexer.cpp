@@ -151,10 +151,10 @@ namespace parsec {
 	TokenKinds Lexer::parseOperator() const {
 		TokenKinds kind = {};
 		switch(scanner()->peek()) {
-			case '{': kind = TokenKinds::OpenBrace; break;
-			case '}': kind = TokenKinds::CloseBrace; break;
-			case '(': kind = TokenKinds::OpenParen; break;
-			case ')': kind = TokenKinds::CloseParen; break;
+			case '{': kind = TokenKinds::LeftBrace; break;
+			case '}': kind = TokenKinds::RightBrace; break;
+			case '(': kind = TokenKinds::LeftParen; break;
+			case ')': kind = TokenKinds::RightParen; break;
 			case ';': kind = TokenKinds::Semicolon; break;
 			case '=': kind = TokenKinds::Equals; break;
 			case '|': kind = TokenKinds::Pipe; break;

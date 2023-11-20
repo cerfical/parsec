@@ -16,11 +16,11 @@
 	PARSEC_TOKEN_KIND(Semicolon, "a ';'") /**< @brief Semicolon. */ \
 	PARSEC_TOKEN_KIND(Equals, "an '='") /**< @brief Equals sign. */ \
 \
-	PARSEC_TOKEN_KIND(OpenBrace, "a '{'") /**< @brief Opening brace. */ \
-	PARSEC_TOKEN_KIND(CloseBrace, "a '}'") /**< @brief Closing brace. */ \
+	PARSEC_TOKEN_KIND(LeftBrace, "a '{'") /**< @brief Opening brace. */ \
+	PARSEC_TOKEN_KIND(RightBrace, "a '}'") /**< @brief Closing brace. */ \
 \
-	PARSEC_TOKEN_KIND(OpenParen, "a '('") /**< @brief Opening parenthesis. */ \
-	PARSEC_TOKEN_KIND(CloseParen, "a ')'") /**< @brief Closing parenthesis. */
+	PARSEC_TOKEN_KIND(LeftParen, "a '('") /**< @brief Opening parenthesis. */ \
+	PARSEC_TOKEN_KIND(RightParen, "a ')'") /**< @brief Closing parenthesis. */
 
 #include <ostream>
 

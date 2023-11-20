@@ -302,7 +302,7 @@ namespace parsec {
 			bool isAtom() const {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident:
-					case TokenKinds::OpenParen:
+					case TokenKinds::LeftParen:
 					case TokenKinds::Pattern: {
 						return true;
 					}
@@ -412,17 +412,17 @@ namespace parsec {
 							ident.text()
 						);
 					}
-					case TokenKinds::OpenParen: {
+					case TokenKinds::LeftParen: {
 						// create a fake symbol to represent the inner subrule
 						const auto openParen = m_lexer.lex();
 
 						// parse the subrule, if there is any
-						if(!m_lexer.skipIf(TokenKinds::CloseParen)) {
+						if(!m_lexer.skipIf(TokenKinds::RightParen)) {
 							const auto subruleHead = makeSubruleSymbol(rule);
 							parseRule(subruleHead);
 
 							// check for the presence of parenthesis closing the subrule
-							if(!m_lexer.skipIf(TokenKinds::CloseParen)) {
+							if(!m_lexer.skipIf(TokenKinds::RightParen)) {
 								unmatchedParen(openParen.loc());
 							}
 							return subruleHead;
@@ -432,7 +432,7 @@ namespace parsec {
 					case TokenKinds::Pattern: {
 						return parseUnnamedPattern();
 					}
-					case TokenKinds::CloseParen: {
+					case TokenKinds::RightParen: {
 						unmatchedParen(m_lexer.loc());
 					}
 					default: {
@@ -506,8 +506,8 @@ namespace parsec {
 
 			/** @{ */
 			void parseTokenList() {
-				m_lexer.match(TokenKinds::OpenBrace);
-				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
+				m_lexer.match(TokenKinds::LeftBrace);
+				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
 					// tokens are defined with "token-name = token-pattern;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.match(TokenKinds::Equals);
@@ -532,8 +532,8 @@ namespace parsec {
 			}
 
 			void parseRuleList() {
-				m_lexer.match(TokenKinds::OpenBrace);
-				while(!m_lexer.skipIf(TokenKinds::CloseBrace)) {
+				m_lexer.match(TokenKinds::LeftBrace);
+				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
 					// rules are defined with "rule-name = rule;"
 					const auto name = m_lexer.expect(TokenKinds::Ident);
 					m_lexer.match(TokenKinds::Equals);
