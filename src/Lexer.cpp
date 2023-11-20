@@ -9,7 +9,7 @@
 #include <format>
 
 namespace parsec {
-	void Lexer::unexpectedToken(std::string_view expected) const {
+	void Lexer::unmatched(std::string_view expected) const {
 		throw Error(
 			std::format("expected {}, but found {}",
 				expected,
@@ -17,55 +17,37 @@ namespace parsec {
 					peek().kind()
 				)
 			),
-			peek().loc()
+			loc()
 		);
 	}
 
-	void Lexer::unexpectedEol() const {
-		throw Error("unexpected end of line",
-			m_scanner.loc()
-		);
-	}
-
-	void Lexer::unexpectedChar() const {
-		throw Error(std::format("unexpected '{}'",
-				Chars::escapeChar(m_scanner.peek())
-			),
-			m_scanner.loc()
-		);
-	}
-	
 
 	bool Lexer::isPatternStart() const {
-		if(m_scanner.isEof()) {
+		if(scanner()->isEof()) {
 			return false;
 		}
 
-		const auto ch = m_scanner.peek();
+		const auto ch = scanner()->peek();
 		if(ch == '\'' || ch == '\"') {
 			return true;
 		}
-
 		return false;
 	}
 
 	bool Lexer::isIdentStart() const {
 		// identifiers must start with a letter
-		return !m_scanner.isEof()
-			&& (Chars::isAlpha(m_scanner.peek()));
+		return !scanner()->isEof() && (Chars::isAlpha(scanner()->peek()));
 	}
 
 	bool Lexer::isWordStart() const {
-		if(m_scanner.isEof()) {
+		if(scanner()->isEof()) {
 			return false;
 		}
 
-		const auto ch = m_scanner.peek();
-		const auto ch1 = m_scanner.peek(1);
-		
 		// words inside the identifier are defined by either the presence of some delimeter
-		if((ch == '-' || ch == '_') && Chars::isAlnum(ch1)) {
-			m_scanner.skip();
+		const auto ch = scanner()->peek();
+		if((ch == '-' || ch == '_')) {
+			scanner()->skip();
 			return true;
 		}
 
@@ -73,7 +55,6 @@ namespace parsec {
 		if(Chars::isAlpha(ch)) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -81,20 +62,20 @@ namespace parsec {
 	void Lexer::skipWhitespace() const {
 		while(true) {
 			// nothing to skip, the input is empty
-			if(m_scanner.isEof()) {
+			if(scanner()->isEof()) {
 				break;
 			}
 
-			if(Chars::isSpace(m_scanner.peek())) { // space characters
-				m_scanner.skip();
-			} else if(m_scanner.skipIf("//")) { // single-line comments
-				while(!m_scanner.isEof() && m_scanner.get() != '\n') {
+			if(Chars::isSpace(scanner()->peek())) { // space characters
+				scanner()->skip();
+			} else if(scanner()->skipIf("//")) { // single-line comments
+				while(!scanner()->isEof() && scanner()->get() != '\n') {
 					// skip until the end of line or file
 				}
-			} else if(m_scanner.skipIf("/*")) { // multi-line comments
-				while(!m_scanner.skipIf("*/")) {
+			} else if(scanner()->skipIf("/*")) { // multi-line comments
+				while(!scanner()->skipIf("*/")) {
 					// skip all characters until the end of comment token is encountered
-					m_scanner.skip();
+					scanner()->skip();
 				}
 			} else {
 				break;
@@ -107,30 +88,33 @@ namespace parsec {
 		std::string upper, lower;
 		while(isWordStart()) {
 			// read uppercase part of a word
-			while(!m_scanner.isEof()) {
-				const auto ch = m_scanner.peek();
+			while(!scanner()->isEof()) {
+				const auto ch = scanner()->peek();
 				if(!Chars::isUpper(ch) && !Chars::isDigit(ch)) {
 					break;
 				}
-				upper += m_scanner.get();
+				upper += scanner()->get();
 			}
 
 			// read lowercase part of a word
-			while(!m_scanner.isEof()) {
-				const auto ch = m_scanner.peek();
+			while(!scanner()->isEof()) {
+				const auto ch = scanner()->peek();
 				if(!Chars::isLower(ch) && !Chars::isDigit(ch)) {
 					break;
 				}
-				lower += m_scanner.get();
+				lower += scanner()->get();
 			}
 
 			// combine the upper and lower case parts to create a valid capitalized word
 			if(lower.empty()) {
-				m_buf += Strings::capitalize(upper);
+				if(upper.empty()) {
+					error();
+				}
+				consume(Strings::capitalize(upper));
 			} else if(upper.empty()) {
-				m_buf += Strings::capitalize(lower);
+				consume(Strings::capitalize(lower));
 			} else {
-				m_buf += upper + lower;
+				consume(upper + lower);
 			}
 
 			upper.clear();
@@ -140,86 +124,69 @@ namespace parsec {
 	}
 
 	TokenKinds Lexer::parsePattern() const {
-		const auto delim = m_scanner.get();
+		const auto delim = scanner()->get();
 		while(true) {
-			if(m_scanner.peek() == '\n') {
-				unexpectedEol();
+			if(scanner()->peek() == '\n') {
+				error();
 			}
-			if(m_scanner.skipIf(delim)) {
+			if(scanner()->skipIf(delim)) {
 				break;
 			}
 			
 			// automatically escape regex metachars in raw patterns
-			const auto ch = m_scanner.get();
+			const auto ch = scanner()->get();
 			if(delim == '\'' && regex::Parser::isMetachar(ch)) {
-				m_buf += '\\';
+				consume('\\');
 			}
-			m_buf += ch;
+			consume(ch);
 
 			// handle escaped characters
 			if(ch == '\\') {
-				m_buf += m_scanner.get();
+				consume(scanner()->get());
 			}
 		}
 		return TokenKinds::Pattern;
 	}
 
 	TokenKinds Lexer::parseOperator() const {
-		TokenKinds tokKind = {};
-		switch(m_scanner.peek()) {
-			case '{': tokKind = TokenKinds::OpenBrace; break;
-			case '}': tokKind = TokenKinds::CloseBrace; break;
-			case '(': tokKind = TokenKinds::OpenParen; break;
-			case ')': tokKind = TokenKinds::CloseParen; break;
-			case ';': tokKind = TokenKinds::Semicolon; break;
-			case '=': tokKind = TokenKinds::Equals; break;
-			case '|': tokKind = TokenKinds::Pipe; break;
-			case '*': tokKind = TokenKinds::Star; break;
-			case '+': tokKind = TokenKinds::Plus; break;
-			case '?': tokKind = TokenKinds::Qo; break;
-			default: unexpectedChar();
+		TokenKinds kind = {};
+		switch(scanner()->peek()) {
+			case '{': kind = TokenKinds::OpenBrace; break;
+			case '}': kind = TokenKinds::CloseBrace; break;
+			case '(': kind = TokenKinds::OpenParen; break;
+			case ')': kind = TokenKinds::CloseParen; break;
+			case ';': kind = TokenKinds::Semicolon; break;
+			case '=': kind = TokenKinds::Equals; break;
+			case '|': kind = TokenKinds::Pipe; break;
+			case '*': kind = TokenKinds::Star; break;
+			case '+': kind = TokenKinds::Plus; break;
+			case '?': kind = TokenKinds::Qo; break;
+			default: error();
 		}
-		m_buf += m_scanner.get();
-		return tokKind;
+		consume(scanner()->get());
+		return kind;
 	}
 	
-	Token& Lexer::parseToken() const {
-		// do nothing if the token is already parsed
-		if(m_tok) {
-			return *m_tok;
-		}
 
+	TokenKinds Lexer::onTokenParse() const {
 		// remove all whitespace from the input before parsing the token
 		skipWhitespace();
+		reset();
 
-		const auto startPos = m_scanner.pos();
-		m_buf.clear();
-
-		// parse the token according to its type
-		auto tokKind = TokenKinds::Eof;
-		if(!m_scanner.isEof()) {
-			if(isIdentStart()) {
-				tokKind = parseIdent();
-			} else if(isPatternStart()) {
-				tokKind = parsePattern();
-			} else {
-				tokKind = parseOperator();
-			}
+		// end of file?
+		if(scanner()->isEof()) {
+			return TokenKinds::Eof;
 		}
-
-		// calculate proper values for the starting column and the number of columns of the token
-		const auto colCount = std::max(m_scanner.pos() - startPos, 1);
-		const auto startCol = startPos - m_scanner.linePos();
-
-		m_tok.emplace(m_buf, tokKind,
-			SourceLoc(
-				startCol,
-				colCount,
-				m_scanner.lineNo(),
-				m_scanner.linePos()
-			)
-		);
-
-		return *m_tok;
+		
+		// identifier?
+		if(isIdentStart()) {
+			return parseIdent();
+		}
+		
+		// string pattern?
+		if(isPatternStart()) {
+			return parsePattern();
+		}
+		return parseOperator();
 	}
 }

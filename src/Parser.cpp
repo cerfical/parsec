@@ -433,7 +433,7 @@ namespace parsec {
 						return parseUnnamedPattern();
 					}
 					case TokenKinds::CloseParen: {
-						unmatchedParen(m_lexer.peek().loc());
+						unmatchedParen(m_lexer.loc());
 					}
 					default: {
 						unexpectedToken();
