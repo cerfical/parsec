@@ -50,19 +50,19 @@ An example of this syntax would be:
 
 ```
 tokens {
-	ws = "[ \f\n\r\t\v]+";
-	
-	number = "[1-9][0-9]*";
-	ident = "[A-Za-z_][A-Za-z_0-9]*";
+  ws = "[ \f\n\r\t\v]+";
 
-	open-paren = '(';
-	close-paren = ')';
+  number = "[1-9][0-9]*";
+  ident = "[A-Za-z_][A-Za-z_0-9]*";
 
-	add-op = '+';
-	sub-op = '-';
-	
-	mul-op = '*';
-	div-op = '/';
+  open-paren = '(';
+  close-paren = ')';
+
+  add-op = '+';
+  sub-op = '-';
+
+  mul-op = '*';
+  div-op = '/';
 }
 ```
 
