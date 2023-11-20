@@ -380,7 +380,7 @@ namespace parsec {
 			const Symbol* makeSubruleSymbol(const Rule& rule) {
 				return m_grammar.symbolForName(std::format("{}{}_",
 					rule.head()->name(),
-					m_subruleId++
+					m_subrules++
 				));
 			}
 			/** @} */
@@ -414,22 +414,20 @@ namespace parsec {
 					}
 					case TokenKinds::OpenParen: {
 						// create a fake symbol to represent the inner subrule
-						const auto subruleHead = makeSubruleSymbol(rule);
 						const auto openParen = m_lexer.lex();
 
 						// parse the subrule, if there is any
 						if(!m_lexer.skipIf(TokenKinds::CloseParen)) {
+							const auto subruleHead = makeSubruleSymbol(rule);
 							parseRule(subruleHead);
 
 							// check for the presence of parenthesis closing the subrule
 							if(!m_lexer.skipIf(TokenKinds::CloseParen)) {
 								unmatchedParen(openParen.loc());
 							}
-						} else {
-							// otherwise, just insert an empty rule
-							m_grammar.insertRule(subruleHead);
+							return subruleHead;
 						}
-						return subruleHead;
+						return nullptr;
 					}
 					case TokenKinds::Pattern: {
 						return parseUnnamedPattern();
@@ -445,6 +443,10 @@ namespace parsec {
 
 			void parseRepeat(Rule& rule) {
 				auto subruleHead = parseAtom(rule);
+				if(!subruleHead) {
+					return;
+				}
+
 				while(true) {
 					if(m_lexer.skipIf(TokenKinds::Star)) {
 						// rule: head = head atom
@@ -468,7 +470,6 @@ namespace parsec {
 					} else if(m_lexer.skipIf(TokenKinds::Qo)) {
 						// rule: head = atom
 						auto atom = std::exchange(subruleHead, makeSubruleSymbol(rule));
-						subruleHead = makeSubruleSymbol(rule);
 						(*m_grammar.insertRule(subruleHead))
 							.addSymbol(atom);
 
@@ -489,10 +490,16 @@ namespace parsec {
 			}
 
 			void parseRule(const Symbol* head) {
+				// preserve the existing subrule count, since the function can be called recursively
+				const int subrules = std::exchange(m_subrules, 0);
+
 				parseConcat(*m_grammar.insertRule(head));
 				while(m_lexer.skipIf(TokenKinds::Pipe)) {
 					parseConcat(*m_grammar.insertRule(head));
 				}
+
+				// restore the subrule count
+				m_subrules = subrules;
 			}
 			/** @} */
 
@@ -532,7 +539,6 @@ namespace parsec {
 					m_lexer.match(TokenKinds::Equals);
 					
 					// parse and store the rule in the grammar
-					m_subruleId = 0;
 					parseRule(m_grammar.symbolForName(name.text()));
 					
 					m_lexer.match(TokenKinds::Semicolon);
@@ -556,7 +562,7 @@ namespace parsec {
 			std::unordered_map<std::string, std::pair<const Symbol*, Token>> m_patternToSymbols;
 			std::list<Symbol> m_unnamedMarkers;
 
-			int m_subruleId = 0;
+			int m_subrules = 0;
 
 			Grammar m_grammar;
 			Lexer m_lexer;

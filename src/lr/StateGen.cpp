@@ -87,12 +87,15 @@ namespace parsec::lr {
 					startItems.emplace(rule);
 				}
 
-				createState(std::move(startItems), nullptr);
-				while(!m_unprocessed.empty()) {
-					const auto& [items, id] = *m_unprocessed.top();
-					m_unprocessed.pop();
-					
-					processState(items, id);
+				// allocate states only if there is something to construct them from
+				if(!startItems.empty()) {
+					createState(std::move(startItems), nullptr);
+					while(!m_unprocessed.empty()) {
+						const auto& [items, id] = *m_unprocessed.top();
+						m_unprocessed.pop();
+
+						processState(items, id);
+					}
 				}
 
 				return std::move(m_states);
