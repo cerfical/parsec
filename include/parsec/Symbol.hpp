@@ -67,6 +67,10 @@ namespace parsec {
 			return m_name;
 		}
 
+		bool isReserved() const noexcept {
+			return m_name.ends_with('_');
+		}
+
 		int id() const noexcept {
 			return m_id;
 		}

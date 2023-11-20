@@ -60,7 +60,7 @@ namespace parsec {
 
 		std::ranges::view auto tokenSymbols() const {
 			return symbols() | std::views::filter(
-				[this](auto s) { return s->pattern() || s == eof() || s == ws(); }
+				[this](const auto s) { return s->pattern() || s == eof() || s == ws(); }
 			);
 		}
 		
@@ -90,7 +90,7 @@ namespace parsec {
 		
 		std::ranges::view auto ruleSymbols() const {
 			return symbols() | std::views::filter(
-				[](auto s) { return !s->rules().empty(); }
+				[this](const auto s) { return !s->rules().empty() || s == root(); }
 			);
 		}
 

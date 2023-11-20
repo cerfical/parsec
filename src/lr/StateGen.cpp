@@ -59,7 +59,7 @@ namespace parsec::lr {
 				return Item(
 					m_rule,
 					m_pos + 1,
-					m_tokens + (symbol()->pattern() ? 1 : 0)
+					m_tokens + (symbol()->pattern() && !symbol()->isReserved() ? 1 : 0)
 				);
 			}
 

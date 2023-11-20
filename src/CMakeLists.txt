@@ -37,6 +37,7 @@ set_target_properties(parsec-lib
 
 collect_module_sources(parsec-lib ""
 	"parsec"
+	"deps"
 
 	"Rule"
 	"Pattern"
