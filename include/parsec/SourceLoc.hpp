@@ -62,7 +62,7 @@ namespace parsec {
 
 		/** @brief Ending column of the location. */
 		int endCol() const noexcept {
-			return startCol() + colCount() - 1;
+			return startCol() + colCount();
 		}
 
 

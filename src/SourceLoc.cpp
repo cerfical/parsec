@@ -2,7 +2,10 @@
 
 namespace parsec {
 	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
-		out << loc.lineNo() + 1 << ':' << loc.startCol() + 1 << '-' << loc.endCol() + 1;
+		out << loc.lineNo() + 1 << ':' << loc.startCol() + 1;
+		if(loc.colCount()) {
+			out << '-' << (loc.endCol() - 1) + 1;
+		}
 		return out;
 	}
 }
