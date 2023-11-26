@@ -5,7 +5,7 @@
 
 namespace parsec::regex {
 	void ExprPrinter::visit(const CharAtom& n) {
-		*m_out << Chars::escapeChar(n.value());
+		*m_out << utils::Chars::escape(n.value());
 	}
 
 	void ExprPrinter::visit(const NilExpr&) {

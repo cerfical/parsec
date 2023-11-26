@@ -101,7 +101,7 @@ collect_module_sources(parsec-lib "dfa"
 )
 
 collect_module_sources(parsec-lib "utils"
-	"Strings" "Chars"
+	"utils" "Strings" "Chars"
 )
 
 

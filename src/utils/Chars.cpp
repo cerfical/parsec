@@ -1,9 +1,8 @@
 #include "utils/Chars.hpp"
 #include <format>
 
-namespace parsec {
-	std::string Chars::escapeChar(char ch) {
-		// printable characters are printed (???)
+namespace parsec::utils {
+	std::string Chars::escape(char ch) {
 		if(isPrint(ch)) {
 			switch(ch) {
 				case '\\': return "\\\\";
@@ -13,7 +12,6 @@ namespace parsec {
 			}
 		}
 
-		// non-printable characters are converted to numerical values
 		switch(ch) {
 			case '\0': return "\\0";
 			case '\a': return "\\a";
@@ -24,7 +22,7 @@ namespace parsec {
 			case '\t': return "\\t";
 			case '\v': return "\\v";
 			default: {
-				return std::format("\\x{:02x}", charToInt(ch));
+				return std::format("\\x{:02x}", toInt(ch));
 			}
 		}
 	}

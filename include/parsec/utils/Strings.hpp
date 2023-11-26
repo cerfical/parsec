@@ -1,33 +1,23 @@
 #ifndef PARSEC_UTILS_STRINGS_HEADER
 #define PARSEC_UTILS_STRINGS_HEADER
 
+#include <string_view>
 #include <string>
-#include <sstream>
 
-namespace parsec {
+namespace parsec::utils {
+	/**
+	 * @brief Utilities for working with character strings.
+	 */
 	class Strings {
 	public:
-		/** @{ */
-		template <typename T>
-		static std::string toString(T&& value) {
-			return (std::ostringstream()
-				<< std::forward<T>(value)
-			).str();
-		}
-		/** @} */
+		static std::string capitalize(std::string_view s);
 
-
-		/** @{ */
-		static std::string capitalize(const std::string& str);
-
-		static std::string toLower(const std::string& str);
-		static std::string toUpper(const std::string& str);
-		/** @} */
-
+		static std::string toLower(std::string_view s);
+		static std::string toUpper(std::string_view s);
 
 	private:
-		Strings() = default;
-		~Strings() = default;
+		Strings() = delete;
+		~Strings() = delete;
 	};
 }
 

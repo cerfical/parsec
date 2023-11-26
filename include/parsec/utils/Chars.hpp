@@ -4,84 +4,77 @@
 #include <string>
 #include <cctype>
 
-namespace parsec {
+namespace parsec::utils {
+	/**
+	 * @brief Utilities for working with characters.
+	 */
 	class Chars {
 	public:
-		/** @{ */
 		/** @brief Safely convert a character to an integer. */
-		static constexpr int charToInt(char ch) noexcept {
+		static constexpr int toInt(char ch) noexcept {
 			return static_cast<unsigned char>(ch);
 		}
 
-		/** @brief Find the value of a single digit represented as a character. */
+
+		/** @brief Find the value of a digit character. */
 		static constexpr int evalDigit(char ch) noexcept {
 			return ch - '0';
 		}
 
-		/** @brief Find the value of a single hexadecimal digit represented as a character. */
+		/** @brief Find the value of a hexadecimal digit character. */
 		static constexpr int evalHexDigit(char ch) noexcept {
 			return (ch >= 'a') ? ch - 'a' + 10 : ((ch >= 'A') ? ch - 'A' : evalDigit(ch));
 		}
-		/** @} */
 
 
-		/** @{ */
 		/** @brief Present a character in a human-readable form. */
-		static std::string escapeChar(char ch);
+		static std::string escape(char ch);
 
-		/** @brief Convert a character to uppercase. */
-		static char toUpper(char ch) {
-			return static_cast<char>(std::toupper(charToInt(ch)));
+
+		/** @{ */
+		static char toLower(char ch) noexcept {
+			return static_cast<char>(std::tolower(toInt(ch)));
 		}
-
-		/** @brief Convert a character to lowercase. */
-		static char toLower(char ch) {
-			return static_cast<char>(std::tolower(charToInt(ch)));
+		
+		static char toUpper(char ch) noexcept {
+			return static_cast<char>(std::toupper(toInt(ch)));
 		}
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Checks whether a character is in lowercase. */
 		static bool isLower(char ch) noexcept {
-			return std::islower(charToInt(ch));
+			return std::islower(toInt(ch));
 		}
 
-		/** @brief Checks whether a character is in uppercase. */
 		static bool isUpper(char ch) noexcept {
-			return std::isupper(charToInt(ch));
+			return std::isupper(toInt(ch));
 		}
 
-		/** @brief Checks if a character is an alphabetic character. */
+
 		static bool isAlpha(char ch) noexcept {
-			return std::isalpha(charToInt(ch));
+			return std::isalpha(toInt(ch));
 		}
 
-
-		/** @brief Checks if a character is a digit. */
 		static bool isDigit(char ch) noexcept {
-			return std::isdigit(charToInt(ch));
+			return std::isdigit(toInt(ch));
 		}
 
-		/** @brief Checks if a character is a hexadecimal digit. */
 		static bool isHexDigit(char ch) noexcept {
-			return std::isxdigit(charToInt(ch));
+			return std::isxdigit(toInt(ch));
 		}
 
-		/** @brief Checks if a character is an alphanumeric character. */
 		static bool isAlnum(char ch) noexcept {
-			return std::isalnum(charToInt(ch));
+			return std::isalnum(toInt(ch));
 		}
 
 
-		/** @brief Checks if a character is a whitespace character. */
 		static bool isSpace(char ch) noexcept {
-			return std::isspace(charToInt(ch));
+			return std::isspace(toInt(ch));
 		}
 
-		/** @brief Checks if a character is a printable character. */
 		static bool isPrint(char ch) noexcept {
-			return std::isprint(charToInt(ch));
+			return std::isprint(toInt(ch));
 		}
 		/** @} */
 

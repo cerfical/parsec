@@ -39,7 +39,7 @@ namespace parsec::regex {
 				}
 
 				throw Error(std::format("unexpected '{}'",
-						Chars::escapeChar(m_scanner.peek())
+						utils::Chars::escape(m_scanner.peek())
 					), m_scanner.loc()
 				);
 			}
@@ -91,10 +91,10 @@ namespace parsec::regex {
 					case 'v': { m_scanner.skip(); return '\v'; }
 					case 'x': {
 						m_scanner.skip();
-						if(Chars::isHexDigit(m_scanner.peek())) {
-							auto ch = Chars::evalHexDigit(m_scanner.get());
-							if(!m_scanner.isEof() && Chars::isHexDigit(m_scanner.peek())) {
-								ch = ch * 16 + Chars::evalHexDigit(m_scanner.get());
+						if(utils::Chars::isHexDigit(m_scanner.peek())) {
+							auto ch = utils::Chars::evalHexDigit(m_scanner.get());
+							if(!m_scanner.isEof() && utils::Chars::isHexDigit(m_scanner.peek())) {
+								ch = ch * 16 + utils::Chars::evalHexDigit(m_scanner.get());
 							}
 							return gsl::narrow_cast<char>(ch);
 						}

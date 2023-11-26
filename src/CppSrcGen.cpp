@@ -127,7 +127,7 @@ private:
 						m_out << "\n\t\tif(!scanner()->isEof()) switch(scanner()->peek()) {\n";
 						for(const auto transition : state.transitions()) {
 							m_out << std::format("\t\t\tcase '{}': goto {};\n",
-								Chars::escapeChar(transition->inputChar()),
+								utils::Chars::escape(transition->inputChar()),
 								makeStateLabel(transition->newState())
 							);
 						}
