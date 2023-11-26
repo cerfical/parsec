@@ -4,13 +4,14 @@
 #include "BinaryExpr.hpp"
 
 namespace parsec::regex {
+	/**
+	 * @brief Concatenation expression node.
+	 */
 	class ConcatExpr : public BinaryExpr {
 	public:
-		/** @{ */
 		ConcatExpr(ExprPtr left, ExprPtr right) noexcept
 			: BinaryExpr(std::move(left), std::move(right))
 		{ }
-		/** @} */
 
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;

@@ -12,10 +12,11 @@ namespace parsec::regex {
 	class AlternExpr;
 	class ConcatExpr;
 
-
+	/**
+	 * @brief Type-safe visitor for regular expression nodes.
+	 */
 	class NodeVisitor {
 	public:
-		/** @{ */
 		virtual void visit(const CharAtom& n) = 0;
 		virtual void visit(const NilExpr& n) = 0;
 
@@ -25,12 +26,9 @@ namespace parsec::regex {
 
 		virtual void visit(const AlternExpr& n) = 0;
 		virtual void visit(const ConcatExpr& n) = 0;
-		/** @} */
 
 	protected:
-		/** @{ */
 		~NodeVisitor() = default;
-		/** @} */
 	};
 }
 

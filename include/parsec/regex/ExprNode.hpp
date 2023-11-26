@@ -6,28 +6,23 @@
 
 namespace parsec::regex {
 	class NodeVisitor;
+
+	/**
+	 * @brief Base for all expression node classes.
+	 */
 	class ExprNode {
 	public:
-		/** @{ */
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
-		/** @} */
 
 
-		/** @{ */
 		ExprNode() = default;
 
 		virtual ~ExprNode() = default;
-		/** @} */
 
 
 		/** @{ */
 		ExprNode(const ExprNode&) = delete;
 		ExprNode& operator=(const ExprNode&) = delete;
-		/** @} */
-
-		/** @{ */
-		ExprNode(ExprNode&&) = delete;
-		ExprNode& operator=(ExprNode&&) = delete;
 		/** @} */
 
 
@@ -55,8 +50,9 @@ namespace parsec::regex {
 		const ExprNode* m_parent = nullptr;
 	};
 
-	using ExprPtr = std::unique_ptr<ExprNode>;
 
+
+	using ExprPtr = std::unique_ptr<ExprNode>;
 
 	template <typename Node, typename... Args>
 		requires std::constructible_from<Node, Args...>

@@ -4,13 +4,14 @@
 #include "UnaryExpr.hpp"
 
 namespace parsec::regex {
+	/**
+	 * @brief Kleene star expression node.
+	 */
 	class PlusExpr : public UnaryExpr {
 	public:
-		/** @{ */
 		explicit PlusExpr(ExprPtr inner) noexcept
 			: UnaryExpr(std::move(inner))
 		{ }
-		/** @} */
 
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;

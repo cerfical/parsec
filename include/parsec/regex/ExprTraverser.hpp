@@ -5,18 +5,17 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+	/**
+	 * @brief Traverses regular expression atom by atom.
+	 */
 	class ExprTraverser : NodeVisitor {
 	protected:
-		/** @{ */
 		~ExprTraverser() = default;
-		/** @} */
 
 
-		/** @{ */
 		void traverse(const ExprNode& n) {
 			n.acceptVisitor(*this);
 		}
-		/** @} */
 
 
 		/** @{ */

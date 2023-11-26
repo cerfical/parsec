@@ -4,16 +4,17 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+	/**
+	 * @brief Unary expression node.
+	 */
 	class UnaryExpr : public ExprNode {
 	public:
-		/** @{ */
 		explicit UnaryExpr(ExprPtr inner) noexcept
 			: m_inner(std::move(inner)) {
 			m_inner->setParent(this);
 		}
 
 		~UnaryExpr() override = default;
-		/** @} */
 
 
 		/** @{ */

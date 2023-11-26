@@ -4,11 +4,12 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+	/**
+	 * @brief Empty expression node.
+	 */
 	class NilExpr : public ExprNode {
 	public:
-		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
-		/** @} */
 	};
 }
 

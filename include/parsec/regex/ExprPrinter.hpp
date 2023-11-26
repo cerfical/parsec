@@ -7,13 +7,14 @@
 #include <iostream>
 
 namespace parsec::regex {
+	/**
+	 * @brief Prints out regular expressions.
+	 */
 	class ExprPrinter : NodeVisitor {
 	public:
-		/** @{ */
 		explicit ExprPrinter(std::ostream& out = std::cout) noexcept
 			: m_out(&out)
 		{ }
-		/** @} */
 
 
 		/** @{ */
