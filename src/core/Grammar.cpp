@@ -1,4 +1,4 @@
-#include "Grammar.hpp"
+#include "core/Grammar.hpp"
 #include <gsl/narrow>
 
 namespace parsec {

@@ -1,4 +1,4 @@
-#include "Pattern.hpp"
+#include "core/Pattern.hpp"
 #include <gsl/narrow>
 
 namespace parsec {

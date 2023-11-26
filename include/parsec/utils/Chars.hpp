@@ -4,6 +4,7 @@
 #include <string>
 #include <cctype>
 
+/** @brief Contains various helper functions and classes. */
 namespace parsec::utils {
 	/**
 	 * @brief Utilities for working with characters.

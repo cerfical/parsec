@@ -3,15 +3,15 @@
 
 #include "config.hpp"
 
-#include "Error.hpp"
-#include "SourceLoc.hpp"
-#include "TextScanner.hpp"
+#include "core/Error.hpp"
+#include "core/SourceLoc.hpp"
+#include "core/TextScanner.hpp"
 
-#include "Grammar.hpp"
-#include "Parser.hpp"
-#include "Lexer.hpp"
+#include "core/Grammar.hpp"
+#include "core/Parser.hpp"
+#include "core/Lexer.hpp"
 
-#include "CppSrcGen.hpp"
+#include "core/CppSrcGen.hpp"
 
 /** @brief Root namespace for the parsec library. */
 namespace parsec { }

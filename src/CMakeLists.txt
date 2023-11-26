@@ -39,10 +39,9 @@ set_target_properties(parsec-lib
 )
 
 
-collect_module_sources(parsec-lib ""
-	"parsec"
-	"deps"
+collect_module_sources(parsec-lib "" "parsec" "deps")
 
+collect_module_sources(parsec-lib "core"
 	"Rule"
 	"Pattern"
 	"Symbol"
@@ -101,7 +100,7 @@ collect_module_sources(parsec-lib "dfa"
 )
 
 collect_module_sources(parsec-lib "utils"
-	"utils" "Strings" "Chars"
+	"Strings" "Chars"
 )
 
 

@@ -1,7 +1,7 @@
 #ifndef PARSEC_DFA_STATE_HEADER
 #define PARSEC_DFA_STATE_HEADER
 
-#include "../Pattern.hpp"
+#include "../core/Pattern.hpp"
 #include "Transition.hpp"
 
 #include <concepts>

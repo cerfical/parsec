@@ -1,7 +1,7 @@
 #ifndef PARSEC_LR_STATE_REDUCE_HEADER
 #define PARSEC_LR_STATE_REDUCE_HEADER
 
-#include "../Symbol.hpp"
+#include "../core/Symbol.hpp"
 
 namespace parsec::lr {
 	class StateReduce {

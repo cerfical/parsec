@@ -1,4 +1,4 @@
-#include "CppSrcGen.hpp"
+#include "core/CppSrcGen.hpp"
 
 #include "utils/Chars.hpp"
 #include "dfa/StateGen.hpp"

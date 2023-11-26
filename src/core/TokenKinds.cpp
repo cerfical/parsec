@@ -1,4 +1,4 @@
-#include "TokenKinds.hpp"
+#include "core/TokenKinds.hpp"
 
 namespace parsec {
 	std::ostream& operator<<(std::ostream& out, TokenKinds tok) {

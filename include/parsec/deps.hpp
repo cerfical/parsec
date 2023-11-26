@@ -6,9 +6,9 @@
 #include <vector>
 #include <string>
 
-#include "TokenBase.hpp"
-#include "LexerBase.hpp"
-#include "TextScanner.hpp"
-#include "Error.hpp"
+#include "core/TokenBase.hpp"
+#include "core/LexerBase.hpp"
+#include "core/TextScanner.hpp"
+#include "core/Error.hpp"
 
 #endif

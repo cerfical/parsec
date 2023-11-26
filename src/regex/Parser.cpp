@@ -3,8 +3,8 @@
 
 #include "utils/Chars.hpp"
 
-#include "TextScanner.hpp"
-#include "Error.hpp"
+#include "core/TextScanner.hpp"
+#include "core/Error.hpp"
 
 #include <gsl/narrow>
 #include <sstream>

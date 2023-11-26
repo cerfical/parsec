@@ -1,7 +1,7 @@
 #ifndef PARSEC_LR_STATE_SHIFT_HEADER
 #define PARSEC_LR_STATE_SHIFT_HEADER
 
-#include "../Symbol.hpp"
+#include "../core/Symbol.hpp"
 
 namespace parsec::lr {
 	class StateShift {

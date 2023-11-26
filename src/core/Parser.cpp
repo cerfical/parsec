@@ -1,6 +1,6 @@
-#include "Parser.hpp"
-#include "Lexer.hpp"
-#include "Error.hpp"
+#include "core/Parser.hpp"
+#include "core/Lexer.hpp"
+#include "core/Error.hpp"
 
 #include "regex/Parser.hpp"
 #include "regex/NodeVisitor.hpp"

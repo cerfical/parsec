@@ -1,7 +1,7 @@
 #ifndef PARSEC_DFA_STATE_GEN_HEADER
 #define PARSEC_DFA_STATE_GEN_HEADER
 
-#include "../Grammar.hpp"
+#include "../core/Grammar.hpp"
 
 #include "State.hpp"
 #include <vector>
