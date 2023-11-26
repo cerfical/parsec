@@ -9,13 +9,14 @@
 #include <ranges>
 
 namespace parsec::dfa {
+	/**
+	 * @brief DFA state with its transitions and associated matches.
+	 */
 	class State {
 	public:
-		/** @{ */
 		explicit State(int id) noexcept
 			: m_id(id)
 		{ }
-		/** @} */
 
 
 		/** @{ */

@@ -2,13 +2,14 @@
 #define PARSEC_DFA_TRANSITION_HEADER
 
 namespace parsec::dfa {
+	/**
+	 * @brief Describes a state transition upon seeing a particular input character.
+	 */
 	class Transition {
 	public:
-		/** @{ */
 		Transition(int newState, char inputChar) noexcept
 			: m_newState(newState), m_inputChar(inputChar)
 		{ }
-		/** @} */
 
 
 		/** @{ */
