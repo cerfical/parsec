@@ -6,18 +6,18 @@
 #include "State.hpp"
 #include <vector>
 
+/** @brief Describes SLR automata. */
 namespace parsec::lr {
+	/**
+	 * @brief Generates @ref State "SLR-states".
+	 */
 	class StateGen {
 	public:
-		/** @{ */
 		StateGen() = default;
-		/** @} */
 
 
-		/** @{ */
 		StateGen(StateGen&&) = default;
 		StateGen& operator=(StateGen&&) = default;
-		/** @} */
 
 		/** @{ */
 		StateGen(const StateGen&) = delete;

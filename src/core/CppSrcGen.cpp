@@ -233,9 +233,9 @@ protected:
 
 				// take the first available reduce action, ignore the rest, if any
 				const auto reduce = *std::ranges::min_element(reduces, [](const auto r1, const auto r2) {
-					return r1->newSymbol()->id() < r2->newSymbol()->id();
+					return r1->reduceRule()->id() < r1->reduceRule()->id();
 				});
-				const auto symbol = reduce->newSymbol();
+				const auto symbol = reduce->reduceRule()->head();
 
 				m_out << indent << std::format("initiateReduce({}, {}, {}, {});\n",
 					makeParseRule(symbol),

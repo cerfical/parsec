@@ -1,8 +1,7 @@
 #ifndef PARSEC_LR_STATE_HEADER
 #define PARSEC_LR_STATE_HEADER
 
-#include "StateShift.hpp"
-#include "StateGoto.hpp"
+#include "Transition.hpp"
 #include "StateReduce.hpp"
 
 #include <concepts>
@@ -10,13 +9,14 @@
 #include <vector>
 
 namespace parsec::lr {
+	/**
+	 * @brief SLR state with all its shifts, goto table and reduce actions.
+	 */
 	class State {
 	public:
-		/** @{ */
 		State(int id, const Symbol* inputSymbol) noexcept
 			: m_inputSymbol(inputSymbol), m_id(id)
 		{ }
-		/** @} */
 
 
 		/** @{ */
@@ -32,7 +32,7 @@ namespace parsec::lr {
 
 		/** @{ */
 		template <typename... Args>
-			requires std::constructible_from<StateShift, Args...>
+			requires std::constructible_from<Transition, Args...>
 		void addShift(Args&&... args) {
 			m_shifts.emplace_back(std::forward<Args>(args)...);
 		}
@@ -47,7 +47,7 @@ namespace parsec::lr {
 
 		/** @{ */
 		template <typename... Args>
-			requires std::constructible_from<StateGoto, Args...>
+			requires std::constructible_from<Transition, Args...>
 		void addGoto(Args&&... args) {
 			m_gotos.emplace_back(std::forward<Args>(args)...);
 		}
@@ -95,8 +95,8 @@ namespace parsec::lr {
 
 
 	private:
-		std::vector<StateShift> m_shifts;
-		std::vector<StateGoto> m_gotos;
+		std::vector<Transition> m_shifts;
+		std::vector<Transition> m_gotos;
 		std::vector<StateReduce> m_reduces;
 		
 		const Symbol* m_inputSymbol;

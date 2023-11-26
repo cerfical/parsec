@@ -1,22 +1,23 @@
 #ifndef PARSEC_LR_STATE_REDUCE_HEADER
 #define PARSEC_LR_STATE_REDUCE_HEADER
 
-#include "../core/Symbol.hpp"
+#include "../core/Rule.hpp"
 
 namespace parsec::lr {
+	/**
+	 * @brief Defines a states reduction by a rule.
+	 */
 	class StateReduce {
 	public:
-		/** @{ */
 		StateReduce(
-			const Symbol* newSymbol,
+			const Rule* reduceRule,
 			int reducedStates,
 			int consumedTokens
 		) noexcept
-			: m_newSymbol(newSymbol)
+			: m_reduceRule(reduceRule)
 			, m_reducedStates(reducedStates)
 			, m_consumedTokens(consumedTokens)
 		{ }
-		/** @} */
 
 
 		/** @{ */
@@ -26,8 +27,8 @@ namespace parsec::lr {
 
 
 		/** @{ */
-		const Symbol* newSymbol() const noexcept {
-			return m_newSymbol;
+		const Rule* reduceRule() const noexcept {
+			return m_reduceRule;
 		}
 
 		int consumedTokens() const noexcept {
@@ -41,7 +42,7 @@ namespace parsec::lr {
 
 
 	private:
-		const Symbol* m_newSymbol;
+		const Rule* m_reduceRule;
 		int m_reducedStates;
 		int m_consumedTokens;
 	};

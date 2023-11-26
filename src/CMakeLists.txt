@@ -87,8 +87,7 @@ collect_module_sources(parsec-lib "regex"
 
 
 collect_module_sources(parsec-lib "lr"
-	"StateGoto"
-	"StateShift"
+	"Transition"
 	"StateReduce"
 	"StateGen"
 	"State"

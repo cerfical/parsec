@@ -146,7 +146,7 @@ namespace parsec::lr {
 					// if we have reached the end of the rule, add a reduce action
 					if(item.isAtEnd()) {
 						m_states[id].addReduce(
-							item.rule()->head(),
+							item.rule(),
 							item.pos(),
 							item.tokens()
 						);
