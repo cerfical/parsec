@@ -7,17 +7,16 @@
 #include <istream>
 
 namespace parsec {
+	/**
+	 * @brief Constructs a @ref Grammar "grammar" from its textual description.
+	 */
 	class Parser {
 	public:
-		/** @{ */
 		Parser() = default;
-		/** @} */
 
-
-		/** @{ */
 		Parser(Parser&&) = default;
 		Parser& operator=(Parser&&) = default;
-		/** @} */
+
 
 		/** @{ */
 		Parser(const Parser&) = delete;

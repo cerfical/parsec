@@ -5,13 +5,14 @@
 #include <iostream>
 
 namespace parsec {
+	/**
+	 * @brief Generates C++ source code for a @ref Grammar "grammar"-defined parser description.
+	 */
 	class CppSrcGen {
 	public:
-		/** @{ */
 		explicit CppSrcGen(std::ostream& out = std::cout) noexcept
 			: m_out(&out)
 		{ }
-		/** @} */
 
 
 		/** @{ */
@@ -23,8 +24,8 @@ namespace parsec {
 		CppSrcGen(const CppSrcGen&) = delete;
 		CppSrcGen& operator=(const CppSrcGen&) = delete;
 		/** @} */
-
-
+		
+		
 		/** @{ */
 		void run(const Grammar& grammar);
 		/** @} */

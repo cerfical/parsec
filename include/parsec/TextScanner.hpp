@@ -1,5 +1,5 @@
-#ifndef PARSEC_UTILS_TEXT_SCANNER_HEADER
-#define PARSEC_UTILS_TEXT_SCANNER_HEADER
+#ifndef PARSEC_TEXT_SCANNER_HEADER
+#define PARSEC_TEXT_SCANNER_HEADER
 
 #include "SourceLoc.hpp"
 
@@ -14,13 +14,9 @@ namespace parsec {
 	class TextScanner {
 	public:
 		/** @{ */
-		/** @brief Construct a new scanner that operates on a specified @c std::istream. */
 		TextScanner(std::istream& input = std::cin) noexcept
-			: m_input(&input) {
-			m_input->exceptions(
-				std::ios::badbit | std::ios::failbit
-			);
-		}
+			: m_input(&input)
+		{ }
 		/** @} */
 
 
@@ -52,11 +48,11 @@ namespace parsec {
 
 
 		/** @{ */
-		/** @brief Removes specified character from the beginning of the input. */
+		/** @brief Removes specified character from the input. */
 		bool skipIf(char ch);
 
 
-		/** @brief Removes specified text from the beginning of the input. */
+		/** @brief Removes specified text from the input. */
 		bool skipIf(std::string_view text);
 
 
@@ -80,7 +76,7 @@ namespace parsec {
 		}
 
 
-		/** @brief Absolute position of the scanner in the input stream. */
+		/** @brief Position of the scanner in the input stream. */
 		int pos() const noexcept {
 			return m_pos;
 		}

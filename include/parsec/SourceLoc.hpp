@@ -1,5 +1,5 @@
-#ifndef PARSEC_UTILS_SOURCE_LOC_HEADER
-#define PARSEC_UTILS_SOURCE_LOC_HEADER
+#ifndef PARSEC_SOURCE_LOC_HEADER
+#define PARSEC_SOURCE_LOC_HEADER
 
 #include <ostream>
 
@@ -10,16 +10,13 @@ namespace parsec {
 	class SourceLoc {
 	public:
 		/** @{ */
-		/** @brief Prints out a location to a @c std::ostream. */
 		friend std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
 		/** @} */
 
 
 		/** @{ */
-		/** @brief Construct a new empty location. */
 		SourceLoc() = default;
 
-		/** @brief Construct a new location. */
 		SourceLoc(int startCol, int colCount, int lineNo, int linePos) noexcept
 			: m_startCol(startCol)
 			, m_colCount(colCount)
@@ -36,45 +33,38 @@ namespace parsec {
 
 
 		/** @{ */
-		/** @brief Positional index of the location. */
 		int linePos() const noexcept {
 			return m_linePos;
 		}
 
-
-		/** @brief Line number of the location. */
 		int lineNo() const noexcept {
 			return m_lineNo;
 		}
+		/** @} */
 
 
-		/** @brief Number of columns spanning the location. */
+		/** @{ */
 		int colCount() const noexcept {
 			return m_colCount;
 		}
 
-
-		/** @brief Starting column of the location. */
 		int startCol() const noexcept {
 			return m_startCol;
 		}
 
-
-		/** @brief Ending column of the location. */
 		int endCol() const noexcept {
 			return startCol() + colCount();
 		}
+		/** @} */
 
 
-		/** @brief Absolute position of the location. */
-		int pos() const noexcept {
-			return linePos() + startCol();
-		}
-
-
-		/** @brief Checks if the location contains any useful information. */
+		/** @{ */
 		bool isEmpty() const noexcept {
 			return m_colCount == 0;
+		}
+		
+		int pos() const noexcept {
+			return linePos() + startCol();
 		}
 		/** @} */
 

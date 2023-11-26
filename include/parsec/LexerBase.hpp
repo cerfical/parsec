@@ -10,14 +10,15 @@
 #include <istream>
 
 namespace parsec {
+	/**
+	 * @brief Base for @ref Lexer "lexer"-like types.
+	 */
 	template <typename Token, typename TokenKinds>
 	class LexerBase {
 	public:
-		/** @{ */
 		explicit LexerBase(std::istream& input = std::cin) noexcept
 			: m_scanner(input)
 		{ }
-		/** @} */
 
 
 		/** @{ */
@@ -32,6 +33,7 @@ namespace parsec {
 
 
 		/** @{ */
+		/** @brief Performs input analysis and extracts the next token. */
 		Token lex() {
 			if(m_tok) {
 				return *std::exchange(m_tok, {});
@@ -39,6 +41,7 @@ namespace parsec {
 			return parseToken();
 		}
 
+		/** @brief Check the next token without removing it from the input. */
 		const Token& peek() const {
 			if(!m_tok) {
 				m_tok = parseToken();
@@ -46,13 +49,14 @@ namespace parsec {
 			return *m_tok;
 		}
 
+
+		/** @brief Check whether the end of file has been reached. */
 		bool isEof() const {
 			return peek().isEof();
 		}
-
-
+		
+		/** @brief Current location of the lexer in the input stream. */
 		SourceLoc loc() const noexcept {
-			// calculate proper values for the number of columns and the starting column
 			const auto colCount = std::max(m_scanner.pos() - m_startPos, 1);
 			const auto startCol = m_startPos - m_scanner.linePos();
 
@@ -67,6 +71,7 @@ namespace parsec {
 
 
 		/** @{ */
+		/** @brief Conditionally removes the next token from the input, depending on its type. */
 		bool skipIf(TokenKinds kind) {
 			if(peek().kind() == kind) {
 				skip();
@@ -75,6 +80,7 @@ namespace parsec {
 			return false;
 		}
 
+		/** @brief Conditionally removes the next token from the input, depending on its textual representation. */
 		bool skipIf(std::string_view text) {
 			if(peek().text() == text) {
 				skip();
@@ -83,6 +89,7 @@ namespace parsec {
 			return false;
 		}
 
+		/** @brief Unconditionally removes the next token from the input. */
 		void skip() {
 			lex();
 		}
@@ -90,32 +97,33 @@ namespace parsec {
 
 
 	protected:
-		/** @{ */
 		~LexerBase() = default;
-		/** @} */
 		
 		
-		/** @{ */
-		virtual typename TokenKinds onTokenParse() const = 0;
-		/** @} */
+		/** @brief Called when a new token needs to be parsed. */
+		virtual TokenKinds onTokenParse() const = 0;
 
 		
 		/** @{ */
+		/** @brief Generates an error linked to the current lexer position. */
 		[[noreturn]] void error() const {
 			throw Error("malformed token", loc());
 		}
 
+		/** @brief Reset the token parse state. */
 		void reset() const {
 			m_startPos = m_scanner.pos();
 			m_buf.clear();
 		}
 
 
+		/** @brief Contributes a new character to the token text. */
 		void consume(char ch) const {
 			m_buf += ch;
 		}
 
-		void consume(const std::string& str) const {
+		/** @brief Contributes a character sequence to the token text. */
+		void consume(std::string_view str) const {
 			m_buf += str;
 		}
 	

@@ -10,27 +10,24 @@
 namespace parsec {
 	class Symbol;
 
+	/**
+	 * @brief Specifies an inference rule for a @ref Symbol "grammar symbol".
+	 */
 	class Rule {
 	public:
-		/** @{ */
 		Rule(const Symbol* head, int id) noexcept
 			: m_head(head), m_id(id)
 		{ }
+
+
+		/** @{ */
+		Rule(const Rule&) = delete;
+		Rule& operator=(const Rule&) = delete;
 		/** @} */
 
 
 		/** @{ */
-		Rule(const Rule&) = default;
-		Rule& operator=(const Rule&) = default;
-		/** @} */
-		
-		/** @{ */
-		Rule(Rule&&) = default;
-		Rule& operator=(Rule&&) = default;
-		/** @} */
-
-
-		/** @{ */
+		/** @brief Replaces all occurrences of a symbol with another symbol. */
 		void replaceSymbol(const Symbol* symbol, const Symbol* replace) {
 			std::ranges::replace(m_symbols, symbol, replace);
 		}
@@ -48,13 +45,15 @@ namespace parsec {
 		const Symbol* symbolAt(int i) const noexcept {
 			return m_symbols[i];
 		}
+		/** @} */
+
 		
-		
+		/** @{ */
 		const Symbol* head() const noexcept {
 			return m_head;
 		}
 
-		int length() const {
+		int length() const noexcept {
 			return gsl::narrow_cast<int>(m_symbols.size());
 		}
 

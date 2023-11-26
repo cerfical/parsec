@@ -9,19 +9,15 @@
 #include <ranges>
 
 namespace parsec {
+	/**
+	 * @brief Defines a single named grammar symbol.
+	 */
 	class Symbol {
 	public:
-		/** @{ */
 		Symbol(const std::string& name, int id)
 			: m_name(name), m_id(id)
 		{ }
-		/** @} */
 
-
-		/** @{ */
-		Symbol(Symbol&&) = default;
-		Symbol& operator=(Symbol&&) = default;
-		/** @} */
 
 		/** @{ */
 		Symbol(const Symbol&) = delete;
@@ -30,6 +26,10 @@ namespace parsec {
 
 
 		/** @{ */
+		void addRule(Rule* rule) {
+			m_rules.push_back(rule);
+		}
+		
 		std::ranges::view auto rules() const {
 			return m_rules | std::views::transform(
 				[](auto r) { return static_cast<const Rule*>(r); }
@@ -38,10 +38,6 @@ namespace parsec {
 		
 		std::ranges::view auto rules() {
 			return std::ranges::ref_view(m_rules);
-		}
-		
-		void addRule(Rule* rule) {
-			m_rules.push_back(rule);
 		}
 		/** @} */
 
@@ -63,12 +59,12 @@ namespace parsec {
 
 
 		/** @{ */
-		const std::string& name() const noexcept {
-			return m_name;
-		}
-
 		bool isReserved() const noexcept {
 			return m_name.ends_with('_');
+		}
+		
+		const std::string& name() const noexcept {
+			return m_name;
 		}
 
 		int id() const noexcept {

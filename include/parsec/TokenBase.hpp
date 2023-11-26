@@ -7,18 +7,18 @@
 #include <ostream>
 
 namespace parsec {
+	/**
+	 * @brief Base for @ref Token "token"-like types.
+	 */
 	template <typename TokenKinds>
 	class TokenBase {
 	public:
-		/** @{ */
 		friend std::ostream& operator<<(std::ostream& out, const TokenBase& tok) {
 			out << "{ " << tok.kind() << ": \"" << tok.text() << "\" }";
 			return out;
 		}
-		/** @} */
 
 
-		/** @{ */
 		TokenBase() = default;
 
 		TokenBase(
@@ -30,7 +30,6 @@ namespace parsec {
 			, m_loc(loc)
 			, m_kind(kind)
 		{ }
-		/** @} */
 
 
 		/** @{ */

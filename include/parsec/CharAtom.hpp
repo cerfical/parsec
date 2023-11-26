@@ -5,23 +5,32 @@
 #include <ranges>
 
 namespace parsec {
+	/**
+	 * @brief Represents characters that form some @ref Pattern "pattern".
+	 */
 	class CharAtom {
 	public:
-		/** @{ */
 		CharAtom(char value, int id) noexcept
 			: m_id(id), m_value(value)
 		{ }
-		/** @} */
 
-		
-		/** @{ */
-		CharAtom(CharAtom&&) = default;
-		CharAtom& operator=(CharAtom&&) = default;
-		/** @} */
 		
 		/** @{ */
 		CharAtom(const CharAtom&) = delete;
 		CharAtom& operator=(const CharAtom&) = delete;
+		/** @} */
+
+
+		/** @{ */
+		/** @brief List of character atoms that can follow this atom. */
+		std::ranges::view auto follows() const {
+			return std::ranges::ref_view(m_follows);
+		}
+
+		/** @brief Add an atom to the follows-list of this atom. */
+		void addFollow(const CharAtom* atom) {
+			m_follows.push_back(atom);
+		}
 		/** @} */
 
 
@@ -32,17 +41,6 @@ namespace parsec {
 
 		int id() const noexcept {
 			return m_id;
-		}
-		/** @} */
-
-
-		/** @{ */
-		std::ranges::view auto follows() const {
-			return std::ranges::ref_view(m_follows);
-		}
-
-		void addFollow(const CharAtom* atom) {
-			m_follows.push_back(atom);
 		}
 		/** @} */
 

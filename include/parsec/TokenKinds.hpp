@@ -27,6 +27,9 @@
 namespace parsec {
 #define PARSEC_TOKEN_KIND(tok, desc) tok,
 
+	/**
+	 * @brief Lists all available token types used in a textual grammar definition.
+	 */
 	enum class TokenKinds {
 		PARSEC_TOKEN_KIND_LIST
 	};
