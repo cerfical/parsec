@@ -1,144 +1,186 @@
-#include <boost/algorithm/string/trim.hpp>
-
-#include <parsec/cli/ConsoleApp.hpp>
 #include <parsec/parsec.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/program_options.hpp>
+
+#include <gsl/gsl>
+
+#include <fstream>
 #include <filesystem>
 #include <ranges>
-#include <fstream>
 
 namespace fs = std::filesystem;
 namespace algo = boost::algorithm;
+namespace po = boost::program_options;
 
 namespace ranges = std::ranges;
-namespace views = ranges::views;
+namespace views = std::views;
 
-class ParsecApp : public parsec::cli::ConsoleApp {
+class ParsecApp {
+public:
+	int exec(int argc, gsl::czstring argv[]) noexcept {
+		int exitCode = 0;
+		try {
+			if(parseCommandLine(argc, argv)) {
+				compileGrammar();
+			}
+		} catch(...) {
+			exitCode = 1;
+			dumpCurrentException();
+		}
+		return exitCode;
+	}
+
 private:
 	/** @{ */
-	void onStartup() override {
-		addOption("input-file,i").desc("input file")
-			.typed<fs::path>()
-			.positional();
-		addOption("output-file,o").desc("output file")
-			.typed<fs::path>()
-			.positional();
-		addOption("version").desc("print version information");
-		addOption("help").desc("produce help message");
-	}
+	bool parseCommandLine(int argc, gsl::czstring argv[]) {
+		po::options_description named = { "Options" };
+		named.add_options()
+			("input-file,i", po::value<fs::path>(), "input grammar file")
+			("output-file,o", po::value<fs::path>(), "output source code file")
+			("version", "print version information")
+			("help", "produce help message");
 
-	void onRun() override {
-		if(option("version")) {
-			std::cout << "parsec version " << PARSEC_VERSION << ": " << PARSEC_DESCRIPTION << '\n';
-			return;
+		po::variables_map options;
+		store(po::command_line_parser(argc, argv)
+			.positional(po::positional_options_description()
+				.add("input-file", 1)
+				.add("output-file", 1)
+			)
+			.options(named)
+			.run(), options
+		);
+
+
+		const bool helpRequested = options.contains("help") || options.empty();
+		const bool versionRequested = options.contains("version");
+		
+		if(helpRequested || versionRequested) {
+			if(options.size() != 1) {
+				throw std::runtime_error("invalid command line options");
+			}
+
+			if(helpRequested) {
+				std::cout
+					<< "Usage:" << '\n'
+					<< "  parsec <input-file> [<output-file>]" << '\n'
+					<< "  parsec [options]" << '\n'
+					<< '\n'
+					<< named << '\n';
+			} else if(versionRequested) {
+				std::cout
+					<< std::format("parsec version {}: {}", PARSEC_VERSION, PARSEC_DESCRIPTION) << '\n'
+					<< '\n';
+			}
+
+			return false;
 		}
 
-		if(option("help") || !option("input-file")) {
-			std::cout << "Usage:\n";
-			std::cout << "  parsec <input-file> [<output-file>]\n";
-			std::cout << "  parsec [options]\n\n";
-			dumpOptions();
-			return;
-		}
 
-		compile();
+		m_inputPath = options["input-file"].as<fs::path>();
+		if(const auto it = options.find("output-file"); it != options.cend()) {
+			m_outputPath = it->second.as<fs::path>();
+		} else {
+			m_outputPath = m_inputPath.stem().replace_extension("hpp");
+		}
+		return true;
 	}
 
-	void onError() override {
+	void dumpCurrentException() {
 		try {
 			throw;
 		} catch(const parsec::Error& e) {
-			printError("error", e);
+			printParseError(e);
+		} catch(const std::exception& e) {
+			std::cerr << "fatal error: " << e.what() << '\n';
 		} catch(...) {
-			ConsoleApp::onError();
+			std::cerr << "unknown error has occurred" << '\n';
 		}
 	}
-	/** @} */
-
-
-	/** @{ */
-	void compile() {
-		// ensure that the specified input file is open and parse it
-		m_inputPath = option<fs::path>("input-file");
-		m_input.open(m_inputPath, std::ios::binary | std::ios::in);
-		if(!m_input.is_open()) {
-			throw std::runtime_error("could not open the input file");
+	
+	void compileGrammar() {
+		if(m_input.open(m_inputPath, std::ios::binary); !m_input.is_open()) {
+			throw std::runtime_error(std::format("failed to load the input file '{}'",
+				m_inputPath.generic_string()
+			));
 		}
-
+		
+		m_input.exceptions(std::ios::badbit | std::ios::failbit);
 		const auto grammar = parsec::Parser().parse(m_input);
-		
-		
-		// ensure that the specified output file is open and write it
-		m_outputPath = option("output-file", m_inputPath.stem().replace_extension("hpp"));
-		m_output.open(m_outputPath);
-		if(!m_output.is_open()) {
-			throw std::runtime_error("failed to create the output file");
+
+		if(m_output.open(m_outputPath); !m_output.is_open()) {
+			throw std::runtime_error(std::format("failed to load the output file '{}'",
+				m_outputPath.generic_string()
+			));
 		}
 
 		parsec::CppSrcGen(m_output)
 			.run(grammar);
 	}
 
-	void printError(const std::string& msg, const parsec::Error& e) {
-		auto markerPos = e.loc().startCol();
-
-		// save the current input position and then update the input pointer
-		const auto inputPos = m_input.tellg();
-		m_input.seekg(e.loc().linePos());
-
-		// read the line of text represented by the location
-		std::string line;
-		if(m_input.peek() != -1) {
-			std::getline(m_input, line);
-			m_input.seekg(inputPos);
-		}
-
-
-		// get rid of trailing and leading whitespace and move the location marker properly
-		const auto lineSize = line.size();
-		algo::trim_left(line);
-		markerPos -= (lineSize - line.size());
-		algo::trim_right(line);
-
-
-		// to correctly position the marker visually, tab characters must be taken into account
-		for(int i = 0; i < markerPos; i++) {
-			if(line[i] == '\t') {
-				markerPos += tabSize - (i % tabSize) - 1;
-			}
-		}
-
-
-		// finally print out the error message
-		std::cerr << m_inputPath.generic_string() << ':' << e.loc() << ": "
-			<< msg << ": " << e.what() << '\n';
-
-		// marker to visually highlight the location of the error
-		const auto marker = std::string(e.loc().colCount(), e.loc().colCount() != 1 ? '~' : '^');
-		const auto spaces = std::string(markerPos, ' ');
+	void printParseError(const parsec::Error& e) {
+		const auto line = readInputLineAt(e.loc().linePos());
+		const auto marker = makeVisualMarker(line, e.loc().startCol(), e.loc().colCount());
 		const auto indent = std::string(tabSize, ' ');
 
-		std::cerr << indent << line << '\n'
-			<< indent << spaces << marker << '\n';
+		std::cerr
+			<< m_inputPath.generic_string() << ':' << e.loc() << ": error: " << e.what() << '\n'
+			<< indent << algo::trim_copy(line) << '\n'
+			<< indent << marker << '\n';
 	}
 	/** @} */
 
 
 	/** @{ */
-	constexpr static auto tabSize = 8;
-	/** @} */
-	
+	std::string makeVisualMarker(const std::string& line, int startCol, int colCount) {
+		const auto leadingWhitespace = line.size() - algo::trim_left_copy(line).size();
+		const auto marker = std::string(colCount, colCount == 1 ? '^' : '~');
 
-	/** @{ */
+		std::string spaces;
+		for(const auto i : views::iota(0) | views::take(startCol - leadingWhitespace)) {
+			// tabs need to be treated specially as they can occur in the middle of a line
+			// and cause the visual marker to be placed in the wrong location
+			if(line[i] == '\t') {
+				// insert the required number of spaces to move to the next tab stop
+				const auto tabDisplaySize = tabSize - i % tabSize;
+				spaces.append(tabDisplaySize, ' ');
+			} else {
+				spaces.append(1, ' ');
+			}
+		}
+
+		return spaces + marker;
+	}
+
+	std::string readInputLineAt(int linePos) {
+		const auto inputPos = m_input.tellg();
+		m_input.seekg(linePos);
+
+		std::string line;
+		if(!checkForInputEof()) {
+			std::getline(m_input, line);
+			m_input.seekg(inputPos);
+		}
+		return line;
+	}
+
+	bool checkForInputEof() {
+		if(m_input.peek() == std::char_traits<char>::eof()) {
+			m_input.clear(m_input.rdstate() ^ std::ios::eofbit);
+			return true;
+		}
+		return false;
+	}
+	/** @} */
+
+
+	static constexpr int tabSize = 8;
+
 	std::ifstream m_input;
 	std::ofstream m_output;
-	/** @} */
 
-
-	/** @{ */
 	fs::path m_outputPath;
 	fs::path m_inputPath;
-	/** @} */
 };
 
 int main(int argc, gsl::czstring argv[]) noexcept {

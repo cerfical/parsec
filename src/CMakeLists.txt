@@ -104,10 +104,6 @@ collect_module_sources(parsec-lib "utils"
 	"Strings" "Chars"
 )
 
-collect_module_sources(parsec-lib "cli"
-	"ConsoleApp" "OptionBuilder"
-)
-
 
 # Specify build and usage requirements
 target_include_directories(parsec-lib
@@ -118,6 +114,5 @@ target_include_directories(parsec-lib
 target_compile_features(parsec-lib PUBLIC cxx_std_20)
 target_link_libraries(parsec-lib
 	PUBLIC Microsoft.GSL::GSL
-	PUBLIC Boost::program_options
 	PRIVATE Boost::boost
 )

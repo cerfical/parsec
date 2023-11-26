@@ -2,6 +2,7 @@ add_executable(parsec "main.cpp")
 
 target_link_libraries(parsec
 	PRIVATE parsec-lib
+	PRIVATE Boost::program_options
 	PRIVATE Boost::boost
 )
 
