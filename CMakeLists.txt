@@ -3,8 +3,9 @@
 project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 0.9.2)
 
 
-# Optional building of documentation
+# Optional building of documentation and examples
 option(BUILD_DOC "Build the documentation" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 # By default build static libs
 option(BUILD_SHARED_LIBS "Enable building of shared libraries" OFF)
@@ -20,6 +21,10 @@ add_subdirectory(app)
 
 if(BUILD_DOC)
 	add_subdirectory(docs)
+endif()
+
+if(BUILD_EXAMPLES)
+	add_subdirectory(examples/calc)
 endif()
 
 

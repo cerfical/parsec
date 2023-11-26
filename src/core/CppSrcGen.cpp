@@ -194,8 +194,8 @@ public:
 	Parser(Parser&&) = default;
 	Parser& operator=(Parser&&) = default;
 
-	Parser(const Parser&) = default;
-	Parser& operator=(const Parser&) = default;
+	Parser(const Parser&) = delete;
+	Parser& operator=(const Parser&) = delete;
 
 
 	void parse(std::istream& input) {
