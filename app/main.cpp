@@ -1,4 +1,5 @@
 #include <parsec/parsec.hpp>
+#include <parsec/config.hpp>
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/program_options.hpp>

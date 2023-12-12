@@ -1,0 +1,18 @@
+
+find_package(GTest REQUIRED)
+include(GoogleTest)
+
+
+add_executable(parsec-tests
+	"src/Tests.cpp"
+)
+
+target_link_libraries(parsec-tests
+	PRIVATE parsec-lib
+
+	PRIVATE GTest::gtest_main
+	PRIVATE GTest::gtest
+	PRIVATE GTest::gmock
+)
+
+gtest_discover_tests(parsec-tests)
