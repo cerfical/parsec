@@ -4,11 +4,13 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+
 	/**
-	 * @brief Binary expression node.
+	 * Regular expression operation with two operands.
 	 */
 	class BinaryExpr : public ExprNode {
 	public:
+
 		BinaryExpr(ExprPtr left, ExprPtr right) noexcept
 			: m_left(std::move(left)), m_right(std::move(right)) {
 			m_left->setParent(this);
@@ -18,7 +20,6 @@ namespace parsec::regex {
 		~BinaryExpr() override = default;
 
 
-		/** @{ */
 		const ExprNode* left() const noexcept {
 			return m_left.get();
 		}
@@ -26,12 +27,13 @@ namespace parsec::regex {
 		const ExprNode* right() const noexcept {
 			return m_right.get();
 		}
-		/** @} */
+
 
 	private:
 		ExprPtr m_left;
 		ExprPtr m_right;
 	};
+
 }
 
 #endif

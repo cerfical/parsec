@@ -4,12 +4,14 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+	
 	/**
-	 * @brief Character literal node.
+	 * Character literal.
 	 */
 	class CharAtom : public ExprNode {
 	public:
-		explicit CharAtom(char ch)
+		
+		explicit CharAtom(char ch) noexcept
 			: m_value(ch)
 		{ }
 
@@ -28,9 +30,11 @@ namespace parsec::regex {
 		}
 		/** @} */
 
+
 	private:
 		char m_value;
 	};
+
 }
 
 #endif

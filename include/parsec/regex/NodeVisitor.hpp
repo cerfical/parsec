@@ -2,6 +2,7 @@
 #define PARSEC_REGEX_NODE_VISITOR_HEADER
 
 namespace parsec::regex {
+
 	class CharAtom;
 	class NilExpr;
 	
@@ -13,10 +14,11 @@ namespace parsec::regex {
 	class ConcatExpr;
 
 	/**
-	 * @brief Type-safe visitor for regular expression nodes.
+	 * Implements a double dispatch mechanism for ExprNode%s.
 	 */
 	class NodeVisitor {
 	public:
+
 		virtual void visit(const CharAtom& n) = 0;
 		virtual void visit(const NilExpr& n) = 0;
 
@@ -28,8 +30,11 @@ namespace parsec::regex {
 		virtual void visit(const ConcatExpr& n) = 0;
 
 	protected:
+
 		~NodeVisitor() = default;
+
 	};
+
 }
 
 #endif

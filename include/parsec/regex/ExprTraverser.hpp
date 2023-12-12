@@ -5,20 +5,22 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+
 	/**
-	 * @brief Traverses regular expression atom by atom.
+	 * Traverses an ExprNode by visiting each subexpression it consists of.
 	 */
 	class ExprTraverser : NodeVisitor {
-	protected:
-		~ExprTraverser() = default;
-
+	public:
 
 		void traverse(const ExprNode& n) {
 			n.acceptVisitor(*this);
 		}
 
+	protected:
+		
+		~ExprTraverser() = default;
 
-		/** @{ */
+
 		void visit(const CharAtom& n) override;
 		void visit(const NilExpr& n) override;
 
@@ -28,8 +30,9 @@ namespace parsec::regex {
 		
 		void visit(const AlternExpr& n) override;
 		void visit(const ConcatExpr& n) override;
-		/** @} */
+
 	};
+
 }
 
 #endif

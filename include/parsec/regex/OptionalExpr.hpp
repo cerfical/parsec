@@ -4,11 +4,13 @@
 #include "UnaryExpr.hpp"
 
 namespace parsec::regex {
+	
 	/**
-	 * @brief Optional expression node.
+	 * Marks an inner expression as 'optional', meaning it is either present or not.
 	 */
 	class OptionalExpr : public UnaryExpr {
 	public:
+		
 		explicit OptionalExpr(ExprPtr inner) noexcept
 			: UnaryExpr(std::move(inner))
 		{ }
@@ -21,7 +23,9 @@ namespace parsec::regex {
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */
+
 	};
+
 }
 
 #endif

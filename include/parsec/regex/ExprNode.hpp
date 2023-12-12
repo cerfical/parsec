@@ -5,13 +5,15 @@
 #include <memory>
 
 namespace parsec::regex {
+
 	class NodeVisitor;
 
 	/**
-	 * @brief Base for all expression node classes.
+	 * Abstract representation of a regular expression.
 	 */
 	class ExprNode {
 	public:
+
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
 
 
@@ -20,7 +22,7 @@ namespace parsec::regex {
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
 
 
-
+		/** @name Parent management */
 		/** @{ */
 		const ExprNode* parent() const noexcept {
 			return m_parent;
@@ -31,7 +33,7 @@ namespace parsec::regex {
 		}
 
 		void clearParent() noexcept {
-			setParent(nullptr);
+			setParent({});
 		}
 		/** @} */
 
@@ -46,18 +48,27 @@ namespace parsec::regex {
 		ExprNode& operator=(ExprNode&&) = default;
 
 	private:
-		const ExprNode* m_parent = nullptr;
+		const ExprNode* m_parent = {};
 	};
 
 
 
+	/**
+	 * Owning pointer to an ExprNode.
+	 */
 	using ExprPtr = std::unique_ptr<ExprNode>;
 
+
+
+	/**
+	 * Constructs an ExprNode of the specified type.
+	 */
 	template <typename Node, typename... Args>
-		requires std::constructible_from<Node, Args...>
+		requires std::derived_from<Node, ExprNode>
 	ExprPtr makeExpr(Args&&... args) {
 		return std::make_unique<Node>(std::forward<Args>(args)...);
 	}
+
 }
 
 #endif

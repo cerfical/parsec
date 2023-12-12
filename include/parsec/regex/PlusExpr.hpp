@@ -4,11 +4,13 @@
 #include "UnaryExpr.hpp"
 
 namespace parsec::regex {
+
 	/**
-	 * @brief Kleene star expression node.
+	 * Marks an inner expression as being repeated one or more times.
 	 */
 	class PlusExpr : public UnaryExpr {
 	public:
+
 		explicit PlusExpr(ExprPtr inner) noexcept
 			: UnaryExpr(std::move(inner))
 		{ }
@@ -21,7 +23,9 @@ namespace parsec::regex {
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */
+
 	};
+
 }
 
 #endif

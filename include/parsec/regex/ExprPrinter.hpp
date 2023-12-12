@@ -7,11 +7,13 @@
 #include <iostream>
 
 namespace parsec::regex {
+
 	/**
-	 * @brief Prints out regular expressions.
+	 * Prints out regular expressions.
 	 */
 	class ExprPrinter : NodeVisitor {
 	public:
+		
 		explicit ExprPrinter(std::ostream& out = std::cout) noexcept
 			: m_out(&out)
 		{ }
@@ -20,9 +22,7 @@ namespace parsec::regex {
 		/** @{ */
 		ExprPrinter(ExprPrinter&&) = default;
 		ExprPrinter& operator=(ExprPrinter&&) = default;
-		/** @} */
 
-		/** @{ */
 		ExprPrinter(const ExprPrinter&) = delete;
 		ExprPrinter& operator=(const ExprPrinter&) = delete;
 		/** @} */
@@ -36,6 +36,7 @@ namespace parsec::regex {
 
 
 	private:
+		
 		void visit(const CharAtom& n) override;
 		void visit(const NilExpr& n) override;
 
@@ -47,8 +48,10 @@ namespace parsec::regex {
 		void visit(const ConcatExpr& n) override;
 
 
-		std::ostream* m_out;
+		std::ostream* m_out = {};
+
 	};
+
 }
 
 #endif

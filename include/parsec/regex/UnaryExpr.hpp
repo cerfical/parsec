@@ -4,11 +4,13 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
+	
 	/**
-	 * @brief Unary expression node.
+	 * Regular expression operation with one operand.
 	 */
 	class UnaryExpr : public ExprNode {
 	public:
+
 		explicit UnaryExpr(ExprPtr inner) noexcept
 			: m_inner(std::move(inner)) {
 			m_inner->setParent(this);
@@ -17,15 +19,15 @@ namespace parsec::regex {
 		~UnaryExpr() override = default;
 
 
-		/** @{ */
 		const ExprNode* inner() const noexcept {
 			return m_inner.get();
 		}
-		/** @} */
+
 
 	private:
 		ExprPtr m_inner;
 	};
+
 }
 
 #endif

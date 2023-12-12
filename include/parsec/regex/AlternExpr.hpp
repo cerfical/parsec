@@ -4,11 +4,13 @@
 #include "BinaryExpr.hpp"
 
 namespace parsec::regex {
+
 	/**
-	 * @brief Alternation expression node.
+	 * Marks two expressions as 'alternatives' to each other.
 	 */
 	class AlternExpr : public BinaryExpr {
 	public:
+		
 		AlternExpr(ExprPtr left, ExprPtr right) noexcept
 			: BinaryExpr(std::move(left), std::move(right))
 		{ }
@@ -21,7 +23,9 @@ namespace parsec::regex {
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */
+
 	};
+
 }
 
 #endif

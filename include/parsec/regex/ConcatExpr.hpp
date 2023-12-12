@@ -4,11 +4,13 @@
 #include "BinaryExpr.hpp"
 
 namespace parsec::regex {
+	
 	/**
-	 * @brief Concatenation expression node.
+	 * Marks one expression as immediately following another.
 	 */
 	class ConcatExpr : public BinaryExpr {
 	public:
+		
 		ConcatExpr(ExprPtr left, ExprPtr right) noexcept
 			: BinaryExpr(std::move(left), std::move(right))
 		{ }
@@ -21,7 +23,9 @@ namespace parsec::regex {
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */
+
 	};
+
 }
 
 #endif
