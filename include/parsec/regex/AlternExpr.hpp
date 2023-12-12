@@ -13,6 +13,11 @@ namespace parsec::regex {
 			: BinaryExpr(std::move(left), std::move(right))
 		{ }
 
+
+		AlternExpr(AlternExpr&&) = default;
+		AlternExpr& operator=(AlternExpr&&) = default;
+
+
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */

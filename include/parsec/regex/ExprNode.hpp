@@ -15,23 +15,17 @@ namespace parsec::regex {
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
 
 
-		ExprNode() = default;
-
 		virtual ~ExprNode() = default;
 
-
-		/** @{ */
-		ExprNode(const ExprNode&) = delete;
-		ExprNode& operator=(const ExprNode&) = delete;
-		/** @} */
-
-
-		/** @{ */
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
-		/** @} */
+
 
 
 		/** @{ */
+		const ExprNode* parent() const noexcept {
+			return m_parent;
+		}
+
 		void setParent(const ExprNode* parent) noexcept {
 			m_parent = parent;
 		}
@@ -39,12 +33,17 @@ namespace parsec::regex {
 		void clearParent() noexcept {
 			setParent(nullptr);
 		}
-
-		const ExprNode* parent() const noexcept {
-			return m_parent;
-		}
 		/** @} */
 
+
+	protected:
+		ExprNode() = default;
+
+		ExprNode(const ExprNode&) = default;
+		ExprNode& operator=(const ExprNode&) = default;
+
+		ExprNode(ExprNode&&) = default;
+		ExprNode& operator=(ExprNode&&) = default;
 
 	private:
 		const ExprNode* m_parent = nullptr;

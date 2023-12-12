@@ -13,6 +13,10 @@ namespace parsec::regex {
 			: m_value(ch)
 		{ }
 
+
+		CharAtom(CharAtom&&) = default;
+		CharAtom& operator=(CharAtom&&) = default;
+
 		~CharAtom() override = default;
 
 

@@ -13,6 +13,11 @@ namespace parsec::regex {
 			: BinaryExpr(std::move(left), std::move(right))
 		{ }
 
+
+		ConcatExpr(ConcatExpr&&) = default;
+		ConcatExpr& operator=(ConcatExpr&&) = default;
+
+
 		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
 		/** @} */
