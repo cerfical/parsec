@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Marks an inner expression as 'optional', meaning it is either present or not.
+	 * @brief Marks an inner expression as 'optional', meaning it is either present or not.
 	 */
 	class OptionalExpr : public UnaryExpr {
 	public:

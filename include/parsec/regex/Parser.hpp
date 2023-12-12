@@ -9,12 +9,12 @@
 namespace parsec::regex {
 
 	/**
-	 * Constructs regular expressions from their textual form.
+	 * @brief Constructs regular expressions from their textual form.
 	 */
 	class Parser {
 	public:
 
-		/** Check if a character is a special symbol used in regex syntax. */
+		/** @brief Check if a character is a special symbol used in regex syntax. */
 		static bool isMetachar(char ch) noexcept;
 
 

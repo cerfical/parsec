@@ -14,7 +14,7 @@ namespace parsec::regex {
 	class ConcatExpr;
 
 	/**
-	 * Implements a double dispatch mechanism for ExprNode%s.
+	 * @brief Implements a double dispatch mechanism for ExprNode%s.
 	 */
 	class NodeVisitor {
 	public:

@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Empty regular expression.
+	 * @brief Empty regular expression.
 	 */
 	class NilExpr : public ExprNode {
 	public:

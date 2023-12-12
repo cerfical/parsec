@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Marks an inner expression as being repeated zero or more times.
+	 * @brief Marks an inner expression as being repeated zero or more times.
 	 */
 	class StarExpr : public UnaryExpr {
 	public:

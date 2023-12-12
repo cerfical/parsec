@@ -9,7 +9,7 @@ namespace parsec::regex {
 	class NodeVisitor;
 
 	/**
-	 * Abstract representation of a regular expression.
+	 * @brief Abstract representation of a regular expression.
 	 */
 	class ExprNode {
 	public:
@@ -54,14 +54,14 @@ namespace parsec::regex {
 
 
 	/**
-	 * Owning pointer to an ExprNode.
+	 * @brief Owning pointer to an ExprNode.
 	 */
 	using ExprPtr = std::unique_ptr<ExprNode>;
 
 
 
 	/**
-	 * Constructs an ExprNode of the specified type.
+	 * @brief Constructs an ExprNode of the specified type.
 	 */
 	template <typename Node, typename... Args>
 		requires std::derived_from<Node, ExprNode>

@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Character literal.
+	 * @brief Character literal.
 	 */
 	class CharAtom : public ExprNode {
 	public:

@@ -7,7 +7,7 @@
 namespace parsec::regex {
 
 	/**
-	 * Traverses an ExprNode by visiting each subexpression it consists of.
+	 * @brief Traverses an ExprNode by visiting each subexpression it consists of.
 	 */
 	class ExprTraverser : NodeVisitor {
 	public:

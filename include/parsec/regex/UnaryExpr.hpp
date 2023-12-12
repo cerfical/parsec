@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Regular expression operation with one operand.
+	 * @brief Regular expression operation with one operand.
 	 */
 	class UnaryExpr : public ExprNode {
 	public:

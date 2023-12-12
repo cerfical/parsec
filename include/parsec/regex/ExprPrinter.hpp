@@ -9,7 +9,7 @@
 namespace parsec::regex {
 
 	/**
-	 * Prints out regular expressions.
+	 * @brief Prints out regular expressions.
 	 */
 	class ExprPrinter : NodeVisitor {
 	public:

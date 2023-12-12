@@ -6,7 +6,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * Marks one expression as immediately following another.
+	 * @brief Marks one expression as immediately following another.
 	 */
 	class ConcatExpr : public BinaryExpr {
 	public:

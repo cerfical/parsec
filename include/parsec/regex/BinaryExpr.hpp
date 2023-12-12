@@ -6,7 +6,7 @@
 namespace parsec::regex {
 
 	/**
-	 * Regular expression operation with two operands.
+	 * @brief Regular expression operation with two operands.
 	 */
 	class BinaryExpr : public ExprNode {
 	public:

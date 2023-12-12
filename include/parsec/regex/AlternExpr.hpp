@@ -6,7 +6,7 @@
 namespace parsec::regex {
 
 	/**
-	 * Marks two expressions as 'alternatives' to each other.
+	 * @brief Marks two expressions as 'alternatives' to each other.
 	 */
 	class AlternExpr : public BinaryExpr {
 	public:
