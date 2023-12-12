@@ -106,6 +106,7 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "../include/" FILES
+		"../include/parsec/regex.hpp"
 		"../include/parsec/regex/nodes.hpp"
 	
 		"../include/parsec/regex/ExprNode.hpp"
@@ -125,6 +126,8 @@ target_sources(parsec-lib
 		"../include/parsec/regex/OptionalExpr.hpp"
 		"../include/parsec/regex/StarExpr.hpp"
 
+		"../include/parsec/regex/Pattern.hpp"
+
 		"../include/parsec/regex/Parser.hpp"
 	
 	PRIVATE
@@ -141,6 +144,8 @@ target_sources(parsec-lib
 		"regex/PlusExpr.cpp"
 		"regex/OptionalExpr.cpp"
 		"regex/StarExpr.cpp"
+
+		"regex/Pattern.cpp"
 
 		"regex/Parser.cpp"
 )
