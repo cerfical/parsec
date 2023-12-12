@@ -81,7 +81,8 @@ private:
 		if(const auto it = options.find("output-file"); it != options.cend()) {
 			m_outputPath = it->second.as<fs::path>();
 		} else {
-			m_outputPath = m_inputPath.stem().replace_extension("hpp");
+			m_outputPath = m_inputPath;
+			m_outputPath.replace_extension("hpp");
 		}
 		return true;
 	}
