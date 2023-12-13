@@ -5,7 +5,6 @@
 
 #include "regex/ExprTraverser.hpp"
 #include "regex/NodeVisitor.hpp"
-#include "regex/ExprPrinter.hpp"
 
 #include "regex/Pattern.hpp"
 

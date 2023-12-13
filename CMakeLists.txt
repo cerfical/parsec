@@ -127,7 +127,6 @@ target_sources(parsec-lib
 		"include/parsec/regex/ExprNode.hpp"
 		"include/parsec/regex/NodeVisitor.hpp"
 		"include/parsec/regex/ExprTraverser.hpp"
-		"include/parsec/regex/ExprPrinter.hpp"
 
 		"include/parsec/regex/CharAtom.hpp"
 		"include/parsec/regex/NilExpr.hpp"
@@ -148,7 +147,6 @@ target_sources(parsec-lib
 	PRIVATE
 		"src/regex/ExprNode.cpp"
 		"src/regex/ExprTraverser.cpp"
-		"src/regex/ExprPrinter.cpp"
 
 		"src/regex/CharAtom.cpp"
 		"src/regex/NilExpr.cpp"
