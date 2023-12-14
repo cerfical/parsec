@@ -5,16 +5,12 @@
 #include "regex/nodes.hpp"
 
 namespace parsec::regex {
-
 	namespace {
-
 		class IsNullable : NodeVisitor {
 		public:
 
-			bool operator()(const ExprNode* n) noexcept {
-				if(n) {
-					n->acceptVisitor(*this);
-				}
+			bool operator()(const ExprNode& n) noexcept {
+				n.acceptVisitor(*this);
 				return m_nullable;
 			}
 
@@ -43,11 +39,11 @@ namespace parsec::regex {
 
 
 			void visit(const AlternExpr& n) override {
-				m_nullable = IsNullable()(n.left()) || IsNullable()(n.right());
+				m_nullable = IsNullable()(*n.left()) || IsNullable()(*n.right());
 			}
 
 			void visit(const ConcatExpr& n) override {
-				m_nullable = IsNullable()(n.left()) && IsNullable()(n.right());
+				m_nullable = IsNullable()(*n.left()) && IsNullable()(*n.right());
 			}
 
 
@@ -58,10 +54,8 @@ namespace parsec::regex {
 		class FindEndAtom : ExprTraverser {
 		public:
 
-			const CharAtom* operator()(const ExprNode* n) noexcept {
-				if(n) {
-					traverse(*n);
-				}
+			const CharAtom* operator()(const ExprNode& n) noexcept {
+				traverse(n);
 				return m_endAtom;
 			}
 
@@ -82,9 +76,9 @@ namespace parsec::regex {
 
 			void visitBinary(const BinaryExpr& n) {
 				// first try to find the end atom in the right child
-				if(!(m_endAtom = FindEndAtom()(n.right()))) {
+				if(!(m_endAtom = FindEndAtom()(*n.right()))) {
 					// and if there is none, repeat the search in the left child
-					m_endAtom = FindEndAtom()(n.left());
+					m_endAtom = FindEndAtom()(*n.left());
 				}
 			}
 
@@ -96,10 +90,8 @@ namespace parsec::regex {
 		class FindRoots : ExprTraverser {
 		public:
 
-			Pattern::AtomList operator()(const ExprNode* n) {
-				if(n) {
-					traverse(*n);
-				}
+			Pattern::AtomList operator()(const ExprNode& n) {
+				traverse(n);
 				return std::move(m_roots);
 			}
 
@@ -112,7 +104,7 @@ namespace parsec::regex {
 			void visit(const ConcatExpr& n) override {
 				// add roots of the left child
 				traverse(*n.left());
-				if(IsNullable()(n.left())) {
+				if(IsNullable()(*n.left())) {
 					// add roots of the right child
 					traverse(*n.right());
 				}
@@ -126,31 +118,25 @@ namespace parsec::regex {
 		class FindAllAtoms : ExprTraverser {
 		public:
 
-			Pattern::AtomList operator()(const ExprNode* n) {
-				if(n) {
-					traverse(*n);
-				}
+			Pattern::AtomList operator()(const ExprNode& n) {
+				traverse(n);
 				return std::move(m_atoms);
 			}
 
 		private:
-
 			void visit(const CharAtom& n) override {
 				m_atoms.push_back(&n);
 			}
-
 
 			Pattern::AtomList m_atoms;
 		};
 
 
-		class FindFollows : NodeVisitor {
+		class FindFollowers : NodeVisitor {
 		public:
 
-			Pattern::AtomList operator()(const CharAtom* n) {
-				if(n) {
-					n->acceptVisitor(*this);
-				}
+			Pattern::AtomList operator()(const CharAtom& n) {
+				n.acceptVisitor(*this);
 				return std::move(m_follows);
 			}
 
@@ -187,7 +173,7 @@ namespace parsec::regex {
 			void visit(const ConcatExpr& n) override {
 				if(m_child == n.left()) {
 					appendRootsOf(*n.right());
-					if(IsNullable()(n.right())) {
+					if(IsNullable()(*n.right())) {
 						traverseParent(n);
 					}
 				} else {
@@ -206,7 +192,7 @@ namespace parsec::regex {
 			}
 
 			void appendRootsOf(const ExprNode& n) {
-				const auto follows = FindRoots()(&n);
+				const auto follows = FindRoots()(n);
 				m_follows.insert(m_follows.end(),
 					follows.cbegin(),
 					follows.cend()
@@ -217,7 +203,6 @@ namespace parsec::regex {
 			Pattern::AtomList m_follows;
 			const ExprNode* m_child = {};
 		};
-	
 	}
 
 
@@ -227,19 +212,28 @@ namespace parsec::regex {
 
 
 	const CharAtom* Pattern::endAtom() const noexcept {
-		return FindEndAtom()(m_regex.get());
+		if(m_regex) {
+			return FindEndAtom()(*m_regex);
+		}
+		return nullptr;
 	}
 
-	Pattern::AtomList Pattern::followAtoms(const CharAtom* ch) const {
-		return FindFollows()(ch);
+	Pattern::AtomList Pattern::followersOf(const CharAtom* ch) const {
+		return FindFollowers()(*ch);
 	}
 
 	Pattern::AtomList Pattern::rootAtoms() const {
-		return FindRoots()(m_regex.get());
+		if(m_regex) {
+			return FindRoots()(*m_regex);
+		}
+		return {};
 	}
 
 	Pattern::AtomList Pattern::atoms() const {
-		return FindAllAtoms()(m_regex.get());
+		if(m_regex) {
+			return FindAllAtoms()(*m_regex);
+		}
+		return {};
 	}
 
 }

@@ -9,7 +9,7 @@
 namespace parsec::regex {
 	
 	/**
-	 * @brief Wraps a regular expression to provide some useful functionality.
+	 * @brief Wraps a regular expression to provide useful functionality.
 	 */
 	class Pattern {
 	public:
@@ -17,63 +17,83 @@ namespace parsec::regex {
 		using AtomList = std::vector<const CharAtom*>;
 
 
-		Pattern(std::string_view name, ExprPtr regex)
-			: m_regex(std::move(regex)), m_name(name)
+
+		/** @brief Compile a new unnamed pattern from a string. */
+		Pattern(std::string_view regex, int id = 0)
+			: Pattern("", regex, id)
 		{ }
-		
-		Pattern(std::string_view name, std::string_view regex)
-			: Pattern(name, parseRegex(regex))
+
+
+		/** @brief Compile a new named pattern from a string. */
+		Pattern(std::string_view name, std::string_view regex, int id = 0)
+			: Pattern(name, parseRegex(regex), id)
+		{ }
+
+
+		Pattern(std::string_view name, ExprPtr regex, int id = 0)
+			: m_name(name), m_regex(std::move(regex)), m_id(id)
 		{ }
 
 		Pattern() = default;
 
 
-		/** @{ */
+
+		/** @private */
 		Pattern(Pattern&&) = default;
+		
+		/** @private */
 		Pattern& operator=(Pattern&&) = default;
 
-		Pattern(const Pattern&) = delete;
-		Pattern& operator=(const Pattern&) = delete;
-		/** @} */
 
 
 		/** @{ */
-		/** @brief Rightmost trailing atom. */
+		/** @brief Find the rightmost atom, if any. */
 		const CharAtom* endAtom() const noexcept;
 
 
-		/** @brief Atoms that can 'follow' the atom given. */
-		AtomList followAtoms(const CharAtom* ch) const;
-		
+		/** @brief Find atoms that can follow the atom given in some string generated from the pattern. */
+		AtomList followersOf(const CharAtom* ch) const;
 
-		/** @brief Atoms that come first in any string described by the pattern. */
+
+		/** @brief Find atoms that come first in some string generated from the pattern. */
 		AtomList rootAtoms() const;
+
+
+		/** @brief Collect all atoms from the regular expression. */
+		AtomList atoms() const;
 		
 
-		/** @brief All atoms constituting the pattern. */
-		AtomList atoms() const;
-		/** @} */
-		
-		
-		/** @{ */
+		/** @brief Root node of the regular expression, if any. */
 		const ExprNode* regex() const noexcept {
 			return m_regex.get();
 		}
 
+
+		/** @brief String value uniquely identifying the pattern. */
 		std::string_view name() const noexcept {
 			return m_name;
+		}
+
+
+		/** @brief Integer value uniquely identifying the pattern. */
+		int id() const noexcept {
+			return m_id;
 		}
 		/** @} */
 
 
+
 	private:
-		
+
 		static ExprPtr parseRegex(std::string_view regex);
+		
+		Pattern(const Pattern&) = delete;
+		Pattern& operator=(const Pattern&) = delete;
 
 
-		mutable ExprPtr m_regex;
 		std::string m_name;
-
+		ExprPtr m_regex;
+		int m_id = {};
 	};
 
 }

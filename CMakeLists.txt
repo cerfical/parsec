@@ -141,6 +141,7 @@ target_sources(parsec-lib
 		"include/parsec/regex/StarExpr.hpp"
 
 		"include/parsec/regex/Pattern.hpp"
+		"include/parsec/regex/RegularGrammar.hpp"
 
 		"include/parsec/regex/Parser.hpp"
 	

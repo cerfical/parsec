@@ -1,16 +1,21 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include <parsec/regex/nodes.hpp>
 #include <parsec/regex/Parser.hpp>
+#include <parsec/regex/RegularGrammar.hpp>
+#include <parsec/regex/nodes.hpp>
+
 #include <parsec/core/Error.hpp>
 
 #include <sstream>
 #include <format>
 
+using namespace testing;
+
 namespace parsec::regex {
 	namespace {
 
-		class RegularExprTest : public testing::Test {
+		class RegularExprTest : public Test {
 		protected:
 			
 			std::set<char> metachars = { '(', ')', '[', ']', '|', '+', '*', '?' };
@@ -20,7 +25,7 @@ namespace parsec::regex {
 			template <typename Node, typename... Args>
 			void stringifyAndCheck(std::string_view expect, Args&&... args) {
 				const auto regex = makeExpr<Node>(std::forward<Args>(args)...);
-				const auto regexStr = toString(*regex);
+				const auto regexStr = PrintToString(*regex);
 				ASSERT_EQ(regexStr, expect);
 			}
 
@@ -37,22 +42,18 @@ namespace parsec::regex {
 
 
 			void parseAndCheck(std::string regex, std::string expect) {
-				const auto parsedRegexStr = toString(*Parser().parse(regex));
+				const auto parsedRegexStr = PrintToString(*parse(regex));
 				ASSERT_EQ(parsedRegexStr, expect);
 			}
 
 			void parseMustThrow(std::string regex) {
-				ASSERT_THROW(Parser().parse(regex), Error);
+				ASSERT_THROW(parse(regex), Error);
 			}
 
-
-
-		private:
-
-			std::string toString(const ExprNode& regex) {
-				return (std::ostringstream() << regex).str();
+			ExprPtr parse(std::string_view regex) {
+				return Parser().parse(regex);
 			}
-		
+	
 		};
 
 
@@ -80,15 +81,15 @@ namespace parsec::regex {
 
 
 		TEST_F(RegularExprTest, EqualNodes_CompareEqual) {
-			const auto n1 = Parser().parse("a|b");
-			const auto n2 = Parser().parse("a|b");
+			const auto n1 = parse("a|b");
+			const auto n2 = parse("a|b");
 			ASSERT_EQ(*n1, *n1);
 			ASSERT_EQ(*n1, *n2);
 		}
 
 		TEST_F(RegularExprTest, NotEqualNodes_CompareNotEqual) {
-			const auto n1 = Parser().parse("a|b");
-			const auto n2 = Parser().parse("a|c");
+			const auto n1 = parse("a|b");
+			const auto n2 = parse("a|c");
 			ASSERT_NE(*n1, *n2);
 		}
 
@@ -224,14 +225,41 @@ namespace parsec::regex {
 		TEST_F(RegularExprTest, Parse_IsMetachar_Returns_True_OnlyFor_Metachars) {
 			for(int i = 0; i < 256; i++) {
 				const auto ch = static_cast<char>(i);
-				const auto isMeta = Parser::isMetachar(ch);
-				
-				if(metachars.contains(ch)) {
-					ASSERT_TRUE(isMeta);
-				} else {
-					ASSERT_FALSE(isMeta);
-				}
+				ASSERT_THAT(metachars,
+					Conditional(Parser::isMetachar(ch),
+						Contains(ch), Not(Contains(ch))
+					)
+				);
 			}
+		}
+
+
+
+		TEST_F(RegularExprTest, Pattern_Has_LastChar_As_EndAtom) {
+			ASSERT_THAT(Pattern("a|b").endAtom(), AllOf(NotNull(), Property(&CharAtom::value, 'b')));
+		}
+
+		TEST_F(RegularExprTest, EmptyPattern_Has_NoEndAtom) {
+			ASSERT_THAT(Pattern("").endAtom(), IsNull());
+		}
+
+		TEST_F(RegularExprTest, DefaultPattern_Has_NoEndAtom) {
+			ASSERT_THAT(Pattern().endAtom(), IsNull());
+		}
+
+		TEST_F(RegularExprTest, Pattern_Has_FirstChars_As_RootAtoms) {
+			ASSERT_THAT(Pattern("(a|b)c").rootAtoms(), UnorderedElementsAre(
+				Property(&CharAtom::value, 'a'),
+				Property(&CharAtom::value, 'b')
+			));
+		}
+
+		TEST_F(RegularExprTest, CharAtom_Has_AtomsImmediatelyToRight_As_Followers) {
+			const auto pat = Pattern("a(b|c)");
+			ASSERT_THAT(pat.followersOf(pat.rootAtoms().front()), UnorderedElementsAre(
+				Property(&CharAtom::value, 'b'),
+				Property(&CharAtom::value, 'c')
+			));
 		}
 
 	}

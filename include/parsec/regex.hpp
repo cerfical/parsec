@@ -6,8 +6,7 @@
 #include "regex/ExprTraverser.hpp"
 #include "regex/NodeVisitor.hpp"
 
-#include "regex/Pattern.hpp"
-
+#include "regex/RegularGrammar.hpp"
 #include "regex/Parser.hpp"
 
 /** Provides means for parsing and constructing regular expressions. */
