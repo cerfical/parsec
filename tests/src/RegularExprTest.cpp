@@ -79,6 +79,21 @@ namespace parsec::regex {
 
 
 
+		TEST_F(RegularExprTest, EqualNodes_CompareEqual) {
+			const auto n1 = Parser().parse("a|b");
+			const auto n2 = Parser().parse("a|b");
+			ASSERT_EQ(*n1, *n1);
+			ASSERT_EQ(*n1, *n2);
+		}
+
+		TEST_F(RegularExprTest, NotEqualNodes_CompareNotEqual) {
+			const auto n1 = Parser().parse("a|b");
+			const auto n2 = Parser().parse("a|c");
+			ASSERT_NE(*n1, *n2);
+		}
+
+
+
 		TEST_F(RegularExprTest, Parse_Char_Creates_CharAtom) {
 			parseAndCheck("a", "a");
 		}

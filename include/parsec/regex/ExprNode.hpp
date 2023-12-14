@@ -16,6 +16,8 @@ namespace parsec::regex {
 
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
 
+		friend bool operator==(const ExprNode& lhs, const ExprNode& rhs) noexcept;
+
 
 		virtual ~ExprNode() = default;
 

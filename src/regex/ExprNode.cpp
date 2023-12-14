@@ -7,10 +7,11 @@
 
 namespace parsec::regex {
 	namespace {
-		class ExprPrinter : NodeVisitor {
+
+		class PrintExpr : NodeVisitor {
 		public:
 
-			explicit ExprPrinter(std::ostream& out) noexcept
+			explicit PrintExpr(std::ostream& out) noexcept
 				: m_out(out)
 			{ }
 
@@ -63,10 +64,94 @@ namespace parsec::regex {
 
 			std::ostream& m_out;
 		};
+	
+		class CompareEqual : NodeVisitor {
+		public:
+
+			bool operator()(const ExprNode* lhs, const ExprNode* rhs) noexcept {
+				m_lhs = lhs;
+
+				if(rhs) {
+					m_equal = false;
+					rhs->acceptVisitor(*this);
+				} else if(lhs) {
+					m_equal = false;
+				} else {
+					m_equal = true;
+				}
+
+				return m_equal;
+			}
+
+		private:
+
+			void visit(const CharAtom& n) override {
+				const auto lhs = dynamic_cast<const CharAtom*>(m_lhs);
+				if(lhs && n.value() == lhs->value()) {
+					m_equal = true;
+				}
+			}
+
+			void visit(const NilExpr&) override {
+				if(dynamic_cast<const NilExpr*>(m_lhs)) {
+					m_equal = true;
+				}
+			}
+
+
+			void visit(const OptionalExpr& n) override {
+				visitUnary(n);
+			}
+
+			void visit(const PlusExpr& n) override {
+				visitUnary(n);
+			}
+
+			void visit(const StarExpr& n) override {
+				visitUnary(n);
+			}
+
+
+			void visit(const AlternExpr& n) override {
+				visitBinary(n);
+			}
+
+			void visit(const ConcatExpr& n) override {
+				visitBinary(n);
+			}
+
+
+			template <typename Node>
+			void visitUnary(const Node& n) {
+				const auto lhs = dynamic_cast<const Node*>(m_lhs);
+				if(lhs && CompareEqual()(lhs->inner(), n.inner())) {
+					m_equal = true;
+				}
+			}
+
+			template <typename Node>
+			void visitBinary(const Node& n) {
+				const auto lhs = dynamic_cast<const Node*>(m_lhs);
+				if(lhs && CompareEqual()(lhs->left(), n.left()) && CompareEqual()(lhs->right(), n.right())) {
+					m_equal = true;
+				}
+			}
+
+
+			const ExprNode* m_lhs = {};
+			bool m_equal = false;
+
+		};
+
 	}
 
+
 	std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
-		return (ExprPrinter(out)(n), out);
+		return (PrintExpr(out)(n), out);
+	}
+
+	bool operator==(const ExprNode& lhs, const ExprNode& rhs) noexcept {
+		return CompareEqual()(&lhs, &rhs);
 	}
 
 }
