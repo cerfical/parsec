@@ -20,18 +20,21 @@ namespace parsec::regex {
 
 		Parser() = default;
 		
-		Parser(Parser&&) = default;
-		Parser& operator=(Parser&&) = default;
-
 		Parser(const Parser&) = delete;
 		Parser& operator=(const Parser&) = delete;
 
+		Parser(Parser&&) = default;
+		Parser& operator=(Parser&&) = default;
 
+		
 		/** @{ */
+		/** @brief Analyze a regular expression stored as an arbitrary character sequence. */
 		ExprPtr parse(std::string_view regex);
+		
+		/** @brief Analyze a regular expression taken character by character from a @c std::istream. */
 		ExprPtr parse(std::istream& input);
 		/** @} */
-
+		
 	};
 
 }

@@ -13,6 +13,8 @@ namespace parsec::regex {
 	class AlternExpr;
 	class ConcatExpr;
 
+
+
 	/**
 	 * @brief Implements a double dispatch mechanism for ExprNode%s.
 	 */
@@ -30,9 +32,7 @@ namespace parsec::regex {
 		virtual void visit(const ConcatExpr& n) = 0;
 
 	protected:
-
 		~NodeVisitor() = default;
-
 	};
 
 }

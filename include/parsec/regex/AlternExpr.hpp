@@ -11,18 +11,11 @@ namespace parsec::regex {
 	class AlternExpr : public BinaryExpr {
 	public:
 		
-		AlternExpr(ExprPtr left, ExprPtr right) noexcept
-			: BinaryExpr(std::move(left), std::move(right))
+		AlternExpr(ExprPtr lhs, ExprPtr rhs) noexcept
+			: BinaryExpr(std::move(lhs), std::move(rhs))
 		{ }
 
-
-		AlternExpr(AlternExpr&&) = default;
-		AlternExpr& operator=(AlternExpr&&) = default;
-
-
-		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
-		/** @} */
 
 	};
 

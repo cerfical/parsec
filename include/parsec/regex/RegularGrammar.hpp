@@ -17,38 +17,33 @@ namespace parsec::regex {
 		using PatternList = std::deque<Pattern>;
 
 
-
 		RegularGrammar() = default;
 
-		/** @private */
 		RegularGrammar(RegularGrammar&&) = default;
-		
-		/** @private */
 		RegularGrammar& operator=(RegularGrammar&&) = default;
 
+		RegularGrammar(const RegularGrammar&) = delete;
+		RegularGrammar& operator=(const RegularGrammar&) = delete;
 
 
+		/** @{ */
 		/** @brief Compile a new pattern and insert it into the grammar. */
 		void addPattern(std::string_view name, std::string_view regex) {
 			m_patterns.emplace_back(name, regex, uniquePatternId());
 		}
 
-		/** @brief All patterns defined by the grammar. */
+
+		/** @brief List of all patterns defined by the grammar. */
 		const PatternList& patterns() const noexcept {
 			return m_patterns;
 		}
-
+		/** @} */
 
 
 	private:
-
-		RegularGrammar(const RegularGrammar&) = delete;
-		RegularGrammar& operator=(const RegularGrammar&) = delete;
-
 		int uniquePatternId() const noexcept {
 			return gsl::narrow_cast<int>(m_patterns.size());
 		}
-
 
 		PatternList m_patterns;
 	};

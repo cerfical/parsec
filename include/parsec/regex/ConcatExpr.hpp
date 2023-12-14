@@ -11,18 +11,11 @@ namespace parsec::regex {
 	class ConcatExpr : public BinaryExpr {
 	public:
 		
-		ConcatExpr(ExprPtr left, ExprPtr right) noexcept
-			: BinaryExpr(std::move(left), std::move(right))
+		ConcatExpr(ExprPtr lhs, ExprPtr rhs) noexcept
+			: BinaryExpr(std::move(lhs), std::move(rhs))
 		{ }
 
-
-		ConcatExpr(ConcatExpr&&) = default;
-		ConcatExpr& operator=(ConcatExpr&&) = default;
-
-
-		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
-		/** @} */
 
 	};
 

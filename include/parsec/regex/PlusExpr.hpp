@@ -15,14 +15,7 @@ namespace parsec::regex {
 			: UnaryExpr(std::move(inner))
 		{ }
 
-
-		PlusExpr(PlusExpr&&) = default;
-		PlusExpr& operator=(PlusExpr&&) = default;
-
-
-		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
-		/** @} */
 
 	};
 

@@ -14,6 +14,7 @@ namespace parsec::regex {
 	namespace {
 		class ParseImpl {
 		public:
+
 			explicit ParseImpl(std::istream& input) noexcept
 				: m_scanner(input)
 			{ }
@@ -32,7 +33,7 @@ namespace parsec::regex {
 			}
 
 		private:
-			/** @{ */
+
 			[[noreturn]] void unexpected() const {
 				if(m_scanner.peek() == ')') {
 					unmatchedParen(m_scanner.loc());
@@ -62,10 +63,9 @@ namespace parsec::regex {
 					loc.linePos()
 				});
 			}
-			/** @} */
 
 
-			/** @{ */
+
 			bool isAtom() const {
 				if(!m_scanner.isEof()) {
 					switch(m_scanner.peek()) {
@@ -75,10 +75,7 @@ namespace parsec::regex {
 				}
 				return false;
 			}
-			/** @} */
 
-
-			/** @{ */
 			char parseEscapeSeq() {
 				switch(m_scanner.peek()) {
 					case '0': { m_scanner.skip(); return '\0'; }
@@ -110,10 +107,9 @@ namespace parsec::regex {
 				}
 				return m_scanner.get();
 			}
-			/** @} */
 
 
-			/** @{ */
+
 			ExprPtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
 				const auto rangeLoc = m_scanner.loc();
@@ -164,10 +160,9 @@ namespace parsec::regex {
 				m_scanner.skip(); // skip ']'
 				return lhs;
 			}
-			/** @} */
 
 
-			/** @{ */
+
 			ExprPtr parseAtom() {
 				if(!isAtom()) {
 					unexpected();
@@ -234,7 +229,7 @@ namespace parsec::regex {
 			ExprPtr parseExpr() {
 				return parseAltern();
 			}
-			/** @} */
+
 
 
 			TextScanner m_scanner;
@@ -263,4 +258,5 @@ namespace parsec::regex {
 	ExprPtr Parser::parse(std::istream& input) {
 		return ParseImpl(input)();
 	}
+
 }

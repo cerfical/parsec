@@ -38,11 +38,13 @@ namespace parsec::regex {
 
 
 
-		/** @private */
+		/** @{ */
 		Pattern(Pattern&&) = default;
-		
-		/** @private */
 		Pattern& operator=(Pattern&&) = default;
+
+		Pattern(const Pattern&) = delete;
+		Pattern& operator=(const Pattern&) = delete;
+		/** @} */
 
 
 
@@ -84,12 +86,7 @@ namespace parsec::regex {
 
 
 	private:
-
 		static ExprPtr parseRegex(std::string_view regex);
-		
-		Pattern(const Pattern&) = delete;
-		Pattern& operator=(const Pattern&) = delete;
-
 
 		std::string m_name;
 		ExprPtr m_regex;

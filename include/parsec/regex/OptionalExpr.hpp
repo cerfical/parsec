@@ -15,14 +15,7 @@ namespace parsec::regex {
 			: UnaryExpr(std::move(inner))
 		{ }
 
-
-		OptionalExpr(OptionalExpr&&) = default;
-		OptionalExpr& operator=(OptionalExpr&&) = default;
-
-
-		/** @{ */
 		void acceptVisitor(NodeVisitor& visitor) const override;
-		/** @} */
 
 	};
 

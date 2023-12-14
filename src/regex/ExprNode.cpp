@@ -7,7 +7,6 @@
 
 namespace parsec::regex {
 	namespace {
-
 		class PrintExpr : NodeVisitor {
 		public:
 
@@ -65,6 +64,7 @@ namespace parsec::regex {
 			std::ostream& m_out;
 		};
 	
+
 		class CompareEqual : NodeVisitor {
 		public:
 
@@ -140,9 +140,7 @@ namespace parsec::regex {
 
 			const ExprNode* m_lhs = {};
 			bool m_equal = false;
-
 		};
-
 	}
 
 

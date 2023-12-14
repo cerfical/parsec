@@ -7,11 +7,18 @@
 namespace parsec::regex {
 
 	class NodeVisitor;
+	class BinaryExpr;
+	class UnaryExpr;
+
+
 
 	/**
 	 * @brief Abstract representation of a regular expression.
 	 */
 	class ExprNode {
+		friend BinaryExpr;
+		friend UnaryExpr;
+	
 	public:
 
 		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
@@ -19,37 +26,42 @@ namespace parsec::regex {
 		friend bool operator==(const ExprNode& lhs, const ExprNode& rhs) noexcept;
 
 
+
+		ExprNode() = default;
+
+		ExprNode(const ExprNode&) = delete;
+		ExprNode& operator=(const ExprNode&) = delete;
+
 		virtual ~ExprNode() = default;
 
+
+
+		/** @{ */
+		/** @brief Perform an operation that depends on both the type of the expression node and the type of the NodeVisitor. */
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
 
 
-		/** @name Parent management */
-		/** @{ */
+		/** @brief Calculate the total number of CharAtom%s in the expression. */
+		virtual int atomCount() const noexcept = 0;
+		
+		
+		/** @brief Parent node for the expression, if any. */
 		const ExprNode* parent() const noexcept {
 			return m_parent;
-		}
-
-		void setParent(const ExprNode* parent) noexcept {
-			m_parent = parent;
-		}
-
-		void clearParent() noexcept {
-			setParent({});
 		}
 		/** @} */
 
 
-	protected:
-		ExprNode() = default;
-
-		ExprNode(const ExprNode&) = default;
-		ExprNode& operator=(const ExprNode&) = default;
-
-		ExprNode(ExprNode&&) = default;
-		ExprNode& operator=(ExprNode&&) = default;
 
 	private:
+
+		virtual void rebaseAtomIndices(int base) noexcept = 0;
+
+		void setParent(const ExprNode* p) noexcept {
+			m_parent = p;
+		}
+
+
 		const ExprNode* m_parent = {};
 	};
 

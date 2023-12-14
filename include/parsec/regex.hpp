@@ -9,7 +9,7 @@
 #include "regex/RegularGrammar.hpp"
 #include "regex/Parser.hpp"
 
-/** Provides means for parsing and constructing regular expressions. */
+/** @brief Provides means for parsing and constructing regular expressions. */
 namespace parsec::regex
 { }
 
