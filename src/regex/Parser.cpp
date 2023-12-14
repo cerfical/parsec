@@ -132,7 +132,7 @@ namespace parsec::regex {
 						rangeBadOrder(rangeLoc);
 					}
 
-					for(auto ch = low; ch <= high; ) {
+					for(auto ch = low + 1; ch <= high; ) {
 						e = makeExpr<AlternExpr>(
 							std::move(e),
 							makeExpr<CharAtom>(ch++)
