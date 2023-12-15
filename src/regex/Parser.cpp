@@ -4,7 +4,7 @@
 #include "utils/Chars.hpp"
 
 #include "core/TextScanner.hpp"
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 
 #include <gsl/narrow>
 #include <sstream>
@@ -39,24 +39,24 @@ namespace parsec::regex {
 					unmatchedParen(m_scanner.loc());
 				}
 
-				throw Error(std::format("unexpected '{}'",
+				throw ParseError(std::format("unexpected '{}'",
 						utils::Chars::escape(m_scanner.peek())
 					), m_scanner.loc()
 				);
 			}
 			
 			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
-				throw Error("unmatched parenthesis", loc);
+				throw ParseError("unmatched parenthesis", loc);
 			}
 
 			[[noreturn]] void invalidHexSeq() const {
-				throw Error("expected at least one hexadecimal digit",
+				throw ParseError("expected at least one hexadecimal digit",
 					m_scanner.loc()
 				);
 			}
 
 			[[noreturn]] void rangeBadOrder(const SourceLoc& loc) const {
-				throw Error("character range is out of order", {
+				throw ParseError("character range is out of order", {
 					loc.startCol(),
 					m_scanner.pos() - loc.pos(),
 					loc.lineNo(),

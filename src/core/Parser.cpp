@@ -1,6 +1,6 @@
 #include "core/Parser.hpp"
 #include "core/Lexer.hpp"
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 
 #include "regex/Parser.hpp"
 #include "regex/NodeVisitor.hpp"
@@ -286,14 +286,14 @@ namespace parsec {
 			/** @{ */
 			[[noreturn]] void unexpectedToken() const {
 				const auto& tok = m_lexer.peek();
-				throw Error(std::format("unexpected \"{}\"",
+				throw ParseError(std::format("unexpected \"{}\"",
 						tok.text()
 					), tok.loc()
 				);
 			}
 
 			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
-				throw Error("unmatched parenthesis", loc);
+				throw ParseError("unmatched parenthesis", loc);
 			}
 			/** @} */
 
@@ -366,9 +366,9 @@ namespace parsec {
 			regex::ExprPtr parseRegex(const Token& pattern) {
 				try {
 					return regex::Parser().parse(pattern.text());
-				} catch(const Error& e) {
+				} catch(const ParseError& e) {
 					// adjust the error location to take into account the location of the pattern token
-					throw Error(e.what(), {
+					throw ParseError(e.what(), {
 						pattern.loc().startCol() + e.loc().startCol() + 1,
 						e.loc().colCount(),
 						pattern.loc().lineNo(),

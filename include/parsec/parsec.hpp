@@ -1,7 +1,7 @@
 #ifndef PARSEC_ROOT_HEADER
 #define PARSEC_ROOT_HEADER
 
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 #include "core/SourceLoc.hpp"
 #include "core/TextScanner.hpp"
 

@@ -9,6 +9,6 @@
 #include "core/TokenBase.hpp"
 #include "core/LexerBase.hpp"
 #include "core/TextScanner.hpp"
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 
 #endif

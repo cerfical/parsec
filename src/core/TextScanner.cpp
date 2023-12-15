@@ -1,11 +1,11 @@
 #include "core/TextScanner.hpp"
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 
 #include <gsl/narrow>
 
 namespace parsec {
 	void TextScanner::unexpectedEof() const {
-		throw Error("unexpected end of file",
+		throw ParseError("unexpected end of file",
 			loc()
 		);
 	}

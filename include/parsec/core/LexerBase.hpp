@@ -2,7 +2,7 @@
 #define PARSEC_LEXER_BASE_HEADER
 
 #include "TextScanner.hpp"
-#include "Error.hpp"
+#include "ParseError.hpp"
 
 #include <string_view>
 #include <optional>
@@ -107,7 +107,7 @@ namespace parsec {
 		/** @{ */
 		/** @brief Generates an error linked to the current lexer position. */
 		[[noreturn]] void error() const {
-			throw Error("malformed token", loc());
+			throw ParseError("malformed token", loc());
 		}
 
 		/** @brief Reset the token parse state. */

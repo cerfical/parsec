@@ -5,7 +5,7 @@
 #include <parsec/regex/RegularGrammar.hpp>
 #include <parsec/regex/nodes.hpp>
 
-#include <parsec/core/Error.hpp>
+#include <parsec/core/ParseError.hpp>
 
 #include <sstream>
 #include <format>
@@ -47,7 +47,7 @@ namespace parsec::regex {
 			}
 
 			void parseMustThrow(std::string regex) {
-				ASSERT_THROW(parse(regex), Error);
+				ASSERT_THROW(parse(regex), ParseError);
 			}
 
 			ExprPtr parse(std::string_view regex) {

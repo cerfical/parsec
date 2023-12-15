@@ -1,5 +1,5 @@
 #include "core/Lexer.hpp"
-#include "core/Error.hpp"
+#include "core/ParseError.hpp"
 
 #include "regex/Parser.hpp"
 
@@ -10,7 +10,7 @@
 
 namespace parsec {
 	void Lexer::unmatched(std::string_view expected) const {
-		throw Error(
+		throw ParseError(
 			std::format("expected {}, but found {}",
 				expected,
 				Token::describe(

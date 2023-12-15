@@ -91,7 +91,7 @@ private:
 	void dumpCurrentException() {
 		try {
 			throw;
-		} catch(const parsec::Error& e) {
+		} catch(const parsec::ParseError& e) {
 			printParseError(e);
 		} catch(const std::exception& e) {
 			std::cerr << "fatal error: " << e.what() << '\n';
@@ -120,7 +120,7 @@ private:
 			.run(grammar);
 	}
 
-	void printParseError(const parsec::Error& e) {
+	void printParseError(const parsec::ParseError& e) {
 		const auto line = readInputLineAt(e.loc().linePos());
 		const auto marker = makeVisualMarker(line, e.loc().startCol(), e.loc().colCount());
 		const auto indent = std::string(tabSize, ' ');

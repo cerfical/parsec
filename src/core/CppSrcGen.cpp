@@ -339,7 +339,7 @@ protected:
 			void emitParserImpl() {
 				m_out << R"(private:
 	[[noreturn]] void error() const {
-		throw parsec::Error("unexpected token", m_lexer.loc());
+		throw parsec::ParseError("unexpected token", m_lexer.loc());
 	}
 
 	void initiateReduce(ParseRules rule, int states, int tokens, void (Parser::*hook)()) {
