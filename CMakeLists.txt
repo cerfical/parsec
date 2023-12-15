@@ -52,6 +52,8 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/core/Error.hpp"
+
 		"include/parsec/core/Rule.hpp"
 		"include/parsec/core/Pattern.hpp"
 		"include/parsec/core/Symbol.hpp"
