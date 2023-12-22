@@ -1,10 +1,12 @@
 #include "regex/Parser.hpp"
+
+#include "regex/ParseError.hpp"
 #include "regex/nodes.hpp"
 
-#include "utils/Chars.hpp"
-
 #include "core/TextScanner.hpp"
-#include "core/ParseError.hpp"
+#include "core/EofError.hpp"
+
+#include "utils/Chars.hpp"
 
 #include <gsl/narrow>
 #include <sstream>
@@ -36,37 +38,35 @@ namespace parsec::regex {
 			}
 
 		private:
-
-			[[noreturn]] void unexpected() const {
-				if(m_scanner.peek() == ')') {
-					unmatchedParen(m_scanner.loc());
+			[[noreturn]]
+			void unexpected() const {
+				if(m_scanner.peek() != ')') {
+					throw ParseError(std::format("unexpected '{}'",
+							utils::Chars::escape(m_scanner.peek())
+						), m_scanner.pos()
+					);
 				}
-
-				throw ParseError(std::format("unexpected '{}'",
-						utils::Chars::escape(m_scanner.peek())
-					), m_scanner.loc()
-				);
+				unmatchedParen(m_scanner.pos());
 			}
 			
-			[[noreturn]] void unmatchedParen(const SourceLoc& loc) const {
-				throw ParseError("unmatched parenthesis", loc);
+			[[noreturn]]
+			void unmatchedParen(gsl::index parenLoc) const {
+				throw ParseError("unmatched parenthesis", parenLoc);
 			}
 
-			[[noreturn]] void invalidHexSeq() const {
+			[[noreturn]]
+			void invalidHexSeq() const {
 				throw ParseError("expected at least one hexadecimal digit",
-					m_scanner.loc()
+					m_scanner.pos()
 				);
 			}
 
-			[[noreturn]] void rangeBadOrder(const SourceLoc& loc) const {
-				throw ParseError("character range is out of order", {
-					loc.startCol(),
-					m_scanner.pos() - loc.pos(),
-					loc.lineNo(),
-					loc.linePos()
-				});
+			[[noreturn]]
+			void outOfOrderCharRange(gsl::index charRangeStart) const {
+				throw ParseError("character range is out of order",
+					IndexRange(charRangeStart, m_scanner.pos())
+				);
 			}
-
 
 
 			bool isAtom() const {
@@ -112,10 +112,9 @@ namespace parsec::regex {
 			}
 
 
-
 			ExprPtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
-				const auto rangeLoc = m_scanner.loc();
+				const auto charRangeStart = m_scanner.pos();
 				const auto low = parseChar();
 
 				// no char range, just a single character
@@ -128,7 +127,7 @@ namespace parsec::regex {
 				if(m_scanner.peek() != ']') {
 					const auto high = parseChar();
 					if(low > high) {
-						rangeBadOrder(rangeLoc);
+						outOfOrderCharRange(charRangeStart);
 					}
 
 					for(auto ch = low + 1; ch <= high; ) {
@@ -165,13 +164,12 @@ namespace parsec::regex {
 			}
 
 
-
 			ExprPtr parseAtom() {
 				if(!isAtom()) {
 					unexpected();
 				}
 
-				if(const auto openParen = m_scanner.loc(); m_scanner.skipIf('(')) {
+				if(const auto openParen = m_scanner.pos(); m_scanner.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_scanner.skipIf(')')) {
 						return makeExpr<NilExpr>();
@@ -230,9 +228,14 @@ namespace parsec::regex {
 			}
 			
 			ExprPtr parseExpr() {
-				return parseAltern();
+				try {
+					return parseAltern();
+				} catch(const EofError& e) {
+					throw ParseError("unexpected end of string",
+						IndexRange(e.loc(), e.loc())
+					);
+				}
 			}
-
 
 
 			TextScanner m_scanner;

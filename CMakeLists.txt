@@ -159,6 +159,7 @@ target_sources(parsec-lib
 
 		"include/parsec/regex/ExprTraverser.hpp"
 		"include/parsec/regex/RegularExpr.hpp"
+		"include/parsec/regex/ParseError.hpp"
 		"include/parsec/regex/Parser.hpp"
 	
 	PRIVATE
