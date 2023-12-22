@@ -1,9 +1,9 @@
-#ifndef PARSEC_REGEX_CONCAT_EXPR_HEADER
-#define PARSEC_REGEX_CONCAT_EXPR_HEADER
+#ifndef PARSEC_REGEX_NODES_CONCAT_EXPR_HEADER
+#define PARSEC_REGEX_NODES_CONCAT_EXPR_HEADER
 
 #include "BinaryExpr.hpp"
 
-namespace parsec::regex {
+namespace parsec::regex::nodes {
 	
 	/**
 	 * @brief Marks one expression as immediately following another.

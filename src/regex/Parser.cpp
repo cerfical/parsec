@@ -11,11 +11,14 @@
 #include <format>
 
 namespace parsec::regex {
+	using namespace nodes;
+
+
 	namespace {
-		class ParseImpl {
+		class ParseInputStream {
 		public:
 
-			explicit ParseImpl(std::istream& input) noexcept
+			explicit ParseInputStream(std::istream& input) noexcept
 				: m_scanner(input)
 			{ }
 			
@@ -256,7 +259,6 @@ namespace parsec::regex {
 	}
 
 	ExprPtr Parser::parse(std::istream& input) {
-		return ParseImpl(input)();
+		return ParseInputStream(input)();
 	}
-
 }

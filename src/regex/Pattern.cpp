@@ -5,6 +5,8 @@
 #include "regex/nodes.hpp"
 
 namespace parsec::regex {
+	using namespace nodes;
+	
 	namespace {
 		class IsNullable : NodeVisitor {
 		public:

@@ -1,7 +1,7 @@
 #ifndef PARSEC_REGEX_PATTERN_HEADER
 #define PARSEC_REGEX_PATTERN_HEADER
 
-#include "CharAtom.hpp"
+#include "nodes/CharAtom.hpp"
 
 #include <string_view>
 #include <vector>
@@ -14,7 +14,7 @@ namespace parsec::regex {
 	class Pattern {
 	public:
 
-		using AtomList = std::vector<const CharAtom*>;
+		using AtomList = std::vector<const nodes::CharAtom*>;
 
 
 
@@ -30,7 +30,7 @@ namespace parsec::regex {
 		{ }
 
 
-		Pattern(std::string_view name, ExprPtr regex, int id = 0)
+		Pattern(std::string_view name, nodes::ExprPtr regex, int id = 0)
 			: m_name(name), m_regex(std::move(regex)), m_id(id)
 		{ }
 
@@ -50,11 +50,11 @@ namespace parsec::regex {
 
 		/** @{ */
 		/** @brief Find the rightmost atom, if any. */
-		const CharAtom* endAtom() const noexcept;
+		const nodes::CharAtom* endAtom() const noexcept;
 
 
 		/** @brief Find atoms that can follow the atom given in some string generated from the pattern. */
-		AtomList followersOf(const CharAtom* ch) const;
+		AtomList followersOf(const nodes::CharAtom* ch) const;
 
 
 		/** @brief Find atoms that come first in some string generated from the pattern. */
@@ -66,7 +66,7 @@ namespace parsec::regex {
 		
 
 		/** @brief Root node of the regular expression, if any. */
-		const ExprNode* regex() const noexcept {
+		const nodes::ExprNode* regex() const noexcept {
 			return m_regex.get();
 		}
 
@@ -86,10 +86,10 @@ namespace parsec::regex {
 
 
 	private:
-		static ExprPtr parseRegex(std::string_view regex);
+		static nodes::ExprPtr parseRegex(std::string_view regex);
 
 		std::string m_name;
-		ExprPtr m_regex;
+		nodes::ExprPtr m_regex;
 		int m_id = {};
 	};
 

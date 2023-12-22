@@ -1,11 +1,11 @@
-#include "regex/ExprNode.hpp"
+#include "regex/nodes/ExprNode.hpp"
 
-#include "regex/NodeVisitor.hpp"
+#include "regex/nodes/NodeVisitor.hpp"
 #include "regex/nodes.hpp"
 
 #include "utils/Chars.hpp"
 
-namespace parsec::regex {
+namespace parsec::regex::nodes {
 	namespace {
 		class PrintExpr : NodeVisitor {
 		public:

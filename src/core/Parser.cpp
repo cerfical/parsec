@@ -3,7 +3,6 @@
 #include "core/ParseError.hpp"
 
 #include "regex/Parser.hpp"
-#include "regex/NodeVisitor.hpp"
 #include "regex/nodes.hpp"
 
 #include <sstream>
@@ -14,45 +13,47 @@
 #include <list>
 
 namespace parsec {
+	using namespace regex::nodes;
+
 	namespace {
-		class IsNullable : regex::NodeVisitor {
+		class IsNullable : NodeVisitor {
 		public:
-			bool operator()(const regex::ExprNode& n) noexcept {
+			bool operator()(const ExprNode& n) noexcept {
 				n.acceptVisitor(*this);
 				return m_nullable;
 			}
 
 		private:
-			void visit(const regex::CharAtom&) override {
+			void visit(const regex::nodes::CharAtom&) override {
 				m_nullable = false;
 			}
 
-			void visit(const regex::NilExpr&) override {
+			void visit(const NilExpr&) override {
 				m_nullable = true;
 			}
 
 
-			void visit(const regex::OptionalExpr&) override {
+			void visit(const OptionalExpr&) override {
 				m_nullable = true;
 			}
 
-			void visit(const regex::PlusExpr&) override {
+			void visit(const PlusExpr&) override {
 				m_nullable = false;
 			}
 
-			void visit(const regex::StarExpr&) override {
+			void visit(const StarExpr&) override {
 				m_nullable = true;
 			}
 
 
-			void visit(const regex::AlternExpr& n) override {
+			void visit(const AlternExpr& n) override {
 				n.left()->acceptVisitor(*this); // check if the left child is nullable
 				if(!m_nullable) { // if it is not, check the right child
 					n.right()->acceptVisitor(*this);
 				}
 			}
 
-			void visit(const regex::ConcatExpr& n) override {
+			void visit(const ConcatExpr& n) override {
 				n.left()->acceptVisitor(*this); // check if the left child is nullable
 				if(m_nullable) { // if it is, check the right child
 					n.right()->acceptVisitor(*this);
@@ -63,45 +64,45 @@ namespace parsec {
 			bool m_nullable = false;
 		};
 
-		class FindRoots : regex::NodeVisitor {
+		class FindRoots : NodeVisitor {
 		public:
-			auto operator()(const regex::ExprNode& n) {
+			auto operator()(const ExprNode& n) {
 				n.acceptVisitor(*this);
 				return std::move(m_roots);
 			}
 
 		private:
 			/** @{ */
-			void visit(const regex::CharAtom& n) override {
+			void visit(const regex::nodes::CharAtom& n) override {
 				m_roots.push_back(&n);
 			}
 
-			void visit(const regex::NilExpr&) override {
+			void visit(const NilExpr&) override {
 				// nothing to do
 			}
 
 
-			void visit(const regex::OptionalExpr& n) override {
+			void visit(const OptionalExpr& n) override {
 				visitUnary(n);
 			}
 
-			void visit(const regex::PlusExpr& n) override {
+			void visit(const PlusExpr& n) override {
 				visitUnary(n);
 			}
 
-			void visit(const regex::StarExpr& n) override {
+			void visit(const StarExpr& n) override {
 				visitUnary(n);
 			}
 
 
-			void visit(const regex::AlternExpr& n) override {
+			void visit(const AlternExpr& n) override {
 				// add roots of the left child
 				n.left()->acceptVisitor(*this);
 				// add roots of the right child
 				n.right()->acceptVisitor(*this);
 			}
 
-			void visit(const regex::ConcatExpr& n) override {
+			void visit(const ConcatExpr& n) override {
 				// add roots of the left child
 				n.left()->acceptVisitor(*this);
 				if(IsNullable()(*n.left())) {
@@ -113,54 +114,54 @@ namespace parsec {
 
 
 			/** @{ */
-			void visitUnary(const regex::UnaryExpr& n) {
+			void visitUnary(const UnaryExpr& n) {
 				// add roots of the inner expression
 				n.inner()->acceptVisitor(*this);
 			}
 			/** @} */
 
 
-			std::vector<const regex::CharAtom*> m_roots;
+			std::vector<const regex::nodes::CharAtom*> m_roots;
 		};
 
-		class FindFollows : regex::NodeVisitor {
+		class FindFollows : NodeVisitor {
 		public:
-			auto operator()(const regex::ExprNode& n) {
+			auto operator()(const ExprNode& n) {
 				n.acceptVisitor(*this);
 				return std::move(m_atoms);
 			}
 
 		private:
 			/** @{ */
-			void visit(const regex::CharAtom& n) override {
+			void visit(const regex::nodes::CharAtom& n) override {
 				traverseParent(n);
 			}
 
-			void visit(const regex::NilExpr&) override {
+			void visit(const NilExpr&) override {
 				// nothing to do
 			}
 
 
-			void visit(const regex::OptionalExpr& n) override {
+			void visit(const OptionalExpr& n) override {
 				traverseParent(n);
 			}
 
-			void visit(const regex::PlusExpr& n) override {
+			void visit(const PlusExpr& n) override {
 				appendRoots(n);
 				traverseParent(n);
 			}
 
-			void visit(const regex::StarExpr& n) override {
+			void visit(const StarExpr& n) override {
 				appendRoots(n);
 				traverseParent(n);
 			}
 
 
-			void visit(const regex::AlternExpr& n) override {
+			void visit(const AlternExpr& n) override {
 				traverseParent(n);
 			}
 
-			void visit(const regex::ConcatExpr& n) override {
+			void visit(const ConcatExpr& n) override {
 				if(m_child == n.left()) {
 					appendRoots(*n.right());
 					if(IsNullable()(*n.right())) {
@@ -174,7 +175,7 @@ namespace parsec {
 
 
 			/** @{ */
-			void traverseParent(const regex::ExprNode& n) {
+			void traverseParent(const ExprNode& n) {
 				// recursively traverse the parent node to find all atoms following the given one
 				if(n.parent()) {
 					const auto oldChild = std::exchange(m_child, &n);
@@ -183,7 +184,7 @@ namespace parsec {
 				}
 			}
 
-			void appendRoots(const regex::ExprNode& n) {
+			void appendRoots(const ExprNode& n) {
 				const auto atoms = FindRoots()(n);
 				m_atoms.insert(m_atoms.end(),
 					atoms.cbegin(),
@@ -193,14 +194,14 @@ namespace parsec {
 			/** @} */
 
 
-			std::vector<const regex::CharAtom*> m_atoms;
-			const regex::ExprNode* m_child = nullptr;
+			std::vector<const regex::nodes::CharAtom*> m_atoms;
+			const ExprNode* m_child = nullptr;
 		};
 
-		class FindEndAtoms : regex::NodeVisitor {
+		class FindEndAtoms : NodeVisitor {
 		public:
 			/** @{ */
-			auto operator()(const regex::ExprNode& n) {
+			auto operator()(const ExprNode& n) {
 				n.acceptVisitor(*this);
 				return std::move(m_endAtoms);
 			}
@@ -209,39 +210,39 @@ namespace parsec {
 
 		private:
 			/** @{ */
-			void visit(const regex::CharAtom& n) override {
+			void visit(const regex::nodes::CharAtom& n) override {
 				m_endAtoms.push_back(&n);
 			}
 
-			void visit(const regex::NilExpr&) override {
+			void visit(const NilExpr&) override {
 				// nothing to do
 			}
 
 
-			void visit(const regex::OptionalExpr& n) override {
+			void visit(const OptionalExpr& n) override {
 				// add end atoms of the inner expression
 				n.inner()->acceptVisitor(*this);
 			}
 
-			void visit(const regex::PlusExpr& n) override {
+			void visit(const PlusExpr& n) override {
 				// add end atoms of the inner expression
 				n.inner()->acceptVisitor(*this);
 			}
 
-			void visit(const regex::StarExpr& n) override {
+			void visit(const StarExpr& n) override {
 				// add end atoms of the inner expression
 				n.inner()->acceptVisitor(*this);
 			}
 
 
-			void visit(const regex::AlternExpr& n) override {
+			void visit(const AlternExpr& n) override {
 				// add end atoms of the left child
 				n.left()->acceptVisitor(*this);
 				// add end atoms of the right child
 				n.right()->acceptVisitor(*this);
 			}
 
-			void visit(const regex::ConcatExpr& n) override {
+			void visit(const ConcatExpr& n) override {
 				// add end atoms of the right child
 				n.right()->acceptVisitor(*this);
 				if(IsNullable()(*n.right())) {
@@ -252,7 +253,7 @@ namespace parsec {
 			/** @} */
 
 
-			std::vector<const regex::CharAtom*> m_endAtoms;
+			std::vector<const regex::nodes::CharAtom*> m_endAtoms;
 		};
 
 
@@ -321,8 +322,8 @@ namespace parsec {
 				auto regex = parseRegex(patternToken);
 
 				// keep a mapping between regex atoms and pattern atoms
-				std::unordered_map<const regex::CharAtom*, CharAtom*> regexToAtoms;
-				std::stack<const regex::CharAtom*> unprocessed;
+				std::unordered_map<const regex::nodes::CharAtom*, parsec::CharAtom*> regexToAtoms;
+				std::stack<const regex::nodes::CharAtom*> unprocessed;
 				
 				// first, find all root atoms of the regex and mark them as "unprocessed"
 				for(const auto regexRoot : FindRoots()(*regex)) {
@@ -363,7 +364,7 @@ namespace parsec {
 				return head;
 			}
 			
-			regex::ExprPtr parseRegex(const Token& pattern) {
+			ExprPtr parseRegex(const Token& pattern) {
 				try {
 					return regex::Parser().parse(pattern.text());
 				} catch(const ParseError& e) {

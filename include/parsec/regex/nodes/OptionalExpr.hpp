@@ -1,9 +1,9 @@
-#ifndef PARSEC_REGEX_OPTIONAL_EXPR_HEADER
-#define PARSEC_REGEX_OPTIONAL_EXPR_HEADER
+#ifndef PARSEC_REGEX_NODES_OPTIONAL_EXPR_HEADER
+#define PARSEC_REGEX_NODES_OPTIONAL_EXPR_HEADER
 
 #include "UnaryExpr.hpp"
 
-namespace parsec::regex {
+namespace parsec::regex::nodes {
 	
 	/**
 	 * @brief Marks an inner expression as 'optional', meaning it is either present or not.

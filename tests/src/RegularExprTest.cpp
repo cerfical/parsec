@@ -14,6 +14,7 @@ using namespace testing;
 
 namespace parsec::regex {
 	namespace {
+		using namespace nodes;
 
 		class RegularExprTest : public Test {
 		protected:

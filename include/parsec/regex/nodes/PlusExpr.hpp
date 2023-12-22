@@ -1,9 +1,9 @@
-#ifndef PARSEC_REGEX_PLUS_EXPR_HEADER
-#define PARSEC_REGEX_PLUS_EXPR_HEADER
+#ifndef PARSEC_REGEX_NODES_PLUS_EXPR_HEADER
+#define PARSEC_REGEX_NODES_PLUS_EXPR_HEADER
 
 #include "UnaryExpr.hpp"
 
-namespace parsec::regex {
+namespace parsec::regex::nodes {
 
 	/**
 	 * @brief Marks an inner expression as being repeated one or more times.

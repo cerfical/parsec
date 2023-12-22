@@ -1,10 +1,10 @@
-#ifndef PARSEC_REGEX_EXPR_NODE_HEADER
-#define PARSEC_REGEX_EXPR_NODE_HEADER
+#ifndef PARSEC_REGEX_NODES_EXPR_NODE_HEADER
+#define PARSEC_REGEX_NODES_EXPR_NODE_HEADER
 
 #include <ostream>
 #include <memory>
 
-namespace parsec::regex {
+namespace parsec::regex::nodes {
 
 	class NodeVisitor;
 	class BinaryExpr;

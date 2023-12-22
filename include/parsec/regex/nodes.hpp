@@ -1,14 +1,16 @@
 #ifndef PARSEC_REGEX_NODES_HEADER
 #define PARSEC_REGEX_NODES_HEADER
 
-#include "CharAtom.hpp"
-#include "NilExpr.hpp"
+#include "nodes/NodeVisitor.hpp"
 
-#include "PlusExpr.hpp"
-#include "StarExpr.hpp"
-#include "OptionalExpr.hpp"
+#include "nodes/CharAtom.hpp"
+#include "nodes/NilExpr.hpp"
 
-#include "ConcatExpr.hpp"
-#include "AlternExpr.hpp"
+#include "nodes/PlusExpr.hpp"
+#include "nodes/StarExpr.hpp"
+#include "nodes/OptionalExpr.hpp"
+
+#include "nodes/ConcatExpr.hpp"
+#include "nodes/AlternExpr.hpp"
 
 #endif

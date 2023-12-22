@@ -1,7 +1,10 @@
 #ifndef PARSEC_REGEX_REGULAR_EXPR_HEADER
 #define PARSEC_REGEX_REGULAR_EXPR_HEADER
 
-#include "ExprNode.hpp"
+#include "nodes/ExprNode.hpp"
+
+#include <string_view>
+#include <string>
 
 namespace parsec::regex {
 	
@@ -33,7 +36,7 @@ namespace parsec::regex {
 		/**
 		 * @brief Get a node for the top-level subexpression.
 		*/
-		const ExprNode* rootNode() const noexcept {
+		const nodes::ExprNode* rootNode() const noexcept {
 			return m_rootNode.get();
 		}
 
@@ -50,7 +53,7 @@ namespace parsec::regex {
 
 
 	private:
-		ExprPtr m_rootNode;
+		nodes::ExprPtr m_rootNode;
 		std::string m_str;
 	};
 

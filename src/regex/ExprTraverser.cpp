@@ -2,6 +2,7 @@
 #include "regex/nodes.hpp"
 
 namespace parsec::regex {
+	using namespace nodes;
 
 	void ExprTraverser::visit(const CharAtom& n) {
 		// nothing to do
@@ -34,5 +35,4 @@ namespace parsec::regex {
 		n.left()->acceptVisitor(*this);
 		n.right()->acceptVisitor(*this);
 	}
-
 }

@@ -126,22 +126,19 @@ target_sources(parsec-lib
 		"include/parsec/regex.hpp"
 		"include/parsec/regex/nodes.hpp"
 	
-		"include/parsec/regex/ExprNode.hpp"
-		"include/parsec/regex/NodeVisitor.hpp"
+		"include/parsec/regex/nodes/NodeVisitor.hpp"
+		"include/parsec/regex/nodes/ExprNode.hpp"
+		"include/parsec/regex/nodes/CharAtom.hpp"
+		"include/parsec/regex/nodes/NilExpr.hpp"
+		"include/parsec/regex/nodes/BinaryExpr.hpp"
+		"include/parsec/regex/nodes/AlternExpr.hpp"
+		"include/parsec/regex/nodes/ConcatExpr.hpp"
+		"include/parsec/regex/nodes/UnaryExpr.hpp"
+		"include/parsec/regex/nodes/PlusExpr.hpp"
+		"include/parsec/regex/nodes/OptionalExpr.hpp"
+		"include/parsec/regex/nodes/StarExpr.hpp"
+
 		"include/parsec/regex/ExprTraverser.hpp"
-
-		"include/parsec/regex/CharAtom.hpp"
-		"include/parsec/regex/NilExpr.hpp"
-
-		"include/parsec/regex/BinaryExpr.hpp"
-		"include/parsec/regex/AlternExpr.hpp"
-		"include/parsec/regex/ConcatExpr.hpp"
-
-		"include/parsec/regex/UnaryExpr.hpp"
-		"include/parsec/regex/PlusExpr.hpp"
-		"include/parsec/regex/OptionalExpr.hpp"
-		"include/parsec/regex/StarExpr.hpp"
-
 		"include/parsec/regex/RegularExpr.hpp"
 		"include/parsec/regex/Pattern.hpp"
 		"include/parsec/regex/RegularGrammar.hpp"
@@ -149,19 +146,16 @@ target_sources(parsec-lib
 		"include/parsec/regex/Parser.hpp"
 	
 	PRIVATE
-		"src/regex/ExprNode.cpp"
+		"src/regex/nodes/ExprNode.cpp"
+		"src/regex/nodes/CharAtom.cpp"
+		"src/regex/nodes/NilExpr.cpp"
+		"src/regex/nodes/AlternExpr.cpp"
+		"src/regex/nodes/ConcatExpr.cpp"
+		"src/regex/nodes/PlusExpr.cpp"
+		"src/regex/nodes/OptionalExpr.cpp"
+		"src/regex/nodes/StarExpr.cpp"
+
 		"src/regex/ExprTraverser.cpp"
-
-		"src/regex/CharAtom.cpp"
-		"src/regex/NilExpr.cpp"
-
-		"src/regex/AlternExpr.cpp"
-		"src/regex/ConcatExpr.cpp"
-
-		"src/regex/PlusExpr.cpp"
-		"src/regex/OptionalExpr.cpp"
-		"src/regex/StarExpr.cpp"
-
 		"src/regex/RegularExpr.cpp"
 		"src/regex/Pattern.cpp"
 
