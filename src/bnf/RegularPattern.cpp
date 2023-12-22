@@ -1,10 +1,7 @@
 #include "bnf/RegularPattern.hpp"
-
-#include "regex/ExprTraverser.hpp"
 #include "regex/nodes.hpp"
 
 using namespace parsec::regex::nodes;
-using namespace parsec::regex;
 
 namespace parsec::bnf {
 	namespace {
@@ -224,7 +221,7 @@ namespace parsec::bnf {
 		};
 	
 
-		class FindAllAtoms : ExprTraverser {
+		class FindAllAtoms : NodeTraverser {
 		public:
 
 			auto operator()(const ExprNode& n) {
@@ -236,6 +233,11 @@ namespace parsec::bnf {
 			void visit(const CharAtom& n) override {
 				m_atoms.push_back(&n);
 			}
+
+			void visit(const NilExpr&) override {
+				// nothing to do
+			}
+
 
 			std::vector<const CharAtom*> m_atoms;
 		};

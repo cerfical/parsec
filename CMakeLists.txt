@@ -143,9 +143,9 @@ target_sources(parsec-lib
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/regex.hpp"
-		"include/parsec/regex/nodes.hpp"
 	
 		"include/parsec/regex/nodes/NodeVisitor.hpp"
+		"include/parsec/regex/nodes/NodeTraverser.hpp"
 		"include/parsec/regex/nodes/ExprNode.hpp"
 		"include/parsec/regex/nodes/CharAtom.hpp"
 		"include/parsec/regex/nodes/NilExpr.hpp"
@@ -157,12 +157,13 @@ target_sources(parsec-lib
 		"include/parsec/regex/nodes/OptionalExpr.hpp"
 		"include/parsec/regex/nodes/StarExpr.hpp"
 
-		"include/parsec/regex/ExprTraverser.hpp"
+		"include/parsec/regex/nodes.hpp"
 		"include/parsec/regex/RegularExpr.hpp"
 		"include/parsec/regex/ParseError.hpp"
 		"include/parsec/regex/Parser.hpp"
 	
 	PRIVATE
+		"src/regex/nodes/NodeTraverser.cpp"
 		"src/regex/nodes/ExprNode.cpp"
 		"src/regex/nodes/CharAtom.cpp"
 		"src/regex/nodes/NilExpr.cpp"
@@ -172,7 +173,6 @@ target_sources(parsec-lib
 		"src/regex/nodes/OptionalExpr.cpp"
 		"src/regex/nodes/StarExpr.cpp"
 
-		"src/regex/ExprTraverser.cpp"
 		"src/regex/RegularExpr.cpp"
 		"src/regex/Parser.cpp"
 )

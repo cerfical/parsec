@@ -13,11 +13,9 @@ namespace parsec::regex::nodes {
 	class AlternExpr;
 	class ConcatExpr;
 
-
-
 	/**
 	 * @brief Implements a double dispatch mechanism for ExprNode%s.
-	 */
+	*/
 	class NodeVisitor {
 	public:
 

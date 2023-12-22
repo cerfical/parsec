@@ -2,6 +2,7 @@
 #define PARSEC_REGEX_NODES_HEADER
 
 #include "nodes/NodeVisitor.hpp"
+#include "nodes/NodeTraverser.hpp"
 
 #include "nodes/CharAtom.hpp"
 #include "nodes/NilExpr.hpp"
@@ -12,5 +13,11 @@
 
 #include "nodes/ConcatExpr.hpp"
 #include "nodes/AlternExpr.hpp"
+
+/**
+ * @brief Implements abstract syntax tree nodes for regular expressions.
+*/
+namespace parsec::regex::nodes
+{ }
 
 #endif
