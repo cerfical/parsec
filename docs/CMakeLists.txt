@@ -1,19 +1,15 @@
-
 find_package(Doxygen REQUIRED)
 
 
 set(DOXYGEN_REPEAT_BRIEF NO)
 set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
 
-# Enforce explicit @brief's for creating brief descriptions so that other tools, like IntelliSense, could locate them
-set(DOXYGEN_JAVADOC_AUTOBRIEF NO)
-
 set(DOXYGEN_SHOW_USED_FILES NO)
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_SHOW_INCLUDE_FILES NO)
 set(DOXYGEN_SHOW_FILES NO)
 
-list(APPEND DOXYGEN_STRIP_FROM_INC_PATH "${CMAKE_SOURCE_DIR}/include/")
+list(APPEND DOXYGEN_STRIP_FROM_INC_PATH "${CMAKE_SOURCE_DIR}/include")
 set(DOXYGEN_SHOW_HEADERFILE YES)
 
 set(DOXYGEN_INLINE_INFO NO)
@@ -29,10 +25,4 @@ set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 set(DOXYGEN_EXPAND_AS_DEFINED PARSEC_TOKEN_KIND PARSEC_TOKEN_KIND_LIST)
 
 
-get_target_property(_INTERFACE_HEADERS
-	parsec-lib HEADER_SET
-)
-
-doxygen_add_docs(parsec-docs "${_INTERFACE_HEADERS}" "../README.md"
-	ALL USE_STAMP_FILE
-)
+doxygen_add_docs(parsec-docs WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/include" "parsec" "../README.md" ALL)
