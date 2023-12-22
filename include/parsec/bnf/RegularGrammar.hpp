@@ -1,20 +1,21 @@
-#ifndef PARSEC_REGEX_REGULAR_GRAMMAR_HEADER
-#define PARSEC_REGEX_REGULAR_GRAMMAR_HEADER
+#ifndef PARSEC_BNF_REGULAR_GRAMMAR_HEADER
+#define PARSEC_BNF_REGULAR_GRAMMAR_HEADER
 
-#include "Pattern.hpp"
+#include "RegularPattern.hpp"
 
 #include <gsl/narrow>
 #include <deque>
 
-namespace parsec::regex {
+namespace parsec::bnf {
 	
 	/**
 	 * @brief Describes a regular language using a set of string patterns.
-	 */
+	*/
 	class RegularGrammar {
 	public:
 
-		using PatternList = std::deque<Pattern>;
+		using PatternList = std::deque<RegularPattern>;
+
 
 
 		RegularGrammar() = default;
@@ -26,18 +27,25 @@ namespace parsec::regex {
 		RegularGrammar& operator=(const RegularGrammar&) = delete;
 
 
+
 		/** @{ */
-		/** @brief Compile a new pattern and insert it into the grammar. */
-		void addPattern(std::string_view name, std::string_view regex) {
-			m_patterns.emplace_back(name, regex, uniquePatternId());
+		/**
+		 * @brief Add a new named pattern to the grammar.
+		*/
+		void addPattern(std::string_view name, regex::RegularExpr regex) {
+			m_patterns.emplace_back(std::move(regex), name, uniquePatternId());
 		}
 
 
-		/** @brief List of all patterns defined by the grammar. */
+
+		/**
+		 * @brief List of all patterns defined by the grammar.
+		*/
 		const PatternList& patterns() const noexcept {
 			return m_patterns;
 		}
 		/** @} */
+
 
 
 	private:

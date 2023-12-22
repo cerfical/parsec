@@ -2,7 +2,6 @@
 #include <gmock/gmock.h>
 
 #include <parsec/regex/Parser.hpp>
-#include <parsec/regex/RegularGrammar.hpp>
 #include <parsec/regex/nodes.hpp>
 
 #include <parsec/core/ParseError.hpp>
@@ -232,35 +231,6 @@ namespace parsec::regex {
 					)
 				);
 			}
-		}
-
-
-
-		TEST_F(RegularExprTest, Pattern_Has_LastChar_As_EndAtom) {
-			ASSERT_THAT(Pattern("a|b").endAtom(), AllOf(NotNull(), Property(&CharAtom::value, 'b')));
-		}
-
-		TEST_F(RegularExprTest, EmptyPattern_Has_NoEndAtom) {
-			ASSERT_THAT(Pattern("").endAtom(), IsNull());
-		}
-
-		TEST_F(RegularExprTest, DefaultPattern_Has_NoEndAtom) {
-			ASSERT_THAT(Pattern().endAtom(), IsNull());
-		}
-
-		TEST_F(RegularExprTest, Pattern_Has_FirstChars_As_RootAtoms) {
-			ASSERT_THAT(Pattern("(a|b)c").rootAtoms(), UnorderedElementsAre(
-				Property(&CharAtom::value, 'a'),
-				Property(&CharAtom::value, 'b')
-			));
-		}
-
-		TEST_F(RegularExprTest, CharAtom_Has_AtomsImmediatelyToRight_As_Followers) {
-			const auto pat = Pattern("a(b|c)");
-			ASSERT_THAT(pat.followersOf(pat.rootAtoms().front()), UnorderedElementsAre(
-				Property(&CharAtom::value, 'b'),
-				Property(&CharAtom::value, 'c')
-			));
 		}
 
 	}

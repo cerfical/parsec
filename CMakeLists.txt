@@ -117,9 +117,13 @@ target_sources(parsec-lib
 		"include/parsec/bnf/GrammarSymbol.hpp"
 		"include/parsec/bnf/GrammarRule.hpp"
 		"include/parsec/bnf/Grammar.hpp"
+		"include/parsec/bnf/RegularPattern.hpp"
+		"include/parsec/bnf/RegularGrammar.hpp"
+
 	PRIVATE
 		"src/bnf/GrammarRule.cpp"
 		"src/bnf/Grammar.cpp"
+		"src/bnf/RegularPattern.cpp"
 )
 
 
@@ -153,9 +157,6 @@ target_sources(parsec-lib
 
 		"include/parsec/regex/ExprTraverser.hpp"
 		"include/parsec/regex/RegularExpr.hpp"
-		"include/parsec/regex/Pattern.hpp"
-		"include/parsec/regex/RegularGrammar.hpp"
-
 		"include/parsec/regex/Parser.hpp"
 	
 	PRIVATE
@@ -170,8 +171,6 @@ target_sources(parsec-lib
 
 		"src/regex/ExprTraverser.cpp"
 		"src/regex/RegularExpr.cpp"
-		"src/regex/Pattern.cpp"
-
 		"src/regex/Parser.cpp"
 )
 

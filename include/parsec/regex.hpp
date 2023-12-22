@@ -3,10 +3,9 @@
 
 #include "regex/nodes.hpp"
 
+#include "regex/RegularExpr.hpp"
 #include "regex/ExprTraverser.hpp"
-#include "regex/NodeVisitor.hpp"
 
-#include "regex/RegularGrammar.hpp"
 #include "regex/Parser.hpp"
 
 /** @brief Provides means for parsing and constructing regular expressions. */
