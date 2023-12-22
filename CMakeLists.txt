@@ -142,6 +142,7 @@ target_sources(parsec-lib
 		"include/parsec/regex/OptionalExpr.hpp"
 		"include/parsec/regex/StarExpr.hpp"
 
+		"include/parsec/regex/RegularExpr.hpp"
 		"include/parsec/regex/Pattern.hpp"
 		"include/parsec/regex/RegularGrammar.hpp"
 
@@ -161,6 +162,7 @@ target_sources(parsec-lib
 		"src/regex/OptionalExpr.cpp"
 		"src/regex/StarExpr.cpp"
 
+		"src/regex/RegularExpr.cpp"
 		"src/regex/Pattern.cpp"
 
 		"src/regex/Parser.cpp"
