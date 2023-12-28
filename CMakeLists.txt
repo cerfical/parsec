@@ -54,6 +54,7 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/IndexRange.hpp"
+		"include/parsec/core/LineInfo.hpp"
 		"include/parsec/core/EofError.hpp"
 
 		"include/parsec/core/Rule.hpp"
