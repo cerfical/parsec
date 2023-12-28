@@ -20,13 +20,13 @@ namespace parsec {
 	void TextScanner::updateLoc(char ch) {
 		m_pos++;
 		if(ch == '\n') {
-			m_linePos = m_pos;
-			m_lineNo++;
+			m_line.pos = m_pos;
+			m_line.no++;
 		}
 	}
 
 
-	bool TextScanner::fillBuf(int size) const {
+	bool TextScanner::fillBuf(std::size_t size) const {
 		// fill the lookahead buffer with the required number of characters
 		while(m_labuf.size() < size) {
 			if(checkForEof()) {
@@ -39,7 +39,7 @@ namespace parsec {
 
 
 	char TextScanner::get() {
-		char ch = '\0';
+		char ch = {};
 		// first check the buffer to take the character from
 		if(!m_labuf.empty()) {
 			ch = m_labuf.front();
@@ -56,7 +56,7 @@ namespace parsec {
 		return ch;
 	}
 
-	char TextScanner::peek(int i) const {
+	char TextScanner::peek(gsl::index i) const {
 		if(fillBuf(i + 1)) {
 			return m_labuf[i];
 		}

@@ -57,14 +57,11 @@ namespace parsec {
 		
 		/** @brief Current location of the lexer in the input stream. */
 		SourceLoc loc() const noexcept {
-			const auto colCount = std::max(m_scanner.pos() - m_startPos, 1);
-			const auto startCol = m_startPos - m_scanner.linePos();
+			const auto endCol = m_scanner.pos() - m_scanner.line().pos;
+			const auto startCol = m_startPos - m_scanner.line().pos;
 
-			return SourceLoc(
-				startCol,
-				colCount,
-				m_scanner.lineNo(),
-				m_scanner.linePos()
+			return SourceLoc(m_scanner.line(),
+				IndexRange(startCol, endCol)
 			);
 		}
 		/** @} */

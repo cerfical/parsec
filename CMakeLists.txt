@@ -71,8 +71,8 @@ target_sources(parsec-lib
 		"include/parsec/core/Token.hpp"
 		"include/parsec/core/LexerBase.hpp"
 		"include/parsec/core/Lexer.hpp"
-	
 		"include/parsec/core/Parser.hpp"
+	
 		"include/parsec/core/CppSrcGen.hpp"
 	
 	PRIVATE
@@ -80,12 +80,11 @@ target_sources(parsec-lib
 		"src/core/Grammar.cpp"
 	
 		"src/core/TextScanner.cpp"
-		"src/core/SourceLoc.cpp"
 		"src/core/TokenKinds.cpp"
 		"src/core/Token.cpp"
 		"src/core/Lexer.cpp"
-	
 		"src/core/Parser.cpp"
+
 		"src/core/CppSrcGen.cpp"
 )
 

@@ -10,6 +10,8 @@ namespace parsec {
 	*/
 	struct IndexRange {
 
+		IndexRange() = default;
+
 		IndexRange(gsl::index start, gsl::index end) noexcept
 			: start(start), end(end)
 		{ }
@@ -26,16 +28,25 @@ namespace parsec {
 
 
 		/**
+		 * @brief Number of elements in the range.
+		*/
+		std::size_t size() const noexcept {
+			return end - start;
+		}
+
+
+
+		/**
 		 * @brief Lower bound of the range.
 		*/
-		gsl::index start;
+		gsl::index start = {};
 
 
 
 		/**
 		 * @brief Upper bound of the range.
 		*/
-		gsl::index end;
+		gsl::index end = {};
 
 	};
 

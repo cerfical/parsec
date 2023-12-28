@@ -120,13 +120,21 @@ private:
 			.run(grammar);
 	}
 
+	void printLoc(std::ostream& out, const parsec::SourceLoc& loc) {
+		out << loc.line.no + 1 << ':' << loc.cols.start + 1;
+		if(loc.cols.size()) {
+			out << '-' << (loc.cols.end - 1) + 1;
+		}
+	}
+
 	void printParseError(const parsec::ParseError& e) {
-		const auto line = readInputLineAt(e.loc().linePos());
-		const auto marker = makeVisualMarker(line, e.loc().startCol(), e.loc().colCount());
+		const auto line = readInputLineAt(e.loc().line.pos);
+		const auto marker = makeVisualMarker(line, e.loc().cols.start, e.loc().cols.size());
 		const auto indent = std::string(tabSize, ' ');
 
-		std::cerr
-			<< m_inputPath.generic_string() << ':' << e.loc() << ": error: " << e.what() << '\n'
+		std::cerr << m_inputPath.generic_string() << ':';
+		printLoc(std::cerr, e.loc());
+		std::cerr << ": error: " << e.what() << '\n'
 			<< indent << algo::trim_copy(line) << '\n'
 			<< indent << marker << '\n';
 	}

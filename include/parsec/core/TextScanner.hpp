@@ -37,8 +37,8 @@ namespace parsec {
 
 		
 		/** @brief Returns the character at the specified offset from the current position without removing it from the stream. */
-		char peek(int i = 0) const;
 
+		char peek(gsl::index i = 0) const;
 
 		/** @brief Checks if the end of input has been reached. */
 		bool isEof() const {
@@ -64,32 +64,26 @@ namespace parsec {
 
 
 		/** @{ */
-		/** @brief Current line number where the scanner is positioned. */
-		int lineNo() const noexcept {
-			return m_lineNo;
+		/**
+		 * @brief The line where the scanner is positioned.
+		*/
+		const LineInfo& line() const noexcept {
+			return m_line;
 		}
 
 
-		/** @brief Position of the current line in the input. */
-		int linePos() const noexcept {
-			return m_linePos;
-		}
 
-
-		/** @brief Position of the scanner in the input stream. */
-		int pos() const noexcept {
+		/**
+		 * @brief Position of the scanner in the input stream.
+		*/
+		gsl::index pos() const noexcept {
 			return m_pos;
 		}
 
 
 		/** @brief All information about the location of the scanner in a compact form. */
 		SourceLoc loc() const noexcept {
-			return SourceLoc(
-				pos() - linePos(),
-				1,
-				lineNo(),
-				linePos()
-			);
+			return SourceLoc(line(), pos());
 		}
 		/** @} */
 
@@ -102,16 +96,15 @@ namespace parsec {
 		bool checkForEof() const;
 		void updateLoc(char ch);
 
-		bool fillBuf(int size) const;
+		bool fillBuf(std::size_t size) const;
 		/** @} */
 
 
 		mutable std::string m_labuf;
-		std::istream* m_input;
+		std::istream* m_input = {};
 
-		int m_linePos = 0;
-		int m_lineNo = 0;
-		int m_pos = 0;
+		gsl::index m_pos = 0;
+		LineInfo m_line;
 	};
 }
 

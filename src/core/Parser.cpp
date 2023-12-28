@@ -369,12 +369,10 @@ namespace parsec {
 					return regex::Parser().parse(pattern.text());
 				} catch(const ParseError& e) {
 					// adjust the error location to take into account the location of the pattern token
-					throw ParseError(e.what(), {
-						pattern.loc().startCol() + e.loc().startCol() + 1,
-						e.loc().colCount(),
-						pattern.loc().lineNo(),
-						pattern.loc().linePos()
-					});
+					auto loc = pattern.loc();
+					loc.cols.start += e.loc().cols.start + 1;
+					loc.cols.end += e.loc().cols.start + 1;
+					throw ParseError(e.what(), loc);
 				}
 			}
 

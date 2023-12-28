@@ -1,80 +1,38 @@
-#ifndef PARSEC_SOURCE_LOC_HEADER
-#define PARSEC_SOURCE_LOC_HEADER
+#ifndef PARSEC_CORE_SOURCE_LOC_HEADER
+#define PARSEC_CORE_SOURCE_LOC_HEADER
 
-#include <ostream>
+#include "IndexRange.hpp"
+#include "LineInfo.hpp"
 
 namespace parsec {
+
 	/**
-	 * @brief Describes a location in the source code.
-	 */
-	class SourceLoc {
-	public:
-		/** @{ */
-		friend std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
-		/** @} */
-
-
-		/** @{ */
+	 * @brief One-line location in source text.
+	*/
+	struct SourceLoc {
+		
 		SourceLoc() = default;
 
-		SourceLoc(int startCol, int colCount, int lineNo, int linePos) noexcept
-			: m_startCol(startCol)
-			, m_colCount(colCount)
-			, m_lineNo(lineNo)
-			, m_linePos(linePos)
+		SourceLoc(const LineInfo& line, const IndexRange& cols) noexcept
+			: line(line), cols(cols)
 		{ }
-		/** @} */
 
 
-		/** @{ */
-		SourceLoc(const SourceLoc&) = default;
-		SourceLoc& operator=(const SourceLoc&) = default;
-		/** @} */
 
-
-		/** @{ */
-		int linePos() const noexcept {
-			return m_linePos;
-		}
-
-		int lineNo() const noexcept {
-			return m_lineNo;
-		}
-		/** @} */
-
-
-		/** @{ */
-		int colCount() const noexcept {
-			return m_colCount;
-		}
-
-		int startCol() const noexcept {
-			return m_startCol;
-		}
-
-		int endCol() const noexcept {
-			return startCol() + colCount();
-		}
-		/** @} */
-
-
-		/** @{ */
-		bool isEmpty() const noexcept {
-			return m_colCount == 0;
-		}
+		/**
+		 * @brief Text line of interest.
+		*/
+		LineInfo line;
 		
-		int pos() const noexcept {
-			return linePos() + startCol();
-		}
-		/** @} */
 
-		
-	private:
-		int m_startCol = 0;
-		int m_colCount = 0;
-		int m_lineNo = 0;
-		int m_linePos = 0;
+
+		/**
+		 * @brief Contiguous range of characters within a line.
+		*/
+		IndexRange cols;
+
 	};
+
 }
 
 #endif
