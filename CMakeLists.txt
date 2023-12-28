@@ -91,6 +91,43 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/pars.hpp"
+		"include/parsec/pars/ParseError.hpp"
+		"include/parsec/pars/TokenKinds.hpp"
+		"include/parsec/pars/Token.hpp"
+		"include/parsec/pars/Lexer.hpp"
+		"include/parsec/pars/Parser.hpp"
+
+		"include/parsec/pars/ast.hpp"
+		"include/parsec/pars/ast/Node.hpp"
+		"include/parsec/pars/ast/NodeVisitor.hpp"
+		"include/parsec/pars/ast/UnaryNode.hpp"
+		"include/parsec/pars/ast/BinaryNode.hpp"
+		"include/parsec/pars/ast/NilNode.hpp"
+		"include/parsec/pars/ast/NodeList.hpp"
+		"include/parsec/pars/ast/InlinePattern.hpp"
+		"include/parsec/pars/ast/NamedPattern.hpp"
+		"include/parsec/pars/ast/NilRule.hpp"
+		"include/parsec/pars/ast/NameRule.hpp"
+		"include/parsec/pars/ast/NamedRule.hpp"
+		"include/parsec/pars/ast/ConcatRule.hpp"
+		"include/parsec/pars/ast/AlternRule.hpp"
+		"include/parsec/pars/ast/OptionalRule.hpp"
+		"include/parsec/pars/ast/PlusRule.hpp"
+		"include/parsec/pars/ast/StarRule.hpp"
+
+	PRIVATE
+		"src/pars/TokenKinds.cpp"
+		"src/pars/Token.cpp"
+		"src/pars/Lexer.cpp"
+		"src/pars/Parser.cpp"
+		
+		"src/pars/ast.cpp"
+)
+
+
+target_sources(parsec-lib
+	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/lr/Transition.hpp"
 		"include/parsec/lr/StateReduce.hpp"
 		"include/parsec/lr/StateGen.hpp"
