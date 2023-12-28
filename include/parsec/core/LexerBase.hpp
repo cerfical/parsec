@@ -16,7 +16,10 @@ namespace parsec {
 	template <typename Token, typename TokenKinds>
 	class LexerBase {
 	public:
-		explicit LexerBase(std::istream& input = std::cin) noexcept
+
+		LexerBase() = default;
+
+		explicit LexerBase(std::istream& input) noexcept
 			: m_scanner(input)
 		{ }
 
