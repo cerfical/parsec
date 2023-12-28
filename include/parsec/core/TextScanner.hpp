@@ -14,7 +14,9 @@ namespace parsec {
 	class TextScanner {
 	public:
 		/** @{ */
-		TextScanner(std::istream& input = std::cin) noexcept
+		TextScanner() = default;
+
+		TextScanner(std::istream& input)
 			: m_input(&input)
 		{ }
 		/** @} */

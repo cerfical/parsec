@@ -10,10 +10,15 @@ namespace parsec {
 
 
 	bool TextScanner::checkForEof() const {
+		if(!m_input) {
+			return true;
+		}
+
 		if(m_input->peek() == std::char_traits<char>::eof()) {
 			m_input->clear(m_input->rdstate() ^ std::ios::eofbit);
 			return true;
 		}
+
 		return false;
 	}
 	
