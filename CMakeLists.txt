@@ -130,6 +130,11 @@ target_sources(parsec-lib
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/fsm.hpp"
+		"include/parsec/fsm/Automaton.hpp"
+		"include/parsec/fsm/Symbol.hpp"
+
+	PRIVATE
+		"src/fsm/Automaton.cpp"
 )
 
 
