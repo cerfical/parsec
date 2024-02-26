@@ -129,6 +129,12 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/fsm.hpp"
+)
+
+
+target_sources(parsec-lib
+	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/lr/Transition.hpp"
 		"include/parsec/lr/StateReduce.hpp"
 		"include/parsec/lr/StateGen.hpp"
