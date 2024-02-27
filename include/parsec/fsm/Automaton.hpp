@@ -105,7 +105,7 @@ namespace parsec::fsm {
 		*/
 		const State* startState() const {
 			if(m_impl.startState.has_value()) {
-				return stateByIndex(m_impl.startState.value());
+				return stateById(m_impl.startState.value());
 			}
 			return nullptr;
 		}
