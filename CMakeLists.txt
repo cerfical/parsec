@@ -133,8 +133,9 @@ target_sources(parsec-lib
 		"include/parsec/fsm.hpp"
 		"include/parsec/fsm/Automaton.hpp"
 		"include/parsec/fsm/AutomatonBuilder.hpp"
-		"include/parsec/fsm/RegularPattern.hpp"
 		"include/parsec/fsm/AutomatonFactory.hpp"
+		"include/parsec/fsm/RegularPattern.hpp"
+		"include/parsec/fsm/RegularGrammar.hpp"
 
 	PRIVATE
 		"src/fsm/AutomatonBuilder.cpp"
