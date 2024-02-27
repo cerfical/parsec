@@ -133,10 +133,12 @@ target_sources(parsec-lib
 		"include/parsec/fsm.hpp"
 		"include/parsec/fsm/Automaton.hpp"
 		"include/parsec/fsm/AutomatonBuilder.hpp"
+		"include/parsec/fsm/AutomatonFactory.hpp"
 
 	PRIVATE
 		"src/fsm/AutomatonBuilder.cpp"
 		"src/fsm/Automaton.cpp"
+		"src/fsm/AutomatonFactory.cpp"
 )
 
 
