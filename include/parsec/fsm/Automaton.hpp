@@ -119,6 +119,8 @@ namespace parsec::fsm {
 
 
 		struct Impl {
+			Impl() = default;
+
 			Impl(std::size_t stateCount, std::size_t transCount) {
 				states.reserve(stateCount);
 				trans.reserve(transCount);
