@@ -2,8 +2,8 @@
 #define PARSEC_FSM_AUTOMATON_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "Symbol.hpp"
 
+#include <string>
 #include <unordered_map>
 #include <vector>
 #include <optional>
@@ -22,7 +22,7 @@ namespace parsec::fsm {
 
 
 		/** @brief An input symbol that triggers the state transition. */
-		Symbol inSymbol;
+		std::string inSymbol;
 
 		/** @brief The originating state of the transition. */
 		int src = {};
@@ -46,11 +46,8 @@ namespace parsec::fsm {
 		/** @brief List of transitions originating from the state. */
 		std::span<const StateTrans> transitions;
 		
-		/** @brief A symbol that serves as the "entry point" to the state. */
-		Symbol inSymbol;
-		
 		/** @brief A symbol that the state can produce, if the Automaton can take no more transitions. */
-		Symbol outSymbol;
+		std::string outSymbol;
 		
 		/** @brief A unique integer identifier for the state. */
 		int id = {};
@@ -63,13 +60,6 @@ namespace parsec::fsm {
 	*/
 	class Automaton : private NonCopyable {
 	public:
-
-		class Builder;
-
-		/**
-		 * @brief Initiate the automaton build process using a dedicated Builder object.
-		*/
-		static Builder startBuild();
 
 		Automaton() = default;
 
@@ -113,8 +103,11 @@ namespace parsec::fsm {
 
 
 	private:
-		const State* stateByIndex(std::size_t i) const {
-			return &m_impl.states[i];
+		friend class AutomatonBuilder;
+
+
+		const State& stateByIndex(std::size_t i) const {
+			return m_impl.states[i];
 		}
 
 
@@ -139,57 +132,6 @@ namespace parsec::fsm {
 		{ }
 
 		Impl m_impl;
-	};
-
-	
-	
-	/**
-	 * @brief Serves as an interface to build an automaton of the desired configuration.
-	*/
-	class Automaton::Builder : private NonCopyable {
-	public:
-
-		/**
-		 * @brief Create a StateTrans transition in the automaton.
-		*/
-		Builder& addTransition(Symbol inSymbol, int src, int dest);
-
-
-
-		/**
-		 * @brief Mark a state as accepting.
-		*/
-		Builder& setAcceptState(int state, Symbol outSymbol);
-
-
-
-		/**
-		 * @brief Set the initial state of the automaton.
-		*/
-		Builder& setStartState(int state);
-
-
-
-		/**
-		 * @brief Create an Automaton with the requested configuration.
-		*/
-		Automaton finishBuild();
-
-
-
-	private:
-		auto insertState(int);
-
-
-		struct StateData {
-			std::vector<StateTrans> trans;
-			std::optional<Symbol> inSymbol;
-			std::optional<Symbol> outSymbol;
-		};
-
-		std::unordered_map<int, StateData> m_states;
-		std::optional<int> m_startState;
-		std::size_t m_totalTrans = 0;
 	};
 
 }
