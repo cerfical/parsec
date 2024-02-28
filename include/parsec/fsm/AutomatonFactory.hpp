@@ -3,6 +3,9 @@
 
 #include "../core/NonMovable.hpp"
 
+#include "Automaton.hpp"
+#include "RegularGrammar.hpp"
+
 namespace parsec::fsm {
 
 	/**
@@ -15,6 +18,13 @@ namespace parsec::fsm {
 		 * @brief Get access to the default factory.
 		*/
 		static AutomatonFactory& get();
+
+
+		/**
+		 * @brief Construct a DFA (Determinstic Finite Automaton) from its regular language.
+		*/
+		Automaton makeDfa(const RegularGrammar& regLang);
+
 
 	private:
 		AutomatonFactory() = default;
