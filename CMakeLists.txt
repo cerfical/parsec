@@ -157,6 +157,7 @@ target_sources(parsec-lib
 		"src/fsm/Automaton.cpp"
 		"src/fsm/AutomatonFactory.cpp"
 		"src/fsm/AutomatonFactory_makeDfa.cpp"
+		"src/fsm/AutomatonFactory_makeSlr.cpp"
 )
 
 

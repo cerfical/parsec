@@ -3,74 +3,66 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <gsl/narrow>
-
 #include <unordered_set>
 #include <unordered_map>
-#include <map>
 
 namespace parsec::fsm {
 	namespace {
 		class Item {
 		public:
 
-			friend bool operator==(const Item& lhs, const Item& rhs) {
-				return lhs.pattern()->id() == rhs.pattern()->id()
-					&& lhs.m_pos == rhs.m_pos;
-			}
-
-			friend std::size_t hash_value(const Item& item) {
-				return boost::hash_value(std::tuple(item.pattern()->id(), item.m_pos));
+			Item(const fg::RegularPattern* pattern, std::size_t pos) noexcept
+				: m_pattern(pattern), m_pos(pos) {
 			}
 
 
-			Item(const fg::RegularPattern* pattern, gsl::index pos)
-				: m_pattern(pattern), m_pos(pos)
-			{ }
-
-
-			std::vector<gsl::index> followPos() const {
-				auto fp = m_pattern->followPos(m_pos);
-				if(const auto lp = m_pattern->lastPos(); std::ranges::find(lp, m_pos) != lp.end()) {
-					fp.push_back(m_pattern->size());
-				}
-				return fp;
-			}
-
-			const fg::RegularPattern* pattern() const {
+			const fg::RegularPattern* pattern() const noexcept {
 				return m_pattern;
 			}
 
-			char charValue() const {
+
+			char charValue() const noexcept {
 				return m_pattern->atomAt(m_pos)->value();
 			}
 
-			bool isAtEnd() const {
+			std::size_t pos() const noexcept {
+				return m_pos;
+			}
+
+			bool isAtEnd() const noexcept {
 				return m_pos == m_pattern->size();
 			}
 
 
 		private:
 			const fg::RegularPattern* m_pattern = {};
-			gsl::index m_pos = {};
+			std::size_t m_pos = {};
 		};
 
-
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
+
+
+
+		inline bool operator==(const Item& lhs, const Item& rhs) noexcept {
+			return lhs.pattern()->id() == rhs.pattern()->id() && lhs.pos() == rhs.pos();
+		}
+
+		inline std::size_t hash_value(const Item& item) noexcept {
+			return boost::hash_value(std::tuple(item.pattern()->id(), item.pos()));
+		}
+
 
 
 		class ConstructDfa {
 		public:
 			Automaton operator()(const fg::RegularGrammar& grammar) {
-				// initial state consists of the first characters of each pattern
 				ItemSet startItems;
 				for(const auto& pat : grammar.patterns()) {
-					for(const auto fp : pat.firstPos()) {
-						startItems.emplace(&pat, fp);
+					for(const auto pos : pat.firstPos()) {
+						startItems.emplace(&pat, pos);
 					}
 				}
 
-				// no items, no start state, no states at all
 				if(!startItems.empty()) {
 					createState(std::move(startItems));
 					m_dfaBuilder.startState(0);
@@ -83,21 +75,19 @@ namespace parsec::fsm {
 			int createState(ItemSet&& stateItems) {
 				const auto [it, wasInserted] = m_states.emplace(
 					std::move(stateItems),
-					gsl::narrow_cast<int>(m_states.size())
+					static_cast<int>(m_states.size())
 				);
-				auto& [items, stateId] = *it;
+				auto& [items, state] = *it;
 
 				if(wasInserted) {
-					processState(items, stateId);
+					buildStateTrans(items, state);
 				}
-				return stateId;
+				return state;
 			}
 
-			void processState(const ItemSet& items, int state) {
-				// incrementally build up all states to which there is a transition
-				std::map<char, ItemSet> transitions;
+			void buildStateTrans(const ItemSet& items, int state) {
+				std::unordered_map<char, ItemSet> trans;
 				for(const auto& item : items) {
-					// items that are located at the rule end represent possible matches
 					if(item.isAtEnd()) {
 						const bool wasInserted = m_acceptStates.insert(state).second;
 						if(!wasInserted) {
@@ -107,12 +97,13 @@ namespace parsec::fsm {
 						continue;
 					}
 
-					for(const auto& next : item.followPos()) {
-						transitions[item.charValue()].emplace(item.pattern(), next);
+					auto& stateTrans = trans[item.charValue()];
+					for(const auto& pos : item.pattern()->followPos(item.pos())) {
+						stateTrans.emplace(item.pattern(), pos);
 					}
 				}
 
-				for(auto& [inputChar, stateItems] : transitions) {
+				for(auto& [inputChar, stateItems] : trans) {
 					const auto dest = createState(std::move(stateItems));
 					m_dfaBuilder.transition(
 						std::string(1, inputChar),
