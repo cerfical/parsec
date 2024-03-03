@@ -1,7 +1,5 @@
 #include "fsm/AutomatonBuilder.hpp"
-
 #include <algorithm>
-#include <iterator>
 
 namespace parsec::fsm {
 	auto AutomatonBuilder::insertState(int state) {
@@ -61,16 +59,21 @@ namespace parsec::fsm {
 
 
 	Automaton AutomatonBuilder::build() {
+		const auto byInSymbol = [](const auto& lhs, const auto& rhs) { return lhs.inSymbol < rhs.inSymbol; };
 		auto impl = Automaton::Impl(m_states.size(), m_totalTrans);
 
-		for(const auto& [id, data] : m_states) {
-			std::ranges::copy(data.trans, std::back_inserter(impl.trans));
+		for(const auto& [id, stateData] : m_states) {
+			impl.trans.insert(impl.trans.end(), stateData.trans.begin(), stateData.trans.end());
 
-			const auto transBegin = (impl.trans.data() + impl.trans.size()) - data.trans.size();
+			const auto transBegin = (impl.trans.data() + impl.trans.size()) - stateData.trans.size();
+			const auto stateTrans = std::span(transBegin, stateData.trans.size());
+
+			std::ranges::sort(stateTrans, byInSymbol);
+
 			impl.stateIndices[id] = impl.states.size();
 			impl.states.emplace_back(
-				std::span(transBegin, data.trans.size()),
-				data.outSymbol.value_or(""),
+				stateTrans,
+				stateData.outSymbol.value_or(""),
 				id
 			);
 		}

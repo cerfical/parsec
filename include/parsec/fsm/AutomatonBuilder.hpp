@@ -4,7 +4,7 @@
 #include "Automaton.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <optional>
 
@@ -47,13 +47,13 @@ namespace parsec::fsm {
 	private:
 		auto insertState(int);
 
-
 		struct StateData {
 			std::vector<StateTrans> trans;
 			std::optional<std::string> outSymbol;
 		};
 
-		std::unordered_map<int, StateData> m_states;
+		// use map to automatically sort states by ids
+		std::map<int, StateData> m_states;
 		std::optional<int> m_startState;
 		std::size_t m_totalTrans = 0;
 	};
