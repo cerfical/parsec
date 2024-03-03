@@ -1,5 +1,5 @@
-#ifndef PARSEC_FSM_REGULAR_GRAMMAR_HEADER
-#define PARSEC_FSM_REGULAR_GRAMMAR_HEADER
+#ifndef PARSEC_FG_REGULAR_GRAMMAR_HEADER
+#define PARSEC_FG_REGULAR_GRAMMAR_HEADER
 
 #include "../core/NonCopyable.hpp"
 #include "RegularPattern.hpp"
@@ -8,7 +8,7 @@
 #include <span>
 #include <vector>
 
-namespace parsec::fsm {
+namespace parsec::fg {
 	
 	/**
 	 * @brief Describes a regular language using a set of string patterns.

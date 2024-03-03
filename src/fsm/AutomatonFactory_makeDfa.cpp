@@ -24,7 +24,7 @@ namespace parsec::fsm {
 			}
 
 
-			Item(const RegularPattern* pattern, gsl::index pos)
+			Item(const fg::RegularPattern* pattern, gsl::index pos)
 				: m_pattern(pattern), m_pos(pos)
 			{ }
 
@@ -37,7 +37,7 @@ namespace parsec::fsm {
 				return fp;
 			}
 
-			const RegularPattern* pattern() const {
+			const fg::RegularPattern* pattern() const {
 				return m_pattern;
 			}
 
@@ -51,7 +51,7 @@ namespace parsec::fsm {
 
 
 		private:
-			const RegularPattern* m_pattern = {};
+			const fg::RegularPattern* m_pattern = {};
 			gsl::index m_pos = {};
 		};
 
@@ -61,7 +61,7 @@ namespace parsec::fsm {
 
 		class ConstructDfa {
 		public:
-			Automaton operator()(const RegularGrammar& grammar) {
+			Automaton operator()(const fg::RegularGrammar& grammar) {
 				// initial state consists of the first characters of each pattern
 				ItemSet startItems;
 				for(const auto& pat : grammar.patterns()) {
@@ -129,7 +129,7 @@ namespace parsec::fsm {
 	}
 
 
-	Automaton AutomatonFactory::makeDfa(const RegularGrammar& regLang) {
+	Automaton AutomatonFactory::makeDfa(const fg::RegularGrammar& regLang) {
 		return ConstructDfa()(regLang);
 	}
 }

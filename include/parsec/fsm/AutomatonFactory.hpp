@@ -2,9 +2,9 @@
 #define PARSEC_FSM_AUTOMATON_FACTORY_HEADER
 
 #include "../core/NonMovable.hpp"
+#include "../fg/RegularGrammar.hpp"
 
 #include "Automaton.hpp"
-#include "RegularGrammar.hpp"
 
 namespace parsec::fsm {
 
@@ -23,7 +23,7 @@ namespace parsec::fsm {
 		/**
 		 * @brief Construct a DFA (Determinstic Finite Automaton) from its regular language.
 		*/
-		Automaton makeDfa(const RegularGrammar& regLang);
+		Automaton makeDfa(const fg::RegularGrammar& regLang);
 
 
 	private:

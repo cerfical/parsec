@@ -130,18 +130,25 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/fg.hpp"
+		"include/parsec/fg/RegularPattern.hpp"
+		"include/parsec/fg/RegularGrammar.hpp"
+	PRIVATE
+		"src/fg/RegularPattern.cpp"
+)
+
+
+target_sources(parsec-lib
+	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/fsm.hpp"
 		"include/parsec/fsm/Automaton.hpp"
 		"include/parsec/fsm/AutomatonBuilder.hpp"
 		"include/parsec/fsm/AutomatonFactory.hpp"
-		"include/parsec/fsm/RegularPattern.hpp"
-		"include/parsec/fsm/RegularGrammar.hpp"
 
 	PRIVATE
 		"src/fsm/AutomatonBuilder.cpp"
 		"src/fsm/Automaton.cpp"
 		"src/fsm/AutomatonFactory.cpp"
-		"src/fsm/RegularPattern.cpp"
 		"src/fsm/AutomatonFactory_makeDfa.cpp"
 )
 

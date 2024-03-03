@@ -1,5 +1,5 @@
-#ifndef PARSEC_FSM_REGULAR_PATTERN_HEADER
-#define PARSEC_FSM_REGULAR_PATTERN_HEADER
+#ifndef PARSEC_FG_REGULAR_PATTERN_HEADER
+#define PARSEC_FG_REGULAR_PATTERN_HEADER
 
 #include "../regex/nodes/CharAtom.hpp"
 #include "../regex/RegularExpr.hpp"
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace parsec::fsm {
+namespace parsec::fg {
 
 	/**
 	 * @brief Presents a regular expression as a sequence of its character positions.

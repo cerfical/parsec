@@ -1,9 +1,9 @@
-#include "fsm/RegularPattern.hpp"
+#include "fg/RegularPattern.hpp"
 #include "regex/nodes.hpp"
 
 using namespace parsec::regex::nodes;
 
-namespace parsec::fsm {
+namespace parsec::fg {
 	namespace {
 		class IsNullable : NodeVisitor {
 		public:
