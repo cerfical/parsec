@@ -6,7 +6,7 @@
 #include "core/TextScanner.hpp"
 #include "core/EofError.hpp"
 
-#include "utils/Chars.hpp"
+#include "utils/char_utils.hpp"
 
 #include <gsl/narrow>
 #include <sstream>
@@ -42,7 +42,7 @@ namespace parsec::regex {
 			void unexpected() const {
 				if(m_scanner.peek() != ')') {
 					throw ParseError(std::format("unexpected '{}'",
-							utils::Chars::escape(m_scanner.peek())
+						char_utils::escape(m_scanner.peek())
 						), m_scanner.pos()
 					);
 				}
@@ -91,10 +91,10 @@ namespace parsec::regex {
 					case 'v': { m_scanner.skip(); return '\v'; }
 					case 'x': {
 						m_scanner.skip();
-						if(utils::Chars::isHexDigit(m_scanner.peek())) {
-							auto ch = utils::Chars::evalHexDigit(m_scanner.get());
-							if(!m_scanner.isEof() && utils::Chars::isHexDigit(m_scanner.peek())) {
-								ch = ch * 16 + utils::Chars::evalHexDigit(m_scanner.get());
+						if(char_utils::isHexDigit(m_scanner.peek())) {
+							auto ch = char_utils::evalHexDigit(m_scanner.get());
+							if(!m_scanner.isEof() && char_utils::isHexDigit(m_scanner.peek())) {
+								ch = ch * 16 + char_utils::evalHexDigit(m_scanner.get());
 							}
 							return gsl::narrow_cast<char>(ch);
 						}

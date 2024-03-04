@@ -4,7 +4,7 @@
 #include "regex/Parser.hpp"
 
 #include "utils/Strings.hpp"
-#include "utils/Chars.hpp"
+#include "utils/char_utils.hpp"
 
 #include <format>
 
@@ -36,7 +36,7 @@ namespace parsec {
 
 	bool Lexer::isIdentStart() const {
 		// identifiers must start with a letter
-		return !scanner()->isEof() && (utils::Chars::isAlpha(scanner()->peek()));
+		return !scanner()->isEof() && (char_utils::isAlpha(scanner()->peek()));
 	}
 
 	bool Lexer::isWordStart() const {
@@ -52,7 +52,7 @@ namespace parsec {
 		}
 
 		// or a letter
-		if(utils::Chars::isAlpha(ch)) {
+		if(char_utils::isAlpha(ch)) {
 			return true;
 		}
 		return false;
@@ -66,7 +66,7 @@ namespace parsec {
 				break;
 			}
 
-			if(utils::Chars::isSpace(scanner()->peek())) { // space characters
+			if(char_utils::isSpace(scanner()->peek())) { // space characters
 				scanner()->skip();
 			} else if(scanner()->skipIf("//")) { // single-line comments
 				while(!scanner()->isEof() && scanner()->get() != '\n') {
@@ -90,7 +90,7 @@ namespace parsec {
 			// read uppercase part of a word
 			while(!scanner()->isEof()) {
 				const auto ch = scanner()->peek();
-				if(!utils::Chars::isUpper(ch) && !utils::Chars::isDigit(ch)) {
+				if(!char_utils::isUpper(ch) && !char_utils::isDigit(ch)) {
 					break;
 				}
 				upper += scanner()->get();
@@ -99,7 +99,7 @@ namespace parsec {
 			// read lowercase part of a word
 			while(!scanner()->isEof()) {
 				const auto ch = scanner()->peek();
-				if(!utils::Chars::isLower(ch) && !utils::Chars::isDigit(ch)) {
+				if(!char_utils::isLower(ch) && !char_utils::isDigit(ch)) {
 					break;
 				}
 				lower += scanner()->get();

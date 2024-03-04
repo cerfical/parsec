@@ -3,7 +3,7 @@
 #include "regex/nodes/NodeVisitor.hpp"
 #include "regex/nodes.hpp"
 
-#include "utils/Chars.hpp"
+#include "utils/char_utils.hpp"
 
 namespace parsec::regex::nodes {
 	namespace {
@@ -21,7 +21,7 @@ namespace parsec::regex::nodes {
 		private:
 
 			void visit(const CharAtom& n) override {
-				m_out << utils::Chars::escape(n.value());
+				m_out << char_utils::escape(n.value());
 			}
 
 			void visit(const NilExpr&) override {

@@ -1,8 +1,8 @@
-#include "utils/Chars.hpp"
+#include "utils/char_utils.hpp"
 #include <format>
 
-namespace parsec::utils {
-	std::string Chars::escape(char ch) {
+namespace parsec::char_utils {
+	std::string escape(char ch) {
 		if(isPrint(ch)) {
 			switch(ch) {
 				case '\\': return "\\\\";

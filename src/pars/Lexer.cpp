@@ -2,8 +2,8 @@
 #include "pars/ParseError.hpp"
 
 #include "regex/Parser.hpp"
-#include "utils/Chars.hpp"
 #include "core/EofError.hpp"
+#include "utils/char_utils.hpp"
 
 #include <format>
 
@@ -14,7 +14,7 @@ namespace parsec::pars {
 
 	void Lexer::unexpectedCharError() {
 		throw ParseError(std::format("unexpected '{}'",
-			utils::Chars::escape(m_scanner.peek())
+			char_utils::escape(m_scanner.peek())
 		), loc());
 	}
 
@@ -26,7 +26,7 @@ namespace parsec::pars {
 				break;
 			}
 
-			if(utils::Chars::isSpace(m_scanner.peek())) { // space characters
+			if(char_utils::isSpace(m_scanner.peek())) { // space characters
 				m_scanner.skip();
 			} else if(m_scanner.skipIf("//")) { // single-line comments
 				while(!m_scanner.isEof() && m_scanner.get() != '\n') {
@@ -62,11 +62,11 @@ namespace parsec::pars {
 	}
 
 	bool Lexer::isIdentStart() const {
-		return !m_scanner.isEof() && (utils::Chars::isAlpha(m_scanner.peek()));
+		return !m_scanner.isEof() && (char_utils::isAlpha(m_scanner.peek()));
 	}
 
 	bool Lexer::isIdent() const {
-		return !m_scanner.isEof() && (utils::Chars::isAlnum(m_scanner.peek()));
+		return !m_scanner.isEof() && (char_utils::isAlnum(m_scanner.peek()));
 	}
 
 

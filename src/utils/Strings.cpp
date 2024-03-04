@@ -1,28 +1,30 @@
 #include "utils/Strings.hpp"
-#include "utils/Chars.hpp"
+#include "utils/char_utils.hpp"
 
 namespace parsec::utils {
-	std::string Strings::capitalize(std::string_view s) {
-		auto capitalized = toLower(s);
-		if(!capitalized.empty()) {
-			capitalized.front() = Chars::toUpper(capitalized.front());
+	std::string Strings::capitalize(std::string_view str) {
+		std::string res;
+		if(!str.empty()) {
+			res += char_utils::toUpper(str.front());
+			res += toLower(str.substr(1));
 		}
-		return capitalized;
+		return res;
 	}
 
 
-	std::string Strings::toLower(std::string_view s) {
+	std::string Strings::toLower(std::string_view str) {
 		std::string lower;
-		for(const auto ch : s) {
-			lower += Chars::toLower(ch);
+		for(const auto& ch : str) {
+			lower += char_utils::toLower(ch);
 		}
 		return lower;
 	}
 
-	std::string Strings::toUpper(std::string_view s) {
+
+	std::string Strings::toUpper(std::string_view str) {
 		std::string upper;
-		for(const auto ch : s) {
-			upper += Chars::toUpper(ch);
+		for(const auto& ch : str) {
+			upper += char_utils::toUpper(ch);
 		}
 		return upper;
 	}
