@@ -3,7 +3,7 @@
 
 #include "regex/Parser.hpp"
 
-#include "utils/Strings.hpp"
+#include "utils/string_utils.hpp"
 #include "utils/char_utils.hpp"
 
 #include <format>
@@ -110,9 +110,9 @@ namespace parsec {
 				if(upper.empty()) {
 					error();
 				}
-				consume(utils::Strings::capitalize(upper));
+				consume(string_utils::capitalize(upper));
 			} else if(upper.empty()) {
-				consume(utils::Strings::capitalize(lower));
+				consume(string_utils::capitalize(lower));
 			} else {
 				consume(upper + lower);
 			}
