@@ -22,7 +22,7 @@ namespace parsec::fsm {
 
 
 			char charValue() const noexcept {
-				return m_pattern->atomAt(m_pos)->value();
+				return m_pattern->charAt(m_pos).value();
 			}
 
 			std::size_t pos() const noexcept {
@@ -30,7 +30,7 @@ namespace parsec::fsm {
 			}
 
 			bool isAtEnd() const noexcept {
-				return m_pos == m_pattern->size();
+				return !m_pattern->charAt(m_pos).has_value();
 			}
 
 
@@ -55,6 +55,7 @@ namespace parsec::fsm {
 
 		class ConstructDfa {
 		public:
+
 			Automaton operator()(const fg::RegularGrammar& grammar) {
 				ItemSet startItems;
 				for(const auto& pat : grammar.patterns()) {

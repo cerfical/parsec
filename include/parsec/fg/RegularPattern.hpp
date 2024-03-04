@@ -5,8 +5,8 @@
 #include "../regex/RegularExpr.hpp"
 #include "../core/NonCopyable.hpp"
 
-#include <gsl/util>
-
+#include <unordered_map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,63 +18,40 @@ namespace parsec::fg {
 	class RegularPattern : private NonCopyable {
 	public:
 
-		RegularPattern(std::string name, regex::RegularExpr regex, int id);
+		friend std::ostream& operator<<(std::ostream& out, const RegularPattern& pattern) {
+			out << *pattern.m_regex.rootNode();
+			return out;
+		}
+
+
 
 		RegularPattern()
 			: RegularPattern("", regex::RegularExpr(), 0) {
 		}
 
+		RegularPattern(std::string name, regex::RegularExpr regex, int id);
+
 
 
 		/** @{ */
 		/**
-		 * @brief List of positions that follow the position given in at least one pattern-generated string.
-		*/
-		std::vector<gsl::index> followPos(gsl::index pos) const;
-
-
-
-		/**
 		 * @brief List of positions that start at least one pattern-generated string.
 		*/
-		std::vector<gsl::index> firstPos() const;
+		std::vector<std::size_t> firstPos() const;
+
+
+
+		/**
+		 * @brief List of positions that follow the position given in at least one pattern-generated string.
+		*/
+		std::vector<std::size_t> followPos(std::size_t i) const;
 		
 		
 		
 		/**
-		 * @brief List of positions ending at least one pattern-generated string.
+		 * @brief Character positioned at the specified index within the pattern, if any.
 		*/
-		std::vector<gsl::index> lastPos() const;
-
-
-
-		/**
-		 * @brief Get the character atom positioned at the specified index within the pattern.
-		*/
-		const regex::nodes::CharAtom* atomAt(gsl::index i) const {
-			if(i < size()) {
-				return m_atoms[i];
-			}
-			return nullptr;
-		}
-
-
-
-		/**
-		 * @brief Number of character atoms in the pattern.
-		*/
-		std::size_t size() const {
-			return m_atoms.size();
-		}
-
-
-
-		/**
-		 * @brief Regular expression that defines the pattern.
-		*/
-		const regex::RegularExpr& regex() const {
-			return m_regex;
-		}
+		std::optional<char> charAt(std::size_t i) const;
 
 
 
@@ -98,7 +75,18 @@ namespace parsec::fg {
 
 
 	private:
+		class IsNullable;
+		class ComputeFirstPos;
+		class ComputeFollowPos;
+		class CollectAtomInfo;
+
+
+		std::size_t atomId(const regex::nodes::CharAtom& atom) const noexcept {
+			return m_atomIndex.find(&atom)->second;
+		}
+
 		regex::RegularExpr m_regex;
+		std::unordered_map<const regex::nodes::CharAtom*, std::size_t> m_atomIndex;
 		std::vector<const regex::nodes::CharAtom*> m_atoms;
 		
 		std::string m_name;

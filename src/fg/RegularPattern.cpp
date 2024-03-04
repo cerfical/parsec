@@ -1,271 +1,257 @@
 #include "fg/RegularPattern.hpp"
+
 #include "regex/nodes.hpp"
+#include <algorithm>
+
+using PosList = std::vector<std::size_t>;
 
 using namespace parsec::regex::nodes;
 
 namespace parsec::fg {
-	namespace {
-		class IsNullable : NodeVisitor {
-		public:
+	class RegularPattern::IsNullable : NodeVisitor {
+	public:
 
-			bool operator()(const ExprNode& n) noexcept {
-				n.acceptVisitor(*this);
-				return m_nullable;
-			}
+		bool operator()(const ExprNode& n) noexcept {
+			n.acceptVisitor(*this);
+			return m_nullable;
+		}
 
-		private:
-			void visit(const CharAtom&) override {
-				m_nullable = false;
-			}
+	private:
+		void visit(const CharAtom&) override {
+			m_nullable = false;
+		}
 
-			void visit(const NilExpr&) override {
-				m_nullable = true;
-			}
+		void visit(const NilExpr&) override {
+			m_nullable = true;
+		}
 
+		void visit(const OptionalExpr&) override {
+			m_nullable = true;
+		}
 
-			void visit(const OptionalExpr&) override {
-				m_nullable = true;
-			}
+		void visit(const PlusExpr&) override {
+			m_nullable = false;
+		}
 
-			void visit(const PlusExpr&) override {
-				m_nullable = false;
-			}
+		void visit(const StarExpr&) override {
+			m_nullable = true;
+		}
 
-			void visit(const StarExpr&) override {
-				m_nullable = true;
-			}
-
-
-			void visit(const AlternExpr& n) override {
-				m_nullable = IsNullable()(*n.left()) || IsNullable()(*n.right());
-			}
-
-			void visit(const ConcatExpr& n) override {
-				m_nullable = IsNullable()(*n.left()) && IsNullable()(*n.right());
-			}
-
-
-			bool m_nullable = true;
-		};
-
-
-		class ComputeFirstPos : NodeVisitor {
-		public:
-
-			auto operator()(const ExprNode& n) {
-				n.acceptVisitor(*this);
-				return std::move(m_firstPos);
-			}
-
-		private:
-			void visit(const CharAtom& n) override {
-				m_firstPos.push_back(n.posIndex());
-			}
-
-			void visit(const NilExpr& n) {
-				// nothing to do
-			}
-
-
-			void visit(const PlusExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const StarExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const OptionalExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-
-			void visit(const AlternExpr& n) {
-				n.left()->acceptVisitor(*this);
+		void visit(const AlternExpr& n) override {
+			// IsNullable(left) || IsNullable(right)
+			if(n.left()->acceptVisitor(*this); !m_nullable) {
 				n.right()->acceptVisitor(*this);
 			}
+		}
 
-			void visit(const ConcatExpr& n) override {
-				// add firstpos of the left child
-				n.left()->acceptVisitor(*this);
-				if(IsNullable()(*n.left())) {
-					// add firstpos of the right child
-					n.right()->acceptVisitor(*this);
-				}
-			}
-
-
-			std::vector<gsl::index> m_firstPos;
-		};
-
-
-		class ComputeLastPos : NodeVisitor {
-		public:
-
-			auto operator()(const ExprNode& n) {
-				n.acceptVisitor(*this);
-				return std::move(m_lastPos);
-			}
-
-		private:
-			void visit(const CharAtom& n) override {
-				m_lastPos.push_back(n.posIndex());
-			}
-
-			void visit(const NilExpr& n) {
-				// nothing to do
-			}
-
-
-			void visit(const PlusExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const StarExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-			void visit(const OptionalExpr& n) {
-				n.inner()->acceptVisitor(*this);
-			}
-
-
-			void visit(const AlternExpr& n) {
-				n.left()->acceptVisitor(*this);
+		void visit(const ConcatExpr& n) override {
+			// IsNullable(left) && IsNullable(right)
+			if(n.left()->acceptVisitor(*this); m_nullable) {
 				n.right()->acceptVisitor(*this);
 			}
+		}
 
-			void visit(const ConcatExpr& n) override {
-				// add lastpos of the right child
+
+		bool m_nullable = {};
+	};
+
+
+
+	class RegularPattern::ComputeFirstPos : NodeVisitor {
+	public:
+
+		ComputeFirstPos(const RegularPattern& pattern, PosList& pos) noexcept
+			: m_pattern(pattern), m_pos(pos) {
+		}
+
+		void operator()(const ExprNode& n) {
+			n.acceptVisitor(*this);
+			if(IsNullable()(n)) {
+				// add non-existent position to identify the end of a pattern
+				m_pos.push_back(m_pattern.m_atoms.size());
+			}
+		}
+
+	private:
+		void visit(const CharAtom& n) override {
+			m_pos.push_back(m_pattern.atomId(n));
+		}
+
+		void visit(const NilExpr& n) {
+			// nothing to do
+		}
+
+		void visit(const PlusExpr& n) {
+			n.inner()->acceptVisitor(*this);
+		}
+
+		void visit(const StarExpr& n) {
+			n.inner()->acceptVisitor(*this);
+		}
+
+		void visit(const OptionalExpr& n) {
+			n.inner()->acceptVisitor(*this);
+		}
+
+		void visit(const AlternExpr& n) {
+			n.left()->acceptVisitor(*this);
+			n.right()->acceptVisitor(*this);
+		}
+
+		void visit(const ConcatExpr& n) override {
+			// add firstpos of the left child
+			n.left()->acceptVisitor(*this);
+			if(IsNullable()(*n.left())) {
+				// add firstpos of the right child
 				n.right()->acceptVisitor(*this);
-				if(IsNullable()(*n.right())) {
-					// add lastpos of the left child
-					n.left()->acceptVisitor(*this);
-				}
 			}
+		}
+
+		const RegularPattern& m_pattern;
+		PosList& m_pos;
+	};
 
 
-			std::vector<gsl::index> m_lastPos;
+
+	class RegularPattern::ComputeFollowPos : NodeVisitor {
+	public:
+
+		ComputeFollowPos(const RegularPattern& pattern, PosList& pos) noexcept
+			: m_pattern(pattern), m_pos(pos) {
+		}
+
+		void operator()(const ExprNode& expr, const CharAtom& atom) {
+			m_searchAtom = &atom;
+
+			if(expr.acceptVisitor(*this); m_searchResult == SearchResult::Found) {
+				m_pos.push_back(m_pattern.m_atoms.size());
+			}
+		}
+
+	private:
+
+		enum class SearchResult {
+			Finished,
+			Found,
+			NotFound
 		};
 
 
-		class ComputeFollowPos : NodeVisitor {
-		public:
-
-			auto operator()(const CharAtom& n) {
-				n.acceptVisitor(*this);
-				return std::move(m_followPos);
+		void visit(const CharAtom& n) override {
+			if(&n == m_searchAtom) {
+				m_searchResult = SearchResult::Found;
+			} else {
+				m_searchResult = SearchResult::NotFound;
 			}
+		}
 
-		private:
-			void visit(const CharAtom& n) override {
-				traverseParent(n);
+		void visit(const NilExpr&) override {
+			m_searchResult = SearchResult::NotFound;
+		}
+
+		void visit(const OptionalExpr& n) override {
+			n.inner()->acceptVisitor(*this);
+		}
+
+		void visit(const PlusExpr& n) override {
+			n.inner()->acceptVisitor(*this);
+			if(m_searchResult == SearchResult::Found) {
+				ComputeFirstPos(m_pattern, m_pos)(*n.inner());
 			}
+		}
 
-			void visit(const NilExpr&) override {
-				// nothing to do
+		void visit(const StarExpr& n) override {
+			n.inner()->acceptVisitor(*this);
+			if(m_searchResult == SearchResult::Found) {
+				ComputeFirstPos(m_pattern, m_pos)(*n.inner());
 			}
+		}
 
-
-			void visit(const OptionalExpr& n) override {
-				traverseParent(n);
+		void visit(const AlternExpr& n) override {
+			n.left()->acceptVisitor(*this);
+			if(m_searchResult == SearchResult::NotFound) {
+				n.right()->acceptVisitor(*this);
 			}
+		}
 
-			void visit(const PlusExpr& n) override {
-				appendFirstPos(n);
-				traverseParent(n);
-			}
-
-			void visit(const StarExpr& n) override {
-				appendFirstPos(n);
-				traverseParent(n);
-			}
-
-
-			void visit(const AlternExpr& n) override {
-				traverseParent(n);
-			}
-
-			void visit(const ConcatExpr& n) override {
-				if(m_child == n.left()) {
-					appendFirstPos(*n.right());
-					if(IsNullable()(*n.right())) {
-						traverseParent(n);
-					}
-				} else {
-					traverseParent(n);
+		void visit(const ConcatExpr& n) override {
+			n.left()->acceptVisitor(*this);
+			if(m_searchResult == SearchResult::Found) {
+				ComputeFirstPos(m_pattern, m_pos)(*n.right());
+				if(!IsNullable()(*n.right())) {
+					m_searchResult = SearchResult::Finished;
 				}
+			} else if(m_searchResult == SearchResult::NotFound) {
+				n.right()->acceptVisitor(*this);
 			}
+		}
 
 
-			void traverseParent(const ExprNode& n) {
-				// recursively traverse the parent node to find all atoms following the given one
-				if(n.parent()) {
-					const auto oldChild = std::exchange(m_child, &n);
-					n.parent()->acceptVisitor(*this);
-					m_child = oldChild;
-				}
-			}
+		const RegularPattern& m_pattern;
+		PosList& m_pos;
 
-			void appendFirstPos(const ExprNode& n) {
-				const auto firstPos = ComputeFirstPos()(n);
-				m_followPos.insert(m_followPos.end(),
-					firstPos.cbegin(),
-					firstPos.cend()
-				);
-			}
+		const CharAtom* m_searchAtom = {};
+		SearchResult m_searchResult = {};
+	};
 
 
-			std::vector<gsl::index> m_followPos;
-			const ExprNode* m_child = {};
-		};
-	
 
-		class FindAllAtoms : NodeTraverser {
-		public:
+	class RegularPattern::CollectAtomInfo : NodeTraverser {
+	public:
 
-			auto operator()(const ExprNode& n) {
-				traverse(n);
-				return std::move(m_atoms);
-			}
+		explicit CollectAtomInfo(RegularPattern& pattern) noexcept
+			: m_pattern(pattern) {
+		}
 
-		private:
-			void visit(const CharAtom& n) override {
-				m_atoms.push_back(&n);
-			}
+		void operator()(const ExprNode& n) {
+			traverse(n);
+		}
 
-			void visit(const NilExpr&) override {
-				// nothing to do
-			}
+	private:
+		void visit(const CharAtom& n) override {
+			m_pattern.m_atomIndex[&n] = m_pattern.m_atoms.size();
+			m_pattern.m_atoms.push_back(&n);
+		}
 
+		void visit(const NilExpr&) override {
+			// nothing to do
+		}
 
-			std::vector<const CharAtom*> m_atoms;
-		};
-	}
+		RegularPattern& m_pattern;
+	};
+
 
 
 	RegularPattern::RegularPattern(std::string name, regex::RegularExpr regex, int id)
-		: m_regex(std::move(regex))
-		, m_atoms(FindAllAtoms()(*m_regex.rootNode()))
-		, m_name(std::move(name))
-		, m_id(id)
-	{ }
+		: m_regex(std::move(regex)), m_name(std::move(name)), m_id(id) {
+		CollectAtomInfo(*this)(*m_regex.rootNode());
+	}
 
 
-	std::vector<gsl::index> RegularPattern::followPos(gsl::index pos) const {
-		if(pos < size()) {
-			return ComputeFollowPos()(*m_atoms[pos]);
+	std::vector<std::size_t> RegularPattern::followPos(std::size_t i) const {
+		PosList pos;
+		if(i < m_atoms.size()) {
+			ComputeFollowPos(*this, pos)(*m_regex.rootNode(), *m_atoms[i]);
+			
+			const auto repeatElements = (std::ranges::sort(pos), std::ranges::unique(pos));
+			pos.erase(repeatElements.begin(), repeatElements.end());
+		}
+		return pos;
+	}
+
+	std::vector<std::size_t> RegularPattern::firstPos() const {
+		PosList pos;
+		
+		ComputeFirstPos(*this, pos)(*m_regex.rootNode());
+		// positions found are guaranteed to be distinct and sorted in ascending order
+		
+		return pos;
+	}
+
+	std::optional<char> RegularPattern::charAt(std::size_t i) const {
+		if(i < m_atoms.size()) {
+			return m_atoms[i]->value();
 		}
 		return {};
-	}
-
-
-	std::vector<gsl::index> RegularPattern::firstPos() const {
-		return ComputeFirstPos()(*m_regex.rootNode());
-	}
-
-
-	std::vector<gsl::index> RegularPattern::lastPos() const {
-		return ComputeLastPos()(*m_regex.rootNode());
 	}
 }
