@@ -139,6 +139,7 @@ target_sources(parsec-lib
 
 	PRIVATE
 		"src/fg/RegularPattern.cpp"
+		"src/fg/RegularGrammar.cpp"
 		"src/fg/RuleExpr.cpp"
 		"src/fg/RuleExpr_nodes.hpp"
 		"src/fg/Grammar.cpp"

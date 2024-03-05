@@ -4,7 +4,7 @@
 #include "../core/NonCopyable.hpp"
 #include "RegularPattern.hpp"
 
-#include <gsl/narrow>
+#include <unordered_map>
 #include <span>
 #include <vector>
 
@@ -19,9 +19,7 @@ namespace parsec::fg {
 		/**
 		 * @brief Add a new named pattern to the grammar.
 		*/
-		void addPattern(std::string name, regex::RegularExpr regex) {
-			m_patterns.emplace_back(std::move(name), std::move(regex), getUniquePatternId());
-		}
+		void addPattern(std::string name, regex::RegularExpr regex);
 
 
 		/**
@@ -33,11 +31,12 @@ namespace parsec::fg {
 
 
 	private:
-		int getUniquePatternId() const {
-			return gsl::narrow_cast<int>(m_patterns.size());
+		int getUniquePatternId() const noexcept {
+			return static_cast<int>(m_patterns.size());
 		}
 
 		std::vector<RegularPattern> m_patterns;
+		std::unordered_map<std::string, int> m_patternIndex;
 	};
 
 }

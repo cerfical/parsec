@@ -35,6 +35,13 @@ namespace parsec::fg {
 
 		/** @{ */
 		/**
+		 * @brief Add an additional regular expresion to the pattern.
+		*/
+		void addExpr(regex::RegularExpr regex);
+
+
+
+		/**
 		 * @brief List of positions that start at least one pattern-generated string.
 		*/
 		std::vector<std::size_t> firstPos() const;

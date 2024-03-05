@@ -59,7 +59,7 @@ namespace parsec::fsm {
 			Automaton operator()(const fg::RegularGrammar& grammar) {
 				ItemSet startItems;
 				for(const auto& pat : grammar.patterns()) {
-					for(const auto pos : pat.firstPos()) {
+					for(const auto& pos : pat.firstPos()) {
 						startItems.emplace(&pat, pos);
 					}
 				}
@@ -78,7 +78,7 @@ namespace parsec::fsm {
 					std::move(stateItems),
 					static_cast<int>(m_states.size())
 				);
-				auto& [items, state] = *it;
+				const auto& [items, state] = *it;
 
 				if(wasInserted) {
 					buildStateTrans(items, state);

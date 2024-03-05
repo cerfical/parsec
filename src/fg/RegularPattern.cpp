@@ -209,8 +209,11 @@ namespace parsec::fg {
 
 	private:
 		void visit(const CharAtom& n) override {
-			m_pattern.m_atomIndex[&n] = m_pattern.m_atoms.size();
+			const auto atomId = m_pattern.m_atoms.size();
+
+			// order is is important here to ensure m_atoms.size() gets updated first
 			m_pattern.m_atoms.push_back(&n);
+			m_pattern.m_atomIndex[&n] = atomId;
 		}
 
 		void visit(const NilExpr&) override {
@@ -228,6 +231,22 @@ namespace parsec::fg {
 	}
 
 
+	void RegularPattern::addExpr(regex::RegularExpr regex) {
+		const auto oldAtomCount = m_atoms.size();
+		try {
+			CollectAtomInfo(*this)(*regex.rootNode());
+			m_regex.altern(std::move(regex));
+		} catch(...) {
+			// cancel the effect of calling CollectAtomInfo()
+			for(auto i = oldAtomCount; i < m_atoms.size(); i++) {
+				m_atomIndex.erase(m_atoms.back());
+				m_atoms.pop_back();
+			}
+			throw;
+		}
+	}
+
+
 	std::vector<std::size_t> RegularPattern::followPos(std::size_t i) const {
 		PosList pos;
 		if(i < m_atoms.size()) {
@@ -239,6 +258,7 @@ namespace parsec::fg {
 		return pos;
 	}
 
+
 	std::vector<std::size_t> RegularPattern::firstPos() const {
 		PosList pos;
 		
@@ -247,6 +267,7 @@ namespace parsec::fg {
 		
 		return pos;
 	}
+
 
 	std::optional<char> RegularPattern::charAt(std::size_t i) const {
 		if(i < m_atoms.size()) {
