@@ -76,6 +76,7 @@ target_sources(parsec-lib
 		"include/parsec/core/CppSrcGen.hpp"
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
+		"include/parsec/core/typedefs.hpp"
 	
 	PRIVATE
 		"src/core/Pattern.cpp"
