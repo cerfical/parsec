@@ -9,12 +9,12 @@ namespace parsec::fg {
 	class RuleExpr::Symbol : public Node {
 	public:
 
-		void computeFirstPos(std::vector<std::size_t>& pos) const override {
-			pos.push_back(posIndex);
+		void computeFirstPos(IndexList& posList) const override {
+			posList.push_back(posIndex);
 		}
 
-		SearchResult computeFollowPos(const Symbol* symbol, std::vector<std::size_t>&) const override {
-			if(symbol == this) {
+		SearchResult computeFollowPos(const Symbol* pos, IndexList&) const override {
+			if(pos == this) {
 				return SearchResult::Found;
 			}
 			return SearchResult::NotFound;
@@ -31,7 +31,7 @@ namespace parsec::fg {
 
 
 		std::string name;
-		std::size_t posIndex = 0;
+		Index posIndex = 0;
 	};
 
 
@@ -39,11 +39,11 @@ namespace parsec::fg {
 	class RuleExpr::Nil : public Node {
 	public:
 
-		void computeFirstPos(std::vector<std::size_t>&) const override {
+		void computeFirstPos(IndexList&) const override {
 			// nothing to do
 		}
 
-		SearchResult computeFollowPos(const Symbol*, std::vector<std::size_t>&) const override {
+		SearchResult computeFollowPos(const Symbol*, IndexList&) const override {
 			return SearchResult::NotFound;
 		}
 
@@ -80,28 +80,28 @@ namespace parsec::fg {
 	class RuleExpr::Concat : public Binary {
 	public:
 
-		void computeFirstPos(std::vector<std::size_t>& pos) const override {
-			left->computeFirstPos(pos);
+		void computeFirstPos(IndexList& posList) const override {
+			left->computeFirstPos(posList);
 			if(left->isNullable()) {
-				right->computeFirstPos(pos);
+				right->computeFirstPos(posList);
 			}
 		}
 
-		SearchResult computeFollowPos(const Symbol* symbol, std::vector<std::size_t>& pos) const override {
-			const auto leftSearch = left->computeFollowPos(symbol, pos);
+		SearchResult computeFollowPos(const Symbol* pos, IndexList& posList) const override {
+			const auto leftSearch = left->computeFollowPos(pos, posList);
 			if(leftSearch == SearchResult::Finished) {
 				return leftSearch;
 			}
 
 			if(leftSearch == SearchResult::Found) {
-				right->computeFirstPos(pos);
+				right->computeFirstPos(posList);
 				if(right->isNullable()) {
 					return SearchResult::Found;
 				}
 				return SearchResult::Finished;
 			}
 
-			return right->computeFollowPos(symbol, pos);
+			return right->computeFollowPos(pos, posList);
 		}
 
 		bool isNullable() const noexcept override {
@@ -120,17 +120,17 @@ namespace parsec::fg {
 	class RuleExpr::Altern: public Binary {
 	public:
 
-		void computeFirstPos(std::vector<std::size_t>& pos) const override {
-			left->computeFirstPos(pos);
-			right->computeFirstPos(pos);
+		void computeFirstPos(IndexList& posList) const override {
+			left->computeFirstPos(posList);
+			right->computeFirstPos(posList);
 		}
 
-		SearchResult computeFollowPos(const Symbol* symbol, std::vector<std::size_t>& pos) const override {
-			const auto leftSearch = left->computeFollowPos(symbol, pos);
+		SearchResult computeFollowPos(const Symbol* pos, IndexList& posList) const override {
+			const auto leftSearch = left->computeFollowPos(pos, posList);
 			if(leftSearch != SearchResult::NotFound) {
 				return leftSearch;
 			}
-			return right->computeFollowPos(symbol, pos);
+			return right->computeFollowPos(pos, posList);
 		}
 
 		bool isNullable() const noexcept override {
@@ -149,14 +149,14 @@ namespace parsec::fg {
 	class RuleExpr::Repeat : public Node {
 	public:
 		
-		void computeFirstPos(std::vector<std::size_t>& pos) const override {
-			inner->computeFirstPos(pos);
+		void computeFirstPos(IndexList& posList) const override {
+			inner->computeFirstPos(posList);
 		}
 
-		SearchResult computeFollowPos(const Symbol* symbol, std::vector<std::size_t>& pos) const override {
-			const auto innerSearch = inner->computeFollowPos(symbol, pos);
+		SearchResult computeFollowPos(const Symbol* pos, IndexList& posList) const override {
+			const auto innerSearch = inner->computeFollowPos(pos, posList);
 			if(innerSearch == SearchResult::Found) {
-				inner->computeFirstPos(pos);
+				inner->computeFirstPos(posList);
 				return SearchResult::Found;
 			}
 			return innerSearch;
@@ -181,22 +181,22 @@ namespace parsec::fg {
 	class RuleExpr::EndSymbol : public Node {
 	public:
 
-		EndSymbol(const Node* rule, std::size_t posIndex)
+		EndSymbol(const Node* rule, Index posIndex) noexcept
 			: m_posIndex(posIndex), m_rule(rule) {
 		}
 
 
-		void computeFirstPos(std::vector<std::size_t>& pos) const override {
-			m_rule->computeFirstPos(pos);
+		void computeFirstPos(IndexList& posList) const override {
+			m_rule->computeFirstPos(posList);
 			if(m_rule->isNullable()) {
-				pos.push_back(m_posIndex);
+				posList.push_back(m_posIndex);
 			}
 		}
 
-		SearchResult computeFollowPos(const Symbol* symbol, std::vector<std::size_t>& pos) const override {
-			const auto ruleSearch = m_rule->computeFollowPos(symbol, pos);
+		SearchResult computeFollowPos(const Symbol* pos, IndexList& posList) const override {
+			const auto ruleSearch = m_rule->computeFollowPos(pos, posList);
 			if(ruleSearch == SearchResult::Found) {
-				pos.push_back(m_posIndex);
+				posList.push_back(m_posIndex);
 				return SearchResult::Finished;
 			}
 			return ruleSearch;
@@ -212,34 +212,31 @@ namespace parsec::fg {
 		}
 
 
-		std::vector<std::size_t> followPosOf(const Symbol* symbol) const {
-			std::vector<std::size_t> pos;
+		IndexList followPosOf(const Symbol* pos) const {
+			IndexList posList;
 
-			computeFollowPos(symbol, pos);
-			makeUnique(pos);
+			computeFollowPos(pos, posList);
+			makeUnique(posList);
 			
-			return pos;
+			return posList;
 		}
 
-		std::vector<std::size_t> firstPos() const {
-			std::vector<std::size_t> pos;
-
-			computeFirstPos(pos);
+		IndexList firstPos() const {
+			IndexList posList;
+			computeFirstPos(posList);
 			// pos is guaranteed to contain unique position indices in ascending order
 
-			return pos;
+			return posList;
 		}
 
 
 	private:
-		static void makeUnique(std::vector<std::size_t>& pos) {
-			std::ranges::sort(pos);
-
-			auto unique = std::ranges::unique(pos);
-			pos.erase(unique.begin(), unique.end());
+		static void makeUnique(IndexList& posList) {
+			const auto removedDuplicates = (std::ranges::sort(posList), std::ranges::unique(posList));
+			posList.erase(removedDuplicates.begin(), removedDuplicates.end());
 		}
 
-		std::size_t m_posIndex = {};
+		Index m_posIndex = {};
 		const Node* m_rule = {};
 	};
 

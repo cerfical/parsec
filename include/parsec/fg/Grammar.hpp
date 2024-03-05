@@ -47,8 +47,8 @@ namespace parsec::fg {
 
 
 	private:
-		int getUniqueSymbolId() const noexcept {
-			return static_cast<int>(m_symbols.size());
+		Id getUniqueSymbolId() const noexcept {
+			return m_symbols.size();
 		}
 
 		std::unordered_map<std::string, GrammarSymbol> m_symbols;

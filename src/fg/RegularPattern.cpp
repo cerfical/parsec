@@ -3,8 +3,6 @@
 #include "regex/nodes.hpp"
 #include <algorithm>
 
-using PosList = std::vector<std::size_t>;
-
 using namespace parsec::regex::nodes;
 
 namespace parsec::fg {
@@ -60,21 +58,21 @@ namespace parsec::fg {
 	class RegularPattern::ComputeFirstPos : NodeVisitor {
 	public:
 
-		ComputeFirstPos(const RegularPattern& pattern, PosList& pos) noexcept
-			: m_pattern(pattern), m_pos(pos) {
+		ComputeFirstPos(const RegularPattern& pattern, IndexList& posList) noexcept
+			: m_pattern(pattern), m_posList(posList) {
 		}
 
 		void operator()(const ExprNode& n) {
 			n.acceptVisitor(*this);
 			if(IsNullable()(n)) {
 				// add non-existent position to identify the end of a pattern
-				m_pos.push_back(m_pattern.m_atoms.size());
+				m_posList.push_back(m_pattern.m_atoms.size());
 			}
 		}
 
 	private:
 		void visit(const CharAtom& n) override {
-			m_pos.push_back(m_pattern.atomId(n));
+			m_posList.push_back(m_pattern.atomId(n));
 		}
 
 		void visit(const NilExpr& n) {
@@ -108,7 +106,7 @@ namespace parsec::fg {
 		}
 
 		const RegularPattern& m_pattern;
-		PosList& m_pos;
+		IndexList& m_posList;
 	};
 
 
@@ -116,15 +114,15 @@ namespace parsec::fg {
 	class RegularPattern::ComputeFollowPos : NodeVisitor {
 	public:
 
-		ComputeFollowPos(const RegularPattern& pattern, PosList& pos) noexcept
-			: m_pattern(pattern), m_pos(pos) {
+		ComputeFollowPos(const RegularPattern& pattern, IndexList& posList) noexcept
+			: m_pattern(pattern), m_posList(posList) {
 		}
 
 		void operator()(const ExprNode& expr, const CharAtom& atom) {
 			m_searchAtom = &atom;
 
 			if(expr.acceptVisitor(*this); m_searchResult == SearchResult::Found) {
-				m_pos.push_back(m_pattern.m_atoms.size());
+				m_posList.push_back(m_pattern.m_atoms.size());
 			}
 		}
 
@@ -156,14 +154,14 @@ namespace parsec::fg {
 		void visit(const PlusExpr& n) override {
 			n.inner()->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_pos)(*n.inner());
+				ComputeFirstPos(m_pattern, m_posList)(*n.inner());
 			}
 		}
 
 		void visit(const StarExpr& n) override {
 			n.inner()->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_pos)(*n.inner());
+				ComputeFirstPos(m_pattern, m_posList)(*n.inner());
 			}
 		}
 
@@ -177,7 +175,7 @@ namespace parsec::fg {
 		void visit(const ConcatExpr& n) override {
 			n.left()->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_pos)(*n.right());
+				ComputeFirstPos(m_pattern, m_posList)(*n.right());
 				if(!IsNullable()(*n.right())) {
 					m_searchResult = SearchResult::Finished;
 				}
@@ -188,7 +186,7 @@ namespace parsec::fg {
 
 
 		const RegularPattern& m_pattern;
-		PosList& m_pos;
+		IndexList& m_posList;
 
 		const CharAtom* m_searchAtom = {};
 		SearchResult m_searchResult = {};
@@ -225,7 +223,7 @@ namespace parsec::fg {
 
 
 
-	RegularPattern::RegularPattern(std::string name, regex::RegularExpr regex, int id)
+	RegularPattern::RegularPattern(std::string name, regex::RegularExpr regex, Id id)
 		: m_regex(std::move(regex)), m_name(std::move(name)), m_id(id) {
 		CollectAtomInfo(*this)(*m_regex.rootNode());
 	}
@@ -247,31 +245,31 @@ namespace parsec::fg {
 	}
 
 
-	std::vector<std::size_t> RegularPattern::followPos(std::size_t i) const {
-		PosList pos;
-		if(i < m_atoms.size()) {
-			ComputeFollowPos(*this, pos)(*m_regex.rootNode(), *m_atoms[i]);
+	IndexList RegularPattern::followPos(Index pos) const {
+		IndexList posList;
+		if(pos < m_atoms.size()) {
+			ComputeFollowPos(*this, posList)(*m_regex.rootNode(), *m_atoms[pos]);
 			
-			const auto repeatElements = (std::ranges::sort(pos), std::ranges::unique(pos));
-			pos.erase(repeatElements.begin(), repeatElements.end());
+			const auto repeatElements = (std::ranges::sort(posList), std::ranges::unique(posList));
+			posList.erase(repeatElements.begin(), repeatElements.end());
 		}
-		return pos;
+		return posList;
 	}
 
 
-	std::vector<std::size_t> RegularPattern::firstPos() const {
-		PosList pos;
+	IndexList RegularPattern::firstPos() const {
+		IndexList posList;
 		
-		ComputeFirstPos(*this, pos)(*m_regex.rootNode());
+		ComputeFirstPos(*this, posList)(*m_regex.rootNode());
 		// positions found are guaranteed to be distinct and sorted in ascending order
 		
-		return pos;
+		return posList;
 	}
 
 
-	std::optional<char> RegularPattern::charAt(std::size_t i) const {
-		if(i < m_atoms.size()) {
-			return m_atoms[i]->value();
+	std::optional<char> RegularPattern::charAt(Index pos) const {
+		if(pos < m_atoms.size()) {
+			return m_atoms[pos]->value();
 		}
 		return {};
 	}

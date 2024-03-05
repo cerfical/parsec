@@ -22,6 +22,7 @@ namespace parsec::fg {
 		void addPattern(std::string name, regex::RegularExpr regex);
 
 
+
 		/**
 		 * @brief List of all patterns defined by the grammar.
 		*/
@@ -30,13 +31,14 @@ namespace parsec::fg {
 		}
 
 
+
 	private:
-		int getUniquePatternId() const noexcept {
-			return static_cast<int>(m_patterns.size());
+		Id getUniquePatternId() const noexcept {
+			return m_patterns.size();
 		}
 
 		std::vector<RegularPattern> m_patterns;
-		std::unordered_map<std::string, int> m_patternIndex;
+		std::unordered_map<std::string, Id> m_patternIndex;
 	};
 
 }

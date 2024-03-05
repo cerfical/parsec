@@ -1,5 +1,7 @@
 #include "fg/RuleExpr.hpp"
+
 #include "RuleExpr_nodes.hpp"
+#include <sstream>
 
 namespace parsec::fg {
 	RuleExpr::RuleExpr(std::string symbol) {
@@ -67,27 +69,39 @@ namespace parsec::fg {
 	}
 
 
-	std::vector<std::size_t> RuleExpr::followPos(std::size_t i) const {
-		if(m_rootNode && i < m_symbols.size()) {
-			return EndSymbol(m_rootNode.get(), m_symbols.size()).followPosOf(m_symbols[i]);
+	IndexList RuleExpr::followPos(Index pos) const {
+		if(m_rootNode && pos < m_symbols.size()) {
+			return EndSymbol(m_rootNode.get(), m_symbols.size())
+				.followPosOf(m_symbols[pos]);
 		}
 		return {};
 	}
 
 
-	std::vector<std::size_t> RuleExpr::firstPos() const {
+	IndexList RuleExpr::firstPos() const {
 		if(m_rootNode) {
-			return EndSymbol(m_rootNode.get(), m_symbols.size()).firstPos();
+			return EndSymbol(m_rootNode.get(), m_symbols.size())
+				.firstPos();
 		}
 		return { 0 };
 	}
 
 
-	const std::string& RuleExpr::symbolAt(std::size_t i) const {
-		if(i < m_symbols.size()) {
-			return m_symbols[i]->name;
+	const std::string& RuleExpr::symbolAt(Index pos) const {
+		if(pos < m_symbols.size()) {
+			return m_symbols[pos]->name;
 		}
+
 		static std::string empty;
 		return empty;
+	}
+
+
+	std::string RuleExpr::toStr() const {
+		std::ostringstream out;
+		if(m_rootNode) {
+			m_rootNode->printTo(out);
+		}
+		return out.str();
 	}
 }

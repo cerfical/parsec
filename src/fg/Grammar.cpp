@@ -2,9 +2,9 @@
 
 namespace parsec::fg {
 	void Grammar::addSymbol(const std::string& name, RuleExpr rule) {
-		auto [it, wasInserted] = m_symbols.try_emplace(name, name, std::move(rule), getUniqueSymbolId());
+		const auto [it, wasInserted] = m_symbols.try_emplace(name, name, std::move(rule), getUniqueSymbolId());
 		if(!wasInserted) {
-			it->second.appendRule(std::move(rule));
+			it->second.addRule(std::move(rule));
 		}
 	}
 

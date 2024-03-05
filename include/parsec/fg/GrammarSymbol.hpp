@@ -2,8 +2,9 @@
 #define PARSEC_FG_GRAMMAR_SYMBOL_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "RuleExpr.hpp"
+#include "../core/typedefs.hpp"
 
+#include "RuleExpr.hpp"
 #include <string>
 
 namespace parsec::fg {
@@ -16,7 +17,7 @@ namespace parsec::fg {
 
 		GrammarSymbol() = default;
 
-		GrammarSymbol(std::string name, RuleExpr rule, int id)
+		GrammarSymbol(std::string name, RuleExpr rule, Id id)
 			: m_name(std::move(name)), m_rule(std::move(rule)), m_id(id)
 		{ }
 
@@ -24,9 +25,9 @@ namespace parsec::fg {
 
 		/** @{ */
 		/**
-		 * @brief Add an extra inference rule for the symbol.
+		 * @brief Add an additional inference rule for the symbol.
 		*/
-		void appendRule(RuleExpr rule) {
+		void addRule(RuleExpr rule) {
 			m_rule.altern(std::move(rule));
 		}
 
@@ -53,7 +54,7 @@ namespace parsec::fg {
 		/**
 		 * @brief Unique integer identifier for the symbol.
 		*/
-		int id() const {
+		Id id() const {
 			return m_id;
 		}
 		/** @} */
@@ -63,7 +64,7 @@ namespace parsec::fg {
 	private:
 		std::string m_name;
 		RuleExpr m_rule;
-		int m_id = {};
+		Id m_id = {};
 	};
 
 }

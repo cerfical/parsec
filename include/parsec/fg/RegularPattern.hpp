@@ -4,6 +4,7 @@
 #include "../regex/nodes/CharAtom.hpp"
 #include "../regex/RegularExpr.hpp"
 #include "../core/NonCopyable.hpp"
+#include "../core/typedefs.hpp"
 
 #include <unordered_map>
 #include <optional>
@@ -29,7 +30,7 @@ namespace parsec::fg {
 			: RegularPattern("", regex::RegularExpr(), 0) {
 		}
 
-		RegularPattern(std::string name, regex::RegularExpr regex, int id);
+		RegularPattern(std::string name, regex::RegularExpr regex, Id id);
 
 
 
@@ -44,21 +45,21 @@ namespace parsec::fg {
 		/**
 		 * @brief List of positions that start at least one pattern-generated string.
 		*/
-		std::vector<std::size_t> firstPos() const;
+		IndexList firstPos() const;
 
 
 
 		/**
 		 * @brief List of positions that follow the position given in at least one pattern-generated string.
 		*/
-		std::vector<std::size_t> followPos(std::size_t i) const;
+		IndexList followPos(Index pos) const;
 		
 		
 		
 		/**
 		 * @brief Character positioned at the specified index within the pattern, if any.
 		*/
-		std::optional<char> charAt(std::size_t i) const;
+		std::optional<char> charAt(Index pos) const;
 
 
 
@@ -74,7 +75,7 @@ namespace parsec::fg {
 		/**
 		 * @brief Unique integer identifier for the pattern.
 		*/
-		int id() const {
+		Id id() const {
 			return m_id;
 		}
 		/** @} */
@@ -88,16 +89,16 @@ namespace parsec::fg {
 		class CollectAtomInfo;
 
 
-		std::size_t atomId(const regex::nodes::CharAtom& atom) const noexcept {
+		Index atomId(const regex::nodes::CharAtom& atom) const noexcept {
 			return m_atomIndex.find(&atom)->second;
 		}
 
 		regex::RegularExpr m_regex;
-		std::unordered_map<const regex::nodes::CharAtom*, std::size_t> m_atomIndex;
+		std::unordered_map<const regex::nodes::CharAtom*, Index> m_atomIndex;
 		std::vector<const regex::nodes::CharAtom*> m_atoms;
 		
 		std::string m_name;
-		int m_id = {};
+		Id m_id = {};
 	};
 
 }
