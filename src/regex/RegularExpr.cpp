@@ -1,8 +1,8 @@
 #include "regex/RegularExpr.hpp"
 
-#include "regex/nodes/PlusExpr.hpp"
-#include "regex/nodes/AlternExpr.hpp"
-#include "regex/nodes/ConcatExpr.hpp"
+#include "regex/ast/PlusExpr.hpp"
+#include "regex/ast/AlternExpr.hpp"
+#include "regex/ast/ConcatExpr.hpp"
 #include "regex/Parser.hpp"
 
 #include <sstream>
@@ -14,7 +14,7 @@ namespace parsec::regex {
 
 
 	void RegularExpr::altern(RegularExpr other) {
-		m_rootNode = nodes::makeExpr<nodes::AlternExpr>(
+		m_rootNode = ast::makeNode<ast::AlternExpr>(
 			std::move(m_rootNode),
 			std::move(other.m_rootNode)
 		);
@@ -22,7 +22,7 @@ namespace parsec::regex {
 
 
 	void RegularExpr::concat(RegularExpr other) {
-		m_rootNode = nodes::makeExpr<nodes::ConcatExpr>(
+		m_rootNode = ast::makeNode<ast::ConcatExpr>(
 			std::move(m_rootNode),
 			std::move(other.m_rootNode)
 		);
@@ -30,7 +30,7 @@ namespace parsec::regex {
 
 
 	void RegularExpr::repeat() {
-		m_rootNode = nodes::makeExpr<nodes::PlusExpr>(
+		m_rootNode = ast::makeNode<ast::PlusExpr>(
 			std::move(m_rootNode)
 		);
 	}

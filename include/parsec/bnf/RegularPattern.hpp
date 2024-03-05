@@ -1,7 +1,7 @@
 #ifndef PARSEC_BNF_REGULAR_PATTERN_HEADER
 #define PARSEC_BNF_REGULAR_PATTERN_HEADER
 
-#include "../regex/nodes/CharAtom.hpp"
+#include "../regex/ast/CharAtom.hpp"
 #include "../regex/RegularExpr.hpp"
 
 #include <gsl/util>
@@ -57,7 +57,7 @@ namespace parsec::bnf {
 		/**
 		 * @brief Get the character atom positioned at the specified index within the pattern.
 		*/
-		const regex::nodes::CharAtom* atomAt(gsl::index i) const noexcept {
+		const regex::ast::CharAtom* atomAt(gsl::index i) const noexcept {
 			if(i < size()) {
 				return m_atoms[i];
 			}
@@ -105,7 +105,7 @@ namespace parsec::bnf {
 
 	private:
 		regex::RegularExpr m_expr;
-		std::vector<const regex::nodes::CharAtom*> m_atoms;
+		std::vector<const regex::ast::CharAtom*> m_atoms;
 		
 		std::string m_name;
 		int m_id = {};

@@ -2,7 +2,7 @@
 #define PARSEC_REGEX_REGULAR_EXPR_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "nodes/ExprNode.hpp"
+#include "ast/ExprNode.hpp"
 
 #include <string_view>
 
@@ -51,7 +51,7 @@ namespace parsec::regex {
 		/**
 		 * @brief A node for the top-level subexpression.
 		*/
-		const nodes::ExprNode* rootNode() const {
+		const ast::ExprNode* rootNode() const {
 			return m_rootNode.get();
 		}
 
@@ -66,7 +66,7 @@ namespace parsec::regex {
 
 
 	private:
-		nodes::ExprPtr m_rootNode;
+		ast::ExprPtr m_rootNode;
 	};
 
 

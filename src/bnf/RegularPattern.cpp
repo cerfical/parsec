@@ -1,7 +1,7 @@
 #include "bnf/RegularPattern.hpp"
-#include "regex/nodes.hpp"
+#include "regex/ast.hpp"
 
-using namespace parsec::regex::nodes;
+using namespace parsec::regex::ast;
 
 namespace parsec::bnf {
 	namespace {

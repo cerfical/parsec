@@ -1,11 +1,11 @@
-#ifndef PARSEC_REGEX_NODES_EXPR_NODE_HEADER
-#define PARSEC_REGEX_NODES_EXPR_NODE_HEADER
+#ifndef PARSEC_REGEX_AST_EXPR_NODE_HEADER
+#define PARSEC_REGEX_AST_EXPR_NODE_HEADER
 
 #include "../../core/NonMovable.hpp"
 #include <ostream>
 #include <memory>
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 
 	class NodeVisitor;
 
@@ -54,7 +54,7 @@ namespace parsec::regex::nodes {
 	*/
 	template <typename Node, typename... Args>
 		requires std::derived_from<Node, ExprNode>
-	ExprPtr makeExpr(Args&&... args) {
+	ExprPtr makeNode(Args&&... args) {
 		return std::make_unique<Node>(std::forward<Args>(args)...);
 	}
 

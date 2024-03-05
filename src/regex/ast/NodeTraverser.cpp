@@ -1,6 +1,6 @@
-#include "regex/nodes.hpp"
+#include "regex/ast.hpp"
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 	void NodeTraverser::visit(const CharAtom& n) {
 		// nothing to do here
 	}

@@ -1,9 +1,9 @@
 #include "fg/RegularPattern.hpp"
 
-#include "regex/nodes.hpp"
+#include "regex/ast.hpp"
 #include <algorithm>
 
-using namespace parsec::regex::nodes;
+using namespace parsec::regex::ast;
 
 namespace parsec::fg {
 	class RegularPattern::IsNullable : NodeVisitor {

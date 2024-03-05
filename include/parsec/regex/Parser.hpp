@@ -1,7 +1,7 @@
 #ifndef PARSEC_REGEX_PARSER_HEADER
 #define PARSEC_REGEX_PARSER_HEADER
 
-#include "nodes/ExprNode.hpp"
+#include "ast/ExprNode.hpp"
 
 #include <string_view>
 #include <istream>
@@ -29,10 +29,10 @@ namespace parsec::regex {
 		
 		/** @{ */
 		/** @brief Analyze a regular expression stored as an arbitrary character sequence. */
-		nodes::ExprPtr parse(std::string_view regex);
+		ast::ExprPtr parse(std::string_view regex);
 		
 		/** @brief Analyze a regular expression taken character by character from a @c std::istream. */
-		nodes::ExprPtr parse(std::istream& input);
+		ast::ExprPtr parse(std::istream& input);
 		/** @} */
 		
 	};

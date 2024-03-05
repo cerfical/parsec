@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 
 #include <parsec/regex/Parser.hpp>
-#include <parsec/regex/nodes.hpp>
+#include <parsec/regex/ast.hpp>
 
 #include <parsec/core/ParseError.hpp>
 

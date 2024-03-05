@@ -1,18 +1,18 @@
-#ifndef PARSEC_REGEX_NODES_ALTERN_EXPR_HEADER
-#define PARSEC_REGEX_NODES_ALTERN_EXPR_HEADER
+#ifndef PARSEC_REGEX_AST_ALTERN_EXPR_HEADER
+#define PARSEC_REGEX_AST_ALTERN_EXPR_HEADER
 
 #include "BinaryExpr.hpp"
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 
 	/**
 	 * @brief Marks two expressions as 'alternatives' to each other.
-	 */
+	*/
 	class AlternExpr : public BinaryExpr {
 	public:
 		
-		AlternExpr(ExprPtr lhs, ExprPtr rhs) noexcept
-			: BinaryExpr(std::move(lhs), std::move(rhs))
+		AlternExpr(ExprPtr left, ExprPtr right) noexcept
+			: BinaryExpr(std::move(left), std::move(right))
 		{ }
 
 		void acceptVisitor(NodeVisitor& visitor) const override;

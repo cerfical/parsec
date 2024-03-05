@@ -1,10 +1,10 @@
-#ifndef PARSEC_REGEX_NODES_NODE_TRAVERSER_HEADER
-#define PARSEC_REGEX_NODES_NODE_TRAVERSER_HEADER
+#ifndef PARSEC_REGEX_AST_NODE_TRAVERSER_HEADER
+#define PARSEC_REGEX_AST_NODE_TRAVERSER_HEADER
 
 #include "NodeVisitor.hpp"
 #include "ExprNode.hpp"
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 
 	/**
 	 * @brief Traverses an ExprNode by recursively visiting its child nodes.
@@ -20,7 +20,6 @@ namespace parsec::regex::nodes {
 		NodeTraverser() = default;
 		~NodeTraverser() = default;
 
-	private:
 		void visit(const CharAtom& n) override;
 		void visit(const NilExpr& n) override;
 

@@ -1,7 +1,7 @@
 #ifndef PARSEC_FG_REGULAR_PATTERN_HEADER
 #define PARSEC_FG_REGULAR_PATTERN_HEADER
 
-#include "../regex/nodes/CharAtom.hpp"
+#include "../regex/ast/CharAtom.hpp"
 #include "../regex/RegularExpr.hpp"
 #include "../core/NonCopyable.hpp"
 #include "../core/typedefs.hpp"
@@ -82,13 +82,13 @@ namespace parsec::fg {
 		class CollectAtomInfo;
 
 
-		Index atomId(const regex::nodes::CharAtom& atom) const noexcept {
+		Index atomId(const regex::ast::CharAtom& atom) const noexcept {
 			return m_atomIndex.find(&atom)->second;
 		}
 
 		regex::RegularExpr m_regex;
-		std::unordered_map<const regex::nodes::CharAtom*, Index> m_atomIndex;
-		std::vector<const regex::nodes::CharAtom*> m_atoms;
+		std::unordered_map<const regex::ast::CharAtom*, Index> m_atomIndex;
+		std::vector<const regex::ast::CharAtom*> m_atoms;
 		
 		std::string m_name;
 		Id m_id = {};

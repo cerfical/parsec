@@ -3,7 +3,7 @@
 #include "core/ParseError.hpp"
 
 #include "regex/Parser.hpp"
-#include "regex/nodes.hpp"
+#include "regex/ast.hpp"
 
 #include <sstream>
 #include <unordered_map>
@@ -13,7 +13,7 @@
 #include <list>
 
 namespace parsec {
-	using namespace regex::nodes;
+	using namespace regex::ast;
 
 	namespace {
 		class IsNullable : NodeVisitor {
@@ -24,7 +24,7 @@ namespace parsec {
 			}
 
 		private:
-			void visit(const regex::nodes::CharAtom&) override {
+			void visit(const regex::ast::CharAtom&) override {
 				m_nullable = false;
 			}
 
@@ -73,7 +73,7 @@ namespace parsec {
 
 		private:
 			/** @{ */
-			void visit(const regex::nodes::CharAtom& n) override {
+			void visit(const regex::ast::CharAtom& n) override {
 				m_roots.push_back(&n);
 			}
 
@@ -121,7 +121,7 @@ namespace parsec {
 			/** @} */
 
 
-			std::vector<const regex::nodes::CharAtom*> m_roots;
+			std::vector<const regex::ast::CharAtom*> m_roots;
 		};
 
 		class FindFollows : NodeVisitor {
@@ -133,7 +133,7 @@ namespace parsec {
 
 		private:
 			/** @{ */
-			void visit(const regex::nodes::CharAtom& n) override {
+			void visit(const regex::ast::CharAtom& n) override {
 				traverseParent(n);
 			}
 
@@ -195,7 +195,7 @@ namespace parsec {
 			/** @} */
 
 
-			std::vector<const regex::nodes::CharAtom*> m_atoms;
+			std::vector<const regex::ast::CharAtom*> m_atoms;
 			const ExprNode* m_child = nullptr;
 		};
 
@@ -211,7 +211,7 @@ namespace parsec {
 
 		private:
 			/** @{ */
-			void visit(const regex::nodes::CharAtom& n) override {
+			void visit(const regex::ast::CharAtom& n) override {
 				m_endAtoms.push_back(&n);
 			}
 
@@ -254,7 +254,7 @@ namespace parsec {
 			/** @} */
 
 
-			std::vector<const regex::nodes::CharAtom*> m_endAtoms;
+			std::vector<const regex::ast::CharAtom*> m_endAtoms;
 		};
 
 
@@ -323,8 +323,8 @@ namespace parsec {
 				auto regex = parseRegex(patternToken);
 
 				// keep a mapping between regex atoms and pattern atoms
-				std::unordered_map<const regex::nodes::CharAtom*, parsec::CharAtom*> regexToAtoms;
-				std::stack<const regex::nodes::CharAtom*> unprocessed;
+				std::unordered_map<const regex::ast::CharAtom*, parsec::CharAtom*> regexToAtoms;
+				std::stack<const regex::ast::CharAtom*> unprocessed;
 				
 				// first, find all root atoms of the regex and mark them as "unprocessed"
 				for(const auto regexRoot : FindRoots()(*regex)) {

@@ -1,9 +1,9 @@
-#ifndef PARSEC_REGEX_NODES_NIL_EXPR_HEADER
-#define PARSEC_REGEX_NODES_NIL_EXPR_HEADER
+#ifndef PARSEC_REGEX_AST_NIL_EXPR_HEADER
+#define PARSEC_REGEX_AST_NIL_EXPR_HEADER
 
 #include "ExprNode.hpp"
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 	
 	/**
 	 * @brief Empty regular expression.

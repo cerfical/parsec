@@ -1,7 +1,7 @@
 #include "regex/Parser.hpp"
 
 #include "regex/ParseError.hpp"
-#include "regex/nodes.hpp"
+#include "regex/ast.hpp"
 
 #include "core/TextScanner.hpp"
 #include "core/EofError.hpp"
@@ -13,7 +13,7 @@
 #include <format>
 
 namespace parsec::regex {
-	using namespace nodes;
+	using namespace ast;
 
 
 	namespace {
@@ -27,7 +27,7 @@ namespace parsec::regex {
 			ExprPtr operator()() {
 				// no input, nothing to parse
 				if(m_scanner.isEof()) {
-					return makeExpr<NilExpr>();
+					return makeNode<NilExpr>();
 				}
 
 				auto e = parseExpr();
@@ -118,7 +118,7 @@ namespace parsec::regex {
 				const auto low = parseChar();
 
 				// no char range, just a single character
-				auto e = makeExpr<CharAtom>(low);
+				auto e = makeNode<CharAtom>(low);
 				if(!m_scanner.skipIf('-')) {
 					return e;
 				}
@@ -131,15 +131,15 @@ namespace parsec::regex {
 					}
 
 					for(auto ch = low + 1; ch <= high; ) {
-						e = makeExpr<AlternExpr>(
+						e = makeNode<AlternExpr>(
 							std::move(e),
-							makeExpr<CharAtom>(ch++)
+							makeNode<CharAtom>(ch++)
 						);
 					}
 				} else {
-					e = makeExpr<AlternExpr>(
+					e = makeNode<AlternExpr>(
 						std::move(e),
-						makeExpr<CharAtom>('-')
+						makeNode<CharAtom>('-')
 					);
 				}
 
@@ -149,12 +149,12 @@ namespace parsec::regex {
 			ExprPtr parseCharSet() {
 				// empty character set
 				if(m_scanner.skipIf(']')) {
-					return makeExpr<NilExpr>();
+					return makeNode<NilExpr>();
 				}
 
 				auto lhs = parseCharRange();
 				while(m_scanner.peek() != ']') {
-					lhs = makeExpr<AlternExpr>(
+					lhs = makeNode<AlternExpr>(
 						std::move(lhs),
 						parseCharRange()
 					);
@@ -172,7 +172,7 @@ namespace parsec::regex {
 				if(const auto openParen = m_scanner.pos(); m_scanner.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_scanner.skipIf(')')) {
-						return makeExpr<NilExpr>();
+						return makeNode<NilExpr>();
 					}
 
 					auto e = parseExpr();
@@ -186,18 +186,18 @@ namespace parsec::regex {
 					return parseCharSet();
 				}
 
-				return makeExpr<CharAtom>(parseChar());
+				return makeNode<CharAtom>(parseChar());
 			}
 
 			ExprPtr parseRepeat() {
 				auto e = parseAtom();
 				while(true) {
 					if(m_scanner.skipIf('*')) {
-						e = makeExpr<StarExpr>(std::move(e));
+						e = makeNode<StarExpr>(std::move(e));
 					} else if(m_scanner.skipIf('?')) {
-						e = makeExpr<OptionalExpr>(std::move(e));
+						e = makeNode<OptionalExpr>(std::move(e));
 					} else if(m_scanner.skipIf('+')) {
-						e = makeExpr<PlusExpr>(std::move(e));
+						e = makeNode<PlusExpr>(std::move(e));
 					} else {
 						break;
 					}
@@ -208,7 +208,7 @@ namespace parsec::regex {
 			ExprPtr parseConcat() {
 				auto lhs = parseRepeat();
 				while(isAtom()) {
-					lhs = makeExpr<ConcatExpr>(
+					lhs = makeNode<ConcatExpr>(
 						std::move(lhs),
 						parseRepeat()
 					);
@@ -219,7 +219,7 @@ namespace parsec::regex {
 			ExprPtr parseAltern() {
 				auto lhs = parseConcat();
 				while(m_scanner.skipIf('|')) {
-					lhs = makeExpr<AlternExpr>(
+					lhs = makeNode<AlternExpr>(
 						std::move(lhs),
 						parseConcat()
 					);

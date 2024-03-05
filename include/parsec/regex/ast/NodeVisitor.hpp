@@ -1,7 +1,7 @@
-#ifndef PARSEC_REGEX_NODES_NODE_VISITOR_HEADER
-#define PARSEC_REGEX_NODES_NODE_VISITOR_HEADER
+#ifndef PARSEC_REGEX_AST_NODE_VISITOR_HEADER
+#define PARSEC_REGEX_AST_NODE_VISITOR_HEADER
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 
 	class CharAtom;
 	class NilExpr;

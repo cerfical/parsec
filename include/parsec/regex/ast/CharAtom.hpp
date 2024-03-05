@@ -1,9 +1,9 @@
-#ifndef PARSEC_REGEX_NODES_CHAR_ATOM_HEADER
-#define PARSEC_REGEX_NODES_CHAR_ATOM_HEADER
+#ifndef PARSEC_REGEX_AST_CHAR_ATOM_HEADER
+#define PARSEC_REGEX_AST_CHAR_ATOM_HEADER
 
 #include "ExprNode.hpp"
 
-namespace parsec::regex::nodes {
+namespace parsec::regex::ast {
 	
 	/**
 	 * @brief Character literal.
