@@ -5,6 +5,8 @@
 #include "regex/nodes/ConcatExpr.hpp"
 #include "regex/Parser.hpp"
 
+#include <sstream>
+
 namespace parsec::regex {
 	RegularExpr::RegularExpr(std::string_view regex)
 		: m_rootNode(Parser().parse(regex)) {
@@ -31,5 +33,12 @@ namespace parsec::regex {
 		m_rootNode = nodes::makeExpr<nodes::PlusExpr>(
 			std::move(m_rootNode)
 		);
+	}
+
+
+	std::string RegularExpr::toStr() const {
+		std::ostringstream out;
+		rootNode()->printTo(out);
+		return out.str();
 	}
 }

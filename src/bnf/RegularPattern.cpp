@@ -37,11 +37,11 @@ namespace parsec::bnf {
 
 
 			void visit(const AlternExpr& n) override {
-				m_nullable = IsNullable()(*n.left()) || IsNullable()(*n.right());
+				m_nullable = IsNullable()(*n.left) || IsNullable()(*n.right);
 			}
 
 			void visit(const ConcatExpr& n) override {
-				m_nullable = IsNullable()(*n.left()) && IsNullable()(*n.right());
+				m_nullable = IsNullable()(*n.left) && IsNullable()(*n.right);
 			}
 
 
@@ -59,7 +59,8 @@ namespace parsec::bnf {
 
 		private:
 			void visit(const CharAtom& n) override {
-				m_firstPos.push_back(n.posIndex());
+				throw std::runtime_error("not implemented");
+				// m_firstPos.push_back(n.posIndex());
 			}
 
 			void visit(const NilExpr& n) {
@@ -68,29 +69,29 @@ namespace parsec::bnf {
 
 
 			void visit(const PlusExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const StarExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const OptionalExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 
 			void visit(const AlternExpr& n) {
-				n.left()->acceptVisitor(*this);
-				n.right()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 
 			void visit(const ConcatExpr& n) override {
 				// add firstpos of the left child
-				n.left()->acceptVisitor(*this);
-				if(IsNullable()(*n.left())) {
+				n.left->acceptVisitor(*this);
+				if(IsNullable()(*n.left)) {
 					// add firstpos of the right child
-					n.right()->acceptVisitor(*this);
+					n.right->acceptVisitor(*this);
 				}
 			}
 
@@ -109,7 +110,8 @@ namespace parsec::bnf {
 
 		private:
 			void visit(const CharAtom& n) override {
-				m_lastPos.push_back(n.posIndex());
+				throw std::runtime_error("not implemented");
+				// m_lastPos.push_back(n.posIndex());
 			}
 
 			void visit(const NilExpr& n) {
@@ -118,29 +120,29 @@ namespace parsec::bnf {
 
 
 			void visit(const PlusExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const StarExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const OptionalExpr& n) {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 
 			void visit(const AlternExpr& n) {
-				n.left()->acceptVisitor(*this);
-				n.right()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 
 			void visit(const ConcatExpr& n) override {
 				// add lastpos of the right child
-				n.right()->acceptVisitor(*this);
-				if(IsNullable()(*n.right())) {
+				n.right->acceptVisitor(*this);
+				if(IsNullable()(*n.right)) {
 					// add lastpos of the left child
-					n.left()->acceptVisitor(*this);
+					n.left->acceptVisitor(*this);
 				}
 			}
 
@@ -187,9 +189,9 @@ namespace parsec::bnf {
 			}
 
 			void visit(const ConcatExpr& n) override {
-				if(m_child == n.left()) {
-					appendFirstPos(*n.right());
-					if(IsNullable()(*n.right())) {
+				if(m_child == n.left.get()) {
+					appendFirstPos(*n.right);
+					if(IsNullable()(*n.right)) {
 						traverseParent(n);
 					}
 				} else {
@@ -200,11 +202,12 @@ namespace parsec::bnf {
 
 			void traverseParent(const ExprNode& n) {
 				// recursively traverse the parent node to find all atoms following the given one
-				if(n.parent()) {
+				throw std::runtime_error("not implemented");
+				/*if(n.parent()) {
 					const auto oldChild = std::exchange(m_child, &n);
 					n.parent()->acceptVisitor(*this);
 					m_child = oldChild;
-				}
+				}*/
 			}
 
 			void appendFirstPos(const ExprNode& n) {
@@ -233,11 +236,6 @@ namespace parsec::bnf {
 			void visit(const CharAtom& n) override {
 				m_atoms.push_back(&n);
 			}
-
-			void visit(const NilExpr&) override {
-				// nothing to do
-			}
-
 
 			std::vector<const CharAtom*> m_atoms;
 		};

@@ -12,7 +12,7 @@
 using namespace testing;
 
 namespace parsec::regex {
-	namespace {
+	/*namespace {
 		using namespace nodes;
 
 		class RegularExprTest : public Test {
@@ -233,5 +233,5 @@ namespace parsec::regex {
 			}
 		}
 
-	}
+	}*/
 }

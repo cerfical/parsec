@@ -37,15 +37,15 @@ namespace parsec::fg {
 
 		void visit(const AlternExpr& n) override {
 			// IsNullable(left) || IsNullable(right)
-			if(n.left()->acceptVisitor(*this); !m_nullable) {
-				n.right()->acceptVisitor(*this);
+			if(n.left->acceptVisitor(*this); !m_nullable) {
+				n.right->acceptVisitor(*this);
 			}
 		}
 
 		void visit(const ConcatExpr& n) override {
 			// IsNullable(left) && IsNullable(right)
-			if(n.left()->acceptVisitor(*this); m_nullable) {
-				n.right()->acceptVisitor(*this);
+			if(n.left->acceptVisitor(*this); m_nullable) {
+				n.right->acceptVisitor(*this);
 			}
 		}
 
@@ -80,28 +80,28 @@ namespace parsec::fg {
 		}
 
 		void visit(const PlusExpr& n) {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 		}
 
 		void visit(const StarExpr& n) {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 		}
 
 		void visit(const OptionalExpr& n) {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 		}
 
 		void visit(const AlternExpr& n) {
-			n.left()->acceptVisitor(*this);
-			n.right()->acceptVisitor(*this);
+			n.left->acceptVisitor(*this);
+			n.right->acceptVisitor(*this);
 		}
 
 		void visit(const ConcatExpr& n) override {
 			// add firstpos of the left child
-			n.left()->acceptVisitor(*this);
-			if(IsNullable()(*n.left())) {
+			n.left->acceptVisitor(*this);
+			if(IsNullable()(*n.left)) {
 				// add firstpos of the right child
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 		}
 
@@ -148,39 +148,39 @@ namespace parsec::fg {
 		}
 
 		void visit(const OptionalExpr& n) override {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 		}
 
 		void visit(const PlusExpr& n) override {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_posList)(*n.inner());
+				ComputeFirstPos(m_pattern, m_posList)(*n.inner);
 			}
 		}
 
 		void visit(const StarExpr& n) override {
-			n.inner()->acceptVisitor(*this);
+			n.inner->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_posList)(*n.inner());
+				ComputeFirstPos(m_pattern, m_posList)(*n.inner);
 			}
 		}
 
 		void visit(const AlternExpr& n) override {
-			n.left()->acceptVisitor(*this);
+			n.left->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::NotFound) {
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 		}
 
 		void visit(const ConcatExpr& n) override {
-			n.left()->acceptVisitor(*this);
+			n.left->acceptVisitor(*this);
 			if(m_searchResult == SearchResult::Found) {
-				ComputeFirstPos(m_pattern, m_posList)(*n.right());
-				if(!IsNullable()(*n.right())) {
+				ComputeFirstPos(m_pattern, m_posList)(*n.right);
+				if(!IsNullable()(*n.right)) {
 					m_searchResult = SearchResult::Finished;
 				}
 			} else if(m_searchResult == SearchResult::NotFound) {
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 		}
 
@@ -212,10 +212,6 @@ namespace parsec::fg {
 			// order is is important here to ensure m_atoms.size() gets updated first
 			m_pattern.m_atoms.push_back(&n);
 			m_pattern.m_atomIndex[&n] = atomId;
-		}
-
-		void visit(const NilExpr&) override {
-			// nothing to do
 		}
 
 		RegularPattern& m_pattern;
@@ -269,7 +265,7 @@ namespace parsec::fg {
 
 	std::optional<char> RegularPattern::charAt(Index pos) const {
 		if(pos < m_atoms.size()) {
-			return m_atoms[pos]->value();
+			return m_atoms[pos]->value;
 		}
 		return {};
 	}

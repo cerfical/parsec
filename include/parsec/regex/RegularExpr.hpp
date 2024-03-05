@@ -54,6 +54,13 @@ namespace parsec::regex {
 		const nodes::ExprNode* rootNode() const {
 			return m_rootNode.get();
 		}
+
+
+
+		/**
+		 * @brief Get a string representation of the expression.
+		*/
+		std::string toStr() const;
 		/** @} */
 
 
@@ -61,6 +68,17 @@ namespace parsec::regex {
 	private:
 		nodes::ExprPtr m_rootNode;
 	};
+
+
+
+	inline bool operator==(const RegularExpr& rhs, const RegularExpr& lhs) noexcept {
+		return rhs.rootNode()->isEqualTo(*rhs.rootNode());
+	}
+
+	inline std::ostream& operator<<(std::ostream& out, const RegularExpr& expr) {
+		out << expr.toStr();
+		return out;
+	}
 
 }
 

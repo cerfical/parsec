@@ -17,10 +17,13 @@ namespace parsec::regex::nodes {
 		}
 
 	protected:
-		
+		NodeTraverser() = default;
 		~NodeTraverser() = default;
 
 	private:
+		void visit(const CharAtom& n) override;
+		void visit(const NilExpr& n) override;
+
 		void visit(const PlusExpr& n) override;
 		void visit(const StarExpr& n) override;
 		void visit(const OptionalExpr& n) override;

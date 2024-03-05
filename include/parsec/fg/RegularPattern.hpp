@@ -19,13 +19,6 @@ namespace parsec::fg {
 	class RegularPattern : private NonCopyable {
 	public:
 
-		friend std::ostream& operator<<(std::ostream& out, const RegularPattern& pattern) {
-			out << *pattern.m_regex.rootNode();
-			return out;
-		}
-
-
-
 		RegularPattern()
 			: RegularPattern("", regex::RegularExpr(), 0) {
 		}

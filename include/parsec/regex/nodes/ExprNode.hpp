@@ -1,82 +1,57 @@
 #ifndef PARSEC_REGEX_NODES_EXPR_NODE_HEADER
 #define PARSEC_REGEX_NODES_EXPR_NODE_HEADER
 
+#include "../../core/NonMovable.hpp"
 #include <ostream>
 #include <memory>
 
 namespace parsec::regex::nodes {
 
 	class NodeVisitor;
-	class BinaryExpr;
-	class UnaryExpr;
-
-
 
 	/**
 	 * @brief Abstract representation of a regular expression.
-	 */
-	class ExprNode {
-		friend BinaryExpr;
-		friend UnaryExpr;
-	
+	*/
+	class ExprNode : private NonMovable {
 	public:
-
-		friend std::ostream& operator<<(std::ostream& out, const ExprNode& n);
-
-		friend bool operator==(const ExprNode& lhs, const ExprNode& rhs) noexcept;
-
-
-
-		ExprNode() = default;
-
-		ExprNode(const ExprNode&) = delete;
-		ExprNode& operator=(const ExprNode&) = delete;
 
 		virtual ~ExprNode() = default;
 
 
 
-		/** @{ */
-		/** @brief Perform an operation that depends on both the type of the expression node and the type of the NodeVisitor. */
+		/**
+		 * @brief Perform a double-dispatch call to the specified visitor.
+		*/
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
 
 
-		/** @brief Calculate the total number of CharAtom%s in the expression. */
-		virtual int atomCount() const noexcept = 0;
-		
-		
-		/** @brief Parent node for the expression, if any. */
-		const ExprNode* parent() const noexcept {
-			return m_parent;
-		}
-		/** @} */
+
+		/**
+		 * @brief Compare two nodes for equality.
+		*/
+		bool isEqualTo(const ExprNode& other) const noexcept;
 
 
 
-	private:
+		/**
+		 * @brief Print out the node to an output stream.
+		*/
+		void printTo(std::ostream& out) const;
 
-		virtual void rebaseAtomIndices(int base) noexcept = 0;
-
-		void setParent(const ExprNode* p) noexcept {
-			m_parent = p;
-		}
-
-
-		const ExprNode* m_parent = {};
 	};
 
 
 
 	/**
 	 * @brief Owning pointer to an ExprNode.
-	 */
+	*/
 	using ExprPtr = std::unique_ptr<ExprNode>;
 
 
 
 	/**
-	 * @brief Constructs an ExprNode of the specified type.
-	 */
+	 * @brief Create an ExprNode of the specified type.
+	*/
 	template <typename Node, typename... Args>
 		requires std::derived_from<Node, ExprNode>
 	ExprPtr makeExpr(Args&&... args) {

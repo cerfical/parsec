@@ -47,16 +47,16 @@ namespace parsec {
 
 
 			void visit(const AlternExpr& n) override {
-				n.left()->acceptVisitor(*this); // check if the left child is nullable
+				n.left->acceptVisitor(*this); // check if the left child is nullable
 				if(!m_nullable) { // if it is not, check the right child
-					n.right()->acceptVisitor(*this);
+					n.right->acceptVisitor(*this);
 				}
 			}
 
 			void visit(const ConcatExpr& n) override {
-				n.left()->acceptVisitor(*this); // check if the left child is nullable
+				n.left->acceptVisitor(*this); // check if the left child is nullable
 				if(m_nullable) { // if it is, check the right child
-					n.right()->acceptVisitor(*this);
+					n.right->acceptVisitor(*this);
 				}
 			}
 
@@ -97,17 +97,17 @@ namespace parsec {
 
 			void visit(const AlternExpr& n) override {
 				// add roots of the left child
-				n.left()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
 				// add roots of the right child
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 
 			void visit(const ConcatExpr& n) override {
 				// add roots of the left child
-				n.left()->acceptVisitor(*this);
-				if(IsNullable()(*n.left())) {
+				n.left->acceptVisitor(*this);
+				if(IsNullable()(*n.left)) {
 					// add roots of the right child
-					n.right()->acceptVisitor(*this);
+					n.right->acceptVisitor(*this);
 				}
 			}
 			/** @} */
@@ -116,7 +116,7 @@ namespace parsec {
 			/** @{ */
 			void visitUnary(const UnaryExpr& n) {
 				// add roots of the inner expression
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 			/** @} */
 
@@ -162,9 +162,9 @@ namespace parsec {
 			}
 
 			void visit(const ConcatExpr& n) override {
-				if(m_child == n.left()) {
-					appendRoots(*n.right());
-					if(IsNullable()(*n.right())) {
+				if(m_child == n.left.get()) {
+					appendRoots(*n.right);
+					if(IsNullable()(*n.right)) {
 						traverseParent(n);
 					}
 				} else {
@@ -177,11 +177,12 @@ namespace parsec {
 			/** @{ */
 			void traverseParent(const ExprNode& n) {
 				// recursively traverse the parent node to find all atoms following the given one
-				if(n.parent()) {
+				/*if(n.parent()) {
 					const auto oldChild = std::exchange(m_child, &n);
 					n.parent()->acceptVisitor(*this);
 					m_child = oldChild;
-				}
+				}*/
+				throw std::runtime_error("not implemented");
 			}
 
 			void appendRoots(const ExprNode& n) {
@@ -221,33 +222,33 @@ namespace parsec {
 
 			void visit(const OptionalExpr& n) override {
 				// add end atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const PlusExpr& n) override {
 				// add end atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 			void visit(const StarExpr& n) override {
 				// add end atoms of the inner expression
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 			}
 
 
 			void visit(const AlternExpr& n) override {
 				// add end atoms of the left child
-				n.left()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
 				// add end atoms of the right child
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 			}
 
 			void visit(const ConcatExpr& n) override {
 				// add end atoms of the right child
-				n.right()->acceptVisitor(*this);
-				if(IsNullable()(*n.right())) {
+				n.right->acceptVisitor(*this);
+				if(IsNullable()(*n.right)) {
 					// add end atoms of the left child
-					n.left()->acceptVisitor(*this);
+					n.left->acceptVisitor(*this);
 				}
 			}
 			/** @} */
@@ -327,7 +328,7 @@ namespace parsec {
 				
 				// first, find all root atoms of the regex and mark them as "unprocessed"
 				for(const auto regexRoot : FindRoots()(*regex)) {
-					const auto root = pattern->addRoot(regexRoot->value());
+					const auto root = pattern->addRoot(regexRoot->value);
 					regexToAtoms[regexRoot] = root;
 					unprocessed.push(regexRoot);
 				}
@@ -343,7 +344,7 @@ namespace parsec {
 						auto& follow = it->second;
 						
 						if(wasInserted) {
-							follow = pattern->addAtom(regexFollow->value());
+							follow = pattern->addAtom(regexFollow->value);
 							unprocessed.push(regexFollow);
 						}
 

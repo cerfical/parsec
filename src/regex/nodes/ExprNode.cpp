@@ -11,8 +11,8 @@ namespace parsec::regex::nodes {
 		public:
 
 			explicit PrintExpr(std::ostream& out) noexcept
-				: m_out(out)
-			{ }
+				: m_out(out) {
+			}
 
 			void operator()(const ExprNode& n) {
 				n.acceptVisitor(*this);
@@ -21,42 +21,40 @@ namespace parsec::regex::nodes {
 		private:
 
 			void visit(const CharAtom& n) override {
-				m_out << char_utils::escape(n.value());
+				m_out << char_utils::escape(n.value);
 			}
 
 			void visit(const NilExpr&) override {
 				m_out << "()";
 			}
 
-
 			void visit(const OptionalExpr& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 				m_out << '?';
 			}
 
 			void visit(const PlusExpr& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 				m_out << '+';
 			}
 
 			void visit(const StarExpr& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner->acceptVisitor(*this);
 				m_out << '*';
 			}
 
-
 			void visit(const AlternExpr& n) override {
 				m_out << '(';
-				n.left()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
 				m_out << '|';
-				n.right()->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 				m_out << ')';
 			}
 
 			void visit(const ConcatExpr& n) override {
 				m_out << '(';
-				n.left()->acceptVisitor(*this);
-				n.right()->acceptVisitor(*this);
+				n.left->acceptVisitor(*this);
+				n.right->acceptVisitor(*this);
 				m_out << ')';
 			}
 
@@ -87,7 +85,7 @@ namespace parsec::regex::nodes {
 
 			void visit(const CharAtom& n) override {
 				const auto lhs = dynamic_cast<const CharAtom*>(m_lhs);
-				if(lhs && n.value() == lhs->value()) {
+				if(lhs && n.value == lhs->value) {
 					m_equal = true;
 				}
 			}
@@ -97,7 +95,6 @@ namespace parsec::regex::nodes {
 					m_equal = true;
 				}
 			}
-
 
 			void visit(const OptionalExpr& n) override {
 				visitUnary(n);
@@ -111,7 +108,6 @@ namespace parsec::regex::nodes {
 				visitUnary(n);
 			}
 
-
 			void visit(const AlternExpr& n) override {
 				visitBinary(n);
 			}
@@ -124,16 +120,22 @@ namespace parsec::regex::nodes {
 			template <typename Node>
 			void visitUnary(const Node& n) {
 				const auto lhs = dynamic_cast<const Node*>(m_lhs);
-				if(lhs && CompareEqual()(lhs->inner(), n.inner())) {
-					m_equal = true;
+				if(lhs) {
+					m_lhs = lhs->inner.get();
+					n.inner->acceptVisitor(*this);
 				}
 			}
 
 			template <typename Node>
 			void visitBinary(const Node& n) {
 				const auto lhs = dynamic_cast<const Node*>(m_lhs);
-				if(lhs && CompareEqual()(lhs->left(), n.left()) && CompareEqual()(lhs->right(), n.right())) {
-					m_equal = true;
+				if(lhs) {
+					m_lhs = lhs->left.get();
+					n.left->acceptVisitor(*this);
+					if(m_equal) {
+						m_lhs = lhs->right.get();
+						n.right->acceptVisitor(*this);
+					}
 				}
 			}
 
@@ -144,12 +146,13 @@ namespace parsec::regex::nodes {
 	}
 
 
-	std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
-		return (PrintExpr(out)(n), out);
+	bool ExprNode::isEqualTo(const ExprNode& other) const noexcept {
+		return CompareEqual()(this, &other);
 	}
 
-	bool operator==(const ExprNode& lhs, const ExprNode& rhs) noexcept {
-		return CompareEqual()(&lhs, &rhs);
+
+	void ExprNode::printTo(std::ostream& out) const {
+		PrintExpr{ out }(*this);
 	}
 
 }
