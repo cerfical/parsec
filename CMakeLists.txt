@@ -165,6 +165,15 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/src_gen.hpp"
+		"include/parsec/src_gen/LexerSpec.hpp"
+	PRIVATE
+		"src/src_gen/LexerSpec.cpp"
+)
+
+
+target_sources(parsec-lib
+	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/lr/Transition.hpp"
 		"include/parsec/lr/StateReduce.hpp"
 		"include/parsec/lr/StateGen.hpp"
