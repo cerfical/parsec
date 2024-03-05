@@ -5,6 +5,7 @@
 #include "../fg/RegularGrammar.hpp"
 
 #include <unordered_set>
+#include <span>
 #include <vector>
 
 namespace parsec::src_gen {
