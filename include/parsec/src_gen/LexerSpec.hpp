@@ -19,7 +19,7 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Specify a new named token to be recognized by the lexer.
 		*/
-		void defineToken(std::string_view name, regex::RegularExpr pattern) {
+		void defineToken(const std::string& name, regex::RegularExpr pattern) {
 			insertToken(name, &pattern);
 		}
 		
@@ -28,17 +28,8 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Define a pattern-less token.
 		*/
-		void defineToken(std::string_view name) {
+		void defineToken(const std::string& name) {
 			insertToken(name, {});
-		}
-
-
-
-		/**
-		 * @brief Define an unnamed token.
-		*/
-		void defineToken(regex::RegularExpr pattern) {
-			insertToken("", &pattern);
 		}
 
 
@@ -55,9 +46,7 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Check if a token with the specified name already exists.
 		*/
-		bool isTokenDefined(std::string_view name) const {
-			return m_definedTokens.contains(canonicalizeName(name));
-		}
+		bool isTokenDefined(const std::string& name) const;
 
 
 		
@@ -71,11 +60,7 @@ namespace parsec::src_gen {
 
 
 	private:
-		
-		static std::string canonicalizeName(std::string_view name);
-
-		void insertToken(std::string_view name, regex::RegularExpr* pattern);
-
+		void insertToken(const std::string& name, regex::RegularExpr* pattern);
 
 		std::unordered_set<std::string> m_definedTokens;
 		std::vector<std::string_view> m_tokenNames;

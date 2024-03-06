@@ -1,18 +1,14 @@
 #include "src_gen/LexerSpec.hpp"
-#include "utils/string_utils.hpp"
+#include "src_gen/utils.hpp"
 
 namespace parsec::src_gen {
-	std::string LexerSpec::canonicalizeName(std::string_view name) {
-		return string_utils::toPascalCase(name);
-	}
-	
-	void LexerSpec::insertToken(std::string_view name, regex::RegularExpr* pattern) {
-		const auto [it, wasInserted] = m_definedTokens.insert(canonicalizeName(name));
-		const auto& tokenName = *it;
+	void LexerSpec::insertToken(const std::string& name, regex::RegularExpr* pattern) {
+		const auto [it, wasInserted] = m_definedTokens.insert(utils::normalizeName(name));
+		const auto& normalizedName = *it;
 
 		if(wasInserted) {
 			try {
-				m_tokenNames.emplace_back(tokenName);
+				m_tokenNames.emplace_back(normalizedName);
 			} catch(...) {
 				m_definedTokens.erase(it);
 				throw;
@@ -21,14 +17,18 @@ namespace parsec::src_gen {
 
 		if(pattern) {
 			try {
-				m_tokenGrammar.addPattern(tokenName, std::move(*pattern));
+				m_tokenGrammar.addPattern(name, std::move(*pattern));
 			} catch(...) {
-				m_tokenNames.pop_back();
 				if(wasInserted) {
+					m_tokenNames.pop_back();
 					m_definedTokens.erase(it);
 				}
 				throw;
 			}
 		}
+	}
+
+	bool LexerSpec::isTokenDefined(const std::string& name) const {
+		return m_definedTokens.contains(utils::normalizeName(name));
 	}
 }
