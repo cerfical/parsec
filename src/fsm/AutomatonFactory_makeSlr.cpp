@@ -97,7 +97,9 @@ namespace parsec::fsm {
 
 					// expand only nonterminal symbols
 					if(const auto symbol = m_grammar.lookupSymbol(item->posSymbol())) {
-						unexpanded.emplace(symbol, 0);
+						for(const auto& pos : symbol->rule().firstPos()) {
+							unexpanded.emplace(symbol, pos);
+						}
 					}
 				}
 
