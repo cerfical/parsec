@@ -19,7 +19,7 @@ namespace parsec::fg {
 		/**
 		 * @brief Add a new named pattern to the grammar.
 		*/
-		void addPattern(std::string name, regex::RegularExpr regex);
+		void addPattern(const std::string& name, regex::RegularExpr regex);
 
 
 

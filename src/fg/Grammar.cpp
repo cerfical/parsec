@@ -4,7 +4,12 @@ namespace parsec::fg {
 	void Grammar::addSymbol(const std::string& name, RuleExpr rule) {
 		const auto [it, wasInserted] = m_symbols.try_emplace(name, name, std::move(rule), getUniqueSymbolId());
 		if(!wasInserted) {
-			it->second.addRule(std::move(rule));
+			throw std::runtime_error("duplicate grammar symbol");
+		}
+
+		// make the first added symbol the start symbol
+		if(!m_startSymbol) {
+			m_startSymbol = &it->second;
 		}
 	}
 

@@ -22,15 +22,6 @@ namespace parsec::fg {
 
 
 		/**
-		 * @brief Set a start symbol for the grammar.
-		*/
-		void markStartSymbol(const std::string& name) {
-			m_startSymbol = lookupSymbol(name);
-		}
-
-
-
-		/**
 		 * @brief Find a grammar symbol with the specified name, if there is one.
 		*/
 		const GrammarSymbol* lookupSymbol(const std::string& name) const;
