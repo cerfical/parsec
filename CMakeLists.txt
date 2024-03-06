@@ -77,7 +77,7 @@ target_sources(parsec-lib
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
 		"include/parsec/core/typedefs.hpp"
-	
+
 	PRIVATE
 		"src/core/Pattern.cpp"
 		"src/core/Grammar.cpp"
@@ -170,6 +170,8 @@ target_sources(parsec-lib
 		"include/parsec/src_gen/LexerSpec.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
 		"include/parsec/src_gen/ParserSpec.hpp"
+		"include/parsec/src_gen/CppParserGen.hpp"
+
 	PRIVATE
 		"src/src_gen/utils.cpp"
 		"src/src_gen/cpp_utils.hpp"
@@ -177,6 +179,7 @@ target_sources(parsec-lib
 		"src/src_gen/LexerSpec.cpp"
 		"src/src_gen/ParserSpec.cpp"
 		"src/src_gen/CppLexerGen.cpp"
+		"src/src_gen/CppParserGen.cpp"
 )
 
 
@@ -248,11 +251,11 @@ target_sources(parsec-lib
 		"include/parsec/regex/ast/PlusExpr.hpp"
 		"include/parsec/regex/ast/OptionalExpr.hpp"
 		"include/parsec/regex/ast/StarExpr.hpp"
-
+	
 		"include/parsec/regex/RegularExpr.hpp"
 		"include/parsec/regex/ParseError.hpp"
 		"include/parsec/regex/Parser.hpp"
-	
+
 	PRIVATE
 		"src/regex/ast/NodeTraverser.cpp"
 		"src/regex/ast/ExprNode.cpp"
@@ -263,7 +266,7 @@ target_sources(parsec-lib
 		"src/regex/ast/PlusExpr.cpp"
 		"src/regex/ast/OptionalExpr.cpp"
 		"src/regex/ast/StarExpr.cpp"
-
+		
 		"src/regex/RegularExpr.cpp"
 		"src/regex/Parser.cpp"
 )
