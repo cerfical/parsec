@@ -1,9 +1,12 @@
-#ifndef PARSEC_SRC_GEN_UTILS_HEADER
-#define PARSEC_SRC_GEN_UTILS_HEADER
+#ifndef PARSEC_SRC_GEN_UTILS_ROOT_HEADER
+#define PARSEC_SRC_GEN_UTILS_ROOT_HEADER
 
 #include <string>
 #include <string_view>
 
+/**
+ * @brief A set of utilities to facilitate source code generation.
+*/
 namespace parsec::src_gen::utils {
 
 	/**

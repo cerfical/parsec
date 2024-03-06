@@ -169,11 +169,13 @@ target_sources(parsec-lib
 		"include/parsec/src_gen/utils.hpp"
 		"include/parsec/src_gen/LexerSpec.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
+		"include/parsec/src_gen/ParserSpec.hpp"
 	PRIVATE
 		"src/src_gen/utils.cpp"
 		"src/src_gen/cpp_utils.hpp"
 		"src/src_gen/cpp_utils.cpp"
 		"src/src_gen/LexerSpec.cpp"
+		"src/src_gen/ParserSpec.cpp"
 		"src/src_gen/CppLexerGen.cpp"
 )
 

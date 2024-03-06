@@ -3,6 +3,7 @@
 
 #include "src_gen/LexerSpec.hpp"
 #include "src_gen/CppLexerGen.hpp"
+#include "src_gen/ParserSpec.hpp"
 
 /**
  * @brief Module responsible for source code generation based on provided specifications.
