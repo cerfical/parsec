@@ -62,11 +62,13 @@ namespace parsec::pars {
 	}
 
 	bool Lexer::isIdentStart() const {
-		return !m_scanner.isEof() && (char_utils::isAlpha(m_scanner.peek()));
+		const auto ch = m_scanner.peek();
+		return !m_scanner.isEof()
+			&& (char_utils::isAlpha(ch) || ch == '-' || ch == '_');
 	}
 
 	bool Lexer::isIdent() const {
-		return !m_scanner.isEof() && (char_utils::isAlnum(m_scanner.peek()));
+		return isIdentStart() || char_utils::isDigit(m_scanner.peek());
 	}
 
 
