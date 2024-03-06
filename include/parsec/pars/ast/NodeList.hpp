@@ -11,9 +11,9 @@ namespace parsec::pars::ast {
 	class NodeList : public Node {
 	public:
 
-		NodeList(NodePtr first, NodePtr rest)
-			: first(std::move(first)), rest(std::move(rest))
-		{ }
+		NodeList(NodePtr last, NodePtr rest)
+			: last(std::move(last)), rest(std::move(rest)) {
+		}
 
 		~NodeList() override = default;
 
@@ -21,7 +21,7 @@ namespace parsec::pars::ast {
 		void acceptVisitor(NodeVisitor& visitor) const override;
 
 
-		NodePtr first;
+		NodePtr last;
 		NodePtr rest;
 	};
 

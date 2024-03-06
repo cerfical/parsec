@@ -252,7 +252,7 @@ namespace parsec::pars {
 			}
 
 			ast::NodePtr parseSpec() {
-				ast::NodePtr spec;
+				auto spec = ast::makeNode<ast::NilNode>();
 				while(!m_lexer.isEof()) {
 					if(m_lexer.skipIf("tokens")) {
 						spec = ast::makeNode<ast::NodeList>(parseTokenList(), std::move(spec));
