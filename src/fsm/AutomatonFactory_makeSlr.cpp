@@ -12,36 +12,37 @@ namespace parsec::fsm {
 		class Item {
 		public:
 
-			Item(const fg::GrammarSymbol* symbol, std::size_t pos) noexcept
-				: m_symbol(symbol), m_pos(pos) {
+			Item(std::string_view headSymbol, const fg::RuleExpr* rule, Index pos) noexcept
+				: m_headSymbol(headSymbol), m_rule(rule), m_pos(pos) {
 			}
 
 
-			const fg::GrammarSymbol* headSymbol() const noexcept {
-				return m_symbol;
+			std::string_view headSymbol() const noexcept {
+				return m_headSymbol;
 			}
 
-			const std::string& posSymbol() const noexcept {
-				return rule().symbolAt(m_pos);
+			std::string_view bodySymbol() const {
+				return rule()->symbolAt(pos());
 			}
 
-			const fg::RuleExpr& rule() const noexcept {
-				return m_symbol->rule();
+			const fg::RuleExpr* rule() const noexcept {
+				return m_rule;
 			}
 
 
-			std::size_t pos() const noexcept {
+			Index pos() const noexcept {
 				return m_pos;
 			}
 
-			bool isAtEnd() const noexcept {
-				return posSymbol().empty();
+			bool isAtEnd() const {
+				return bodySymbol().empty();
 			}
 
 
 		private:
-			const fg::GrammarSymbol* m_symbol= {};
-			std::size_t m_pos = {};
+			std::string_view m_headSymbol;
+			const fg::RuleExpr* m_rule = {};
+			Index m_pos = {};
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
@@ -49,26 +50,26 @@ namespace parsec::fsm {
 
 
 		inline bool operator==(const Item& lhs, const Item& rhs) noexcept {
-			return lhs.headSymbol()->id() == rhs.headSymbol()->id() && lhs.pos() == rhs.pos();
+			return std::tuple(lhs.headSymbol(), lhs.pos()) == std::tuple(rhs.headSymbol(), rhs.pos());
 		}
 
 		inline std::size_t hash_value(const Item& item) noexcept {
-			return boost::hash_value(std::tuple(item.headSymbol()->id(), item.pos()));
+			return boost::hash_value(std::tuple(item.headSymbol(), item.pos()));
 		}
 
 
 
 		class ConstructSlr {
 		public:
-			explicit ConstructSlr(const fg::Grammar& grammar)
+			explicit ConstructSlr(const fg::SymbolGrammar& grammar)
 				: m_grammar(grammar) {
 			}
 
 			Automaton operator()() {
-				if(m_grammar.startSymbol()) {
+				if(const auto rootRule = m_grammar.resolveSymbol(m_grammar.startSymbol())) {
 					ItemSet startItems;
-					for(const auto& pos : m_grammar.startSymbol()->rule().firstPos()) {
-						startItems.emplace(m_grammar.startSymbol(), pos);
+					for(const auto& pos : rootRule->firstPos()) {
+						startItems.emplace(m_grammar.startSymbol(), rootRule, pos);
 					}
 
 					createState(std::move(startItems));
@@ -96,9 +97,9 @@ namespace parsec::fsm {
 					}
 
 					// expand only nonterminal symbols
-					if(const auto symbol = m_grammar.lookupSymbol(item->posSymbol())) {
-						for(const auto& pos : symbol->rule().firstPos()) {
-							unexpanded.emplace(symbol, pos);
+					if(const auto rule = m_grammar.resolveSymbol(item->bodySymbol())) {
+						for(const auto& pos : rule->firstPos()) {
+							unexpanded.emplace(item->bodySymbol(), rule, pos);
 						}
 					}
 				}
@@ -106,12 +107,9 @@ namespace parsec::fsm {
 				return expanded;
 			}
 
-			int createState(ItemSet&& stateItems) {
-				const auto [it, wasInserted] = m_states.emplace(
-					std::move(stateItems),
-					static_cast<int>(m_states.size())
-				);
-				auto& [items, state] = *it;
+			Id createState(ItemSet&& stateItems) {
+				const auto [it, wasInserted] = m_states.emplace(std::move(stateItems), m_states.size());
+				const auto& [items, state] = *it;
 
 				if(wasInserted) {
 					buildStateTrans(items, state);
@@ -119,39 +117,38 @@ namespace parsec::fsm {
 				return state;
 			}
 
-			void buildStateTrans(const ItemSet& items, int state) {
-				std::unordered_map<std::string, ItemSet> trans;
+			void buildStateTrans(const ItemSet& items, Id state) {
+				std::unordered_map<std::string_view, ItemSet> trans;
 				for(const auto& item : computeClosure(items)) {
 					if(item.isAtEnd()) {
-						const bool wasInserted = m_acceptStates.insert(state).second;
-						if(!wasInserted) {
+						if(const bool wasInserted = m_acceptStates.insert(state).second; !wasInserted) {
 							throw std::runtime_error("conflicting grammar rules");
 						}
-						m_slrBuilder.acceptState(state, item.headSymbol()->name());
+						m_slrBuilder.acceptState(state, std::string(item.headSymbol()));
 						continue;
 					}
 
-					auto& itemTrans = trans[item.posSymbol()];
-					for(const auto& pos : item.rule().followPos(item.pos())) {
-						itemTrans.emplace(item.headSymbol(), pos);
+					auto& itemTrans = trans[item.bodySymbol()];
+					for(const auto& pos : item.rule()->followPos(item.pos())) {
+						itemTrans.emplace(item.headSymbol(), item.rule(), pos);
 					}
 				}
 
 				for(auto& [inputSymbol, stateItems] : trans) {
 					const auto dest = createState(std::move(stateItems));
-					m_slrBuilder.transition(inputSymbol, state, dest);
+					m_slrBuilder.transition(std::string(inputSymbol), state, dest);
 				}
 			}
 
-			std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_states;
-			std::unordered_set<int> m_acceptStates;
+			std::unordered_map<ItemSet, Id, boost::hash<ItemSet>> m_states;
+			std::unordered_set<Id> m_acceptStates;
 			AutomatonBuilder m_slrBuilder;
-			const fg::Grammar& m_grammar;
+			const fg::SymbolGrammar& m_grammar;
 		};
 	}
 
 
-	Automaton AutomatonFactory::makeSlr(const fg::Grammar& lang) {
+	Automaton AutomatonFactory::makeSlr(const fg::SymbolGrammar& lang) {
 		return ConstructSlr(lang)();
 	}
 }

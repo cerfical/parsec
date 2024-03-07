@@ -3,7 +3,7 @@
 
 #include "../core/NonMovable.hpp"
 #include "../fg/RegularGrammar.hpp"
-#include "../fg/Grammar.hpp"
+#include "../fg/SymbolGrammar.hpp"
 
 #include "Automaton.hpp"
 
@@ -32,7 +32,7 @@ namespace parsec::fsm {
 		/**
 		 * @brief Construct an SLR(1) automaton.
 		*/
-		Automaton makeSlr(const fg::Grammar& lang);
+		Automaton makeSlr(const fg::SymbolGrammar& lang);
 
 
 

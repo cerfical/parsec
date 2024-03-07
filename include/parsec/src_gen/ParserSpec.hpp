@@ -2,7 +2,7 @@
 #define PARSEC_SRC_GEN_PARSER_SPEC_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "../fg/Grammar.hpp"
+#include "../fg/SymbolGrammar.hpp"
 
 #include <unordered_set>
 #include <span>
@@ -31,7 +31,7 @@ namespace parsec::src_gen {
 		}
 
 
-		
+
 		/**
 		 * @brief Check if a rule with the specified name is already defined.
 		*/
@@ -42,7 +42,7 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Grammar description of a language syntax recognized by the parser.
 		 */
-		const fg::Grammar& syntaxGrammar() const {
+		const fg::SymbolGrammar& syntaxGrammar() const {
 			return m_syntaxGrammar;
 		}
 
@@ -51,7 +51,7 @@ namespace parsec::src_gen {
 	private:
 		std::unordered_set<std::string> m_definedRules;
 		std::vector<std::string_view> m_ruleNames;
-		fg::Grammar m_syntaxGrammar;
+		fg::SymbolGrammar m_syntaxGrammar;
 	};
 
 }
