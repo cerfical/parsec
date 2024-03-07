@@ -1,33 +1,34 @@
-#ifndef PARSEC_FG_RULE_EXPR_HEADER
-#define PARSEC_FG_RULE_EXPR_HEADER
+#ifndef PARSEC_FG_RULE_HEADER
+#define PARSEC_FG_RULE_HEADER
 
 #include "../core/NonCopyable.hpp"
 #include "../core/typedefs.hpp"
 
 #include <memory>
 #include <vector>
-#include <string>
+#include <string_view>
 #include <ostream>
+#include <string>
 
 namespace parsec::fg {
 
 	/**
-	 * @brief Defines a relationship between symbolic names using trivial formal language operations.
+	 * @brief Defines a relationship between symbols using trivial formal language operations.
 	*/
-	class RuleExpr : private NonCopyable {
+	class Rule : private NonCopyable {
 	public:
 
 		/**
 		 * @brief Create an empty rule.
 		*/
-		RuleExpr() = default;
+		Rule() = default;
 		
 
 
 		/**
 		 * @brief Create a simple rule with a single symbol.
 		*/
-		explicit RuleExpr(std::string symbol);
+		explicit Rule(std::string_view symbol);
 
 
 
@@ -35,21 +36,40 @@ namespace parsec::fg {
 		/**
 		 * @brief Combine one rule with another, creating a rule concatenation.
 		*/
-		void concat(RuleExpr other);
+		void concat(Rule other);
 		
 
 
 		/**
 		 * @brief Combine one rule with another, creating a rule alternation.
 		*/
-		void altern(RuleExpr other);
+		void altern(Rule other);
 
 
 
 		/**
-		 * @brief Create a Kleene plus repetition rule.
+		 * @brief Make the rule a repetition with a Kleene plus operator.
 		*/
-		void repeat();
+		void repeatPlus();
+
+
+
+		/**
+		 * @brief Make the rule a repetition with a Kleene star operator.
+		*/
+		void repeatStar() {
+			repeatPlus();
+			altern({});
+		}
+
+
+
+		/**
+		 * @brief Make the rule optional.
+		*/
+		void markOptional() {
+			altern({});
+		}
 		/** @} */
 
 
@@ -72,7 +92,7 @@ namespace parsec::fg {
 		/**
 		 * @brief Get a symbol located at the specified position index.
 		*/
-		const std::string& symbolAt(Index pos) const;
+		std::string_view symbolAt(Index pos) const;
 
 
 
@@ -93,44 +113,27 @@ namespace parsec::fg {
 		class Concat;
 		class Altern;
 
-
-
 		class Node {
 		public:
-			
 			enum class SearchResult {
 				Finished,
 				Found,
 				NotFound
 			};
 
-
 			virtual ~Node() = default;
 
-
 			virtual void computeFirstPos(IndexList& posList) const = 0;
-
 			virtual SearchResult computeFollowPos(const Symbol* pos, IndexList& posList) const = 0;
-			
 			virtual bool isNullable() const noexcept = 0;
 
-
 			virtual void printTo(std::ostream& out) const = 0;
-
 		};
 
 		using NodePtr = std::unique_ptr<Node>;
 
 
-
-		template <typename Node, typename... Args>
-		static auto makeNode(Args&&... args) {
-			return std::make_unique<Node>(std::forward<Args>(args)...);
-		}
-
 		void mergeSymbols(std::vector<Symbol*>&);
-
-
 
 		std::vector<Symbol*> m_symbols;
 		NodePtr m_rootNode;
@@ -138,7 +141,7 @@ namespace parsec::fg {
 
 
 
-	inline std::ostream& operator<<(std::ostream& out, const RuleExpr& expr) {
+	inline std::ostream& operator<<(std::ostream& out, const Rule& expr) {
 		out << expr.toStr();
 		return out;
 	}

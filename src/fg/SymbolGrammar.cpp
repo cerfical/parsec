@@ -2,7 +2,7 @@
 #include <algorithm>
 
 namespace parsec::fg {
-	void SymbolGrammar::insertSymbol(std::string_view symbol, RuleExpr rule) {
+	void SymbolGrammar::insertSymbol(std::string_view symbol, Rule rule) {
 		if(symbol.empty()) {
 			throw std::runtime_error("empty grammar symbol");
 		}
@@ -22,7 +22,7 @@ namespace parsec::fg {
 	}
 
 
-	const RuleExpr* SymbolGrammar::resolveSymbol(std::string_view name) const {
+	const Rule* SymbolGrammar::resolveSymbol(std::string_view name) const {
 		const auto it = m_rules.find(std::string(name));
 		if(it != m_rules.end()) {
 			return &it->second;

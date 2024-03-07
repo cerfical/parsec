@@ -3,6 +3,7 @@
 
 #include "fg/RegularGrammar.hpp"
 #include "fg/SymbolGrammar.hpp"
+#include "fg/Rule.hpp"
 
 /**
  * @brief Establishes the concepts needed to define simple formal language grammars.

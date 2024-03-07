@@ -12,7 +12,7 @@ namespace parsec::fsm {
 		class Item {
 		public:
 
-			Item(std::string_view headSymbol, const fg::RuleExpr* rule, Index pos) noexcept
+			Item(std::string_view headSymbol, const fg::Rule* rule, Index pos) noexcept
 				: m_headSymbol(headSymbol), m_rule(rule), m_pos(pos) {
 			}
 
@@ -25,7 +25,7 @@ namespace parsec::fsm {
 				return rule()->symbolAt(pos());
 			}
 
-			const fg::RuleExpr* rule() const noexcept {
+			const fg::Rule* rule() const noexcept {
 				return m_rule;
 			}
 
@@ -41,7 +41,7 @@ namespace parsec::fsm {
 
 		private:
 			std::string_view m_headSymbol;
-			const fg::RuleExpr* m_rule = {};
+			const fg::Rule* m_rule = {};
 			Index m_pos = {};
 		};
 

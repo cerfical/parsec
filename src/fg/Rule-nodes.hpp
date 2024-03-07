@@ -1,12 +1,12 @@
-#ifndef PARSEC_FG_RULE_EXPR_NODES_HEADER
-#define PARSEC_FG_RULE_EXPR_NODES_HEADER
+#ifndef PARSEC_FG_RULE_NODES_HEADER
+#define PARSEC_FG_RULE_NODES_HEADER
 
-#include "fg/RuleExpr.hpp"
+#include "fg/Rule.hpp"
 #include <algorithm>
 
 namespace parsec::fg {
 
-	class RuleExpr::Symbol : public Node {
+	class Rule::Symbol : public Node {
 	public:
 
 		void computeFirstPos(IndexList& posList) const override {
@@ -36,7 +36,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::Nil : public Node {
+	class Rule::Nil : public Node {
 	public:
 
 		void computeFirstPos(IndexList&) const override {
@@ -60,7 +60,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::Binary : public Node {
+	class Rule::Binary : public Node {
 	public:
 
 		void printBinaryTo(std::string_view op, std::ostream& out) const {
@@ -77,7 +77,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::Concat : public Binary {
+	class Rule::Concat : public Binary {
 	public:
 
 		void computeFirstPos(IndexList& posList) const override {
@@ -117,7 +117,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::Altern: public Binary {
+	class Rule::Altern: public Binary {
 	public:
 
 		void computeFirstPos(IndexList& posList) const override {
@@ -146,7 +146,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::Repeat : public Node {
+	class Rule::Repeat : public Node {
 	public:
 		
 		void computeFirstPos(IndexList& posList) const override {
@@ -178,7 +178,7 @@ namespace parsec::fg {
 
 
 
-	class RuleExpr::EndSymbol : public Node {
+	class Rule::EndSymbol : public Node {
 	public:
 
 		EndSymbol(const Node* rule, Index posIndex) noexcept

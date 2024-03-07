@@ -1,33 +1,23 @@
-#include "fg/RuleExpr.hpp"
+#include "fg/Rule.hpp"
 
-#include "RuleExpr_nodes.hpp"
+#include "Rule-nodes.hpp"
 #include <sstream>
 
 namespace parsec::fg {
-	RuleExpr::RuleExpr(std::string symbol) {
+	Rule::Rule(std::string_view symbol) {
 		if(!symbol.empty()) {
-			auto rootNode = makeNode<Symbol>();
+			auto rootNode = std::make_unique<Symbol>();
+			rootNode->name = symbol;
 			m_symbols.push_back(rootNode.get());
 
-			rootNode->name = std::move(symbol);
 			m_rootNode = std::move(rootNode);
 		}
 	}
 
 
-	void RuleExpr::mergeSymbols(std::vector<Symbol*>& symbols) {
-		const auto symbolPosOffset = m_symbols.size();
-
-		auto it = m_symbols.insert(m_symbols.end(), symbols.begin(), symbols.end());
-		for(; it != m_symbols.end(); it++) {
-			(*it)->posIndex += symbolPosOffset;
-		}
-	}
-
-
-	void RuleExpr::concat(RuleExpr other) {
+	void Rule::concat(Rule other) {
 		if(m_rootNode && other.m_rootNode) {
-			auto newRootNode = makeNode<Concat>();
+			auto newRootNode = std::make_unique<Concat>();
 			mergeSymbols(other.m_symbols);
 
 			newRootNode->left = std::move(m_rootNode);
@@ -39,18 +29,18 @@ namespace parsec::fg {
 	}
 
 
-	void RuleExpr::altern(RuleExpr other) {
+	void Rule::altern(Rule other) {
 		if(m_rootNode || other.m_rootNode) {
 			// ugly code needed to provide strong exception guarantees
-			NodePtr *left, leftNil, *right, rightNil;
+			NodePtr* left, leftNil, * right, rightNil;
 			std::tie(left, leftNil) = m_rootNode ?
-				std::tuple(&m_rootNode, nullptr) : std::tuple(&leftNil, makeNode<Nil>());
-			
+				std::tuple(&m_rootNode, nullptr) : std::tuple(&leftNil, std::make_unique<Nil>());
+
 			std::tie(right, rightNil) = other.m_rootNode ?
-				std::tuple(&other.m_rootNode, nullptr) : std::tuple(&rightNil, makeNode<Nil>());
+				std::tuple(&other.m_rootNode, nullptr) : std::tuple(&rightNil, std::make_unique<Nil>());
 
 
-			auto newRootNode = makeNode<Altern>();
+			auto newRootNode = std::make_unique<Altern>();
 			mergeSymbols(other.m_symbols);
 
 			newRootNode->left = std::move(*left);
@@ -60,16 +50,16 @@ namespace parsec::fg {
 	}
 
 
-	void RuleExpr::repeat() {
+	void Rule::repeatPlus() {
 		if(m_rootNode) {
-			auto newRootNode = makeNode<Repeat>();
+			auto newRootNode = std::make_unique<Repeat>();
 			newRootNode->inner = std::move(m_rootNode);
 			m_rootNode = std::move(newRootNode);
 		}
 	}
 
 
-	IndexList RuleExpr::followPos(Index pos) const {
+	IndexList Rule::followPos(Index pos) const {
 		if(m_rootNode && pos < m_symbols.size()) {
 			return EndSymbol(m_rootNode.get(), m_symbols.size())
 				.followPosOf(m_symbols[pos]);
@@ -78,7 +68,7 @@ namespace parsec::fg {
 	}
 
 
-	IndexList RuleExpr::firstPos() const {
+	IndexList Rule::firstPos() const {
 		if(m_rootNode) {
 			return EndSymbol(m_rootNode.get(), m_symbols.size())
 				.firstPos();
@@ -87,21 +77,30 @@ namespace parsec::fg {
 	}
 
 
-	const std::string& RuleExpr::symbolAt(Index pos) const {
+	std::string_view Rule::symbolAt(Index pos) const {
 		if(pos < m_symbols.size()) {
 			return m_symbols[pos]->name;
 		}
-
-		static std::string empty;
-		return empty;
+		return "";
 	}
 
 
-	std::string RuleExpr::toStr() const {
+	std::string Rule::toStr() const {
 		std::ostringstream out;
 		if(m_rootNode) {
 			m_rootNode->printTo(out);
 		}
 		return out.str();
+	}
+
+
+	void Rule::mergeSymbols(std::vector<Symbol*>& symbols) {
+		const auto symbolPosOffset = m_symbols.size();
+
+		auto it = m_symbols.insert(m_symbols.end(), symbols.begin(), symbols.end());
+		for(; it != m_symbols.end(); it++) {
+			(*it)->posIndex += symbolPosOffset;
+		}
+		symbols.clear();
 	}
 }

@@ -15,7 +15,7 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Specify a new parse rule for the parser.
 		*/
-		void defineParseRule(std::string_view name, fg::RuleExpr rule) {
+		void defineParseRule(std::string_view name, fg::Rule rule) {
 			m_parseRules.insertSymbol(name, std::move(rule));
 		}
 		

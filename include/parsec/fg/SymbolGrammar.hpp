@@ -2,7 +2,7 @@
 #define PARSEC_FG_SYMBOL_GRAMMAR_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "RuleExpr.hpp"
+#include "Rule.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -19,14 +19,14 @@ namespace parsec::fg {
 		/**
 		 * @brief Allocate a new symbol in the grammar defined by a rule.
 		*/
-		void insertSymbol(std::string_view symbol, RuleExpr rule);
+		void insertSymbol(std::string_view symbol, Rule rule);
 
 
 
 		/**
 		 * @brief Find a rule that defines the specified symbol, if there is one.
 		*/
-		const RuleExpr* resolveSymbol(std::string_view symbol) const;
+		const Rule* resolveSymbol(std::string_view symbol) const;
 
 
 
@@ -50,7 +50,7 @@ namespace parsec::fg {
 
 
 	private:
-		std::unordered_map<std::string, RuleExpr> m_rules;
+		std::unordered_map<std::string, Rule> m_rules;
 		
 		mutable std::vector<std::string_view> m_symbols;
 		mutable bool m_symbolsSorted = true;
