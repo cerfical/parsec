@@ -4,10 +4,6 @@
 #include "../core/NonCopyable.hpp"
 #include "../fg/SymbolGrammar.hpp"
 
-#include <unordered_set>
-#include <span>
-#include <vector>
-
 namespace parsec::src_gen {
 	
 	/**
@@ -19,39 +15,35 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Specify a new parse rule for the parser.
 		*/
-		void defineRule(const std::string& name, fg::RuleExpr rule);
+		void defineParseRule(std::string_view name, fg::RuleExpr rule) {
+			m_parseRules.insertSymbol(name, std::move(rule));
+		}
 		
 		
 
 		/**
-		 * @brief List of all parse rules defined.
+		 * @brief Check whether the specified name defines a parse rule.
 		*/
-		std::span<const std::string_view> definedRules() const {
-			return m_ruleNames;
+		bool isParseRule(std::string_view name) const {
+			if(m_parseRules.resolveSymbol(name)) {
+				return true;
+			}
+			return false;
 		}
 
 
-
-		/**
-		 * @brief Check if a rule with the specified name is already defined.
-		*/
-		bool isRuleDefined(const std::string& name) const;
-
-
 		
 		/**
-		 * @brief Grammar description of a language syntax recognized by the parser.
-		 */
-		const fg::SymbolGrammar& syntaxGrammar() const {
-			return m_syntaxGrammar;
+		 * @brief Complete set of all parse rules for the parser.
+		*/
+		const fg::SymbolGrammar& parseRules() const {
+			return m_parseRules;
 		}
 
 
 
 	private:
-		std::unordered_set<std::string> m_definedRules;
-		std::vector<std::string_view> m_ruleNames;
-		fg::SymbolGrammar m_syntaxGrammar;
+		fg::SymbolGrammar m_parseRules;
 	};
 
 }

@@ -1,6 +1,4 @@
 #include "src_gen/CppParserGen.hpp"
-
-#include "src_gen/utils.hpp"
 #include "cpp_utils.hpp"
 
 #include "fsm/AutomatonFactory.hpp"
@@ -11,10 +9,10 @@ namespace parsec::src_gen {
 		class GenParser {
 		public:
 
-			GenParser(std::ostream& out, const ParserSpec& parserSpec)
-				: m_parserSpec(parserSpec), m_out(out) {
+			GenParser(std::ostream& out, const ParserSpec* parserSpec)
+				: m_parserSpec(*parserSpec), m_out(out) {
 				m_slr = fsm::AutomatonFactory::get()
-					.makeSlr(parserSpec.syntaxGrammar());
+					.makeSlr(parserSpec->parseRules());
 			}
 
 			void operator()() {
@@ -24,12 +22,12 @@ namespace parsec::src_gen {
 
 		private:
 			void genParseRulesEnum() {
-				m_out << cpp_utils::makeEnum("ParseRules", m_parserSpec.definedRules());
+				m_out << cpp_utils::makeEnum("ParseRules", m_parserSpec.parseRules().symbols());
 				m_out << '\n';
 			}
 
 			void genParseHooks() {
-				for(const auto& rule : m_parserSpec.definedRules()) {
+				for(const auto& rule : m_parserSpec.parseRules().symbols()) {
 					m_out << "\t" << std::format("virtual void on{}() {{ }}", rule) << '\n';
 				}
 			}
@@ -50,7 +48,7 @@ namespace parsec::src_gen {
 				if(!state.outSymbol.empty()) {
 					m_out << indent << std::format(
 						"reduceTo(ParseRules::{0}, &Parser::on{0});",
-						utils::normalizeName(state.outSymbol)
+						state.outSymbol
 					) << '\n';
 				} else {
 					m_out << indent << "error();" << '\n';
@@ -60,7 +58,7 @@ namespace parsec::src_gen {
 			void genStateShifts(const fsm::State& state) {
 				bool first = true;
 				for(const auto & trans : state.transitions) {
-					if(m_parserSpec.isRuleDefined(trans.inSymbol)) {
+					if(m_parserSpec.isParseRule(trans.inSymbol)) {
 						continue;
 					}
 
@@ -69,7 +67,7 @@ namespace parsec::src_gen {
 					}
 
 					m_out << "\t\t\t" << std::format("case TokenKinds::{}: shiftTo(&Parser::state{}); break;",
-						utils::normalizeName(trans.inSymbol),
+						trans.inSymbol,
 						trans.dest
 					) << '\n';
 				}
@@ -90,7 +88,7 @@ namespace parsec::src_gen {
 			void genStateGotos(const fsm::State& state) {
 				bool first = true;
 				for(const auto& trans : state.transitions) {
-					if(!m_parserSpec.isRuleDefined(trans.inSymbol)) {
+					if(!m_parserSpec.isParseRule(trans.inSymbol)) {
 						continue;
 					}
 
@@ -100,7 +98,7 @@ namespace parsec::src_gen {
 					}
 
 					m_out << "\t\t\t" << std::format("case ParseRules::{}: goTo(&Parser::state{}); break;",
-						utils::normalizeName(trans.inSymbol),
+						trans.inSymbol,
 						trans.dest
 					) << '\n';
 				}
@@ -206,6 +204,6 @@ public:
 
 
 	void CppParserGen::run(const ParserSpec& parserSpec) {
-		GenParser(*this->m_out, parserSpec)();
+		GenParser(*this->m_out, &parserSpec)();
 	}
 }
