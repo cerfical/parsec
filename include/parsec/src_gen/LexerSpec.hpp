@@ -2,7 +2,8 @@
 #define PARSEC_SRC_GEN_LEXER_SPEC_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "../fg/RegularGrammar.hpp"
+#include "../regex/RegularExpr.hpp"
+#include "../fg/SymbolGrammar.hpp"
 
 #include <unordered_set>
 #include <span>
@@ -19,52 +20,32 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Specify a new named token to be recognized by the lexer.
 		*/
-		void defineToken(const std::string& name, regex::RegularExpr pattern) {
-			insertToken(name, &pattern);
-		}
+		void defineToken(std::string_view name, const regex::RegularExpr& pattern);
 		
 
 
 		/**
-		 * @brief Define a pattern-less token.
+		 * @brief Check whether the specified name defines a token.
 		*/
-		void defineToken(const std::string& name) {
-			insertToken(name, {});
+		bool isToken(std::string_view name) const {
+			if(m_tokens.resolveSymbol(name)) {
+				return true;
+			}
+			return false;
 		}
 
 
 
-		/**
-		 * @brief List of all tokens defined.
-		*/
-		std::span<const std::string_view> definedTokens() const {
-			return m_tokenNames;
-		}
-
-
-
-		/**
-		 * @brief Check if a token with the specified name already exists.
-		*/
-		bool isTokenDefined(const std::string& name) const;
-
-
-		
 		/**
 		 * @brief Grammar description of the token language.
 		*/
-		const fg::RegularGrammar& tokenGrammar() const noexcept {
-			return m_tokenGrammar;
+		const fg::SymbolGrammar& tokens() const {
+			return m_tokens;
 		}
 
 
-
 	private:
-		void insertToken(const std::string& name, regex::RegularExpr* pattern);
-
-		std::unordered_set<std::string> m_definedTokens;
-		std::vector<std::string_view> m_tokenNames;
-		fg::RegularGrammar m_tokenGrammar;
+		fg::SymbolGrammar m_tokens;
 	};
 
 }

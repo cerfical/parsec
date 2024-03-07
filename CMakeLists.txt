@@ -132,14 +132,10 @@ target_sources(parsec-lib
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/fg.hpp"
-		"include/parsec/fg/RegularPattern.hpp"
-		"include/parsec/fg/RegularGrammar.hpp"
 		"include/parsec/fg/Rule.hpp"
 		"include/parsec/fg/SymbolGrammar.hpp"
 
 	PRIVATE
-		"src/fg/RegularPattern.cpp"
-		"src/fg/RegularGrammar.cpp"
 		"src/fg/Rule.cpp"
 		"src/fg/Rule-nodes.hpp"
 		"src/fg/SymbolGrammar.cpp"
@@ -157,22 +153,18 @@ target_sources(parsec-lib
 		"src/fsm/AutomatonBuilder.cpp"
 		"src/fsm/Automaton.cpp"
 		"src/fsm/AutomatonFactory.cpp"
-		"src/fsm/AutomatonFactory_makeDfa.cpp"
-		"src/fsm/AutomatonFactory_makeSlr.cpp"
 )
 
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/src_gen.hpp"
-		"include/parsec/src_gen/utils.hpp"
 		"include/parsec/src_gen/LexerSpec.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
 		"include/parsec/src_gen/ParserSpec.hpp"
 		"include/parsec/src_gen/CppParserGen.hpp"
 
 	PRIVATE
-		"src/src_gen/utils.cpp"
 		"src/src_gen/cpp_utils.hpp"
 		"src/src_gen/cpp_utils.cpp"
 		"src/src_gen/LexerSpec.cpp"
