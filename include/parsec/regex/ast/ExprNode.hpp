@@ -2,6 +2,8 @@
 #define PARSEC_REGEX_AST_EXPR_NODE_HEADER
 
 #include "../../core/NonMovable.hpp"
+#include "../../core/NonCopyable.hpp"
+
 #include <ostream>
 #include <memory>
 
@@ -12,7 +14,7 @@ namespace parsec::regex::ast {
 	/**
 	 * @brief Abstract representation of a regular expression.
 	*/
-	class ExprNode : private NonMovable {
+	class ExprNode : private NonCopyable, private NonMovable {
 	public:
 
 		virtual ~ExprNode() = default;

@@ -2,6 +2,7 @@
 #define PARSEC_FSM_AUTOMATON_FACTORY_HEADER
 
 #include "../core/NonMovable.hpp"
+#include "../core/NonCopyable.hpp"
 #include "../fg/SymbolGrammar.hpp"
 
 #include "Automaton.hpp"
@@ -11,7 +12,7 @@ namespace parsec::fsm {
 	/**
 	 * @brief Constructs more elaborate automata from simple grammar descriptions of the languages they are supposed to recognize.
 	*/
-	class AutomatonFactory : private NonMovable {
+	class AutomatonFactory : private NonCopyable, private NonMovable {
 	public:
 
 		/**
