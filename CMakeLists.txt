@@ -159,6 +159,7 @@ target_sources(parsec-lib
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/src_gen.hpp"
+		"include/parsec/src_gen/ConfigStore.hpp"
 		"include/parsec/src_gen/LexerSpec.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
 		"include/parsec/src_gen/ParserSpec.hpp"

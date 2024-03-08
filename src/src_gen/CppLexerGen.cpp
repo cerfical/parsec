@@ -9,8 +9,8 @@ namespace parsec::src_gen {
 		class GenLexer {
 		public:
 
-			GenLexer(std::ostream& out, const LexerSpec& lexerSpec)
-				: m_lexerSpec(lexerSpec), m_out(out) {
+			GenLexer(std::ostream& out, const LexerSpec& lexerSpec, const ConfigStore& configs)
+				: m_lexerSpec(lexerSpec), m_configs(configs), m_out(out) {
 				m_dfa = fsm::AutomatonFactory::get()
 					.makeDfa(lexerSpec.inputSyntax());
 			}
@@ -77,9 +77,9 @@ namespace parsec::src_gen {
 			}
 
 			void genLexFunc() {
-				if(m_lexerSpec.isToken("Eof")) {
+				if(const auto eofTok = m_configs.eofTokenName(); !eofTok.empty()) {
 					m_out << "\t\t" << "if(scanner()->isEof()) {" << '\n';
-					m_out << "\t\t\t" << "kind = TokenKinds::Eof;" << '\n';
+					m_out << "\t\t\t" << std::format("kind = TokenKinds::{};", eofTok) << '\n';
 					m_out << "\t\t\t" << "goto accept;" << '\n';
 					m_out << "\t\t" << "}" << '\n';
 				}
@@ -87,8 +87,8 @@ namespace parsec::src_gen {
 				genLexStates();
 
 				m_out << "\t" << "accept:" << '\n';
-				if(m_lexerSpec.isToken("Ws")) {
-					m_out << "\t\t" << "if(kind == TokenKinds::Ws) {" << '\n';
+				if(const auto wsTok = m_configs.wsTokenName(); !wsTok.empty()) {
+					m_out << "\t\t" << std::format("if(kind == TokenKinds::{}) {{", wsTok) << '\n';
 					m_out << "\t\t\t" << "goto reset;" << '\n';
 					m_out << "\t\t" << "}" << '\n';
 				}
@@ -115,6 +115,7 @@ namespace parsec::src_gen {
 
 
 			const LexerSpec& m_lexerSpec;
+			const ConfigStore& m_configs;
 			std::ostream& m_out;
 
 			fsm::Automaton m_dfa;
@@ -122,7 +123,7 @@ namespace parsec::src_gen {
 	}
 
 
-	void CppLexerGen::run(const LexerSpec& lexerSpec) {
-		GenLexer(*this->m_out, lexerSpec)();
+	void CppLexerGen::run(const LexerSpec& lexerSpec, const ConfigStore& configs) {
+		GenLexer(*this->m_out, lexerSpec, configs)();
 	}
 }

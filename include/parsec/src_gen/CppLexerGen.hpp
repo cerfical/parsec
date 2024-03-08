@@ -2,7 +2,9 @@
 #define PARSEC_SRC_GEN_CPP_LEXER_GEN_HEADER
 
 #include "../core/NonCopyable.hpp"
+
 #include "LexerSpec.hpp"
+#include "ConfigStore.hpp"
 
 #include <ostream>
 
@@ -26,7 +28,7 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Run the generator.
 		*/
-		void run(const LexerSpec& lexerSpec);
+		void run(const LexerSpec& lexerSpec, const ConfigStore& configs = {});
 
 
 
