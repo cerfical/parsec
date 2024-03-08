@@ -29,10 +29,18 @@ namespace parsec::string_utils {
 	std::string toLower(std::string_view str);
 
 
+
 	/**
 	 * @brief Convert all letters in a word to uppercase.
 	*/
 	std::string toUpper(std::string_view str);
+
+
+
+	/**
+	 * @brief Present a string in a human-readable form.
+	*/
+	std::string escape(std::string_view str);
 
 }
 

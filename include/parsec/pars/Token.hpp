@@ -22,8 +22,8 @@ namespace parsec::pars {
 		Token() = default;
 
 		Token(std::string_view text, TokenKinds kind, const SourceLoc& loc)
-			: m_text(text), m_loc(loc), m_kind(kind)
-		{ }
+			: m_text(text), m_loc(loc), m_kind(kind) {
+		}
 
 
 

@@ -72,6 +72,7 @@ target_sources(parsec-lib
 		"include/parsec/core/LexerBase.hpp"
 		"include/parsec/core/Lexer.hpp"
 		"include/parsec/core/Parser.hpp"
+		"include/parsec/core/Compiler.hpp"
 	
 		"include/parsec/core/CppSrcGen.hpp"
 		"include/parsec/core/NonCopyable.hpp"
@@ -87,6 +88,7 @@ target_sources(parsec-lib
 		"src/core/Token.cpp"
 		"src/core/Lexer.cpp"
 		"src/core/Parser.cpp"
+		"src/core/Compiler.cpp"
 
 		"src/core/CppSrcGen.cpp"
 )

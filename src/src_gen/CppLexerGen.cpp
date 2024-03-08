@@ -1,7 +1,11 @@
 #include "src_gen/CppLexerGen.hpp"
-#include "cpp_utils.hpp"
 
 #include "fsm/AutomatonFactory.hpp"
+#include "cpp_utils.hpp"
+
+#include "utils/char_utils.hpp"
+#include "utils/string_utils.hpp"
+
 #include <format>
 
 namespace parsec::src_gen {
@@ -34,7 +38,7 @@ namespace parsec::src_gen {
 					m_out << "\t\t" << "if(!scanner()->isEof()) switch(scanner()->peek()) {" << '\n';
 					for(const auto& trans : transitions) {
 						m_out << "\t\t\t" << std::format("case '{}': goto state{};",
-							trans.inSymbol,
+							string_utils::escape(trans.inSymbol),
 							trans.dest
 						) << '\n';
 					}
@@ -77,7 +81,7 @@ namespace parsec::src_gen {
 			}
 
 			void genLexFunc() {
-				if(const auto eofTok = m_configs.eofTokenName(); !eofTok.empty()) {
+				if(const auto eofTok = m_configs.eofTokenName(); m_inputSyntax.containsSymbol(eofTok)) {
 					m_out << "\t\t" << "if(scanner()->isEof()) {" << '\n';
 					m_out << "\t\t\t" << std::format("kind = TokenKinds::{};", eofTok) << '\n';
 					m_out << "\t\t\t" << "goto accept;" << '\n';
@@ -87,7 +91,7 @@ namespace parsec::src_gen {
 				genLexStates();
 
 				m_out << "\t" << "accept:" << '\n';
-				if(const auto wsTok = m_configs.wsTokenName(); !wsTok.empty()) {
+				if(const auto wsTok = m_configs.wsTokenName(); m_inputSyntax.containsSymbol(wsTok)) {
 					m_out << "\t\t" << std::format("if(kind == TokenKinds::{}) {{", wsTok) << '\n';
 					m_out << "\t\t\t" << "goto reset;" << '\n';
 					m_out << "\t\t" << "}" << '\n';

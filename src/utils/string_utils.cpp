@@ -69,4 +69,13 @@ namespace parsec::string_utils {
 		}
 		return upper;
 	}
+
+
+	std::string escape(std::string_view str) {
+		std::string escapedStr;
+		for(const auto& ch : str) {
+			escapedStr += char_utils::escape(ch);
+		}
+		return escapedStr;
+	}
 }

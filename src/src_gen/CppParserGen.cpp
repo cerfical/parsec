@@ -26,21 +26,11 @@ namespace parsec::src_gen {
 				m_out << '\n';
 			}
 
-			void genParseHooks() {
-				for(const auto& rule : m_inputSyntax.symbols()) {
-					m_out << "\t" << std::format("virtual void on{}() {{ }}", rule) << '\n';
-				}
-			}
-
 			void genProtected() {
-				m_out << R"(protected:
-	std::span<const Token> ruleTokens() const noexcept {
-		return std::span(m_parsedTokens.end() - m_reduceRuleTokenCount, m_reduceRuleTokenCount);
-	}
-)";
-				m_out << '\n';
-
-				genParseHooks();
+				m_out << "protected:" << '\n';
+				for(const auto& rule : m_inputSyntax.symbols()) {
+					m_out << "\t" << std::format("virtual void on{}(std::span<const Token> tokens) {{}}", rule) << '\n';
+				}
 				m_out << '\n';
 			}
 
@@ -58,7 +48,7 @@ namespace parsec::src_gen {
 			void genStateShifts(const fsm::State& state) {
 				bool first = true;
 				for(const auto & trans : state.transitions) {
-					if(m_inputSyntax.resolveSymbol(trans.inSymbol)) {
+					if(m_inputSyntax.containsSymbol(trans.inSymbol)) {
 						continue;
 					}
 
@@ -88,7 +78,7 @@ namespace parsec::src_gen {
 			void genStateGotos(const fsm::State& state) {
 				bool first = true;
 				for(const auto& trans : state.transitions) {
-					if(!m_inputSyntax.resolveSymbol(trans.inSymbol)) {
+					if(!m_inputSyntax.containsSymbol(trans.inSymbol)) {
 						continue;
 					}
 
@@ -120,28 +110,36 @@ namespace parsec::src_gen {
 
 			void genPrivate() {
 				m_out << R"(private:
+	using ParseHook = void (Parser::*)(std::span<const Token>);
+	using StateFunc = void (Parser::*)();
+
+
 	[[noreturn]] void error() const {
 		throw parsec::ParseError("unexpected token", m_lexer.loc());
 	}
 
-	void shiftTo(void (Parser::* state)()) {
+	std::span<const Token> reduceRuleTokens() const noexcept {
+		return std::span(m_parsedTokens.end() - m_reduceRuleTokenCount, m_reduceRuleTokenCount);
+	}
+
+	void shiftTo(StateFunc state) {
 		m_parsedTokens.push_back(m_lexer.lex());
 		(this->*state)();
 		m_reduceRuleTokenCount++;
 	}
 
-	void goTo(void (Parser::* state)()) {
+	void goTo(StateFunc state) {
 		reduce();
 		(this->*state)();
 	}
 
-	void reduceTo(ParseRules rule, void (Parser::* hook)()) noexcept {
+	void reduceTo(ParseRules rule, ParseHook hook) noexcept {
 		m_reduceRule = rule;
 		m_reduceHook = hook;
 	}
 
 	void reduce() {
-		(this->*m_reduceHook)();
+		(this->*m_reduceHook)(reduceRuleTokens());
 		m_parsedTokens.resize(m_parsedTokens.size() - m_reduceRuleTokenCount);
 		m_reduceRuleTokenCount = 0;
 	}
@@ -153,17 +151,20 @@ namespace parsec::src_gen {
 					m_out << "\t\t" << std::format("state{}();", m_slr.startState()->id) << '\n';
 					m_out << "\t\t" << "reduce();" << '\n';
 					m_out << "\t" << "}" << '\n';
+					m_out << '\n';
+					m_out << '\n';
+					
+					for(const auto& state : m_slr.states()) {
+						genParseState(state);
+						m_out << '\n';
+					}
 				} else {
-					m_out << "\t" << "void startParse() { }" << '\n';
-				}
-				m_out << '\n';
-
-				for(const auto& state : m_slr.states()) {
-					genParseState(state);
+					m_out << "\t" << "void startParse() {}" << '\n';
 					m_out << '\n';
 				}
 
-				m_out << R"(	void (Parser::* m_reduceHook)() = {};
+				m_out << R"(
+	ParseHook m_reduceHook = {};
 	std::size_t m_reduceRuleTokenCount = 0;
 	ParseRules m_reduceRule = {};
 

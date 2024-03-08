@@ -63,6 +63,15 @@ namespace parsec::fg {
 
 
 
+		/**
+		 * @brief Check whether a symbol is present in the grammar.
+		*/
+		bool containsSymbol(std::string_view symbol) const {
+			return m_symbolRules.contains(std::string(symbol));
+		}
+
+
+
 	private:
 		using SymbolRuleTable = std::unordered_map<std::string, std::optional<Rule>>;
 		using SymbolRule = SymbolRuleTable::value_type;
