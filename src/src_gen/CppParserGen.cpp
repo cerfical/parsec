@@ -12,7 +12,7 @@ namespace parsec::src_gen {
 			GenParser(std::ostream& out, const ParserSpec* parserSpec)
 				: m_parserSpec(*parserSpec), m_out(out) {
 				m_slr = fsm::AutomatonFactory::get()
-					.makeSlr(parserSpec->parseRules());
+					.makeSlr(parserSpec->inputSyntax());
 			}
 
 			void operator()() {
@@ -22,12 +22,12 @@ namespace parsec::src_gen {
 
 		private:
 			void genParseRulesEnum() {
-				m_out << cpp_utils::makeEnum("ParseRules", m_parserSpec.parseRules().symbols());
+				m_out << cpp_utils::makeEnum("ParseRules", m_parserSpec.parseRules());
 				m_out << '\n';
 			}
 
 			void genParseHooks() {
-				for(const auto& rule : m_parserSpec.parseRules().symbols()) {
+				for(const auto& rule : m_parserSpec.parseRules()) {
 					m_out << "\t" << std::format("virtual void on{}() {{ }}", rule) << '\n';
 				}
 			}

@@ -17,7 +17,7 @@ namespace parsec::fg {
 	public:
 		
 		/**
-		 * @brief Allocate a new symbol in the grammar defined by a rule.
+		 * @brief Define a new symbol in the grammar.
 		*/
 		void insertSymbol(std::string_view symbol, Rule rule);
 
@@ -43,17 +43,17 @@ namespace parsec::fg {
 
 
 		/**
-		 * @brief List of all defined symbols in sorted lexicographical order.
+		 * @brief List of all defined symbols.
 		*/
-		std::span<const std::string_view> symbols() const;
+		std::span<const std::string_view> symbols() const {
+			return m_symbols;
+		}
 
 
 
 	private:
-		std::unordered_map<std::string, Rule> m_rules;
-		
-		mutable std::vector<std::string_view> m_symbols;
-		mutable bool m_symbolsSorted = true;
+		std::unordered_map<std::string, Rule> m_symbolRules;
+		std::vector<std::string_view> m_symbols;
 	};
 
 }

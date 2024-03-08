@@ -12,7 +12,7 @@ namespace parsec::src_gen {
 			GenLexer(std::ostream& out, const LexerSpec& lexerSpec)
 				: m_lexerSpec(lexerSpec), m_out(out) {
 				m_dfa = fsm::AutomatonFactory::get()
-					.makeDfa(lexerSpec.tokens());
+					.makeDfa(lexerSpec.inputSyntax());
 			}
 
 			void operator()() {
@@ -22,7 +22,7 @@ namespace parsec::src_gen {
 
 		private:
 			void genTokenClass() {
-				m_out << cpp_utils::makeEnum("TokenKinds", m_lexerSpec.tokens().symbols())
+				m_out << cpp_utils::makeEnum("TokenKinds", m_lexerSpec.tokens())
 					<< '\n'
 					<< "using Token = parsec::TokenBase<TokenKinds>;" << '\n'
 					<< '\n'
