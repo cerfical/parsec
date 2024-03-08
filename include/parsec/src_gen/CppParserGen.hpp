@@ -1,17 +1,15 @@
 #ifndef PARSEC_SRC_GEN_CPP_PARSER_GEN_HEADER
 #define PARSEC_SRC_GEN_CPP_PARSER_GEN_HEADER
 
-#include "../core/NonCopyable.hpp"
-#include "ParserSpec.hpp"
-
+#include "CodeGen.hpp"
 #include <ostream>
 
 namespace parsec::src_gen {
 
 	/**
-	 * @brief Generates C++ source code for a syntax analyzer based on a ParserSpec.
+	 * @brief Generates C++ source code for a syntax analyzer.
 	*/
-	class CppParserGen : private NonCopyable {
+	class CppParserGen : public CodeGen {
 	public:
 
 		/**
@@ -22,12 +20,7 @@ namespace parsec::src_gen {
 		}
 
 
-
-		/**
-		 * @brief Run the generator.
-		*/
-		void run(const ParserSpec& parserSpec);
-		
+		void run(const fg::SymbolGrammar& inputSyntax, const ConfigStore& configs) override;
 
 
 	private:

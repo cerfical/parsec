@@ -140,6 +140,10 @@ namespace parsec::fsm {
 
 				for(const auto& symbol : inputGrammar().symbols()) {
 					const auto rule = inputGrammar().resolveSymbol(symbol);
+					if(!rule) {
+						continue;
+					}
+
 					for(const auto& pos : rule->firstPos()) {
 						items.emplace(symbol, rule, pos);
 					}

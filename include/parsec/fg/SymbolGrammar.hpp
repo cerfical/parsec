@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <span>
+#include <optional>
 
 namespace parsec::fg {
 	
@@ -19,14 +20,30 @@ namespace parsec::fg {
 		/**
 		 * @brief Define a new symbol in the grammar.
 		*/
-		void insertSymbol(std::string_view symbol, Rule rule);
+		void insertSymbol(std::string_view symbol, std::optional<Rule> rule = {});
 
 
 
 		/**
 		 * @brief Find a rule that defines the specified symbol, if there is one.
 		*/
-		const Rule* resolveSymbol(std::string_view symbol) const;
+		const Rule* resolveSymbol(std::string_view symbol) const {
+			if(const auto symbolRule = findNotNullRule(symbol)) {
+				return &symbolRule->second.value();
+			}
+			return nullptr;
+		}
+
+
+
+		/**
+		 * @brief Set the start symbol for the grammar.
+		*/
+		void setStartSymbol(std::string_view symbol) {
+			if(const auto symbolRule = findNotNullRule(symbol)) {
+				m_startSymbol = symbolRule->first;
+			}
+		}
 
 
 
@@ -34,10 +51,7 @@ namespace parsec::fg {
 		 * @brief Start symbol of the grammar, if there is one.
 		*/
 		std::string_view startSymbol() const {
-			if(m_symbols.empty()) {
-				return "";
-			}
-			return m_symbols.front();
+			return m_startSymbol;
 		}
 
 
@@ -45,15 +59,23 @@ namespace parsec::fg {
 		/**
 		 * @brief List of all defined symbols.
 		*/
-		std::span<const std::string_view> symbols() const {
-			return m_symbols;
-		}
+		std::span<const std::string_view> symbols() const;
 
 
 
 	private:
-		std::unordered_map<std::string, Rule> m_symbolRules;
-		std::vector<std::string_view> m_symbols;
+		using SymbolRuleTable = std::unordered_map<std::string, std::optional<Rule>>;
+		using SymbolRule = SymbolRuleTable::value_type;
+
+
+		const SymbolRule* findNotNullRule(std::string_view symbol) const;
+
+
+		SymbolRuleTable m_symbolRules;
+		std::string_view m_startSymbol;
+
+		mutable std::vector<std::string_view> m_sortedSymbols;
+		mutable bool m_symbolsSorted = true;
 	};
 
 }

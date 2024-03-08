@@ -160,16 +160,13 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/src_gen.hpp"
 		"include/parsec/src_gen/ConfigStore.hpp"
-		"include/parsec/src_gen/LexerSpec.hpp"
+		"include/parsec/src_gen/CodeGen.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
-		"include/parsec/src_gen/ParserSpec.hpp"
 		"include/parsec/src_gen/CppParserGen.hpp"
 
 	PRIVATE
 		"src/src_gen/cpp_utils.hpp"
 		"src/src_gen/cpp_utils.cpp"
-		"src/src_gen/LexerSpec.cpp"
-		"src/src_gen/ParserSpec.cpp"
 		"src/src_gen/CppLexerGen.cpp"
 		"src/src_gen/CppParserGen.cpp"
 )

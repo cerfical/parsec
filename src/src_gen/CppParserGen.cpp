@@ -9,10 +9,10 @@ namespace parsec::src_gen {
 		class GenParser {
 		public:
 
-			GenParser(std::ostream& out, const ParserSpec* parserSpec)
-				: m_parserSpec(*parserSpec), m_out(out) {
+			GenParser(std::ostream& out, const fg::SymbolGrammar& inputSyntax)
+				: m_inputSyntax(inputSyntax), m_out(out) {
 				m_slr = fsm::AutomatonFactory::get()
-					.makeSlr(parserSpec->inputSyntax());
+					.makeSlr(m_inputSyntax);
 			}
 
 			void operator()() {
@@ -22,12 +22,12 @@ namespace parsec::src_gen {
 
 		private:
 			void genParseRulesEnum() {
-				m_out << cpp_utils::makeEnum("ParseRules", m_parserSpec.parseRules());
+				m_out << cpp_utils::makeEnum("ParseRules", m_inputSyntax.symbols());
 				m_out << '\n';
 			}
 
 			void genParseHooks() {
-				for(const auto& rule : m_parserSpec.parseRules()) {
+				for(const auto& rule : m_inputSyntax.symbols()) {
 					m_out << "\t" << std::format("virtual void on{}() {{ }}", rule) << '\n';
 				}
 			}
@@ -58,7 +58,7 @@ namespace parsec::src_gen {
 			void genStateShifts(const fsm::State& state) {
 				bool first = true;
 				for(const auto & trans : state.transitions) {
-					if(m_parserSpec.isParseRule(trans.inSymbol)) {
+					if(m_inputSyntax.resolveSymbol(trans.inSymbol)) {
 						continue;
 					}
 
@@ -88,7 +88,7 @@ namespace parsec::src_gen {
 			void genStateGotos(const fsm::State& state) {
 				bool first = true;
 				for(const auto& trans : state.transitions) {
-					if(!m_parserSpec.isParseRule(trans.inSymbol)) {
+					if(!m_inputSyntax.resolveSymbol(trans.inSymbol)) {
 						continue;
 					}
 
@@ -195,7 +195,7 @@ public:
 			}
 
 
-			const ParserSpec& m_parserSpec;
+			const fg::SymbolGrammar& m_inputSyntax;
 			std::ostream& m_out;
 
 			fsm::Automaton m_slr;
@@ -203,7 +203,7 @@ public:
 	}
 
 
-	void CppParserGen::run(const ParserSpec& parserSpec) {
-		GenParser(*this->m_out, &parserSpec)();
+	void CppParserGen::run(const fg::SymbolGrammar& inputSyntax, const ConfigStore&) {
+		GenParser(*m_out, inputSyntax)();
 	}
 }

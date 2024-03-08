@@ -9,10 +9,10 @@ namespace parsec::src_gen {
 		class GenLexer {
 		public:
 
-			GenLexer(std::ostream& out, const LexerSpec& lexerSpec, const ConfigStore& configs)
-				: m_lexerSpec(lexerSpec), m_configs(configs), m_out(out) {
+			GenLexer(std::ostream& out, const fg::SymbolGrammar& inputSyntax, const ConfigStore& configs)
+				: m_inputSyntax(inputSyntax), m_configs(configs), m_out(out) {
 				m_dfa = fsm::AutomatonFactory::get()
-					.makeDfa(lexerSpec.inputSyntax());
+					.makeDfa(m_inputSyntax);
 			}
 
 			void operator()() {
@@ -22,7 +22,7 @@ namespace parsec::src_gen {
 
 		private:
 			void genTokenClass() {
-				m_out << cpp_utils::makeEnum("TokenKinds", m_lexerSpec.tokens())
+				m_out << cpp_utils::makeEnum("TokenKinds", m_inputSyntax.symbols())
 					<< '\n'
 					<< "using Token = parsec::TokenBase<TokenKinds>;" << '\n'
 					<< '\n'
@@ -114,7 +114,7 @@ namespace parsec::src_gen {
 			}
 
 
-			const LexerSpec& m_lexerSpec;
+			const fg::SymbolGrammar& m_inputSyntax;
 			const ConfigStore& m_configs;
 			std::ostream& m_out;
 
@@ -123,7 +123,7 @@ namespace parsec::src_gen {
 	}
 
 
-	void CppLexerGen::run(const LexerSpec& lexerSpec, const ConfigStore& configs) {
-		GenLexer(*this->m_out, lexerSpec, configs)();
+	void CppLexerGen::run(const fg::SymbolGrammar& inputSyntax, const ConfigStore& configs) {
+		GenLexer(*m_out, inputSyntax, configs)();
 	}
 }
