@@ -134,13 +134,30 @@ target_sources(parsec-lib
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/fg.hpp"
+		"include/parsec/fg/Symbol.hpp"
+		"include/parsec/fg/RegularExpr.hpp"
 		"include/parsec/fg/Rule.hpp"
 		"include/parsec/fg/SymbolGrammar.hpp"
+		"include/parsec/fg/regex.hpp"
+		"include/parsec/fg/regex/ExprNode.hpp"
+		"include/parsec/fg/regex/NodeVisitor.hpp"
+		"include/parsec/fg/regex/SymbolAtom.hpp"
+		"include/parsec/fg/regex/BinaryExpr.hpp"
+		"include/parsec/fg/regex/ConcatExpr.hpp"
+		"include/parsec/fg/regex/AlternExpr.hpp"
+		"include/parsec/fg/regex/UnaryExpr.hpp"
+		"include/parsec/fg/regex/StarClosure.hpp"
+		"include/parsec/fg/regex/PlusClosure.hpp"
+		"include/parsec/fg/regex/ParseError.hpp"
+		"include/parsec/fg/regex/Parser.hpp"
 
 	PRIVATE
 		"src/fg/Rule.cpp"
 		"src/fg/Rule-nodes.hpp"
 		"src/fg/SymbolGrammar.cpp"
+		"src/fg/RegularExpr.cpp"
+		"src/fg/regex.cpp"
+		"src/fg/regex/Parser.cpp"
 )
 
 
