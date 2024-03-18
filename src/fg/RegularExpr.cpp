@@ -8,46 +8,12 @@ namespace parsec::fg {
 	using namespace regex;
 
 
-	RegularExpr RegularExpr::fromPatternString(std::string_view str) {
-		return Parser().parse(str);
-	}
-
-
-	RegularExpr RegularExpr::fromRawString(std::string_view str) {
-		RegularExpr expr;
-		if(!str.empty()) {
-			expr = Symbol(str.front());
-			for(std::size_t i = 1; i < str.size(); i++) {
-				expr += Symbol(str[i]);
-			}
-		}
-		return expr;
-	}
-
-
-	std::string RegularExpr::toString() const {
-		std::ostringstream out;
-		m_rootNode->printTo(out);
-		return out.str();
-	}
-
-
-	RegularExpr::AtomList RegularExpr::firstAtoms() const {
-		AtomList atoms;
-		std::size_t posIndex = 0;
-		
-		computeFirstPos(m_rootNode, m_rootNode.get(), atoms, posIndex);
-		
-		return atoms;
-	}
-
-
 	RegularExpr::AtomList RegularExpr::Atom::followAtoms() const {
 		class Impl : private NodeVisitor {
 			enum class Status {
+				AtomNotFound,
 				Completed,
-				AtomFoundInLastPos,
-				AtomNotFound
+				AtomFoundInLastPos
 			};
 
 		public:
@@ -66,13 +32,9 @@ namespace parsec::fg {
 				if(n.symbol()) {
 					if(m_atom.m_posIndex == m_posIndex) {
 						m_status = Status::AtomFoundInLastPos;
-					} else {
-						m_status = Status::AtomNotFound;
 					}
 					// only non-empty symbols must have positional indices assigned to them
 					m_posIndex++;
-				} else {
-					m_status = Status::AtomNotFound;
 				}
 			}
 
@@ -95,9 +57,8 @@ namespace parsec::fg {
 			}
 
 			void visit(const AlternExpr& n) override {
-				if(n.left()->accept(*this); m_status == Status::AtomNotFound) {
-					n.right()->accept(*this);
-				}
+				n.left()->accept(*this);
+				n.right()->accept(*this);
 			}
 
 			void visit(const ConcatExpr& n) override {
@@ -106,13 +67,13 @@ namespace parsec::fg {
 					if(!n.right()->isNullable()) {
 						m_status = Status::Completed;
 					}
-				} else if(m_status == Status::AtomNotFound) {
+				} else {
 					n.right()->accept(*this);
 				}
 			}
 
 			std::size_t m_posIndex = 0;
-			Status m_status = {};
+			Status m_status = Status::AtomNotFound;
 
 			AtomList& m_followPos;
 			const Atom& m_atom;
@@ -134,11 +95,42 @@ namespace parsec::fg {
 		return atoms;
 	}
 
+	const Symbol& RegularExpr::Atom::symbol() const {
+		if(!m_atomNode) {
+			static Symbol emptySymbol;
+			return emptySymbol;
+		}
+		return m_atomNode->symbol();
+	}
 
-	void RegularExpr::computeFirstPos(NodePtr rootNode, const regex::ExprNode* node, AtomList& firstPos, std::size_t& posIndex) {
+
+
+	RegularExpr RegularExpr::fromPatternString(std::string_view str) {
+		return Parser().parse(str);
+	}
+
+	RegularExpr RegularExpr::fromRawString(std::string_view str) {
+		RegularExpr expr;
+		for(const auto& ch : str) {
+			expr += Symbol(ch);
+		}
+		return expr;
+	}
+
+
+	RegularExpr::AtomList RegularExpr::firstAtoms() const {
+		AtomList atoms;
+		if(!isEmpty()) {
+			std::size_t posIndex = 0;
+			computeFirstPos(m_rootNode, m_rootNode.get(), atoms, posIndex);
+		}
+		return atoms;
+	}
+
+	void RegularExpr::computeFirstPos(NodePtr rootNode, const ExprNode* node, AtomList& firstPos, std::size_t& posIndex) {
 		class Impl : private NodeVisitor {
 		public:
-			Impl(NodePtr rootNode, const regex::ExprNode* node, AtomList& firstPos, std::size_t& posIndex) noexcept
+			Impl(NodePtr rootNode, const ExprNode* node, AtomList& firstPos, std::size_t& posIndex) noexcept
 				: m_firstPos(firstPos), m_posIndex(posIndex), m_node(node), m_rootNode(rootNode) {}
 
 			void operator()() {
@@ -189,7 +181,7 @@ namespace parsec::fg {
 			std::size_t& m_posIndex;
 			bool m_ignoreSymbols = false;
 
-			const regex::ExprNode* m_node;
+			const ExprNode* m_node;
 			NodePtr m_rootNode;
 		};
 
@@ -197,36 +189,39 @@ namespace parsec::fg {
 	}
 
 
-	const Symbol& RegularExpr::Atom::symbol() const {
-		if(!m_atomNode) {
-			static Symbol emptySymbol;
-			return emptySymbol;
+	std::string RegularExpr::toString() const {
+		std::ostringstream out;
+		if(!isEmpty()) {
+			m_rootNode->printTo(out);
 		}
-		return m_atomNode->symbol();
+		return out.str();
 	}
+
 
 
 	RegularExpr altern(const RegularExpr& left, const RegularExpr& right) {
-		return RegularExpr(makeNode<AlternExpr>(left.m_rootNode, right.m_rootNode));
+		if(left && right) {
+			return RegularExpr(makeNode<AlternExpr>(left.m_rootNode, right.m_rootNode));
+		}
+		return left ? left : right;
 	}
-
 
 	RegularExpr concat(const RegularExpr& left, const RegularExpr& right) {
-		return RegularExpr(makeNode<ConcatExpr>(left.m_rootNode, right.m_rootNode));
+		if(left && right) {
+			return RegularExpr(makeNode<ConcatExpr>(left.m_rootNode, right.m_rootNode));
+		}
+		return left ? left : right;
 	}
-
 
 	RegularExpr starClosure(const RegularExpr& expr) {
-		return RegularExpr(makeNode<StarClosure>(expr.m_rootNode));
+		return expr ? RegularExpr(makeNode<StarClosure>(expr.m_rootNode)) : expr;
 	}
-
 
 	RegularExpr plusClosure(const RegularExpr& expr) {
-		return RegularExpr(makeNode<PlusClosure>(expr.m_rootNode));
+		return expr ? RegularExpr(makeNode<PlusClosure>(expr.m_rootNode)) : expr;
 	}
 
-
 	RegularExpr optional(const RegularExpr& expr) {
-		return RegularExpr(makeNode<OptionalExpr>(expr.m_rootNode));
+		return expr ? RegularExpr(makeNode<OptionalExpr>(expr.m_rootNode)) : expr;
 	}
 }

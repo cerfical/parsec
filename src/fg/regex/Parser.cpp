@@ -135,7 +135,7 @@ namespace parsec::fg::regex {
 			RegularExpr parseCharSet() {
 				// empty character set
 				if(m_scanner.skipIf(']')) {
-					return RegularExpr();
+					return Symbol();
 				}
 
 				auto lhs = parseCharRange();
@@ -155,7 +155,7 @@ namespace parsec::fg::regex {
 				if(const auto openParen = m_scanner.pos(); m_scanner.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_scanner.skipIf(')')) {
-						return RegularExpr();
+						return Symbol();
 					}
 
 					auto e = parseExpr();

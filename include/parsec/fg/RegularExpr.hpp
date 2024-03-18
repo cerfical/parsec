@@ -39,14 +39,22 @@ namespace parsec::fg {
 		RegularExpr(const Symbol& symbol)
 			: RegularExpr(regex::makeNode<regex::SymbolAtom>(symbol)) {}
 
-		RegularExpr()
-			: RegularExpr(Symbol()) {}
+		RegularExpr() = default;
 		
 
 
 		std::string toString() const;
 
 		AtomList firstAtoms() const;
+
+
+		explicit operator bool() const {
+			return !isEmpty();
+		}
+
+		bool isEmpty() const {
+			return m_rootNode == nullptr;
+		}
 
 
 
