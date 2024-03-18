@@ -136,7 +136,7 @@ target_sources(parsec-lib
 		"include/parsec/fg.hpp"
 		"include/parsec/fg/Symbol.hpp"
 		"include/parsec/fg/RegularExpr.hpp"
-		"include/parsec/fg/Rule.hpp"
+		"include/parsec/fg/SymbolRule.hpp"
 		"include/parsec/fg/SymbolGrammar.hpp"
 		"include/parsec/fg/regex.hpp"
 		"include/parsec/fg/regex/ExprNode.hpp"
@@ -152,8 +152,6 @@ target_sources(parsec-lib
 		"include/parsec/fg/regex/Parser.hpp"
 
 	PRIVATE
-		"src/fg/Rule.cpp"
-		"src/fg/Rule-nodes.hpp"
 		"src/fg/SymbolGrammar.cpp"
 		"src/fg/RegularExpr.cpp"
 		"src/fg/regex.cpp"

@@ -81,7 +81,7 @@ namespace parsec::src_gen {
 			}
 
 			void genLexFunc() {
-				if(const auto eofTok = m_configs.eofTokenName(); m_inputSyntax.containsSymbol(eofTok)) {
+				if(const auto eofTok = m_configs.eofTokenName(); m_inputSyntax.contains(eofTok)) {
 					m_out << "\t\t" << "if(scanner()->isEof()) {" << '\n';
 					m_out << "\t\t\t" << std::format("kind = TokenKinds::{};", eofTok) << '\n';
 					m_out << "\t\t\t" << "goto accept;" << '\n';
@@ -91,7 +91,7 @@ namespace parsec::src_gen {
 				genLexStates();
 
 				m_out << "\t" << "accept:" << '\n';
-				if(const auto wsTok = m_configs.wsTokenName(); m_inputSyntax.containsSymbol(wsTok)) {
+				if(const auto wsTok = m_configs.wsTokenName(); m_inputSyntax.contains(wsTok)) {
 					m_out << "\t\t" << std::format("if(kind == TokenKinds::{}) {{", wsTok) << '\n';
 					m_out << "\t\t\t" << "goto reset;" << '\n';
 					m_out << "\t\t" << "}" << '\n';

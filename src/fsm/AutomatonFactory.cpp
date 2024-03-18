@@ -1,58 +1,56 @@
 #include "fsm/AutomatonFactory.hpp"
 #include "fsm/AutomatonBuilder.hpp"
+#include "core/typedefs.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <unordered_set>
 #include <stack>
+
+template <>
+struct boost::hash<parsec::fg::Symbol> {
+	std::size_t operator()(const parsec::fg::Symbol& symbol) {
+		return std::hash<parsec::fg::Symbol>()(symbol);
+	}
+};
 
 namespace parsec::fsm {
 	namespace {
 		class Item {
 		public:
 
-			Item(std::string_view headSymbol, const fg::Rule* rule, Index pos) noexcept
-				: m_headSymbol(headSymbol), m_rule(rule), m_pos(pos) {
-			}
+			Item(const fg::SymbolRule& rule, const fg::RegularExpr::Atom& atom)
+				: m_rule(rule), m_atom(atom) {}
+		
 
-
-			std::string_view headSymbol() const noexcept {
-				return m_headSymbol;
-			}
-
-			std::string_view posSymbol() const {
-				return rule()->symbolAt(posIndex());
-			}
-
-			const fg::Rule* rule() const noexcept {
+			const fg::SymbolRule& rule() const {
 				return m_rule;
 			}
 
-
-			Index posIndex() const noexcept {
-				return m_pos;
+			const fg::RegularExpr::Atom& atom() const {
+				return m_atom;
 			}
 
+
 			bool isAtEnd() const {
-				return posSymbol().empty();
+				return m_atom.isEnd();
 			}
 
 
 		private:
-			std::string_view m_headSymbol;
-			const fg::Rule* m_rule = {};
-			Index m_pos = {};
+			fg::RegularExpr::Atom m_atom;
+			const fg::SymbolRule& m_rule;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
 
 
 
-		inline bool operator==(const Item& lhs, const Item& rhs) noexcept {
-			return std::tuple(lhs.headSymbol(), lhs.posIndex()) == std::tuple(rhs.headSymbol(), rhs.posIndex());
+		inline bool operator==(const Item& lhs, const Item& rhs) {
+			return std::tuple(lhs.rule().head(), lhs.atom().posIndex()) == std::tuple(rhs.rule().head(), rhs.atom().posIndex());
 		}
 
-		inline std::size_t hash_value(const Item& item) noexcept {
-			return boost::hash_value(std::tuple(item.headSymbol(), item.posIndex()));
+		inline std::size_t hash_value(const Item& item) {
+			return boost::hash_value(std::tuple(item.rule().head(), item.atom().posIndex()));
 		}
 
 
@@ -72,7 +70,7 @@ namespace parsec::fsm {
 			}
 
 		protected:
-			const fg::SymbolGrammar& inputGrammar() const noexcept {
+			const fg::SymbolGrammar& inputGrammar() const {
 				return *m_grammar;
 			}
 
@@ -93,26 +91,26 @@ namespace parsec::fsm {
 			}
 
 			void buildStateTrans(const ItemSet& items, Id state) {
-				std::unordered_map<std::string_view, ItemSet> trans;
+				std::unordered_map<fg::Symbol, ItemSet> trans;
 				for(const auto& item : computeClosure(items)) {
 					if(item.isAtEnd()) {
 						if(const bool wasInserted = m_acceptStates.insert(state).second) {
-							m_fsmBuilder.acceptState(state, std::string(item.headSymbol()));
+							m_fsmBuilder.acceptState(state, item.rule().head().value());
 							continue;
 						}
 						throw std::runtime_error("conflicting rules");
 					}
 
-					auto& itemTrans = trans[item.posSymbol()];
-					for(const auto& pos : item.rule()->followPos(item.posIndex())) {
-						itemTrans.emplace(item.headSymbol(), item.rule(), pos);
+					auto& itemTrans = trans[item.atom().symbol()];
+					for(const auto& pos : item.atom().followAtoms()) {
+						itemTrans.emplace(item.rule(), pos);
 					}
 				}
 
 				for(auto& [inputSymbol, stateItems] : trans) {
 					const auto dest = createState(std::move(stateItems));
 					m_fsmBuilder.transition(
-						std::string(inputSymbol),
+						inputSymbol.value(),
 						state,
 						dest
 					);
@@ -137,18 +135,11 @@ namespace parsec::fsm {
 
 			ItemSet createStartState() const override {
 				ItemSet items;
-
-				for(const auto& symbol : inputGrammar().symbols()) {
-					const auto rule = inputGrammar().resolveSymbol(symbol);
-					if(!rule) {
-						continue;
-					}
-
-					for(const auto& pos : rule->firstPos()) {
-						items.emplace(symbol, rule, pos);
+				for(const auto& rule : inputGrammar().rules()) {
+					for(const auto& pos : rule.body().firstAtoms()) {
+						items.emplace(rule, pos);
 					}
 				}
-
 				return items;
 			}
 		};
@@ -170,15 +161,14 @@ namespace parsec::fsm {
 					const auto [item, wasInserted] = m_expandedItems.emplace(unexpanded.top());
 					unexpanded.pop();
 
-					if(!wasInserted || item->isAtEnd()) {
+					if(!wasInserted) {
 						continue;
 					}
 
 					// expand only nonterminal symbols
-					if(const auto rule = inputGrammar().resolveSymbol(item->posSymbol())) {
-						for(const auto& pos : rule->firstPos()) {
-							unexpanded.emplace(item->posSymbol(), rule, pos);
-						}
+					const auto& rule = inputGrammar().resolve(item->atom().symbol());
+					for(const auto& pos : rule.body().firstAtoms()) {
+						unexpanded.emplace(rule, pos);
 					}
 				}
 
@@ -187,16 +177,11 @@ namespace parsec::fsm {
 
 			ItemSet createStartState() const override {
 				ItemSet items;
-
-				if(const auto rootRule = inputGrammar().resolveSymbol(inputGrammar().startSymbol())) {
-					for(const auto& pos : rootRule->firstPos()) {
-						items.emplace(inputGrammar().startSymbol(), rootRule, pos);
-					}
+				for(const auto& root = inputGrammar().root(); const auto& pos : root.body().firstAtoms()) {
+					items.emplace(root, pos);
 				}
-
 				return items;
 			}
-
 
 			mutable ItemSet m_expandedItems;
 		};

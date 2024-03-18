@@ -15,7 +15,7 @@ namespace parsec::fg::regex {
 
 		private:
 			void visit(const SymbolAtom& n) override {
-				m_out << '\'' << string_utils::escape(n.symbol().name()) << '\'';
+				m_out << '\'' << string_utils::escape(n.symbol().value()) << '\'';
 			}
 
 			void visit(const OptionalExpr& n) override {

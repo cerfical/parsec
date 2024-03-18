@@ -1,8 +1,5 @@
 #include "core/Compiler.hpp"
 
-#include "regex/RegularExpr.hpp"
-#include "regex/ast.hpp"
-
 #include "pars/Parser.hpp"
 #include "utils/string_utils.hpp"
 #include "pars/ast.hpp"
@@ -12,7 +9,6 @@
 #include <format>
 
 using namespace parsec::pars::ast;
-using namespace parsec::regex::ast;
 
 namespace parsec {
 	namespace {
@@ -32,63 +28,13 @@ namespace parsec {
 			return name;
 		}
 
-		fg::Rule compileRegex(const ExprNode& n) {
-			class : private regex::ast::NodeVisitor {
-			public:
-				
-				fg::Rule operator()(const ExprNode& n) {
-					n.acceptVisitor(*this);
-					return std::move(m_rule);
-				}
-
-			private:
-				void visit(const CharAtom& n) override {
-					m_rule = fg::Rule(std::string(1, n.value));
-				}
-
-				void visit(const NilExpr& n) override {
-					m_rule = fg::Rule();
-				}
-
-				void visit(const PlusExpr& n) override {
-					n.inner->acceptVisitor(*this);
-					m_rule.repeatPlus();
-				}
-
-				void visit(const StarExpr& n) override {
-					n.inner->acceptVisitor(*this);
-					m_rule.repeatStar();
-				}
-
-				void visit(const OptionalExpr& n) override {
-					n.inner->acceptVisitor(*this);
-					m_rule.markOptional();
-				}
-
-				void visit(const AlternExpr& n) override {
-					m_rule = compileRegex(*n.left);
-					m_rule.altern(compileRegex(*n.right));
-				}
-
-				void visit(const ConcatExpr& n) override {
-					m_rule = compileRegex(*n.left);
-					m_rule.concat(compileRegex(*n.right));
-				}
-
-
-				fg::Rule m_rule;
-			} impl;
-
-			return impl(n);
-		}
-
 
 
 		class PatternCache : private pars::ast::NodeVisitor {
 		public:
 
 			PatternCache(const Node& n) {
-				m_grammar.insertSymbol(unifyName(eofTokenName));
+				m_grammar.define(unifyName(eofTokenName), {});
 				n.acceptVisitor(*this);
 			}
 
@@ -122,8 +68,7 @@ namespace parsec {
 			}
 			
 			void cacheNamedPattern(const std::string& name, std::string_view pattern) {
-				const auto regex = regex::RegularExpr(pattern);
-				m_grammar.insertSymbol(name, compileRegex(*regex.rootNode()));
+				m_grammar.define(name, fg::RegularExpr::fromPatternString(pattern));
 			}
 			
 
@@ -176,7 +121,7 @@ namespace parsec {
 
 			void visit(const InlinePattern& n) {
 				const auto& inlinePatternName = m_patterns.getPatternName(n.pattern.text());
-				m_rule = fg::Rule(inlinePatternName);
+				m_rule = fg::Symbol(inlinePatternName);
 			}
 
 			void visit(const NamedPattern& n) {}
@@ -184,51 +129,51 @@ namespace parsec {
 
 
 			void visit(const NilRule& n) {
-				m_rule = fg::Rule();
+				m_rule = fg::Symbol();
 			}
 
 			void visit(const NameRule& n) {
-				m_rule = fg::Rule(makeName(n.name));
+				m_rule = fg::Symbol(makeName(n.name));
 			}
 
 			void visit(const ConcatRule& n) {
-				n.right->acceptVisitor(*this);
-				fg::Rule right = std::move(m_rule);
 				n.left->acceptVisitor(*this);
-				m_rule.concat(std::move(right));
+				auto left = m_rule;
+				n.right->acceptVisitor(*this);
+				m_rule = left + m_rule;
 			}
 
 			void visit(const AlternRule& n) {
-				n.right->acceptVisitor(*this);
-				fg::Rule right = std::move(m_rule);
 				n.left->acceptVisitor(*this);
-				m_rule.altern(std::move(right));
+				auto left = m_rule;
+				n.right->acceptVisitor(*this);
+				m_rule = left | m_rule;
 			}
 
 			void visit(const OptionalRule& n) {
 				n.inner->acceptVisitor(*this);
-				m_rule.markOptional();
+				m_rule = optional(m_rule);
 			}
 
 			void visit(const PlusRule& n) {
 				n.inner->acceptVisitor(*this);
-				m_rule.repeatPlus();
+				m_rule = plusClosure(m_rule);
 			}
 			
 			void visit(const StarRule& n) {
 				n.inner->acceptVisitor(*this);
-				m_rule.repeatStar();
+				m_rule = starClosure(m_rule);
 			}
 
 			void visit(const NamedRule& n) {
 				n.rule->acceptVisitor(*this);
 
 				const auto ruleName = makeName(n.name);
-				m_parser.insertSymbol(ruleName, std::move(m_rule));
+				m_parser.define(ruleName, m_rule);
 
 				// make the first symbol encountered the start symbol
-				if(m_parser.startSymbol().empty()) {
-					m_parser.setStartSymbol(ruleName);
+				if(!m_parser.root()) {
+					m_parser.setRoot(ruleName);
 				}
 			}
 
@@ -236,7 +181,7 @@ namespace parsec {
 
 			fg::SymbolGrammar m_parser;
 			PatternCache m_patterns;
-			fg::Rule m_rule;
+			fg::RegularExpr m_rule;
 		};
 	}
 

@@ -28,8 +28,8 @@ namespace parsec::src_gen {
 
 			void genProtected() {
 				m_out << "protected:" << '\n';
-				for(const auto& rule : m_inputSyntax.symbols()) {
-					m_out << "\t" << std::format("virtual void on{}(std::span<const Token> tokens) {{}}", rule) << '\n';
+				for(const auto& symbol : m_inputSyntax.symbols()) {
+					m_out << "\t" << std::format("virtual void on{}(std::span<const Token> tokens) {{}}", symbol.value()) << '\n';
 				}
 				m_out << '\n';
 			}
@@ -48,7 +48,7 @@ namespace parsec::src_gen {
 			void genStateShifts(const fsm::State& state) {
 				bool first = true;
 				for(const auto & trans : state.transitions) {
-					if(m_inputSyntax.containsSymbol(trans.inSymbol)) {
+					if(m_inputSyntax.contains(trans.inSymbol)) {
 						continue;
 					}
 
@@ -78,7 +78,7 @@ namespace parsec::src_gen {
 			void genStateGotos(const fsm::State& state) {
 				bool first = true;
 				for(const auto& trans : state.transitions) {
-					if(!m_inputSyntax.containsSymbol(trans.inSymbol)) {
+					if(!m_inputSyntax.contains(trans.inSymbol)) {
 						continue;
 					}
 

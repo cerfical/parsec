@@ -193,6 +193,8 @@ namespace parsec::fg {
 		std::ostringstream out;
 		if(!isEmpty()) {
 			m_rootNode->printTo(out);
+		} else {
+			out << "()";
 		}
 		return out.str();
 	}

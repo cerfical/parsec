@@ -2,6 +2,7 @@
 #define PARSEC_FG_SYMBOL_HEADER
 
 #include <string>
+#include <string_view>
 #include <ostream>
 
 namespace parsec::fg {
@@ -9,37 +10,59 @@ namespace parsec::fg {
 	class Symbol {
 	public:
 
-		Symbol(char ch)
-			: Symbol(std::string(1, ch)) {}
+		friend auto operator<=>(const Symbol&, const Symbol&) = default;
 
-		Symbol(const std::string& name)
-			: m_name(name) {}
+
+		Symbol(char value)
+			: m_value(1, value) {}
+
+		Symbol(const char* value)
+			: m_value(value) {}
+
+		Symbol(std::string_view value)
+			: m_value(value) {}
+
+		Symbol(const std::string& value)
+			: m_value(value) {}
+
+		Symbol(std::string&& value)
+			: m_value(std::move(value)) {}
 
 		Symbol() = default;
-
-
-		const std::string& name() const {
-			return m_name;
-		}
-
-		bool isEmpty() const {
-			return m_name.empty();
-		}
 
 
 		explicit operator bool() const {
 			return !isEmpty();
 		}
 
+		bool isEmpty() const {
+			return value().empty();
+		}
+		
+		const std::string& value() const {
+			return m_value;
+		}
+
 
 	private:
-		std::string m_name;
+		std::string m_value;
 	};
 
 
 	inline std::ostream& operator<<(std::ostream& out, const Symbol& symbol) {
-		return out << symbol.name();
+		return out << symbol.value();
 	}
+
+}
+
+namespace std {
+
+	template <>
+	struct hash<parsec::fg::Symbol> {
+		size_t operator()(const parsec::fg::Symbol& symbol) const noexcept {
+			return hash<string>()(symbol.value());
+		}
+	};
 
 }
 

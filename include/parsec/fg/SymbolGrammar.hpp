@@ -2,89 +2,63 @@
 #define PARSEC_FG_SYMBOL_GRAMMAR_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "Rule.hpp"
+#include "SymbolRule.hpp"
 
 #include <unordered_map>
 #include <vector>
 #include <span>
-#include <optional>
 
 namespace parsec::fg {
-	
-	/**
-	 * @brief Describes the syntax of a language using a list of inference rules.
-	*/
+
 	class SymbolGrammar : private NonCopyable {
 	public:
 		
-		/**
-		 * @brief Define a new symbol in the grammar.
-		*/
-		void insertSymbol(std::string_view symbol, std::optional<Rule> rule = {});
+		void define(const Symbol& symbol, const RegularExpr& expr);
 
 
+		const SymbolRule& resolve(const Symbol& symbol) const;
 
-		/**
-		 * @brief Find a rule that defines the specified symbol, if there is one.
-		*/
-		const Rule* resolveSymbol(std::string_view symbol) const {
-			if(const auto symbolRule = findNotNullRule(symbol)) {
-				return &symbolRule->second.value();
-			}
-			return nullptr;
+		bool contains(const Symbol& symbol) const {
+			syncRulesCache();
+			return m_rulesCache.contains(symbol);
 		}
 
 
-
-		/**
-		 * @brief Set the start symbol for the grammar.
-		*/
-		void setStartSymbol(std::string_view symbol) {
-			if(const auto symbolRule = findNotNullRule(symbol)) {
-				m_startSymbol = symbolRule->first;
-			}
+		void setRoot(const Symbol& symbol) {
+			m_rootSymbol = symbol;
 		}
 
-
-
-		/**
-		 * @brief Start symbol of the grammar, if there is one.
-		*/
-		std::string_view startSymbol() const {
-			return m_startSymbol;
+		const SymbolRule& root() const {
+			return resolve(m_rootSymbol);
 		}
 
-
-
-		/**
-		 * @brief List of all defined symbols.
-		*/
-		std::span<const std::string_view> symbols() const;
-
-
-
-		/**
-		 * @brief Check whether a symbol is present in the grammar.
-		*/
-		bool containsSymbol(std::string_view symbol) const {
-			return m_symbolRules.contains(std::string(symbol));
+		
+		std::span<const SymbolRule> rules() const {
+			return sortedRules();
 		}
 
+		std::span<const Symbol> symbols() const {
+			return sortedSymbols();
+		}
 
 
 	private:
-		using SymbolRuleTable = std::unordered_map<std::string, std::optional<Rule>>;
-		using SymbolRule = SymbolRuleTable::value_type;
+		void syncRulesCache() const;
+
+		const std::vector<SymbolRule>& sortedRules() const;
+		const std::vector<Symbol>& sortedSymbols() const;
 
 
-		const SymbolRule* findNotNullRule(std::string_view symbol) const;
+		mutable std::unordered_map<Symbol, std::size_t> m_rulesCache;
 
-
-		SymbolRuleTable m_symbolRules;
-		std::string_view m_startSymbol;
-
-		mutable std::vector<std::string_view> m_sortedSymbols;
+		mutable std::vector<Symbol> m_symbols;
 		mutable bool m_symbolsSorted = true;
+		
+		mutable std::vector<SymbolRule> m_rules;
+		mutable bool m_rulesSorted = true;
+
+
+		Symbol m_rootSymbol;
 	};
 
 }

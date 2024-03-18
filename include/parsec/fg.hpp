@@ -1,13 +1,10 @@
 #ifndef PARSEC_FG_ROOT_HEADER
 #define PARSEC_FG_ROOT_HEADER
 
+#include "fg/Symbol.hpp"
 #include "fg/SymbolGrammar.hpp"
-#include "fg/Rule.hpp"
+#include "fg/RegularExpr.hpp"
 
-/**
- * @brief Establishes the concepts needed to define simple formal language grammars.
-*/
-namespace parsec::fg {
-}
+namespace parsec::fg {}
 
 #endif
