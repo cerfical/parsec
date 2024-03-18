@@ -39,15 +39,17 @@ namespace parsec {
 			}
 
 
-			const std::string& getPatternName(std::string_view pattern) {
-				const auto [patternNameIt, wasInserted] = m_patternNames.try_emplace(pattern);
-				auto& patternName = patternNameIt->second;
+			const std::string& getTokenName(const pars::Token& pattern) {
+				const auto [stringToNameIt, wasInserted] = pattern.is(pars::TokenKinds::PatternString) ?
+					m_patternStringNames.try_emplace(pattern.text()) :
+					m_rawStringNames.try_emplace(pattern.text());
 
 				if(wasInserted) {
-					patternName = unifyName(std::format("{}{}", unnamedTokenPrefix, m_inlinePatternId++));
-					cacheNamedPattern(patternName, pattern);
+					stringToNameIt->second = unifyName(std::format("{}{}", unnamedTokenPrefix, m_inlinePatternId++));
+					defineToken(stringToNameIt->second, pattern);
 				}
-				return patternName;
+
+				return stringToNameIt->second;
 			}
 
 			const fg::SymbolGrammar& grammar() const noexcept {
@@ -61,18 +63,26 @@ namespace parsec {
 				n.last->acceptVisitor(*this);
 			}
 
-			void visit(const NamedPattern& n) {
+			void visit(const NamedToken& n) {
 				const auto patternName = makeName(n.name);
-				m_patternNames[n.pattern.text()] = patternName;
-				cacheNamedPattern(patternName, n.pattern.text());
+				if(n.pattern.is(pars::TokenKinds::PatternString)) {
+					m_patternStringNames[n.pattern.text()] = patternName;
+				} else {
+					m_rawStringNames[n.pattern.text()] = patternName;
+				}
+				defineToken(patternName, n.pattern);
 			}
 			
-			void cacheNamedPattern(const std::string& name, std::string_view pattern) {
-				m_grammar.define(name, fg::RegularExpr::fromPatternString(pattern));
+			void defineToken(const std::string& name, const pars::Token& pattern) {
+				if(pattern.is(pars::TokenKinds::PatternString)) {
+					m_grammar.define(name, fg::RegularExpr::fromPatternString(pattern.text()));
+				} else {
+					m_grammar.define(name, fg::RegularExpr::fromRawString(pattern.text()));
+				}
 			}
 			
 
-			void visit(const InlinePattern& n) {}
+			void visit(const InlineToken& n) {}
 			void visit(const NilNode& n) {}
 			void visit(const NilRule& n) {}
 			void visit(const NameRule& n) {}
@@ -85,7 +95,8 @@ namespace parsec {
 
 
 			fg::SymbolGrammar m_grammar;
-			std::unordered_map<std::string_view, std::string> m_patternNames;
+			std::unordered_map<std::string_view, std::string> m_patternStringNames;
+			std::unordered_map<std::string_view, std::string> m_rawStringNames;
 			std::size_t m_inlinePatternId = 0;
 		};
 
@@ -119,12 +130,12 @@ namespace parsec {
 
 
 
-			void visit(const InlinePattern& n) {
-				const auto& inlinePatternName = m_patterns.getPatternName(n.pattern.text());
+			void visit(const InlineToken& n) {
+				const auto& inlinePatternName = m_patterns.getTokenName(n.pattern);
 				m_rule = fg::Symbol(inlinePatternName);
 			}
 
-			void visit(const NamedPattern& n) {}
+			void visit(const NamedToken& n) {}
 
 
 

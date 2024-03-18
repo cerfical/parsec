@@ -12,9 +12,6 @@
 #include "core/CppSrcGen.hpp"
 #include "core/Compiler.hpp"
 
-/**
- * @brief Root namespace for the parsec library.
-*/
 namespace parsec {}
 
 #endif

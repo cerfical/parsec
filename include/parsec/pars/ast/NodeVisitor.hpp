@@ -6,8 +6,8 @@ namespace parsec::pars::ast {
 	class NilNode;
 	class NodeList;
 
-	class InlinePattern;
-	class NamedPattern;
+	class InlineToken;
+	class NamedToken;
 	
 	class NilRule;
 	class NameRule;
@@ -20,17 +20,14 @@ namespace parsec::pars::ast {
 	class PlusRule;
 	class StarRule;
 
-	/**
-	 * @brief Implements the 'Visitor' design pattern for Node%s.
-	*/
 	class NodeVisitor {
 	public:
 
 		virtual void visit(const NilNode& n) = 0;
 		virtual void visit(const NodeList& n) = 0;
 		
-		virtual void visit(const InlinePattern& n) = 0;
-		virtual void visit(const NamedPattern& n) = 0;
+		virtual void visit(const InlineToken& n) = 0;
+		virtual void visit(const NamedToken& n) = 0;
 		
 		virtual void visit(const NilRule& n) = 0;
 		virtual void visit(const NameRule& n) = 0;

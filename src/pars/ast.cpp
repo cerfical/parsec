@@ -10,11 +10,11 @@ namespace parsec::pars::ast {
 	}
 	
 
-	void InlinePattern::acceptVisitor(NodeVisitor& visitor) const {
+	void InlineToken::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void NamedPattern::acceptVisitor(NodeVisitor& visitor) const {
+	void NamedToken::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	

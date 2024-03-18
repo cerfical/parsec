@@ -10,7 +10,7 @@
 namespace parsec::pars {
 	namespace {
 
-		class DescribeToken : TokenKindVisitor {
+		class DescribeToken : private TokenKindVisitor {
 		public:
 
 			auto operator()(TokenKinds tok) {
@@ -32,8 +32,12 @@ namespace parsec::pars {
 				m_desc = "an identifier";
 			}
 
-			void onPattern() override {
+			void onPatternString() override {
 				m_desc = "a string pattern";
+			}
+
+			void onRawString() override {
+				m_desc = "a string literal";
 			}
 
 
@@ -129,7 +133,8 @@ namespace parsec::pars {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident:
 					case TokenKinds::LeftParen:
-					case TokenKinds::Pattern: {
+					case TokenKinds::PatternString:
+					case TokenKinds::RawString: {
 						return true;
 					}
 					default: {
@@ -156,8 +161,11 @@ namespace parsec::pars {
 						}
 						return subrule;
 					}
-					case TokenKinds::Pattern: {
-						return ast::makeNode<ast::InlinePattern>(m_lexer.lex());
+					case TokenKinds::PatternString: {
+						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
+					}
+					case TokenKinds::RawString: {
+						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
 						unmatchedParenError(m_lexer.loc());
@@ -213,10 +221,11 @@ namespace parsec::pars {
 					auto name = expectToken(TokenKinds::Ident);
 					expectToken(TokenKinds::Equals);
 					
-					auto pattern = ast::makeNode<ast::NamedPattern>(
-						std::move(name),
-						expectToken(TokenKinds::Pattern)
-					);
+					if(const auto kind = m_lexer.peek().kind(); kind != TokenKinds::PatternString && kind != TokenKinds::RawString) {
+						unexpectedTokenError();
+					}
+					
+					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
 					expectToken(TokenKinds::Semicolon);
 					
 					tokens = ast::makeNode<ast::NodeList>(

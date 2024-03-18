@@ -6,8 +6,8 @@
 #include "ast/NilNode.hpp"
 #include "ast/NodeList.hpp"
 
-#include "ast/InlinePattern.hpp"
-#include "ast/NamedPattern.hpp"
+#include "ast/InlineToken.hpp"
+#include "ast/NamedToken.hpp"
 
 #include "ast/NilRule.hpp"
 #include "ast/NameRule.hpp"
@@ -20,10 +20,6 @@
 #include "ast/PlusRule.hpp"
 #include "ast/StarRule.hpp"
 
-/**
- * @brief Defines different node types for the AST (abstract syntax tree) that will be constructed during parsing.
-*/
-namespace parsec::pars::ast
-{ }
+namespace parsec::pars::ast {}
 
 #endif

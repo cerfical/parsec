@@ -1,7 +1,6 @@
 #include "pars/Lexer.hpp"
 #include "pars/ParseError.hpp"
 
-#include "regex/Parser.hpp"
 #include "core/EofError.hpp"
 #include "utils/char_utils.hpp"
 
@@ -90,21 +89,19 @@ namespace parsec::pars {
 				break;
 			}
 			
-			// automatically escape regex metachars in raw patterns
 			const auto ch = m_scanner.get();
-			if(delim == '\'' && regex::Parser::isMetachar(ch)) {
-				m_buf += '\\';
-			}
 			m_buf += ch;
 
-			// provide only minimal handling of escape sequences:
-			//  1. to allow pattern delimiters to be included in the pattern itself
-			//  2. to be independent of specific implemented escape sequences
-			if(ch == '\\') {
+			/**
+			 * Provide only minimal handling of escape sequences:
+			 *  1. Allows for pattern delimiter (") to be included in the pattern itself
+			 *  2. Independence from specific escape sequences supported by regex patterns
+			*/
+			if(delim == '"' && ch == '\\') {
 				m_buf += m_scanner.get();
 			}
 		}
-		return TokenKinds::Pattern;
+		return delim == '"' ? TokenKinds::PatternString : TokenKinds::RawString;
 	}
 
 	TokenKinds Lexer::parseOperator() {

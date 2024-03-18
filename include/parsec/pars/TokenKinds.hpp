@@ -6,7 +6,8 @@
 	PARSEC_PARS_TOKEN_KIND(Eof, End of file) \
 \
 	PARSEC_PARS_TOKEN_KIND(Ident, Identifier) \
-	PARSEC_PARS_TOKEN_KIND(Pattern, String pattern) \
+	PARSEC_PARS_TOKEN_KIND(PatternString, String pattern) \
+	PARSEC_PARS_TOKEN_KIND(RawString, String literal) \
 \
 	PARSEC_PARS_TOKEN_KIND(Star, Asterisk symbol) \
 	PARSEC_PARS_TOKEN_KIND(Plus, Plus symbol) \
@@ -26,11 +27,8 @@
 
 namespace parsec::pars {
 
-#define PARSEC_PARS_TOKEN_KIND(tok, comment) tok, /**< @brief comment##. */
+#define PARSEC_PARS_TOKEN_KIND(tok, comment) tok,
 
-	/**
-	 * @brief Available token types that are produced by @ref parsec::pars::Lexer "Lexer".
-	*/
 	enum class TokenKinds {
 		PARSEC_PARS_TOKEN_KIND_LIST
 	};
@@ -39,15 +37,9 @@ namespace parsec::pars {
 
 
 
-	/**
-	 * @brief Provides a safe way to perform computations conditioned on @ref TokenKinds values.
-	*/
 	class TokenKindVisitor {
 	public:
 		
-		/**
-		 * @brief Check the value and call a method with the appropriate name.
-		*/
 		void visit(TokenKinds tok);
 
 	protected:
