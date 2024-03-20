@@ -1,4 +1,6 @@
 #include "fsm/StateMachine.hpp"
+
+#include <algorithm>
 #include <format>
 
 namespace parsec::fsm {
@@ -19,9 +21,25 @@ namespace parsec::fsm {
 	}
 
 
+	std::span<const State> StateMachine::states() const {
+		if(!m_statesSorted) {
+			std::ranges::sort(m_states, [](const auto& lhs, const auto& rhs) {
+				return lhs.id() < rhs.id();
+			});
+
+			m_idToIndexCache.clear();
+			m_statesSorted = true;
+		}
+		return m_states;
+	}
+
+
 	const State& StateMachine::stateById(int state) const {
-		const auto idToIndexIt = m_idToIndex.find(state);
-		if(idToIndexIt == m_idToIndex.end()) {
+		updateCache();
+		// no need to cancel the cache update activity
+
+		const auto idToIndexIt = m_idToIndexCache.find(state);
+		if(idToIndexIt == m_idToIndexCache.end()) {
 			static State emptyState;
 			return emptyState;
 		}
@@ -58,25 +76,41 @@ namespace parsec::fsm {
 
 
 	std::size_t StateMachine::insertState(int state) {
-		const auto [idToIndexIt, wasInserted] = m_idToIndex.try_emplace(state, m_states.size());
+		updateCache();
+		// no need to cancel the cache update activity
+
+		const auto [idToIndexIt, wasInserted] = m_idToIndexCache.try_emplace(state, m_states.size());
 		if(wasInserted) {
 			try {
 				m_states.emplace_back(state);
 			} catch(...) {
-				m_idToIndex.erase(idToIndexIt);
+				m_idToIndexCache.erase(idToIndexIt);
 				throw;
 			}
+			m_statesSorted = false;
 		}
+
 		return idToIndexIt->second;
 	}
 
 
 	void StateMachine::eraseState(int state) noexcept {
-		const auto idToIntexIt = m_idToIndex.find(state);
-		if(idToIntexIt != m_idToIndex.end()) {
-			const auto stateIt = std::next(m_states.begin(), idToIntexIt->second);
-			m_idToIndex.erase(idToIntexIt);
+		// before calling eraseState(), the cache must be valid
+		const auto idToIndexIt = m_idToIndexCache.find(state);
+		if(idToIndexIt != m_idToIndexCache.end()) {
+			const auto stateIt = std::next(m_states.begin(), idToIndexIt->second);
+			m_idToIndexCache.erase(idToIndexIt);
 			m_states.erase(stateIt);
+		}
+		// state removal does not change the sorted order of the states() list
+	}
+
+
+	void StateMachine::updateCache() const {
+		if(m_idToIndexCache.empty()) {
+			for(std::size_t i = 0; i < m_states.size(); i++) {
+				m_idToIndexCache[stateByIndex(i).id()] = i;
+			}
 		}
 	}
 }

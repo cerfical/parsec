@@ -16,9 +16,7 @@ namespace parsec::fsm {
 		void buildTransition(int from, int to, const fg::Symbol& label);
 
 
-		std::span<const State> states() const {
-			return m_states;
-		}
+		std::span<const State> states() const;;
 
 		const State& stateById(int state) const;
 
@@ -54,9 +52,13 @@ namespace parsec::fsm {
 
 		std::size_t insertState(int state);
 		void eraseState(int state) noexcept;
+		
+		void updateCache() const;
 
-		std::vector<State> m_states;
-		std::unordered_map<int, std::size_t> m_idToIndex;
+		mutable std::vector<State> m_states;
+		mutable std::unordered_map<int, std::size_t> m_idToIndexCache;
+		mutable bool m_statesSorted = true;
+
 		int m_startState = {};
 	};
 
