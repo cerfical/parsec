@@ -1,7 +1,7 @@
 #include "src_gen/CppParserGen.hpp"
 #include "cpp_utils.hpp"
 
-#include "fsm/AutomatonFactory.hpp"
+#include "fsm/Factory.hpp"
 #include <format>
 
 namespace parsec::src_gen {
@@ -11,8 +11,7 @@ namespace parsec::src_gen {
 
 			GenParser(std::ostream& out, const fg::SymbolGrammar& inputSyntax)
 				: m_inputSyntax(inputSyntax), m_out(out) {
-				m_slr = fsm::AutomatonFactory::get()
-					.makeSlr(m_inputSyntax);
+				m_slr = fsm::Factory::get()->makeSlr(m_inputSyntax);
 			}
 
 			void operator()() {
@@ -35,10 +34,9 @@ namespace parsec::src_gen {
 			}
 
 			void genStateReduce(const fsm::State& state, std::string_view indent) {
-				if(!state.outSymbol.empty()) {
-					m_out << indent << std::format(
-						"reduceTo(ParseRules::{0}, &Parser::on{0});",
-						state.outSymbol
+				if(state.inputMatch()) {
+					m_out << indent << std::format("reduceTo(ParseRules::{0}, &Parser::on{0});",
+						state.inputMatch().value()
 					) << '\n';
 				} else {
 					m_out << indent << "error();" << '\n';
@@ -47,8 +45,8 @@ namespace parsec::src_gen {
 
 			void genStateShifts(const fsm::State& state) {
 				bool first = true;
-				for(const auto & trans : state.transitions) {
-					if(m_inputSyntax.contains(trans.inSymbol)) {
+				for(const auto& trans : state.transitions()) {
+					if(m_inputSyntax.contains(trans.label())) {
 						continue;
 					}
 
@@ -57,8 +55,8 @@ namespace parsec::src_gen {
 					}
 
 					m_out << "\t\t\t" << std::format("case TokenKinds::{}: shiftTo(&Parser::state{}); break;",
-						trans.inSymbol,
-						trans.dest
+						trans.label().value(),
+						trans.target()
 					) << '\n';
 				}
 				
@@ -77,8 +75,8 @@ namespace parsec::src_gen {
 
 			void genStateGotos(const fsm::State& state) {
 				bool first = true;
-				for(const auto& trans : state.transitions) {
-					if(!m_inputSyntax.contains(trans.inSymbol)) {
+				for(const auto& trans : state.transitions()) {
+					if(!m_inputSyntax.contains(trans.label())) {
 						continue;
 					}
 
@@ -88,8 +86,8 @@ namespace parsec::src_gen {
 					}
 
 					m_out << "\t\t\t" << std::format("case ParseRules::{}: goTo(&Parser::state{}); break;",
-						trans.inSymbol,
-						trans.dest
+						trans.label().value(),
+						trans.target()
 					) << '\n';
 				}
 
@@ -100,7 +98,7 @@ namespace parsec::src_gen {
 			}
 
 			void genParseState(const fsm::State& state) {
-				m_out << "\t" << std::format("void state{}() {{", state.id) << '\n';
+				m_out << "\t" << std::format("void state{}() {{", state.id()) << '\n';
 
 				genStateShifts(state);
 				genStateGotos(state);
@@ -148,7 +146,7 @@ namespace parsec::src_gen {
 
 				if(m_slr.startState()) {
 					m_out << "\t" << "void startParse() {" << '\n';
-					m_out << "\t\t" << std::format("state{}();", m_slr.startState()->id) << '\n';
+					m_out << "\t\t" << std::format("state{}();", m_slr.startState().id()) << '\n';
 					m_out << "\t\t" << "reduce();" << '\n';
 					m_out << "\t" << "}" << '\n';
 					m_out << '\n';
@@ -199,7 +197,7 @@ public:
 			const fg::SymbolGrammar& m_inputSyntax;
 			std::ostream& m_out;
 
-			fsm::Automaton m_slr;
+			fsm::StateMachine m_slr;
 		};
 	}
 

@@ -1,6 +1,4 @@
-#include "fsm/AutomatonFactory.hpp"
-#include "fsm/AutomatonBuilder.hpp"
-#include "core/typedefs.hpp"
+#include "fsm/Factory.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <unordered_set>
@@ -58,15 +56,15 @@ namespace parsec::fsm {
 		class MakeFsm {
 		public:
 
-			Automaton operator()(const fg::SymbolGrammar& grammar) {
+			StateMachine operator()(const fg::SymbolGrammar& grammar) {
 				m_grammar = &grammar;
 
 				if(auto startState = createStartState(); !startState.empty()) {
 					createState(std::move(startState));
-					m_fsmBuilder.startState(0);
+					m_fsm.setStartState(0);
 				}
 
-				return m_fsmBuilder.build();
+				return std::move(m_fsm);
 			}
 
 		protected:
@@ -80,8 +78,8 @@ namespace parsec::fsm {
 			virtual ItemSet createStartState() const = 0;
 
 
-			Id createState(ItemSet&& stateItems) {
-				const auto [it, wasInserted] = m_states.emplace(std::move(stateItems), m_states.size());
+			int createState(ItemSet&& stateItems) {
+				const auto [it, wasInserted] = m_states.emplace(std::move(stateItems), static_cast<int>(m_states.size()));
 				const auto& [items, state] = *it;
 
 				if(wasInserted) {
@@ -90,12 +88,12 @@ namespace parsec::fsm {
 				return state;
 			}
 
-			void buildStateTrans(const ItemSet& items, Id state) {
+			void buildStateTrans(const ItemSet& items, int state) {
 				std::unordered_map<fg::Symbol, ItemSet> trans;
 				for(const auto& item : computeClosure(items)) {
 					if(item.isAtEnd()) {
-						if(const bool wasInserted = m_acceptStates.insert(state).second) {
-							m_fsmBuilder.acceptState(state, item.rule().head().value());
+						if(!m_fsm.stateById(state).inputMatch()) {
+							m_fsm.markAcceptState(state, item.rule().head());
 							continue;
 						}
 						throw std::runtime_error("conflicting rules");
@@ -109,18 +107,13 @@ namespace parsec::fsm {
 
 				for(auto& [inputSymbol, stateItems] : trans) {
 					const auto dest = createState(std::move(stateItems));
-					m_fsmBuilder.transition(
-						inputSymbol.value(),
-						state,
-						dest
-					);
+					m_fsm.buildTransition(state, dest, inputSymbol);
 				}
 			}
 
 
-			std::unordered_map<ItemSet, Id, boost::hash<ItemSet>> m_states;
-			std::unordered_set<Id> m_acceptStates;
-			AutomatonBuilder m_fsmBuilder;
+			std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_states;
+			StateMachine m_fsm;
 
 			const fg::SymbolGrammar* m_grammar = {};
 		};
@@ -188,18 +181,17 @@ namespace parsec::fsm {
 	}
 
 
-	Automaton AutomatonFactory::makeDfa(const fg::SymbolGrammar& regLang) {
+	StateMachine Factory::makeDfa(const fg::SymbolGrammar& regLang) {
 		return MakeDfa()(regLang);
 	}
 
-
-	Automaton AutomatonFactory::makeSlr(const fg::SymbolGrammar& lang) {
+	StateMachine Factory::makeSlr(const fg::SymbolGrammar& lang) {
 		return MakeSlr()(lang);
 	}
 
 
-	AutomatonFactory& AutomatonFactory::get() {
-		static AutomatonFactory factory;
-		return factory;
+	Factory* Factory::get() {
+		static Factory factory;
+		return &factory;
 	}
 }
