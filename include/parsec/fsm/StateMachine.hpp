@@ -34,6 +34,15 @@ namespace parsec::fsm {
 		}
 
 
+		explicit operator bool() const {
+			return !isEmpty();
+		}
+
+		bool isEmpty() const {
+			return m_states.empty();
+		}
+
+
 	private:
 		const State& stateByIndex(std::size_t i) const noexcept {
 			return m_states[i];
@@ -50,6 +59,8 @@ namespace parsec::fsm {
 		std::unordered_map<int, std::size_t> m_idToIndex;
 		int m_startState = {};
 	};
+
+	void print(const StateMachine& fsm, std::string_view indent = "", std::ostream& out = std::cout);
 
 }
 

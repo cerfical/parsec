@@ -168,7 +168,7 @@ target_sources(parsec-lib
 		"include/parsec/fsm/Factory.hpp"
 
 	PRIVATE
-		"src/fsm/AutomatonBuilder.cpp"
+		"src/fsm/State.cpp"
 		"src/fsm/StateMachine.cpp"
 		"src/fsm/Factory.cpp"
 )

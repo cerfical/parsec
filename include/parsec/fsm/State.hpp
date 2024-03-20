@@ -62,6 +62,8 @@ namespace parsec::fsm {
 		int m_id = {};
 	};
 
+	void print(const State& state, std::string_view indent = "", std::ostream& out = std::cout);
+
 }
 
 #endif

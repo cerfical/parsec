@@ -1,6 +1,24 @@
 #include "fsm/StateMachine.hpp"
+#include <format>
 
 namespace parsec::fsm {
+	void print(const StateMachine& fsm, std::string_view indent, std::ostream& out) {
+		out << indent << "State Machine" << (fsm ?
+				std::format(", {} states{}:",
+					fsm.states().size(),
+					fsm.startState() ?
+						std::format(" starting #{}", fsm.startState().id()) :
+						""
+				) :
+				": Empty")
+			<< '\n';
+
+		for(const auto& state : fsm.states()) {
+			print(state, std::string(indent) + '\t', out);
+		}
+	}
+
+
 	const State& StateMachine::stateById(int state) const {
 		const auto idToIndexIt = m_idToIndex.find(state);
 		if(idToIndexIt == m_idToIndex.end()) {
