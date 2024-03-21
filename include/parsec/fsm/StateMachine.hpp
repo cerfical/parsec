@@ -62,8 +62,6 @@ namespace parsec::fsm {
 		int m_startState = {};
 	};
 
-	void print(const StateMachine& fsm, std::string_view indent = "", std::ostream& out = std::cout);
-
 }
 
 #endif

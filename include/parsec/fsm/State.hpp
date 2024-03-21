@@ -5,18 +5,12 @@
 #include "StateTrans.hpp"
 
 #include <vector>
-#include <iostream>
 #include <span>
 
 namespace parsec::fsm {
 
 	class State : private NonCopyable {
 	public:
-
-		friend bool operator==(const State& lhs, const State& rhs) {
-			return lhs.id() == rhs.id();
-		}
-
 
 		State() = default;
 
@@ -62,7 +56,10 @@ namespace parsec::fsm {
 		int m_id = {};
 	};
 
-	void print(const State& state, std::string_view indent = "", std::ostream& out = std::cout);
+
+	inline bool operator==(const State& lhs, const State& rhs) {
+		return lhs.id() == rhs.id();
+	}
 
 }
 
