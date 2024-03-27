@@ -1,82 +1,63 @@
 #ifndef PARSEC_DFA_STATE_HEADER
 #define PARSEC_DFA_STATE_HEADER
 
-#include "../core/Pattern.hpp"
-#include "Transition.hpp"
+#include "StateTrans.hpp"
 
-#include <concepts>
 #include <vector>
-#include <ranges>
+#include <span>
 
 namespace parsec::dfa {
-	/**
-	 * @brief DFA state with its transitions and associated matches.
-	 */
+
 	class State {
 	public:
-		explicit State(int id) noexcept
-			: m_id(id)
-		{ }
+
+		explicit State(int id)
+			: m_id(id) {}
 
 
-		/** @{ */
-		State(const State&) = default;
-		State& operator=(const State&) = default;
-		/** @} */
-
-		/** @{ */
-		State(State&&) = default;
-		State& operator=(State&&) = default;
-		/** @} */
-
-
-		/** @{ */
-		std::ranges::view auto transitions() const {
-			return m_transitions | std::views::transform(
-				[](const auto& t) { return &t; }
-			);
+		std::span<const StateTrans> transitions() const {
+			return m_transitions;
 		}
 
-		template <typename... Args>
-			requires std::constructible_from<Transition, Args...>
-		void addTransition(Args&&... args) {
-			m_transitions.emplace_back(std::forward<Args>(args)...);
+		void addTransition(int target, const fg::Symbol& label) {
+			m_transitions.emplace_back(target, label);
 		}
-		/** @} */
+		
 
-
-		/** @{ */
-		std::ranges::view auto matches() const {
-			return std::ranges::ref_view(m_matches);
+		bool isAcceptState() const {
+			return !acceptSymbol().isEmpty();
 		}
 
-		void addMatch(const Pattern* match) {
-			m_matches.push_back(match);
-		}
-		/** @} */
-
-
-		/** @{ */
-		bool isAccepting() const noexcept {
-			return !m_matches.empty();
+		const fg::Symbol& acceptSymbol() const {
+			return m_acceptSymbol;
 		}
 
-		bool isStart() const noexcept {
-			return m_id == 0;
+		void setAcceptSymbol(const fg::Symbol& symbol) {
+			m_acceptSymbol = symbol;
 		}
 
-		int id() const noexcept {
+
+		bool isStartState() const {
+			return m_startState;
+		}
+
+		void setStartState(bool startState) {
+			m_startState = startState;
+		}
+
+
+		int id() const {
 			return m_id;
 		}
-		/** @} */
 
 
 	private:
-		std::vector<Transition> m_transitions;
-		std::vector<const Pattern*> m_matches;
-
-		int m_id;
+		std::vector<StateTrans> m_transitions;
+		fg::Symbol m_acceptSymbol;
+		int m_id = {};
+		bool m_startState = false;
 	};
+
 }
 
 #endif

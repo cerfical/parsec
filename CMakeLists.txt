@@ -74,7 +74,6 @@ target_sources(parsec-lib
 		"include/parsec/core/Parser.hpp"
 		"include/parsec/core/Compiler.hpp"
 	
-		"include/parsec/core/CppSrcGen.hpp"
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
 		"include/parsec/core/typedefs.hpp"
@@ -89,8 +88,6 @@ target_sources(parsec-lib
 		"src/core/Lexer.cpp"
 		"src/core/Parser.cpp"
 		"src/core/Compiler.cpp"
-
-		"src/core/CppSrcGen.cpp"
 )
 
 
@@ -205,12 +202,15 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/dfa/Transition.hpp"
-		"include/parsec/dfa/StateGen.hpp"
+		"include/parsec/dfa/StateTrans.hpp"
 		"include/parsec/dfa/State.hpp"
+		"include/parsec/dfa/Automaton.hpp"
+		"include/parsec/dfa/print.hpp"
+		"include/parsec/dfa.hpp"
 
 	PRIVATE
-		"src/dfa/StateGen.cpp"
+		"src/dfa/Automaton.cpp"
+		"src/dfa/print.cpp"
 )
 
 

@@ -1,5 +1,4 @@
 #include "fg/regex.hpp"
-#include "utils/string_utils.hpp"
 
 namespace parsec::fg::regex {
 	namespace {
@@ -15,7 +14,7 @@ namespace parsec::fg::regex {
 
 		private:
 			void visit(const SymbolAtom& n) override {
-				m_out << '\'' << string_utils::escape(n.symbol().value()) << '\'';
+				m_out << n.symbol();
 			}
 
 			void visit(const OptionalExpr& n) override {

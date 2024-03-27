@@ -34,13 +34,13 @@ namespace parsec::src_gen {
 			}
 
 			void genStateReduce(const fsm::State& state, std::string_view indent) {
-				if(state.inputMatch()) {
+				/*if(state.inputMatch()) {
 					m_out << indent << std::format("reduceTo(ParseRules::{0}, &Parser::on{0});",
 						state.inputMatch().value()
 					) << '\n';
 				} else {
 					m_out << indent << "error();" << '\n';
-				}
+				}*/
 			}
 
 			void genStateShifts(const fsm::State& state) {

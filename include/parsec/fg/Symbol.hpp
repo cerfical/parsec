@@ -50,7 +50,7 @@ namespace parsec::fg {
 
 
 	inline std::ostream& operator<<(std::ostream& out, const Symbol& symbol) {
-		return out << symbol.value();
+		return out << '\'' << symbol.value() << '\'';
 	}
 
 }

@@ -106,9 +106,7 @@ private:
 				m_inputPath.generic_string()
 			));
 		}
-		
 		m_input.exceptions(std::ios::badbit | std::ios::failbit);
-		const auto grammar = parsec::Parser().parse(m_input);
 
 		if(m_output.open(m_outputPath); !m_output.is_open()) {
 			throw std::runtime_error(std::format("failed to load the output file '{}'",
@@ -116,8 +114,8 @@ private:
 			));
 		}
 
-		parsec::CppSrcGen(m_output)
-			.run(grammar);
+		parsec::Compiler(m_output)
+			.compile(m_input);
 	}
 
 	void printLoc(std::ostream& out, const parsec::SourceLoc& loc) {

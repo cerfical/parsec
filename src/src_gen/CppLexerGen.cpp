@@ -1,6 +1,6 @@
 #include "src_gen/CppLexerGen.hpp"
 
-#include "fsm/Factory.hpp"
+#include "dfa/Automaton.hpp"
 #include "cpp_utils.hpp"
 
 #include "utils/char_utils.hpp"
@@ -15,7 +15,7 @@ namespace parsec::src_gen {
 
 			GenLexer(std::ostream& out, const fg::SymbolGrammar& inputSyntax, const ConfigStore& configs)
 				: m_inputSyntax(inputSyntax), m_configs(configs), m_out(out) {
-				m_dfa = fsm::Factory::get()->makeDfa(m_inputSyntax);
+				m_dfa = dfa::Automaton(m_inputSyntax);
 			}
 
 			void operator()() {
@@ -32,7 +32,7 @@ namespace parsec::src_gen {
 					<< '\n';
 			}
 			
-			void genStateTransitions(const std::span<const fsm::StateTrans>& transitions) {
+			void genStateTransitions(std::span<const dfa::StateTrans> transitions) {
 				if(!transitions.empty()) {
 					m_out << "\t\t" << "if(!scanner()->isEof()) switch(scanner()->peek()) {" << '\n';
 					for(const auto& trans : transitions) {
@@ -45,19 +45,19 @@ namespace parsec::src_gen {
 				}
 			}
 
-			void genLexState(const fsm::State& state) {
+			void genLexState(const dfa::State& state) {
 				m_out << "\t" << std::format("state{}:", state.id()) << '\n';
 				m_out << "\t\t" << "consume(scanner()->get());" << '\n';
 
-				if(m_dfa.startState() == state) {
+				if(state.isStartState()) {
 					m_out << "\t" << "start:" << '\n';
 				}
 
 				genStateTransitions(state.transitions());
 
-				if(state.inputMatch()) {
+				if(state.isAcceptState()) {
 					m_out << "\t\t" << std::format("kind = TokenKinds::{};",
-						state.inputMatch().value()
+						state.acceptSymbol().value()
 					) << '\n';
 					m_out << "\t\t" << "goto accept;" << '\n';
 				} else {
@@ -66,7 +66,7 @@ namespace parsec::src_gen {
 			}
 
 			void genLexStates() {
-				if(m_dfa.startState()) {
+				if(m_dfa) {
 					m_out << "\t\t" << "reset();" << '\n';
 					m_out << "\t\t" << "goto start;" << '\n';
 					m_out << '\n';
@@ -123,7 +123,7 @@ namespace parsec::src_gen {
 			const ConfigStore& m_configs;
 			std::ostream& m_out;
 
-			fsm::StateMachine m_dfa;
+			dfa::Automaton m_dfa;
 		};
 	}
 
