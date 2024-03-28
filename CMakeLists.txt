@@ -190,18 +190,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/lr/Transition.hpp"
-		"include/parsec/lr/StateReduce.hpp"
-		"include/parsec/lr/StateGen.hpp"
-		"include/parsec/lr/State.hpp"
-	
-	PRIVATE
-		"src/lr/StateGen.cpp"
-)
-
-
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/dfa/StateTrans.hpp"
 		"include/parsec/dfa/State.hpp"
 		"include/parsec/dfa/Automaton.hpp"
