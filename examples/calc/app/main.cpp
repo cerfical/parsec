@@ -1,4 +1,5 @@
 #include <parsec/parsec.hpp>
+#include <parsec/deps.hpp>
 
 #include <sstream>
 #include <iostream>

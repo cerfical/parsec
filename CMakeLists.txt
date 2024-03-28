@@ -57,36 +57,18 @@ target_sources(parsec-lib
 		"include/parsec/core/LineInfo.hpp"
 		"include/parsec/core/EofError.hpp"
 
-		"include/parsec/core/Rule.hpp"
-		"include/parsec/core/Pattern.hpp"
-		"include/parsec/core/Symbol.hpp"
-		"include/parsec/core/CharAtom.hpp"
-		"include/parsec/core/Grammar.hpp"
-	
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
 		"include/parsec/core/ParseError.hpp"
-		"include/parsec/core/TokenKinds.hpp"
 		"include/parsec/core/TokenBase.hpp"
-		"include/parsec/core/Token.hpp"
 		"include/parsec/core/LexerBase.hpp"
-		"include/parsec/core/Lexer.hpp"
-		"include/parsec/core/Parser.hpp"
 		"include/parsec/core/Compiler.hpp"
 	
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
-		"include/parsec/core/typedefs.hpp"
 
 	PRIVATE
-		"src/core/Pattern.cpp"
-		"src/core/Grammar.cpp"
-	
 		"src/core/TextScanner.cpp"
-		"src/core/TokenKinds.cpp"
-		"src/core/Token.cpp"
-		"src/core/Lexer.cpp"
-		"src/core/Parser.cpp"
 		"src/core/Compiler.cpp"
 )
 

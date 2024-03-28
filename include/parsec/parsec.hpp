@@ -5,10 +5,6 @@
 #include "core/SourceLoc.hpp"
 #include "core/TextScanner.hpp"
 
-#include "core/Grammar.hpp"
-#include "core/Parser.hpp"
-#include "core/Lexer.hpp"
-
 #include "core/Compiler.hpp"
 
 namespace parsec {}
