@@ -140,22 +140,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/fsm.hpp"
-		"include/parsec/fsm/print.hpp"
-		"include/parsec/fsm/State.hpp"
-		"include/parsec/fsm/StateTrans.hpp"
-		"include/parsec/fsm/StateMachine.hpp"
-		"include/parsec/fsm/Factory.hpp"
-
-	PRIVATE
-		"src/fsm/print.cpp"
-		"src/fsm/StateMachine.cpp"
-		"src/fsm/Factory.cpp"
-)
-
-
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/src_gen.hpp"
 		"include/parsec/src_gen/ConfigStore.hpp"
 		"include/parsec/src_gen/CodeGen.hpp"
