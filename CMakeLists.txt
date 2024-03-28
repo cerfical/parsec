@@ -201,44 +201,6 @@ target_sources(parsec-lib
 )
 
 
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/regex.hpp"
-	
-		"include/parsec/regex/ast.hpp"
-		"include/parsec/regex/ast/NodeVisitor.hpp"
-		"include/parsec/regex/ast/NodeTraverser.hpp"
-		"include/parsec/regex/ast/ExprNode.hpp"
-		"include/parsec/regex/ast/CharAtom.hpp"
-		"include/parsec/regex/ast/NilExpr.hpp"
-		"include/parsec/regex/ast/BinaryExpr.hpp"
-		"include/parsec/regex/ast/AlternExpr.hpp"
-		"include/parsec/regex/ast/ConcatExpr.hpp"
-		"include/parsec/regex/ast/UnaryExpr.hpp"
-		"include/parsec/regex/ast/PlusExpr.hpp"
-		"include/parsec/regex/ast/OptionalExpr.hpp"
-		"include/parsec/regex/ast/StarExpr.hpp"
-	
-		"include/parsec/regex/RegularExpr.hpp"
-		"include/parsec/regex/ParseError.hpp"
-		"include/parsec/regex/Parser.hpp"
-
-	PRIVATE
-		"src/regex/ast/NodeTraverser.cpp"
-		"src/regex/ast/ExprNode.cpp"
-		"src/regex/ast/CharAtom.cpp"
-		"src/regex/ast/NilExpr.cpp"
-		"src/regex/ast/AlternExpr.cpp"
-		"src/regex/ast/ConcatExpr.cpp"
-		"src/regex/ast/PlusExpr.cpp"
-		"src/regex/ast/OptionalExpr.cpp"
-		"src/regex/ast/StarExpr.cpp"
-		
-		"src/regex/RegularExpr.cpp"
-		"src/regex/Parser.cpp"
-)
-
-
 
 # Optional components
 

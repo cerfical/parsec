@@ -3,9 +3,7 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 
-add_executable(parsec-tests
-	"src/RegularExprTest.cpp"
-)
+add_executable(parsec-tests)
 
 target_link_libraries(parsec-tests
 	PRIVATE parsec-lib
