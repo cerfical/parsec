@@ -7,6 +7,7 @@
 #include <gsl/gsl>
 
 #include <fstream>
+#include <iostream>
 #include <filesystem>
 #include <ranges>
 

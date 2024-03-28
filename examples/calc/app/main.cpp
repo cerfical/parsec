@@ -20,21 +20,21 @@ public:
 	}
 
 private:
-	void onFactor() override {
-		if(tokenAt(0).kind() == TokenKinds::Number) {
-			m_evalStack.push(std::stod(tokenAt(0).text()));
+	void onFactor(std::span<const Token> tokens) override {
+		if(tokens.front().kind() == TokenKinds::Number) {
+			m_evalStack.push(std::stod(tokens.front().text()));
 		}
 	}
 
-	void onExpr() override {
-		if(ruleTokens() == 1) {
-			evalBinary(tokenAt(0).kind());
+	void onExpr(std::span<const Token> tokens) override {
+		if(tokens.size() == 1) {
+			evalBinary(tokens.front().kind());
 		}
 	}
 
-	void onTerm() override {
-		if(ruleTokens() == 1) {
-			evalBinary(tokenAt(0).kind());
+	void onTerm(std::span<const Token> tokens) override {
+		if(tokens.size() == 1) {
+			evalBinary(tokens.front().kind());
 		}
 	}
 
