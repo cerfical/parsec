@@ -238,23 +238,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/bnf.hpp"
-
-		"include/parsec/bnf/GrammarSymbol.hpp"
-		"include/parsec/bnf/GrammarRule.hpp"
-		"include/parsec/bnf/Grammar.hpp"
-		"include/parsec/bnf/RegularPattern.hpp"
-		"include/parsec/bnf/RegularGrammar.hpp"
-
-	PRIVATE
-		"src/bnf/GrammarRule.cpp"
-		"src/bnf/Grammar.cpp"
-		"src/bnf/RegularPattern.cpp"
-)
-
-
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/utils/string_utils.hpp"
 		"include/parsec/utils/char_utils.hpp"
 
