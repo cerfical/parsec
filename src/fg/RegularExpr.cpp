@@ -58,7 +58,13 @@ namespace parsec::fg {
 
 			void visit(const AlternExpr& n) override {
 				n.left()->accept(*this);
-				n.right()->accept(*this);
+				if(m_status == Status::AtomFoundInLastPos) {
+					m_status = Status::Completed;
+					n.right()->accept(*this);
+					m_status = Status::AtomFoundInLastPos;
+				} else {
+					n.right()->accept(*this);
+				}
 			}
 
 			void visit(const ConcatExpr& n) override {
@@ -123,6 +129,10 @@ namespace parsec::fg {
 		if(!isEmpty()) {
 			std::size_t posIndex = 0;
 			computeFirstPos(m_rootNode, m_rootNode.get(), atoms, posIndex);
+			if(m_rootNode->isNullable()) {
+				// add an empty symbol to the set to represent the end marker
+				atoms.push_back(Atom(posIndex));
+			}
 		}
 		return atoms;
 	}
@@ -135,10 +145,6 @@ namespace parsec::fg {
 
 			void operator()() {
 				m_node->accept(*this);
-				if(m_node->isNullable()) {
-					// add an empty symbol to the set to represent the end marker
-					m_firstPos.push_back(Atom(m_posIndex));
-				}
 			}
 
 		private:
