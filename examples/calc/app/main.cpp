@@ -1,18 +1,15 @@
 #include <parsec/parsec.hpp>
-#include <parsec/deps.hpp>
-
-#include <gsl/gsl>
 
 #include <sstream>
+#include <iostream>
 #include <stack>
 
 #include "ExprParser.hpp"
 
 class ExprEvaluator : Parser {
 public:
-	double eval(const std::string& expr) {
-		std::istringstream in(expr);
-		parse(in);
+	double eval(std::string_view expr) {
+		parse(expr);
 		
 		const auto result = m_evalStack.top();
 		m_evalStack.pop();
@@ -60,15 +57,21 @@ private:
 	std::stack<double> m_evalStack;
 };
 
-int main(int argc, gsl::czstring argv[]) {
+int main(int argc, const char* argv[]) {
 	std::string expr;
-	for(const auto i : std::views::iota(1, argc)) {
+	for(int i = 1; i < argc; i++) {
 		expr += argv[i];
 	}
 
-	try {
-		std::cout << ExprEvaluator().eval(expr) << '\n';
-	} catch(const std::exception& e) {
-		std::cout << "fatal error: " << e.what() << '\n';
+	if(!expr.empty()) {
+		try {
+			const auto result = ExprEvaluator().eval(expr);
+			std::cout << expr << " = " << result << '\n';
+		} catch(...) {
+			std::cout << "error: invalid input" << '\n';
+		}
+	} else {
+		std::cerr << "error: empty input" << '\n';
 	}
+	return 1;
 }

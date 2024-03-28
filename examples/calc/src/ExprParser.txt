@@ -13,7 +13,7 @@ tokens {
 }
 
 rules {
-	root = expr;
+	root-expr = expr eof;
 	
 	expr = ( expr ( '+' | '-' ) )? term;
 	term = ( term ( '*' | '/' ) )? factor;
