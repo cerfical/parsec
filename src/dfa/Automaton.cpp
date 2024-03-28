@@ -51,27 +51,27 @@ namespace parsec::dfa {
 		}
 
 
-		const State emptyState(0);
+		const State emptyState;
 	}
 
 
-	class Automaton::Builder {
+	class Automaton::StateBuilder {
 	public:
 
-		Builder(Automaton& dfa)
-			: m_dfa(dfa) {}
+		StateBuilder(const fg::SymbolGrammar& grammar, StateList& states)
+			: m_grammar(grammar), m_states(states) {}
 
-		void buildFromGrammar(const fg::SymbolGrammar& inputGrammar) {
-			if(auto startState = createStartState(inputGrammar); !startState.empty()) {
-				createState(std::move(startState));
-				m_dfa.m_states[0].setStartState(true);
+		void run() {
+			if(auto startState = createStartState(); !startState.empty()) {
+				const auto startStateId = buildState(std::move(startState));
+				m_states[startStateId].setStartState(true);
 			}
 		}
 
 	private:
-		ItemSet createStartState(const fg::SymbolGrammar& inputGrammar) const {
+		ItemSet createStartState() const {
 			ItemSet items;
-			for(const auto& rule : inputGrammar.rules()) {
+			for(const auto& rule : m_grammar.rules()) {
 				for(const auto& atom : rule.body().firstAtoms()) {
 					items.emplace(rule.head(), atom);
 				}
@@ -79,49 +79,54 @@ namespace parsec::dfa {
 			return items;
 		}
 
-		int createState(ItemSet&& stateItems) {
-			const auto [itemsToIdIt, wasInserted] = m_itemsToId.emplace(
+		int buildState(ItemSet&& stateItems) {
+			const auto [it, wasInserted] = m_itemSetsToIds.emplace(
 				std::move(stateItems),
-				static_cast<int>(m_itemsToId.size())
+				static_cast<int>(m_itemSetsToIds.size())
 			);
+			const auto& [itemSet, stateId] = *it;
 
 			if(wasInserted) {
-				m_dfa.m_states.emplace_back(itemsToIdIt->second);
-				buildStateTrans(itemsToIdIt->first, itemsToIdIt->second);
+				m_states.emplace_back(stateId);
+				buildTransitions(itemSet, stateId);
 			}
-			return itemsToIdIt->second;
+			return stateId;
 		}
 
-		void buildStateTrans(const ItemSet& items, int state) {
-			std::map<fg::Symbol, ItemSet> trans;
-			for(const auto& item : items) {
+		void buildTransitions(const ItemSet& stateItems, int stateId) {
+			// use map to lexicographically sort transitions by their labels
+			std::map<fg::Symbol, ItemSet> transitions;
+			
+			for(const auto& item : stateItems) {
 				if(item.isAtEnd()) {
-					if(!m_dfa.stateById(state).isAcceptState()) {
-						m_dfa.m_states[state].setAcceptSymbol(item.head());
+					if(!m_states[stateId].isMatchState()) {
+						m_states[stateId].setMatchedRule(item.head());
 						continue;
 					}
 					throw std::runtime_error("conflicting rules");
 				}
 
-				auto& itemTrans = trans[item.atom().symbol()];
+				auto& itemTrans = transitions[item.atom().symbol()];
 				for(const auto& pos : item.atom().followAtoms()) {
 					itemTrans.emplace(item.head(), pos);
 				}
 			}
 
-			for(auto& [inputSymbol, stateItems] : trans) {
-				const auto dest = createState(std::move(stateItems));
-				m_dfa.m_states[state].addTransition(dest, inputSymbol);
+			for(auto& [transLabel, transTarget] : transitions) {
+				const auto transTargetId = buildState(std::move(transTarget));
+				m_states[stateId].addTransition(transTargetId, transLabel);
 			}
 		}
 
-		std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemsToId;
-		Automaton& m_dfa;
+		std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemSetsToIds;
+
+		const fg::SymbolGrammar& m_grammar;
+		StateList& m_states;
 	};
 
 
-	Automaton::Automaton(const fg::SymbolGrammar& inputGrammar) {
-		Builder(*this).buildFromGrammar(inputGrammar);
+	Automaton::Automaton(const fg::SymbolGrammar& grammar) {
+		StateBuilder(grammar, m_states).run();
 	}
 
 

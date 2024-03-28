@@ -55,9 +55,9 @@ namespace parsec::src_gen {
 
 				genStateTransitions(state.transitions());
 
-				if(state.isAcceptState()) {
+				if(state.isMatchState()) {
 					m_out << "\t\t" << std::format("kind = TokenKinds::{};",
-						state.acceptSymbol().value()
+						state.matchedRule().value()
 					) << '\n';
 					m_out << "\t\t" << "goto accept;" << '\n';
 				} else {

@@ -14,7 +14,7 @@ namespace parsec::dfa {
 
 		Automaton() = default;
 
-		explicit Automaton(const fg::SymbolGrammar& inputGrammar);
+		explicit Automaton(const fg::SymbolGrammar& grammar);
 
 
 		std::span<const State> states() const {
@@ -36,8 +36,10 @@ namespace parsec::dfa {
 
 
 	private:
-		class Builder;
-		std::vector<State> m_states;
+		class StateBuilder;
+		using StateList = std::vector<State>;
+
+		StateList m_states;
 	};
 
 }

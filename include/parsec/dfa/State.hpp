@@ -11,6 +11,8 @@ namespace parsec::dfa {
 	class State {
 	public:
 
+		State() = default;
+
 		explicit State(int id)
 			: m_id(id) {}
 
@@ -24,16 +26,16 @@ namespace parsec::dfa {
 		}
 		
 
-		bool isAcceptState() const {
-			return !acceptSymbol().isEmpty();
+		bool isMatchState() const {
+			return !matchedRule().isEmpty();
 		}
 
-		const fg::Symbol& acceptSymbol() const {
-			return m_acceptSymbol;
+		const fg::Symbol& matchedRule() const {
+			return m_matchedRule;
 		}
 
-		void setAcceptSymbol(const fg::Symbol& symbol) {
-			m_acceptSymbol = symbol;
+		void setMatchedRule(const fg::Symbol& rule) {
+			m_matchedRule = rule;
 		}
 
 
@@ -46,6 +48,14 @@ namespace parsec::dfa {
 		}
 
 
+		explicit operator bool() const {
+			return !isEmpty();
+		}
+
+		bool isEmpty() const {
+			return m_transitions.empty() && !isStartState() && !isMatchState();
+		}
+
 		int id() const {
 			return m_id;
 		}
@@ -53,7 +63,7 @@ namespace parsec::dfa {
 
 	private:
 		std::vector<StateTrans> m_transitions;
-		fg::Symbol m_acceptSymbol;
+		fg::Symbol m_matchedRule;
 		int m_id = {};
 		bool m_startState = false;
 	};

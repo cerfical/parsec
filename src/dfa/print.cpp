@@ -7,8 +7,8 @@ namespace parsec::dfa {
 			out << "=> ";
 		}
 		out << state;
-		if(state.isAcceptState()) {
-			out << " => " << state.acceptSymbol();
+		if(state.isMatchState()) {
+			out << " => " << state.matchedRule();
 		}
 		out << '\n';
 
@@ -20,7 +20,7 @@ namespace parsec::dfa {
 
 	void print(const Automaton& dfa, std::ostream& out, std::string_view indent) {
 		for(const auto& state : dfa.states()) {
-			print(state);
+			print(state, out, indent);
 		}
 	}
 
