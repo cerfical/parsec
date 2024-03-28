@@ -179,9 +179,9 @@ target_sources(parsec-lib
 		"include/parsec/src_gen/CodeGen.hpp"
 		"include/parsec/src_gen/CppLexerGen.hpp"
 		"include/parsec/src_gen/CppParserGen.hpp"
+		"include/parsec/src_gen/cpp_utils.hpp"
 
 	PRIVATE
-		"src/src_gen/cpp_utils.hpp"
 		"src/src_gen/cpp_utils.cpp"
 		"src/src_gen/CppLexerGen.cpp"
 		"src/src_gen/CppParserGen.cpp"

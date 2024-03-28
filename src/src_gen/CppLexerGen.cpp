@@ -1,7 +1,7 @@
 #include "src_gen/CppLexerGen.hpp"
 
+#include "src_gen/cpp_utils.hpp"
 #include "dfa/Automaton.hpp"
-#include "cpp_utils.hpp"
 
 #include "utils/char_utils.hpp"
 #include "utils/string_utils.hpp"

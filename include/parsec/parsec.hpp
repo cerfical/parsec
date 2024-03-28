@@ -9,7 +9,6 @@
 #include "core/Parser.hpp"
 #include "core/Lexer.hpp"
 
-#include "core/CppSrcGen.hpp"
 #include "core/Compiler.hpp"
 
 namespace parsec {}

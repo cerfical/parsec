@@ -1,46 +1,53 @@
-#include "cpp_utils.hpp"
+#include "src_gen/cpp_utils.hpp"
 
 #include <format>
 #include <sstream>
 
 namespace parsec::src_gen::cpp_utils {
 	namespace {
-		void genEnumOutputOperator(std::ostream& out, const fg::Symbol& name, std::span<const fg::Symbol> values) {
-			out << std::format("std::ostream& operator<<(std::ostream& out, {} v) {{", name.value()) << '\n'
-				<< "\t" << "switch(v) {" << '\n';
+		void genEnumOutputOperator(std::ostream& out, const fg::Symbol& enumName, std::span<const fg::Symbol> valueNames) {
+			out << std::format("std::ostream& operator<<(std::ostream& out, {} v) {{", enumName.value()) << '\n';
+			out << "\t" << "switch(v) {" << '\n';
 
-			for(const auto& value : values) {
-				out << "\t\t" << std::format("case {0}::{1}: out << \"{1}\"; break;", name.value(), value.value()) << '\n';
+			for(const auto& name : valueNames) {
+				out << "\t\t" << std::format("case {0}::{1}: out << \"{1}\"; break;", enumName.value(), name.value()) << '\n';
 			}
+			out << "\t\t" << "default: break;" << '\n';
 			
-			out << "\t" << "}" << '\n'
-				<< "\t" << "return out;" << '\n'
-				<< "}" << '\n';
+			out << "\t" << "}" << '\n';
+			out << "\t" << "return out;" << '\n';
+			out << "}" << '\n';
 		}
 
-		void genEnumValues(std::ostream& out, std::span<const fg::Symbol> values) {
-			bool first = true;
-			for(const auto& value : values) {
-				if(!std::exchange(first, false)) {
-					out << ',' << '\n';
+
+		void genEnumValues(std::ostream& out, std::span<const fg::Symbol> valueNames) {
+			for(bool first = true; const auto& name : valueNames) {
+				if(!first) {
+					out << ',';
+				} else {
+					first = false;
 				}
-				out << "\t" << value;
+				out << '\n' << "\t" << name.value();
 			}
-			out << '\n';
 		}
 	}
 
 	
-	std::string makeEnum(const fg::Symbol& name, std::span<const fg::Symbol> values) {
+	std::string makeEnum(const fg::Symbol& enumName, std::span<const fg::Symbol> valueNames) {
 		std::ostringstream out;
 
-		out << std::format("enum class {} {{", name.value()) << '\n';
-		genEnumValues(out, values);
-		out << "};" << '\n'
-			<< '\n';
+		out << std::format("enum class {} {{", enumName.value());
+		
+		genEnumValues(out, valueNames);
+		if(!valueNames.empty()) {
+			out << '\n';
+		}
 
-		genEnumOutputOperator(out, name, values);
+		out << "};" << '\n';
+		out << '\n';
 
-		return out.str();
+		genEnumOutputOperator(out, enumName, valueNames);
+
+		return std::move(out).str();
 	}
 }
