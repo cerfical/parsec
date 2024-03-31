@@ -10,84 +10,6 @@
 
 namespace parsec::pars {
 	namespace {
-
-		class DescribeToken : private TokenKindVisitor {
-		public:
-
-			const std::string& operator()(TokenKinds tok) {
-				visit(tok);
-				return m_desc;
-			}
-
-		private:
-			void onNil() override {
-				m_desc = "an empty token";
-			}
-
-			void onEof() override {
-				m_desc = "an end of file";
-			}
-
-
-			void onIdent() override {
-				m_desc = "an identifier";
-			}
-
-			void onPatternString() override {
-				m_desc = "a string pattern";
-			}
-
-			void onRawString() override {
-				m_desc = "a string literal";
-			}
-
-
-			void onStar() override {
-				m_desc = "a '*'";
-			}
-			
-			void onPlus() override {
-				m_desc = "a '+'";
-			}
-
-			void onQo() override {
-				m_desc = "a '?'";
-			}
-			
-			void onPipe() override {
-				m_desc = "a '|'";
-			}
-			
-
-			void onSemicolon() override {
-				m_desc = "a ';'";
-			}
-			
-			void onEquals() override {
-				m_desc = "an '='";
-			}
-
-			void onLeftBrace() override {
-				m_desc = "a '{'";
-			}
-
-			void onRightBrace() override {
-				m_desc = "a '}'";
-			}
-			
-			void onLeftParen() override {
-				m_desc = "a '('";
-			}
-
-			void onRightParen() override {
-				m_desc = "a ')'";
-			}
-
-
-			std::string m_desc;
-		};
-
-
 		class ParseStream {
 		public:
 
@@ -100,6 +22,33 @@ namespace parsec::pars {
 			}
 
 		private:
+			static std::string describeToken(TokenKinds tok) {
+				switch(tok) {
+					case TokenKinds::Nil: return "an empty token";
+					case TokenKinds::Eof: return "an end of file";
+					
+					case TokenKinds::Ident: return "an identifier";
+					case TokenKinds::PatternString: return "a string pattern";
+					case TokenKinds::RawString: return "a string literal";
+
+					case TokenKinds::Star: return "a '*'";
+					case TokenKinds::Plus: return "a '+'";
+					case TokenKinds::Qo: return "a '?'";
+					case TokenKinds::Pipe: return "a '|'";
+
+					case TokenKinds::Semicolon: return "a ';'";
+					case TokenKinds::Equals: return "an '='";
+					
+					case TokenKinds::LeftBrace: return "a '{'";
+					case TokenKinds::RightBrace: return "a '}'";
+
+					case TokenKinds::LeftParen: return "a '('";
+					case TokenKinds::RightParen: return "a ')'";
+				}
+				return "";
+			}
+
+
 			[[noreturn]] void unexpectedTokenError() {
 				const auto& tok = m_lexer.peek();
 				throw UnexpectedTokenError(
@@ -113,8 +62,8 @@ namespace parsec::pars {
 
 			[[noreturn]] void unmatchedTokenError(TokenKinds expect) {
 				throw TokenMismatchError(m_lexer.loc(),
-					DescribeToken()(expect),
-					DescribeToken()(m_lexer.peek().kind())
+					describeToken(expect),
+					describeToken(m_lexer.peek().kind())
 				);
 			}
 

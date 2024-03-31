@@ -47,6 +47,12 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/parsec.hpp"
 		"include/parsec/deps.hpp"
+		"include/parsec/stringify.hpp"
+		"include/parsec/print.hpp"
+
+	PRIVATE
+		"src/stringify.cpp"
+		"src/print.cpp"
 )
 
 
@@ -115,11 +121,8 @@ target_sources(parsec-lib
 		"include/parsec/pars/ast/StarRule.hpp"
 
 	PRIVATE
-		"src/pars/TokenKinds.cpp"
-		"src/pars/Token.cpp"
 		"src/pars/Lexer.cpp"
 		"src/pars/Parser.cpp"
-		
 		"src/pars/ast.cpp"
 )
 

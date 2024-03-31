@@ -6,8 +6,8 @@
 	PARSEC_PARS_TOKEN_KIND(Eof, End of file) \
 \
 	PARSEC_PARS_TOKEN_KIND(Ident, Identifier) \
-	PARSEC_PARS_TOKEN_KIND(PatternString, String pattern) \
-	PARSEC_PARS_TOKEN_KIND(RawString, String literal) \
+	PARSEC_PARS_TOKEN_KIND(PatternString, Regex string pattern) \
+	PARSEC_PARS_TOKEN_KIND(RawString, Raw string literal) \
 \
 	PARSEC_PARS_TOKEN_KIND(Star, Asterisk symbol) \
 	PARSEC_PARS_TOKEN_KIND(Plus, Plus symbol) \
@@ -17,46 +17,26 @@
 	PARSEC_PARS_TOKEN_KIND(Semicolon, Semicolon) \
 	PARSEC_PARS_TOKEN_KIND(Equals, Equals sign) \
 \
-	PARSEC_PARS_TOKEN_KIND(LeftBrace, Opening brace) \
-	PARSEC_PARS_TOKEN_KIND(RightBrace, Closing brace) \
+	PARSEC_PARS_TOKEN_KIND(LeftBrace, Opening curly brace) \
+	PARSEC_PARS_TOKEN_KIND(RightBrace, Closing curly brace) \
 \
 	PARSEC_PARS_TOKEN_KIND(LeftParen, Opening parenthesis) \
 	PARSEC_PARS_TOKEN_KIND(RightParen, Closing parenthesis)
 
-#include <ostream>
-
 namespace parsec::pars {
 
-#define PARSEC_PARS_TOKEN_KIND(tok, comment) tok,
+#define PARSEC_PARS_TOKEN_KIND(tok, comment) /** @brief comment##. */ tok,
 
+	/**
+	 * @brief List of token types produced by @ref parsec::pars::Lexer "Lexer".
+	*/
 	enum class TokenKinds {
-		PARSEC_PARS_TOKEN_KIND_LIST
-	};
-
-#undef PARSEC_PARS_TOKEN_KIND
-
-
-
-	class TokenKindVisitor {
-	public:
-		
-		void visit(TokenKinds tok);
-
-	protected:
-		~TokenKindVisitor() = default;
-
-
-#define PARSEC_PARS_TOKEN_KIND(tok, comment) virtual void on##tok() = 0;
 
 		PARSEC_PARS_TOKEN_KIND_LIST
 
-#undef PARSEC_PARS_TOKEN_KIND
-
 	};
 
-
-
-	std::ostream& operator<<(std::ostream& out, TokenKinds tok);
+#undef PARSEC_PARS_TOKEN_KIND
 
 }
 

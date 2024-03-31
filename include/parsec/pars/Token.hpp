@@ -14,10 +14,6 @@ namespace parsec::pars {
 	class Token {
 	public:
 
-		friend std::ostream& operator<<(std::ostream& out, const Token& tok);
-
-
-
 		Token() = default;
 
 		Token(const std::string& text, TokenKinds kind, const SourceLoc& loc)

@@ -9,7 +9,7 @@
 #include "pars/ast.hpp"
 
 /**
- * @brief Syntactic and lexical analysis of textual specifications for parsers.
+ * @brief Responsible for parsing textual specifications of syntax analyzers.
 */
 namespace parsec::pars {}
 
