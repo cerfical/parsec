@@ -1,11 +1,12 @@
 #include "pars/Parser.hpp"
 
 #include "pars/Lexer.hpp"
-#include "pars/ParseError.hpp"
 #include "pars/ast.hpp"
 
+#include "errors/UnexpectedTokenError.hpp"
+#include "errors/TokenMismatchError.hpp"
+
 #include <sstream>
-#include <format>
 
 namespace parsec::pars {
 	namespace {
@@ -13,7 +14,7 @@ namespace parsec::pars {
 		class DescribeToken : private TokenKindVisitor {
 		public:
 
-			auto operator()(TokenKinds tok) {
+			const std::string& operator()(TokenKinds tok) {
 				visit(tok);
 				return m_desc;
 			}
@@ -83,7 +84,7 @@ namespace parsec::pars {
 			}
 
 
-			std::string_view m_desc;
+			std::string m_desc;
 		};
 
 
@@ -101,23 +102,19 @@ namespace parsec::pars {
 		private:
 			[[noreturn]] void unexpectedTokenError() {
 				const auto& tok = m_lexer.peek();
-				throw ParseError(std::format("unexpected \"{}\"",
-						tok.text()
-					), tok.loc()
+				throw UnexpectedTokenError(
+					tok.loc(), tok.text()
 				);
 			}
 
 			[[noreturn]] void unmatchedParenError(const SourceLoc& parenLoc) {
-				throw ParseError("unmatched parenthesis", parenLoc);
+				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
 			}
 
 			[[noreturn]] void unmatchedTokenError(TokenKinds expect) {
-				throw ParseError(
-					std::format("expected {}, but got {}",
-						DescribeToken()(expect),
-						DescribeToken()(m_lexer.peek().kind())
-					),
-					m_lexer.loc()
+				throw TokenMismatchError(m_lexer.loc(),
+					DescribeToken()(expect),
+					DescribeToken()(m_lexer.peek().kind())
 				);
 			}
 

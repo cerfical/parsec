@@ -55,7 +55,6 @@ target_sources(parsec-lib
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/IndexRange.hpp"
 		"include/parsec/core/LineInfo.hpp"
-		"include/parsec/core/EofError.hpp"
 
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
@@ -75,8 +74,23 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/errors/Error.hpp"
+		"include/parsec/errors/ErrorCodes.hpp"
+		"include/parsec/errors/ParseError.hpp"
+		"include/parsec/errors/UnexpectedEofError.hpp"
+		"include/parsec/errors/InvalidCharError.hpp"
+		"include/parsec/errors/UnexpectedTokenError.hpp"
+		"include/parsec/errors/TokenMismatchError.hpp"
+		"include/parsec/errors.hpp"
+
+	PRIVATE
+		"src/errors.cpp"
+)
+
+
+target_sources(parsec-lib
+	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/pars.hpp"
-		"include/parsec/pars/ParseError.hpp"
 		"include/parsec/pars/TokenKinds.hpp"
 		"include/parsec/pars/Token.hpp"
 		"include/parsec/pars/Lexer.hpp"

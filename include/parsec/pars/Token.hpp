@@ -4,7 +4,6 @@
 #include "../core/SourceLoc.hpp"
 #include "TokenKinds.hpp"
 
-#include <string_view>
 #include <string>
 
 namespace parsec::pars {
@@ -21,9 +20,8 @@ namespace parsec::pars {
 
 		Token() = default;
 
-		Token(std::string_view text, TokenKinds kind, const SourceLoc& loc)
-			: m_text(text), m_loc(loc), m_kind(kind) {
-		}
+		Token(const std::string& text, TokenKinds kind, const SourceLoc& loc)
+			: m_text(text), m_loc(loc), m_kind(kind) {}
 
 
 
@@ -41,7 +39,7 @@ namespace parsec::pars {
 		/**
 		 * @brief Character sequence enclosed by the token.
 		*/
-		std::string_view text() const noexcept {
+		const std::string& text() const noexcept {
 			return m_text;
 		}
 

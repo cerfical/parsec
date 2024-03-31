@@ -1,23 +1,11 @@
 #include "pars/Lexer.hpp"
-#include "pars/ParseError.hpp"
 
-#include "core/EofError.hpp"
+#include "errors/InvalidCharError.hpp"
+#include "errors/UnexpectedEofError.hpp"
+
 #include "utils/char_utils.hpp"
 
-#include <format>
-
 namespace parsec::pars {
-	void Lexer::unexpectedEolError() {
-		throw ParseError("unexpected end of line", loc());
-	}
-
-	void Lexer::unexpectedCharError() {
-		throw ParseError(std::format("unexpected '{}'",
-			char_utils::escape(m_scanner.peek())
-		), loc());
-	}
-
-
 	void Lexer::skipWhitespace() {
 		while(true) {
 			// nothing to skip, the input is empty
@@ -82,7 +70,7 @@ namespace parsec::pars {
 		const auto delim = m_scanner.get();
 		while(true) {
 			if(m_scanner.peek() == '\n') {
-				unexpectedEolError();
+				throw UnexpectedEofError(loc());
 			}
 
 			if(m_scanner.skipIf(delim)) {
@@ -118,7 +106,7 @@ namespace parsec::pars {
 			case '+': kind = TokenKinds::Plus; break;
 			case '?': kind = TokenKinds::Qo; break;
 			default: {
-				unexpectedCharError();
+				throw InvalidCharError(loc(), m_scanner.peek());
 			}
 		}
 		m_buf += m_scanner.get();
@@ -145,13 +133,9 @@ namespace parsec::pars {
 
 
 	Token Lexer::nextToken() {
-		try {
-			const auto kind = parseToken();
-			return Token(
-				m_buf, kind, loc()
-			);
-		} catch(const EofError& e) {
-			throw ParseError("unexpected end of file", loc());
-		}
+		const auto kind = parseToken();
+		return Token(
+			m_buf, kind, loc()
+		);
 	}
 }

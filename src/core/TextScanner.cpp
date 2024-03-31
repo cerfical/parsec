@@ -1,11 +1,9 @@
 #include "core/TextScanner.hpp"
-#include "core/EofError.hpp"
-
-#include <gsl/narrow>
+#include "errors/UnexpectedEofError.hpp"
 
 namespace parsec {
 	void TextScanner::unexpectedEof() const {
-		throw EofError(pos());
+		throw UnexpectedEofError(loc());
 	}
 
 

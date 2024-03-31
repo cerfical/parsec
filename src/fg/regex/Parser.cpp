@@ -1,8 +1,6 @@
 #include "fg/regex.hpp"
 
 #include "core/TextScanner.hpp"
-#include "core/EofError.hpp"
-
 #include "utils/char_utils.hpp"
 
 #include <sstream>
@@ -205,13 +203,7 @@ namespace parsec::fg::regex {
 			}
 			
 			RegularExpr parseExpr() {
-				try {
-					return parseAltern();
-				} catch(const EofError& e) {
-					throw ParseError("unexpected end of string",
-						IndexRange(e.loc(), e.loc())
-					);
-				}
+				return parseAltern();
 			}
 
 

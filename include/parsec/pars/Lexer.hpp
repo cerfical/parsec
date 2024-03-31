@@ -126,9 +126,6 @@ namespace parsec::pars {
 
 
 	private:
-		[[noreturn]] void unexpectedEolError();
-		[[noreturn]] void unexpectedCharError();
-
 		void skipWhitespace();
 		void resetParse();
 
