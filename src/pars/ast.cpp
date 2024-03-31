@@ -1,11 +1,11 @@
 #include "pars/ast.hpp"
 
 namespace parsec::pars::ast {
-	void NilNode::acceptVisitor(NodeVisitor& visitor) const {
+	void EmptyNode::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void NodeList::acceptVisitor(NodeVisitor& visitor) const {
+	void ListNode::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
@@ -19,11 +19,11 @@ namespace parsec::pars::ast {
 	}
 	
 	
-	void NilRule::acceptVisitor(NodeVisitor& visitor) const {
+	void EmptyRule::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
-	void NameRule::acceptVisitor(NodeVisitor& visitor) const {
+	void SymbolRule::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 

@@ -12,9 +12,8 @@ namespace parsec::pars::ast {
 	class NamedRule : public Node {
 	public:
 			
-		NamedRule(Token name, NodePtr rule)
-			: name(std::move(name)), rule(std::move(rule))
-		{ }
+		NamedRule(const Token& name, NodePtr rule)
+			: m_name(name), m_rule(std::move(rule)) {}
 
 		~NamedRule() override = default;
 
@@ -22,8 +21,25 @@ namespace parsec::pars::ast {
 		void acceptVisitor(NodeVisitor& visitor) const override;
 
 
-		Token name;
-		NodePtr rule;
+		/**
+		 * @brief Name of the rule.
+		*/
+		const Token& name() const {
+			return m_name;
+		}
+
+
+		/**
+		 * @brief Body of the rule.
+		*/
+		const Node* rule() const {
+			return m_rule.get();
+		}
+
+
+	private:
+		Token m_name;
+		NodePtr m_rule;
 	};
 
 }

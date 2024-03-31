@@ -104,7 +104,7 @@ namespace parsec::pars {
 			case '|': kind = TokenKinds::Pipe; break;
 			case '*': kind = TokenKinds::Star; break;
 			case '+': kind = TokenKinds::Plus; break;
-			case '?': kind = TokenKinds::Qo; break;
+			case '?': kind = TokenKinds::QuestionMark; break;
 			default: {
 				throw InvalidCharError(loc(), m_scanner.peek());
 			}

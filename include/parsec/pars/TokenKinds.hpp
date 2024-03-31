@@ -2,7 +2,7 @@
 #define PARSEC_PARS_TOKEN_KINDS_HEADER
 
 #define PARSEC_PARS_TOKEN_KIND_LIST \
-	PARSEC_PARS_TOKEN_KIND(Nil, Empty token) \
+	PARSEC_PARS_TOKEN_KIND(EmptyToken, Empty token) \
 	PARSEC_PARS_TOKEN_KIND(Eof, End of file) \
 \
 	PARSEC_PARS_TOKEN_KIND(Ident, Identifier) \
@@ -11,9 +11,8 @@
 \
 	PARSEC_PARS_TOKEN_KIND(Star, Asterisk symbol) \
 	PARSEC_PARS_TOKEN_KIND(Plus, Plus symbol) \
-	PARSEC_PARS_TOKEN_KIND(Qo, Question mark) \
+	PARSEC_PARS_TOKEN_KIND(QuestionMark, Question mark) \
 	PARSEC_PARS_TOKEN_KIND(Pipe, Vertical bar) \
-\
 	PARSEC_PARS_TOKEN_KIND(Semicolon, Semicolon) \
 	PARSEC_PARS_TOKEN_KIND(Equals, Equals sign) \
 \

@@ -1,19 +1,17 @@
 #ifndef PARSEC_PARS_AST_STAR_RULE_HEADER
 #define PARSEC_PARS_AST_STAR_RULE_HEADER
 
-#include "UnaryNode.hpp"
+#include "UnaryRule.hpp"
 
 namespace parsec::pars::ast {
 
 	/**
-	 * @brief Repeats another rule zero or more times.
+	 * @brief Denotes an application of the Kleene star operator to a rule.
 	*/
-	class StarRule : public UnaryNode {
+	class StarRule : public UnaryRule {
 	public:
 
-		explicit StarRule(NodePtr inner)
-			: UnaryNode(std::move(inner))
-		{ }
+		using UnaryRule::UnaryRule;
 
 		void acceptVisitor(NodeVisitor& visitor) const override;
 

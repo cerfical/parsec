@@ -6,11 +6,14 @@
 
 namespace parsec::pars::ast {
 
+	/**
+	 * @brief Definition of a named token.
+	*/
 	class NamedToken : public Node {
 	public:
 
 		NamedToken(const Token& name, const Token& pattern)
-			: name(name), pattern(pattern) {}
+			: m_name(name), m_pattern(pattern) {}
 
 		~NamedToken() override = default;
 
@@ -18,8 +21,25 @@ namespace parsec::pars::ast {
 		void acceptVisitor(NodeVisitor& visitor) const override;
 
 
-		Token name;
-		Token pattern;
+		/**
+		 * @brief Name of the token.
+		*/
+		const Token& name() const {
+			return m_name;
+		}
+
+
+		/**
+		 * @brief String pattern for the token.
+		*/
+		const Token& pattern() const {
+			return m_pattern;
+		}
+
+
+	private:
+		Token m_name;
+		Token m_pattern;
 	};
 
 }

@@ -1,19 +1,17 @@
 #ifndef PARSEC_PARS_AST_OPTIONAL_RULE_HEADER
 #define PARSEC_PARS_AST_OPTIONAL_RULE_HEADER
 
-#include "UnaryNode.hpp"
+#include "UnaryRule.hpp"
 
 namespace parsec::pars::ast {
 
 	/**
-	 * @brief Makes another rule 'optional', in the sense that it is either present or not.
+	 * @brief Denotes an optional rule.
 	*/
-	class OptionalRule : public UnaryNode {
+	class OptionalRule : public UnaryRule {
 	public:
 
-		explicit OptionalRule(NodePtr inner)
-			: UnaryNode(std::move(inner))
-		{ }
+		using UnaryRule::UnaryRule;
 
 		void acceptVisitor(NodeVisitor& visitor) const override;
 

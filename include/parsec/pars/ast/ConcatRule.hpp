@@ -1,19 +1,17 @@
 #ifndef PARSEC_PARS_AST_CONCAT_RULE_HEADER
 #define PARSEC_PARS_AST_CONCAT_RULE_HEADER
 
-#include "BinaryNode.hpp"
+#include "BinaryRule.hpp"
 
 namespace parsec::pars::ast {
 
 	/**
-	 * @brief Rule appending one rule after another.
+	 * @brief Concatenation of two rules.
 	*/
-	class ConcatRule : public BinaryNode {
+	class ConcatRule : public BinaryRule {
 	public:
-			
-		ConcatRule(NodePtr left, NodePtr right)
-			: BinaryNode(std::move(left), std::move(right))
-		{ }
+
+		using BinaryRule::BinaryRule;
 
 		void acceptVisitor(NodeVisitor& visitor) const override;
 

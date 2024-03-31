@@ -1,6 +1,9 @@
 #ifndef PARSEC_PARS_AST_NODE_HEADER
 #define PARSEC_PARS_AST_NODE_HEADER
 
+#include "../../core/NonCopyable.hpp"
+#include "../../core/NonMovable.hpp"
+
 #include <concepts>
 #include <memory>
 
@@ -11,24 +14,16 @@ namespace parsec::pars::ast {
 	/**
 	 * @brief Polymorphic entry point into an AST node.
 	*/
-	class Node {
+	class Node : private NonCopyable, private NonMovable {
 	public:
-
-		Node() = default;
-
-		Node(const Node&) = delete;
-		Node& operator=(const Node&) = delete;
 
 		virtual ~Node() = default;
 
 
-
-		/** @{ */
 		/**
 		 * @brief Perform a 'visit' operation on the node using a NodeVisitor instance.
 		*/
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
-		/** @} */
 
 	};
 

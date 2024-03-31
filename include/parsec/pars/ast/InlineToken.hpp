@@ -6,11 +6,14 @@
 
 namespace parsec::pars::ast {
 
+	/**
+	 * @brief Definition of an inline token without a name.
+	*/
 	class InlineToken : public Node {
 	public:
 
 		explicit InlineToken(const Token& pattern)
-			: pattern(pattern) {}
+			: m_pattern(pattern) {}
 
 		~InlineToken() override = default;
 
@@ -18,7 +21,16 @@ namespace parsec::pars::ast {
 		void acceptVisitor(NodeVisitor& visitor) const override;
 
 
-		Token pattern;
+		/**
+		 * @brief String pattern for the token.
+		*/
+		const Token& pattern() const {
+			return m_pattern;
+		}
+
+
+	private:
+		Token m_pattern;
 	};
 
 }

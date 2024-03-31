@@ -58,19 +58,19 @@ namespace parsec {
 
 
 		private:
-			void visit(const NodeList& n) {
-				n.rest->acceptVisitor(*this);
-				n.last->acceptVisitor(*this);
+			void visit(const ListNode& n) {
+				n.head()->acceptVisitor(*this);
+				n.tail()->acceptVisitor(*this);
 			}
 
 			void visit(const NamedToken& n) {
-				const auto patternName = makeName(n.name);
-				if(n.pattern.is(pars::TokenKinds::PatternString)) {
-					m_patternStringNames[n.pattern.text()] = patternName;
+				const auto patternName = makeName(n.name());
+				if(n.pattern().is(pars::TokenKinds::PatternString)) {
+					m_patternStringNames[n.pattern().text()] = patternName;
 				} else {
-					m_rawStringNames[n.pattern.text()] = patternName;
+					m_rawStringNames[n.pattern().text()] = patternName;
 				}
-				defineToken(patternName, n.pattern);
+				defineToken(patternName, n.pattern());
 			}
 			
 			void defineToken(const std::string& name, const pars::Token& pattern) {
@@ -83,9 +83,9 @@ namespace parsec {
 			
 
 			void visit(const InlineToken& n) {}
-			void visit(const NilNode& n) {}
-			void visit(const NilRule& n) {}
-			void visit(const NameRule& n) {}
+			void visit(const EmptyNode& n) {}
+			void visit(const EmptyRule& n) {}
+			void visit(const SymbolRule& n) {}
 			void visit(const ConcatRule& n) {}
 			void visit(const AlternRule& n) {}
 			void visit(const OptionalRule& n) {}
@@ -121,17 +121,17 @@ namespace parsec {
 
 
 		private:
-			void visit(const NilNode& n) {}
+			void visit(const EmptyNode& n) {}
 
-			void visit(const NodeList& n) {
-				n.rest->acceptVisitor(*this);
-				n.last->acceptVisitor(*this);
+			void visit(const ListNode& n) {
+				n.head()->acceptVisitor(*this);
+				n.tail()->acceptVisitor(*this);
 			}
 
 
 
 			void visit(const InlineToken& n) {
-				const auto& inlinePatternName = m_patterns.getTokenName(n.pattern);
+				const auto& inlinePatternName = m_patterns.getTokenName(n.pattern());
 				m_rule = fg::Symbol(inlinePatternName);
 			}
 
@@ -139,47 +139,47 @@ namespace parsec {
 
 
 
-			void visit(const NilRule& n) {
+			void visit(const EmptyRule& n) {
 				m_rule = fg::Symbol();
 			}
 
-			void visit(const NameRule& n) {
-				m_rule = fg::Symbol(makeName(n.name));
+			void visit(const SymbolRule& n) {
+				m_rule = fg::Symbol(makeName(n.symbol()));
 			}
 
 			void visit(const ConcatRule& n) {
-				n.left->acceptVisitor(*this);
+				n.left()->acceptVisitor(*this);
 				auto left = m_rule;
-				n.right->acceptVisitor(*this);
+				n.right()->acceptVisitor(*this);
 				m_rule = left + m_rule;
 			}
 
 			void visit(const AlternRule& n) {
-				n.left->acceptVisitor(*this);
+				n.left()->acceptVisitor(*this);
 				auto left = m_rule;
-				n.right->acceptVisitor(*this);
+				n.right()->acceptVisitor(*this);
 				m_rule = left | m_rule;
 			}
 
 			void visit(const OptionalRule& n) {
-				n.inner->acceptVisitor(*this);
+				n.inner()->acceptVisitor(*this);
 				m_rule = optional(m_rule);
 			}
 
 			void visit(const PlusRule& n) {
-				n.inner->acceptVisitor(*this);
+				n.inner()->acceptVisitor(*this);
 				m_rule = plusClosure(m_rule);
 			}
 			
 			void visit(const StarRule& n) {
-				n.inner->acceptVisitor(*this);
+				n.inner()->acceptVisitor(*this);
 				m_rule = starClosure(m_rule);
 			}
 
 			void visit(const NamedRule& n) {
-				n.rule->acceptVisitor(*this);
+				n.rule()->acceptVisitor(*this);
 
-				const auto ruleName = makeName(n.name);
+				const auto ruleName = makeName(n.name());
 				m_parser.define(ruleName, m_rule);
 
 				// make the first symbol encountered the start symbol

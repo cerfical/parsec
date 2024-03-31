@@ -1,19 +1,17 @@
 #ifndef PARSEC_PARS_AST_PLUS_RULE_HEADER
 #define PARSEC_PARS_AST_PLUS_RULE_HEADER
 
-#include "UnaryNode.hpp"
+#include "UnaryRule.hpp"
 
 namespace parsec::pars::ast {
 
 	/**
-	 * @brief Repeats another rule one or more times.
+	 * @brief Denotes an application of the Kleene plus operator to a rule.
 	*/
-	class PlusRule : public UnaryNode {
+	class PlusRule : public UnaryRule {
 	public:
 
-		explicit PlusRule(NodePtr inner)
-			: UnaryNode(std::move(inner))
-		{ }
+		using UnaryRule::UnaryRule;
 
 		void acceptVisitor(NodeVisitor& visitor) const override;
 
