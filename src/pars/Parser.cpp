@@ -67,9 +67,10 @@ namespace parsec::pars {
 			}
 
 
-			Token expectToken(TokenKinds kind) {
-				if(!m_lexer.peek().is(kind)) {
-					unmatchedTokenError(kind);
+			template <TokenKinds tok>
+			Token expect() {
+				if(!m_lexer.peek().is<tok>()) {
+					unmatchedTokenError(tok);
 				}
 				return m_lexer.lex();
 			}
@@ -161,17 +162,17 @@ namespace parsec::pars {
 			ast::NodePtr parseTokenList() {
 				auto tokens = ast::makeNode<ast::EmptyNode>();
 
-				expectToken(TokenKinds::LeftBrace);
+				expect<TokenKinds::LeftBrace>();
 				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					auto name = expectToken(TokenKinds::Ident);
-					expectToken(TokenKinds::Equals);
+					auto name = expect<TokenKinds::Ident>();
+					expect<TokenKinds::Equals>();
 					
 					if(const auto kind = m_lexer.peek().kind(); kind != TokenKinds::PatternString && kind != TokenKinds::RawString) {
 						unexpectedTokenError();
 					}
 					
 					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
-					expectToken(TokenKinds::Semicolon);
+					expect<TokenKinds::Semicolon>();
 					
 					tokens = ast::makeNode<ast::ListNode>(
 						std::move(tokens),
@@ -185,16 +186,16 @@ namespace parsec::pars {
 			ast::NodePtr parseRuleList() {
 				auto rules = ast::makeNode<ast::EmptyNode>();
 
-				expectToken(TokenKinds::LeftBrace);
+				expect<TokenKinds::LeftBrace>();
 				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					auto name = expectToken(TokenKinds::Ident);
-					expectToken(TokenKinds::Equals);
+					auto name = expect<TokenKinds::Ident>();
+					expect<TokenKinds::Equals>();
 
 					auto rule = ast::makeNode<ast::NamedRule>(
 						std::move(name),
 						parseRule()
 					);
-					expectToken(TokenKinds::Semicolon);
+					expect<TokenKinds::Semicolon>();
 
 					rules = ast::makeNode<ast::ListNode>(
 						std::move(rules),

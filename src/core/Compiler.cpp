@@ -40,7 +40,7 @@ namespace parsec {
 
 
 			const std::string& getTokenName(const pars::Token& pattern) {
-				const auto [stringToNameIt, wasInserted] = pattern.is(pars::TokenKinds::PatternString) ?
+				const auto [stringToNameIt, wasInserted] = pattern.is<pars::TokenKinds::PatternString>() ?
 					m_patternStringNames.try_emplace(pattern.text()) :
 					m_rawStringNames.try_emplace(pattern.text());
 
@@ -65,7 +65,7 @@ namespace parsec {
 
 			void visit(const NamedToken& n) {
 				const auto patternName = makeName(n.name());
-				if(n.pattern().is(pars::TokenKinds::PatternString)) {
+				if(n.pattern().is<pars::TokenKinds::PatternString>()) {
 					m_patternStringNames[n.pattern().text()] = patternName;
 				} else {
 					m_rawStringNames[n.pattern().text()] = patternName;
@@ -74,7 +74,7 @@ namespace parsec {
 			}
 			
 			void defineToken(const std::string& name, const pars::Token& pattern) {
-				if(pattern.is(pars::TokenKinds::PatternString)) {
+				if(pattern.is<pars::TokenKinds::PatternString>()) {
 					m_grammar.define(name, fg::RegularExpr::fromPatternString(pattern.text()));
 				} else {
 					m_grammar.define(name, fg::RegularExpr::fromRawString(pattern.text()));

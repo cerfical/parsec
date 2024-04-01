@@ -22,20 +22,10 @@ namespace parsec::pars {
 
 
 		/** @{ */
-		Token(const Token&) = default;
-		Token& operator=(const Token&) = default;
-		
-		Token(Token&&) = default;
-		Token& operator=(Token&&) = default;
-		/** @} */
-
-
-
-		/** @{ */
 		/**
-		 * @brief Character sequence enclosed by the token.
+		 * @brief Character sequence covered by the token.
 		*/
-		const std::string& text() const noexcept {
+		const std::string& text() const {
 			return m_text;
 		}
 
@@ -44,15 +34,16 @@ namespace parsec::pars {
 		/**
 		 * @brief Location of the token.
 		*/
-		const SourceLoc& loc() const noexcept {
+		const SourceLoc& loc() const {
 			return m_loc;
 		}
+
 
 
 		/**
 		 * @brief Classification of the token.
 		*/
-		TokenKinds kind() const noexcept {
+		TokenKinds kind() const {
 			return m_kind;
 		}
 
@@ -61,17 +52,9 @@ namespace parsec::pars {
 		/**
 		 * @brief Check if the token is of the specified type.
 		*/
-		bool is(TokenKinds kind) const noexcept {
-			return this->kind() == kind;
-		}
-
-
-
-		/**
-		 * @brief Check if the token is an end-of-file token.
-		*/
-		bool isEof() const noexcept {
-			return is(TokenKinds::Eof);
+		template <TokenKinds tok>
+		bool is() const {
+			return kind() == tok;
 		}
 		/** @} */
 

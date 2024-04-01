@@ -66,7 +66,7 @@ namespace parsec::pars {
 		 * @brief Check whether the end of input has been reached.
 		*/
 		bool isEof() {
-			return peek().isEof();
+			return peek().is<TokenKinds::Eof>();
 		}
 
 
