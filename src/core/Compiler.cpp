@@ -3,7 +3,7 @@
 #include "pars/Parser.hpp"
 #include "utils/string_utils.hpp"
 #include "pars/ast.hpp"
-#include "src_gen.hpp"
+#include "src_gen/CppCodeGen.hpp"
 
 #include <sstream>
 #include <format>
@@ -204,11 +204,8 @@ namespace parsec {
 		src_gen::ConfigStore configs;
 		configs.eofTokenName(unifyName(eofTokenName));
 
-		src_gen::CppLexerGen(*m_output)
-			.run(spec.lexer(), configs);
-		
-		src_gen::CppParserGen(*m_output)
-			.run(spec.parser(), configs);
+		src_gen::CppCodeGen(*m_output)
+			.run(spec.lexer(), spec.parser(), configs);
 	}
 
 
