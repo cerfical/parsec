@@ -2,9 +2,9 @@
 #define PARSEC_PARS_LEXER_HEADER
 
 #include "../core/TextScanner.hpp"
-#include "Token.hpp"
+#include "../core/NonCopyable.hpp"
 
-#include <gsl/util>
+#include "Token.hpp"
 
 #include <string_view>
 #include <optional>
@@ -16,24 +16,13 @@ namespace parsec::pars {
 	/**
 	 * @brief Breaks input text into a sequence of Token%s.
 	*/
-	class Lexer {
+	class Lexer : private NonCopyable {
 	public:
 
 		Lexer() = default;
 		
 		explicit Lexer(std::istream& input)
-			: m_scanner(input)
-		{ }
-
-
-
-		/** @{ */
-		Lexer(const Lexer&) = delete;
-		Lexer& operator=(const Lexer&) = delete;
-
-		Lexer(Lexer&&) = default;
-		Lexer& operator=(Lexer&&) = default;
-		/** @} */
+			: m_input(input) {}
 
 
 
@@ -42,10 +31,13 @@ namespace parsec::pars {
 		 * @brief Perform the input analysis and extract the next token.
 		*/
 		Token lex() {
-			if(m_tok) {
-				return *std::exchange(m_tok, {});
+			if(!m_token) {
+				m_token = nextToken();
 			}
-			return nextToken();
+			
+			auto tok = std::move(m_token.value());
+			m_token.reset();
+			return tok;
 		}
 
 
@@ -54,10 +46,10 @@ namespace parsec::pars {
 		 * @brief Check the next token without extracting it.
 		*/
 		const Token& peek() {
-			if(!m_tok) {
-				m_tok = nextToken();
+			if(!m_token) {
+				m_token = nextToken();
 			}
-			return *m_tok;
+			return *m_token;
 		}
 
 
@@ -74,11 +66,11 @@ namespace parsec::pars {
 		/**
 		 * @brief Location of the lexer in the input stream.
 		*/
-		SourceLoc loc() const noexcept {
-			const auto endCol = m_scanner.pos() - m_scanner.line().pos;
-			const auto startCol = m_startPos - m_scanner.line().pos;
+		SourceLoc loc() const {
+			const auto endCol = m_input.pos() - m_input.line().pos;
+			const auto startCol = m_tokenStart - m_input.line().pos;
 
-			return SourceLoc(m_scanner.line(),
+			return SourceLoc(m_input.line(),
 				IndexRange(startCol, endCol)
 			);
 		}
@@ -91,8 +83,8 @@ namespace parsec::pars {
 		 * @brief Remove a token from the input if it is of the specified type.
 		 * @returns @c true if a skip has taken place, @c false otherwise.
 		*/
-		bool skipIf(TokenKinds kind) {
-			if(peek().kind() == kind) {
+		bool skipIf(TokenKinds tok) {
+			if(peek().kind() == tok) {
 				skip();
 				return true;
 			}
@@ -105,8 +97,8 @@ namespace parsec::pars {
 		 * @brief Remove a token from the input if its text matches specified text.
 		 * @returns @c true if a skip has taken place, @c false otherwise.
 		*/
-		bool skipIf(std::string_view text) {
-			if(peek().text() == text) {
+		bool skipIf(std::string_view tok) {
+			if(peek().text() == tok) {
 				skip();
 				return true;
 			}
@@ -126,26 +118,30 @@ namespace parsec::pars {
 
 
 	private:
+		Token nextToken() {
+			const auto kind = parseToken();
+			return Token(
+				m_tokenText, kind, loc()
+			);
+		}
+
 		void skipWhitespace();
 		void resetParse();
 
-		bool isPatternStart() const;
-		bool isIdentStart() const;
-		bool isIdent() const;
-
+		TokenKinds parseStringLiteral();
+		bool isStringLiteralStart() const;
+		
 		TokenKinds parseIdent();
-		TokenKinds parsePattern();
+		bool isIdentStart() const;
+
 		TokenKinds parseOperator();
 		TokenKinds parseToken();
 
-		Token nextToken();
+		std::streampos m_tokenStart = {};
+		std::optional<Token> m_token;
+		std::string m_tokenText;
 
-
-		gsl::index m_startPos = {};
-		std::optional<Token> m_tok;
-		std::string m_buf;
-
-		TextScanner m_scanner;
+		TextScanner m_input;
 	};
 
 }

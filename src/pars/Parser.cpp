@@ -10,83 +10,121 @@
 
 namespace parsec::pars {
 	namespace {
-		class ParseStream {
+		class ParserImpl {
 		public:
 
-			explicit ParseStream(std::istream& input)
-				: m_lexer(input)
-			{ }
+			explicit ParserImpl(std::istream& input)
+				: m_lexer(input) {}
 
-			ast::NodePtr operator()() {
+
+			ast::NodePtr run() {
 				return parseSpec();
 			}
 
+
 		private:
-			static std::string describeToken(TokenKinds tok) {
-				switch(tok) {
-					case TokenKinds::EmptyToken: return "an empty token";
-					case TokenKinds::Eof: return "an end of file";
-					
-					case TokenKinds::Ident: return "an identifier";
-					case TokenKinds::PatternString: return "a string pattern";
-					case TokenKinds::RawString: return "a string literal";
 
-					case TokenKinds::Star: return "a '*'";
-					case TokenKinds::Plus: return "a '+'";
-					case TokenKinds::QuestionMark: return "a '?'";
-					case TokenKinds::Pipe: return "a '|'";
-					case TokenKinds::Semicolon: return "a ';'";
-					case TokenKinds::Equals: return "an '='";
-					
-					case TokenKinds::LeftBrace: return "a '{'";
-					case TokenKinds::RightBrace: return "a '}'";
-
-					case TokenKinds::LeftParen: return "a '('";
-					case TokenKinds::RightParen: return "a ')'";
-				}
-				return "";
-			}
-
-
-			[[noreturn]] void unexpectedTokenError() {
-				const auto& tok = m_lexer.peek();
-				throw UnexpectedTokenError(
-					tok.loc(), tok.text()
-				);
-			}
-
-			[[noreturn]] void unmatchedParenError(const SourceLoc& parenLoc) {
-				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
-			}
-
-			[[noreturn]] void unmatchedTokenError(TokenKinds expect) {
-				throw TokenMismatchError(m_lexer.loc(),
-					describeToken(expect),
-					describeToken(m_lexer.peek().kind())
-				);
-			}
-
-
-			template <TokenKinds tok>
-			Token expect() {
-				if(!m_lexer.peek().is<tok>()) {
-					unmatchedTokenError(tok);
-				}
-				return m_lexer.lex();
-			}
-
-			bool isAtom() {
-				switch(m_lexer.peek().kind()) {
-					case TokenKinds::Ident:
-					case TokenKinds::LeftParen:
-					case TokenKinds::PatternString:
-					case TokenKinds::RawString: {
-						return true;
-					}
-					default: {
-						return false;
+			ast::NodePtr parseSpec() {
+				auto spec = ast::makeNode<ast::EmptyNode>();
+				while(!m_lexer.isEof()) {
+					if(m_lexer.skipIf("tokens")) {
+						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseTokenList());
+					} else if(m_lexer.skipIf("rules")) {
+						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseRuleList());
+					} else {
+						unexpectedTokenError();
 					}
 				}
+				return spec;
+			}
+
+
+			ast::NodePtr parseTokenList() {
+				auto tokens = ast::makeNode<ast::EmptyNode>();
+				expect<TokenKinds::LeftBrace>();
+
+				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
+					const auto name = expect<TokenKinds::Ident>();
+					expect<TokenKinds::Equals>();
+
+					if(const auto tok = m_lexer.peek().kind(); tok != TokenKinds::PatternString && tok != TokenKinds::RawString) {
+						unexpectedTokenError();
+					}
+
+					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
+					expect<TokenKinds::Semicolon>();
+
+					tokens = ast::makeNode<ast::ListNode>(
+						std::move(tokens),
+						std::move(pattern)
+					);
+				}
+
+				return tokens;
+			}
+
+
+			ast::NodePtr parseRuleList() {
+				auto rules = ast::makeNode<ast::EmptyNode>();
+				expect<TokenKinds::LeftBrace>();
+
+				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
+					const auto name = expect<TokenKinds::Ident>();
+					expect<TokenKinds::Equals>();
+
+					auto rule = ast::makeNode<ast::NamedRule>(
+						name,
+						parseRule()
+					);
+					expect<TokenKinds::Semicolon>();
+
+					rules = ast::makeNode<ast::ListNode>(
+						std::move(rules),
+						std::move(rule)
+					);
+				}
+
+				return rules;
+			}
+
+
+			ast::NodePtr parseRule() {
+				return parseAltern();
+			}
+
+
+			ast::NodePtr parseAltern() {
+				auto lhs = parseConcat();
+				while(m_lexer.skipIf(TokenKinds::Pipe)) {
+					lhs = ast::makeNode<ast::AlternRule>(std::move(lhs), parseConcat());
+				}
+				return lhs;
+			}
+
+
+			ast::NodePtr parseConcat() {
+				auto lhs = parseRepeat();
+				while(isAtom()) {
+					lhs = ast::makeNode<ast::ConcatRule>(std::move(lhs), parseRepeat());
+				}
+				return lhs;
+			}
+
+
+			ast::NodePtr parseRepeat() {
+				auto inner = parseAtom();
+				while(true) {
+					if(m_lexer.skipIf(TokenKinds::Star)) {
+						inner = ast::makeNode<ast::StarRule>(std::move(inner));
+					} else if(m_lexer.skipIf(TokenKinds::Plus)) {
+						inner = ast::makeNode<ast::PlusRule>(std::move(inner));
+					} else if(m_lexer.skipIf(TokenKinds::QuestionMark)) {
+						inner = ast::makeNode<ast::OptionalRule>(std::move(inner));
+					} else {
+						break;
+					}
+				}
+				return inner;
 			}
 
 
@@ -107,10 +145,7 @@ namespace parsec::pars {
 						}
 						return subrule;
 					}
-					case TokenKinds::PatternString: {
-						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
-					}
-					case TokenKinds::RawString: {
+					case TokenKinds::PatternString: case TokenKinds::RawString: {
 						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
@@ -122,108 +157,83 @@ namespace parsec::pars {
 				}
 			}
 
-			ast::NodePtr parseRepeat() {
-				auto inner = parseAtom();
-				while(true) {
-					if(m_lexer.skipIf(TokenKinds::Star)) {
-						inner = ast::makeNode<ast::StarRule>(std::move(inner));
-					} else if(m_lexer.skipIf(TokenKinds::Plus)) {
-						inner = ast::makeNode<ast::PlusRule>(std::move(inner));
-					} else if(m_lexer.skipIf(TokenKinds::QuestionMark)) {
-						inner = ast::makeNode<ast::OptionalRule>(std::move(inner));
-					} else {
-						break;
+
+			bool isAtom() {
+				switch(m_lexer.peek().kind()) {
+					case TokenKinds::Ident:
+					case TokenKinds::LeftParen:
+					case TokenKinds::PatternString:
+					case TokenKinds::RawString: {
+						return true;
+					}
+					default: {
+						return false;
 					}
 				}
-				return inner;
 			}
 
-			ast::NodePtr parseConcat() {
-				auto lhs = parseRepeat();
-				while(isAtom()) {
-					lhs = ast::makeNode<ast::ConcatRule>(std::move(lhs), parseRepeat());
+
+			template <TokenKinds tok>
+			Token expect() {
+				if(!m_lexer.peek().is<tok>()) {
+					tokenMismatchError(tok);
 				}
-				return lhs;
+				return m_lexer.lex();
 			}
 
-			ast::NodePtr parseAltern() {
-				auto lhs = parseConcat();
-				while(m_lexer.skipIf(TokenKinds::Pipe)) {
-					lhs = ast::makeNode<ast::AlternRule>(std::move(lhs), parseConcat());
+
+			[[noreturn]]
+			void unexpectedTokenError() {
+				const auto& tok = m_lexer.peek();
+				throw UnexpectedTokenError(
+					tok.loc(), tok.text()
+				);
+			}
+
+
+			[[noreturn]]
+			void unmatchedParenError(const SourceLoc& parenLoc) {
+				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
+			}
+
+
+			[[noreturn]]
+			void tokenMismatchError(TokenKinds expect) {
+				throw TokenMismatchError(m_lexer.loc(),
+					describeToken(expect),
+					describeToken(m_lexer.peek().kind())
+				);
+			}
+
+
+			static std::string describeToken(TokenKinds tok) {
+				switch(tok) {
+					case TokenKinds::EmptyToken: return "an empty token";
+					case TokenKinds::Eof: return "an end of file";
+
+					case TokenKinds::Ident: return "an identifier";
+					case TokenKinds::PatternString: return "a string pattern";
+					case TokenKinds::RawString: return "a string literal";
+
+					case TokenKinds::Star: return "a '*'";
+					case TokenKinds::Plus: return "a '+'";
+					case TokenKinds::QuestionMark: return "a '?'";
+					case TokenKinds::Pipe: return "a '|'";
+					case TokenKinds::Semicolon: return "a ';'";
+					case TokenKinds::Equals: return "an '='";
+
+					case TokenKinds::LeftBrace: return "a '{'";
+					case TokenKinds::RightBrace: return "a '}'";
+
+					case TokenKinds::LeftParen: return "a '('";
+					case TokenKinds::RightParen: return "a ')'";
 				}
-				return lhs;
-			}
-
-			ast::NodePtr parseRule() {
-				return parseAltern();
-			}
-
-
-			ast::NodePtr parseTokenList() {
-				auto tokens = ast::makeNode<ast::EmptyNode>();
-
-				expect<TokenKinds::LeftBrace>();
-				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					auto name = expect<TokenKinds::Ident>();
-					expect<TokenKinds::Equals>();
-					
-					if(const auto kind = m_lexer.peek().kind(); kind != TokenKinds::PatternString && kind != TokenKinds::RawString) {
-						unexpectedTokenError();
-					}
-					
-					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
-					expect<TokenKinds::Semicolon>();
-					
-					tokens = ast::makeNode<ast::ListNode>(
-						std::move(tokens),
-						std::move(pattern)
-					);
-				}
-
-				return tokens;
-			}
-
-			ast::NodePtr parseRuleList() {
-				auto rules = ast::makeNode<ast::EmptyNode>();
-
-				expect<TokenKinds::LeftBrace>();
-				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					auto name = expect<TokenKinds::Ident>();
-					expect<TokenKinds::Equals>();
-
-					auto rule = ast::makeNode<ast::NamedRule>(
-						std::move(name),
-						parseRule()
-					);
-					expect<TokenKinds::Semicolon>();
-
-					rules = ast::makeNode<ast::ListNode>(
-						std::move(rules),
-						std::move(rule)
-					);
-				}
-
-				return rules;
-			}
-
-			ast::NodePtr parseSpec() {
-				auto spec = ast::makeNode<ast::EmptyNode>();
-				while(!m_lexer.isEof()) {
-					if(m_lexer.skipIf("tokens")) {
-						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseTokenList());
-					} else if(m_lexer.skipIf("rules")) {
-						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseRuleList());
-					} else {
-						unexpectedTokenError();
-					}
-				}
-				return spec;
+				return "";
 			}
 
 
 			Lexer m_lexer;
 		};
-
 	}
 
 
@@ -232,7 +242,8 @@ namespace parsec::pars {
 		return parse(in);
 	}
 
+
 	ast::NodePtr Parser::parse(std::istream& input) {
-		return ParseStream(input)();
+		return ParserImpl(input).run();
 	}
 }
