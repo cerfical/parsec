@@ -3,12 +3,11 @@
 
 #include <optional>
 #include <iostream>
+#include <sstream>
 #include <vector>
+#include <string_view>
 #include <string>
-
-#include "core/TokenBase.hpp"
-#include "core/LexerBase.hpp"
-#include "core/TextScanner.hpp"
-#include "core/ParseError.hpp"
+#include <stdexcept>
+#include <span>
 
 #endif

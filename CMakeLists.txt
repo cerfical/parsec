@@ -61,12 +61,8 @@ target_sources(parsec-lib
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/IndexRange.hpp"
 		"include/parsec/core/LineInfo.hpp"
-
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
-		"include/parsec/core/ParseError.hpp"
-		"include/parsec/core/TokenBase.hpp"
-		"include/parsec/core/LexerBase.hpp"
 		"include/parsec/core/Compiler.hpp"
 	
 		"include/parsec/core/NonCopyable.hpp"
