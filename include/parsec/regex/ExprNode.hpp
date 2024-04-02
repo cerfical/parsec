@@ -28,14 +28,6 @@ namespace parsec::regex {
 
 	using NodePtr = std::shared_ptr<ExprNode>;
 
-
-
-	template <typename Node, typename... Args>
-		requires std::derived_from<Node, ExprNode>
-	NodePtr makeNode(Args&&... args) {
-		return std::make_shared<Node>(std::forward<Args>(args)...);
-	}
-
 }
 
 #endif

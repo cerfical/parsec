@@ -36,8 +36,7 @@ namespace parsec {
 
 
 
-		RegularExpr(const Symbol& symbol)
-			: RegularExpr(regex::makeNode<regex::SymbolAtom>(symbol)) {}
+		RegularExpr(const Symbol& symbol);
 
 		RegularExpr() = default;
 		

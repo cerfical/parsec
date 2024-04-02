@@ -8,176 +8,58 @@
 
 namespace parsec::regex {
 	namespace {
-		class ParseInputStream {
+		class ParserImpl {
 		public:
 
-			explicit ParseInputStream(std::istream& input) noexcept
-				: m_scanner(input) {}
+			explicit ParserImpl(std::istream& input)
+				: m_input(input) {}
 			
-			RegularExpr operator()() {
+			NodePtr run() {
 				// no input, nothing to parse
-				if(m_scanner.isEof()) {
-					return RegularExpr();
+				if(m_input.isEof()) {
+					return empty();
 				}
 
 				auto e = parseExpr();
-				if(!m_scanner.isEof()) {
-					unexpected();
+				if(!m_input.isEof()) {
+					unexpectedChar();
 				}
 				return e;
 			}
 
 		private:
-			[[noreturn]]
-			void unexpected() const {
-				if(m_scanner.peek() != ')') {
-					throw ParseError(std::format("unexpected '{}'",
-						char_utils::escape(m_scanner.peek())
-						), m_scanner.pos()
-					);
-				}
-				unmatchedParen(m_scanner.pos());
-			}
-			
-			[[noreturn]]
-			void unmatchedParen(gsl::index parenLoc) const {
-				throw ParseError("unmatched parenthesis", parenLoc);
-			}
 
-			[[noreturn]]
-			void invalidHexSeq() const {
-				throw ParseError("expected at least one hexadecimal digit",
-					m_scanner.pos()
-				);
-			}
-
-			[[noreturn]]
-			void outOfOrderCharRange(gsl::index charRangeStart) const {
-				throw ParseError("character range is out of order",
-					IndexRange(charRangeStart, m_scanner.pos())
-				);
+			NodePtr parseExpr() {
+				return parseAltern();
 			}
 
 
-			bool isAtom() const {
-				if(!m_scanner.isEof()) {
-					switch(m_scanner.peek()) {
-						case '*': case '|': case ')': case ']': case '?': case '+': break;
-						case '(': case '[': case '\\': default: return true;
-					}
+			NodePtr parseAltern() {
+				auto lhs = parseConcat();
+				while(m_input.skipIf('|')) {
+					lhs = altern(lhs, parseConcat());
 				}
-				return false;
-			}
-
-			char parseEscapeSeq() {
-				switch(m_scanner.peek()) {
-					case '0': { m_scanner.skip(); return '\0'; }
-					case 'a': { m_scanner.skip(); return '\a'; }
-					case 'b': { m_scanner.skip(); return '\b'; }
-					case 'f': { m_scanner.skip(); return '\f'; }
-					case 'n': { m_scanner.skip(); return '\n'; }
-					case 'r': { m_scanner.skip(); return '\r'; }
-					case 't': { m_scanner.skip(); return '\t'; }
-					case 'v': { m_scanner.skip(); return '\v'; }
-					case 'x': {
-						m_scanner.skip();
-						if(char_utils::isHexDigit(m_scanner.peek())) {
-							auto ch = char_utils::evalHexDigit(m_scanner.get());
-							if(!m_scanner.isEof() && char_utils::isHexDigit(m_scanner.peek())) {
-								ch = ch * 16 + char_utils::evalHexDigit(m_scanner.get());
-							}
-							return gsl::narrow_cast<char>(ch);
-						}
-						invalidHexSeq();
-					}
-				}
-				return m_scanner.get();
-			}
-			
-			char parseChar() {
-				if(m_scanner.skipIf('\\')) {
-					return parseEscapeSeq();
-				}
-				return m_scanner.get();
-			}
-
-
-			RegularExpr parseCharRange() {
-				// save the position and value of the lower bound of the possible character range
-				const auto charRangeStart = m_scanner.pos();
-				const auto low = parseChar();
-
-				// no char range, just a single character
-				auto e = RegularExpr(Symbol(low));
-				if(!m_scanner.skipIf('-')) {
-					return e;
-				}
-
-				// string of the form 'l-h' is a character range
-				if(m_scanner.peek() != ']') {
-					const auto high = parseChar();
-					if(low > high) {
-						outOfOrderCharRange(charRangeStart);
-					}
-
-					for(auto ch = low + 1; ch <= high; ) {
-						e |= Symbol(ch++);
-					}
-				} else {
-					e |= Symbol('-');
-				}
-
-				return e;
-			}
-			
-			RegularExpr parseCharSet() {
-				// empty character set
-				if(m_scanner.skipIf(']')) {
-					return Symbol();
-				}
-
-				auto lhs = parseCharRange();
-				while(m_scanner.peek() != ']') {
-					lhs |= parseCharRange();
-				}
-				m_scanner.skip(); // skip ']'
 				return lhs;
 			}
 
 
-			RegularExpr parseAtom() {
-				if(!isAtom()) {
-					unexpected();
+			NodePtr parseConcat() {
+				auto lhs = parseRepeat();
+				while(isAtom()) {
+					lhs = concat(lhs, parseRepeat());
 				}
-
-				if(const auto openParen = m_scanner.pos(); m_scanner.skipIf('(')) {
-					// empty parenthesized expression
-					if(m_scanner.skipIf(')')) {
-						return Symbol();
-					}
-
-					auto e = parseExpr();
-					if(!m_scanner.skipIf(')')) {
-						unmatchedParen(openParen);
-					}
-					return e;
-				}
-
-				if(m_scanner.skipIf('[')) {
-					return parseCharSet();
-				}
-
-				return RegularExpr(parseChar());
+				return lhs;
 			}
-
-			RegularExpr parseRepeat() {
+			
+			
+			NodePtr parseRepeat() {
 				auto e = parseAtom();
 				while(true) {
-					if(m_scanner.skipIf('*')) {
+					if(m_input.skipIf('*')) {
 						e = starClosure(e);
-					} else if(m_scanner.skipIf('?')) {
+					} else if(m_input.skipIf('?')) {
 						e = optional(e);
-					} else if(m_scanner.skipIf('+')) {
+					} else if(m_input.skipIf('+')) {
 						e = plusClosure(e);
 					} else {
 						break;
@@ -186,38 +68,168 @@ namespace parsec::regex {
 				return e;
 			}
 
-			RegularExpr parseConcat() {
-				auto lhs = parseRepeat();
-				while(isAtom()) {
-					lhs += parseRepeat();
+
+			NodePtr parseAtom() {
+				if(!isAtom()) {
+					unexpectedChar();
 				}
+
+				if(const auto openParen = m_input.pos(); m_input.skipIf('(')) {
+					// empty parenthesized expression
+					if(m_input.skipIf(')')) {
+						return empty();
+					}
+
+					auto e = parseExpr();
+					if(!m_input.skipIf(')')) {
+						unmatchedParen(openParen);
+					}
+					return e;
+				}
+
+				if(m_input.skipIf('[')) {
+					return parseCharSet();
+				}
+
+				return atom(parseChar());
+			}
+
+
+			[[noreturn]]
+			void unexpectedChar() const {
+				if(m_input.peek() != ')') {
+					throw ParseError(
+						std::format("unexpected '{}'", char_utils::escape(m_input.peek())),
+						m_input.pos()
+					);
+				}
+				unmatchedParen(m_input.pos());
+			}
+
+
+			[[noreturn]]
+			void unmatchedParen(gsl::index parenLoc) const {
+				throw ParseError("unmatched parenthesis", parenLoc);
+			}
+
+
+			bool isAtom() const {
+				if(!m_input.isEof()) {
+					switch(m_input.peek()) {
+						case '*': case '|': case ')': case ']': case '?': case '+': break;
+						case '(': case '[': case '\\': default: return true;
+					}
+				}
+				return false;
+			}
+
+
+			NodePtr parseCharSet() {
+				// empty character set
+				if(m_input.skipIf(']')) {
+					return empty();
+				}
+
+				auto lhs = parseCharRange();
+				while(m_input.peek() != ']') {
+					lhs = altern(lhs, parseCharRange());
+				}
+				m_input.skip(); // skip ']'
 				return lhs;
 			}
 
-			RegularExpr parseAltern() {
-				auto lhs = parseConcat();
-				while(m_scanner.skipIf('|')) {
-					lhs |= parseConcat();
+
+			NodePtr parseCharRange() {
+				// save the position and value of the lower bound of the possible character range
+				const auto charRangeStart = m_input.pos();
+				const auto low = parseChar();
+
+				// no char range, just a single character
+				auto e = atom(low);
+				if(!m_input.skipIf('-')) {
+					return e;
 				}
-				return lhs;
-			}
-			
-			RegularExpr parseExpr() {
-				return parseAltern();
+
+				// string of the form 'l-h' is a character range
+				if(m_input.peek() != ']') {
+					const auto high = parseChar();
+					if(low > high) {
+						outOfOrderCharRange(charRangeStart);
+					}
+
+					for(auto ch = low + 1; ch <= high; ) {
+						e = altern(e, atom(ch++));
+					}
+				} else {
+					e = altern(e, atom('-'));
+				}
+
+				return e;
 			}
 
 
-			TextScanner m_scanner;
+			[[noreturn]]
+			void outOfOrderCharRange(gsl::index charRangeStart) const {
+				throw ParseError("character range is out of order",
+					IndexRange(charRangeStart, m_input.pos())
+				);
+			}
+
+
+			char parseChar() {
+				if(m_input.skipIf('\\')) {
+					return parseEscapeSeq();
+				}
+				return m_input.get();
+			}
+
+
+			char parseEscapeSeq() {
+				const auto ch = m_input.get();
+				switch(ch) {
+					case '0': return '\0';
+					case 'a': return '\a';
+					case 'b': return '\b';
+					case 'f': return '\f';
+					case 'n': return '\n';
+					case 'r': return '\r';
+					case 't': return '\t';
+					case 'v': return '\v';
+					case 'x': {
+						if(char_utils::isHexDigit(m_input.peek())) {
+							auto ch = char_utils::evalHexDigit(m_input.get());
+							if(!m_input.isEof() && char_utils::isHexDigit(m_input.peek())) {
+								ch = ch * 16 + char_utils::evalHexDigit(m_input.get());
+							}
+							return static_cast<char>(ch);
+						}
+						invalidHexSeq();
+					}
+					default: return ch;
+				}
+			}
+
+
+			[[noreturn]]
+			void invalidHexSeq() const {
+				throw ParseError("expected at least one hexadecimal digit",
+					m_input.pos()
+				);
+			}
+
+
+			TextScanner m_input;
 		};
 	}
 
 
-	RegularExpr Parser::parse(std::string_view regex) {
+	NodePtr Parser::parse(std::string_view regex) {
 		auto input = std::istringstream(std::string(regex));
 		return parse(input);
 	}
 
-	RegularExpr Parser::parse(std::istream& input) {
-		return ParseInputStream(input)();
+
+	NodePtr Parser::parse(std::istream& input) {
+		return ParserImpl(input).run();
 	}
 }

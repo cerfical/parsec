@@ -8,6 +8,10 @@ namespace parsec {
 	using namespace regex;
 
 
+	RegularExpr::RegularExpr(const Symbol& symbol)
+		: RegularExpr(regex::atom(symbol)) {}
+
+
 	RegularExpr::AtomList RegularExpr::Atom::followAtoms() const {
 		class Impl : private NodeVisitor {
 			enum class Status {
@@ -112,7 +116,7 @@ namespace parsec {
 
 
 	RegularExpr RegularExpr::fromPatternString(std::string_view str) {
-		return Parser().parse(str);
+		return RegularExpr(Parser().parse(str));
 	}
 
 	RegularExpr RegularExpr::fromRawString(std::string_view str) {
@@ -209,27 +213,27 @@ namespace parsec {
 
 	RegularExpr altern(const RegularExpr& left, const RegularExpr& right) {
 		if(left && right) {
-			return RegularExpr(makeNode<AlternExpr>(left.m_rootNode, right.m_rootNode));
+			return RegularExpr(altern(left.m_rootNode, right.m_rootNode));
 		}
 		return left ? left : right;
 	}
 
 	RegularExpr concat(const RegularExpr& left, const RegularExpr& right) {
 		if(left && right) {
-			return RegularExpr(makeNode<ConcatExpr>(left.m_rootNode, right.m_rootNode));
+			return RegularExpr(concat(left.m_rootNode, right.m_rootNode));
 		}
 		return left ? left : right;
 	}
 
 	RegularExpr starClosure(const RegularExpr& expr) {
-		return expr ? RegularExpr(makeNode<StarClosure>(expr.m_rootNode)) : expr;
+		return expr ? RegularExpr(starClosure(expr.m_rootNode)) : expr;
 	}
 
 	RegularExpr plusClosure(const RegularExpr& expr) {
-		return expr ? RegularExpr(makeNode<PlusClosure>(expr.m_rootNode)) : expr;
+		return expr ? RegularExpr(plusClosure(expr.m_rootNode)) : expr;
 	}
 
 	RegularExpr optional(const RegularExpr& expr) {
-		return expr ? RegularExpr(makeNode<OptionalExpr>(expr.m_rootNode)) : expr;
+		return expr ? RegularExpr(optional(expr.m_rootNode)) : expr;
 	}
 }
