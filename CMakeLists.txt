@@ -160,7 +160,6 @@ target_sources(parsec-lib
 		"include/parsec/src_gen/cpp_utils.hpp"
 
 	PRIVATE
-		"src/src_gen/CodeGen.cpp"
 		"src/src_gen/CppCodeGen.cpp"
 		"src/src_gen/cpp_utils.cpp"
 )

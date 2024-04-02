@@ -5,7 +5,7 @@
 #include "../fg/SymbolGrammar.hpp"
 
 #include "ConfigStore.hpp"
-#include <ostream>
+#include <iostream>
 
 namespace parsec::src_gen {
 
@@ -15,13 +15,11 @@ namespace parsec::src_gen {
 	class CodeGen : private NonCopyable {
 	public:
 
-		CodeGen() = default;
-
 		/**
-		 * @brief Create a new generator and configure it to output generated code to a stream.
+		 * @brief Create a new generator with the specified output stream installed.
 		*/
-		explicit CodeGen(std::ostream& out)
-			: m_out(&out) {}
+		explicit CodeGen(std::ostream& output = std::cout)
+			: m_out(&output) {}
 
 
 		virtual ~CodeGen() = default;
@@ -33,7 +31,19 @@ namespace parsec::src_gen {
 		 * @param syntax Grammar description of the language recognized by the parser.
 		 * @param configs Additional configuration parameters.
 		*/
-		void run(const fg::SymbolGrammar& tokens, const fg::SymbolGrammar& syntax, const ConfigStore& configs = {});
+		void run(const fg::SymbolGrammar& tokens, const fg::SymbolGrammar& syntax, const ConfigStore& configs = {}) {
+			onPreambleGen(configs);
+			onLexerGen(tokens, configs);
+			onParserGen(syntax, configs);
+		}
+
+
+		/**
+		 * @brief Output stream where the generated data will go.
+		*/
+		std::ostream& output() const {
+			return *m_out;
+		}
 
 
 	protected:
@@ -41,19 +51,19 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Called to generate the lexical analyzer part of the parser.
 		*/
-		virtual std::string onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) = 0;
+		virtual void onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) = 0;
 		
 
 		/**
 		 * @brief Called to generate the syntax analyzer part of the parser.
 		*/
-		virtual std::string onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) = 0;
+		virtual void onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) = 0;
 
 
 		/**
 		 * @brief Called to produce additional dependencies for the generated code.
 		*/
-		virtual std::string onPreambleGen(const ConfigStore& configs) = 0;
+		virtual void onPreambleGen(const ConfigStore& configs) = 0;
 
 
 	private:

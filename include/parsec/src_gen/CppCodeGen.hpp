@@ -14,11 +14,11 @@ namespace parsec::src_gen {
 		using CodeGen::CodeGen;
 
 	private:
-		std::string onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) override;
+		void onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) override;
 
-		std::string onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) override;
+		void onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) override;
 
-		std::string onPreambleGen(const ConfigStore& configs) override;
+		void onPreambleGen(const ConfigStore& configs) override;
 	};
 
 }

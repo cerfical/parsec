@@ -7,7 +7,6 @@
 #include "utils/char_utils.hpp"
 #include "utils/string_utils.hpp"
 
-#include <sstream>
 #include <format>
 
 namespace parsec::src_gen {
@@ -15,12 +14,12 @@ namespace parsec::src_gen {
 		class CppLexerGen {
 		public:
 
-			CppLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs)
-				: m_tokens(tokens), m_configs(configs) {
+			CppLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs, std::ostream& out)
+				: m_tokens(tokens), m_configs(configs), m_out(out) {
 				m_dfa = dfa::Automaton(tokens);
 			}
 
-			std::string run() {
+			void run() {
 				tokenKindsEnum();
 				m_out << '\n';
 				m_out << '\n';
@@ -30,8 +29,6 @@ namespace parsec::src_gen {
 				m_out << '\n';
 
 				lexerClass();
-
-				return std::move(m_out).str();
 			}
 
 		private:
@@ -326,7 +323,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 			const fg::SymbolGrammar& m_tokens;
 			const ConfigStore& m_configs;
 			
-			std::ostringstream m_out;
+			std::ostream& m_out;
 			dfa::Automaton m_dfa;
 		};
 
@@ -335,19 +332,17 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 		class CppParserGen {
 		public:
 
-			CppParserGen(const fg::SymbolGrammar& syntax)
-				: m_syntax(syntax) {
+			CppParserGen(const fg::SymbolGrammar& syntax, std::ostream& out)
+				: m_syntax(syntax), m_out(out) {
 				m_elr = elr::Automaton(syntax);
 			}
 
-			std::string run() {
+			void run() {
 				parseRulesEnum();
 				m_out << '\n';
 				m_out << '\n';
 
 				parserClass();
-
-				return std::move(m_out).str();
 			}
 
 		private:
@@ -527,24 +522,24 @@ public:
 
 			const fg::SymbolGrammar& m_syntax;
 			
-			std::ostringstream m_out;
+			std::ostream& m_out;
 			elr::Automaton m_elr;
 		};
 	}
 
 
-	std::string CppCodeGen::onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) {
-		return CppLexerGen(tokens, configs).run();
+	void CppCodeGen::onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) {
+		CppLexerGen(tokens, configs, output()).run();
 	}
 
 
-	std::string CppCodeGen::onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) {
-		return CppParserGen(syntax).run();
+	void CppCodeGen::onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) {
+		CppParserGen(syntax, output()).run();
 	}
 
 
-	std::string CppCodeGen::onPreambleGen(const ConfigStore& configs) {
-		return R"(class SourceLoc {
+	void CppCodeGen::onPreambleGen(const ConfigStore& configs) {
+		output() << R"(class SourceLoc {
 public:
 
 	SourceLoc() = default;
@@ -610,5 +605,7 @@ private:
 	SourceLoc m_loc;
 };
 )";
+		output() << '\n';
+		output() << '\n';
 	}
 }
