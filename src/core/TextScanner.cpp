@@ -1,12 +1,7 @@
 #include "core/TextScanner.hpp"
-#include "errors/UnexpectedEofError.hpp"
+#include "err.hpp"
 
 namespace parsec {
-	void TextScanner::unexpectedEof() const {
-		throw UnexpectedEofError(loc());
-	}
-
-
 	bool TextScanner::checkForEof() const {
 		if(!m_input) {
 			return true;
@@ -51,7 +46,7 @@ namespace parsec {
 			// otherwise fallback to calling iostreams api
 			ch = gsl::narrow_cast<char>(m_input->get());
 		} else {
-			unexpectedEof();
+			err::unexpectedEof(loc());
 		}
 
 		// finally update location information, based on the consumed character
@@ -63,7 +58,7 @@ namespace parsec {
 		if(fillBuf(i + 1)) {
 			return m_labuf[i];
 		}
-		unexpectedEof();
+		err::unexpectedEof(loc());
 	}
 
 

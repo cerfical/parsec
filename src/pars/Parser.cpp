@@ -3,8 +3,7 @@
 #include "pars/Lexer.hpp"
 #include "pars/ast.hpp"
 
-#include "errors/UnexpectedTokenError.hpp"
-#include "errors/TokenMismatchError.hpp"
+#include "err.hpp"
 
 #include <sstream>
 
@@ -32,7 +31,8 @@ namespace parsec::pars {
 					} else if(m_lexer.skipIf("rules")) {
 						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseRuleList());
 					} else {
-						unexpectedTokenError();
+						const auto& tok = m_lexer.peek();
+						err::misplacedToken(tok.loc(), tok.text());
 					}
 				}
 				return spec;
@@ -47,8 +47,8 @@ namespace parsec::pars {
 					const auto name = expect<TokenKinds::Ident>();
 					expect<TokenKinds::Equals>();
 
-					if(const auto tok = m_lexer.peek().kind(); tok != TokenKinds::PatternString && tok != TokenKinds::RawString) {
-						unexpectedTokenError();
+					if(const auto& tok = m_lexer.peek(); !tok.is<TokenKinds::PatternString>() && !tok.is<TokenKinds::RawString>()) {
+						err::misplacedToken(tok.loc(), tok.text());
 					}
 
 					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
@@ -141,7 +141,7 @@ namespace parsec::pars {
 
 						auto subrule = parseRule();
 						if(!m_lexer.skipIf(TokenKinds::RightParen)) {
-							unmatchedParenError(openParen.loc());
+							err::misplacedChar(openParen.loc(), '(');
 						}
 						return subrule;
 					}
@@ -149,10 +149,11 @@ namespace parsec::pars {
 						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
-						unmatchedParenError(m_lexer.loc());
+						err::misplacedChar(m_lexer.loc(), ')');
 					}
 					default: {
-						unexpectedTokenError();
+						const auto& tok = m_lexer.peek();
+						err::misplacedToken(tok.loc(), tok.text());
 					}
 				}
 			}
@@ -175,34 +176,10 @@ namespace parsec::pars {
 
 			template <TokenKinds tok>
 			Token expect() {
-				if(!m_lexer.peek().is<tok>()) {
-					tokenMismatchError(tok);
+				if(const auto& peekTok = m_lexer.peek(); !peekTok.is<tok>()) {
+					err::unmatchedToken(peekTok.loc(), describeToken(tok), describeToken(peekTok.kind()));
 				}
 				return m_lexer.lex();
-			}
-
-
-			[[noreturn]]
-			void unexpectedTokenError() {
-				const auto& tok = m_lexer.peek();
-				throw UnexpectedTokenError(
-					tok.loc(), tok.text()
-				);
-			}
-
-
-			[[noreturn]]
-			void unmatchedParenError(const SourceLoc& parenLoc) {
-				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
-			}
-
-
-			[[noreturn]]
-			void tokenMismatchError(TokenKinds expect) {
-				throw TokenMismatchError(m_lexer.loc(),
-					describeToken(expect),
-					describeToken(m_lexer.peek().kind())
-				);
 			}
 
 

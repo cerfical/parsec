@@ -107,9 +107,6 @@ namespace parsec {
 
 
 	private:
-		[[noreturn]] void unexpectedEof() const;
-
-
 		bool checkForEof() const;
 		void updateLoc(char ch);
 

@@ -5,7 +5,10 @@
 #include "core/TextScanner.hpp"
 #include "core/Compiler.hpp"
 
-#include "errors.hpp"
+#include "core/Error.hpp"
+#include "core/ParseError.hpp"
+
+#include "err.hpp"
 
 namespace parsec {}
 

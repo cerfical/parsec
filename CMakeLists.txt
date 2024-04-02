@@ -49,10 +49,12 @@ target_sources(parsec-lib
 		"include/parsec/deps.hpp"
 		"include/parsec/stringify.hpp"
 		"include/parsec/print.hpp"
+		"include/parsec/err.hpp"
 
 	PRIVATE
 		"src/stringify.cpp"
 		"src/print.cpp"
+		"src/err.cpp"
 )
 
 
@@ -64,6 +66,8 @@ target_sources(parsec-lib
 	
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
+		"include/parsec/core/Error.hpp"
+		"include/parsec/core/ParseError.hpp"
 
 		"include/parsec/core/Symbol.hpp"
 		"include/parsec/core/RegularExpr.hpp"
@@ -76,23 +80,6 @@ target_sources(parsec-lib
 
 		"src/core/SymbolGrammar.cpp"
 		"src/core/RegularExpr.cpp"
-)
-
-
-target_sources(parsec-lib
-	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/errors/Error.hpp"
-		"include/parsec/errors/ErrorCodes.hpp"
-		"include/parsec/errors/ParseError.hpp"
-		"include/parsec/errors/UnexpectedEofError.hpp"
-		"include/parsec/errors/InvalidCharError.hpp"
-		"include/parsec/errors/UnexpectedCharError.hpp"
-		"include/parsec/errors/UnexpectedTokenError.hpp"
-		"include/parsec/errors/TokenMismatchError.hpp"
-		"include/parsec/errors.hpp"
-
-	PRIVATE
-		"src/errors.cpp"
 )
 
 

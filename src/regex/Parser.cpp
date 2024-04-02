@@ -3,8 +3,7 @@
 #include "core/TextScanner.hpp"
 #include "utils/char_utils.hpp"
 
-#include "errors/UnexpectedCharError.hpp"
-#include "errors/ParseError.hpp"
+#include "err.hpp"
 
 #include <sstream>
 #include <format>
@@ -25,7 +24,7 @@ namespace parsec::regex {
 
 				auto e = parseExpr();
 				if(!m_input.isEof()) {
-					unexpectedChar();
+					err::misplacedChar(m_input.loc(), m_input.peek());
 				}
 				return e;
 			}
@@ -74,7 +73,7 @@ namespace parsec::regex {
 
 			NodePtr parseAtom() {
 				if(!isAtom()) {
-					unexpectedChar();
+					err::misplacedChar(m_input.loc(), m_input.peek());
 				}
 
 				if(const auto openParen = m_input.loc(); m_input.skipIf('(')) {
@@ -85,7 +84,7 @@ namespace parsec::regex {
 
 					auto e = parseExpr();
 					if(!m_input.skipIf(')')) {
-						unmatchedParen(openParen);
+						err::misplacedChar(openParen, '(');
 					}
 					return e;
 				}
@@ -95,21 +94,6 @@ namespace parsec::regex {
 				}
 
 				return atom(parseChar());
-			}
-
-
-			[[noreturn]]
-			void unexpectedChar() const {
-				if(m_input.peek() != ')') {
-					throw UnexpectedCharError(m_input.loc(), m_input.peek());
-				}
-				unmatchedParen(m_input.loc());
-			}
-
-
-			[[noreturn]]
-			void unmatchedParen(const SourceLoc& parenLoc) const {
-				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
 			}
 
 
@@ -141,7 +125,7 @@ namespace parsec::regex {
 
 			NodePtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
-				const auto charRangeStart = m_input.loc();
+				const auto rangeStart = m_input.loc();
 				const auto low = parseChar();
 
 				// no char range, just a single character
@@ -154,7 +138,13 @@ namespace parsec::regex {
 				if(m_input.peek() != ']') {
 					const auto high = parseChar();
 					if(low > high) {
-						outOfOrderCharRange(charRangeStart);
+						const auto rangeLoc = SourceLoc(
+							rangeStart.startCol(),
+							m_input.loc().pos() - rangeStart.pos(),
+							rangeStart.lineNo(),
+							rangeStart.linePos()
+						);
+						err::outOfOrderCharRange(rangeLoc);
 					}
 
 					for(auto ch = low + 1; ch <= high; ) {
@@ -165,20 +155,6 @@ namespace parsec::regex {
 				}
 
 				return e;
-			}
-
-
-			[[noreturn]]
-			void outOfOrderCharRange(const SourceLoc& rangeStart) const {
-				throw ParseError(
-					ErrorCodes::OutOfOrderCharRange,
-					SourceLoc(
-						rangeStart.startCol(),
-						m_input.loc().pos() - rangeStart.pos(),
-						rangeStart.lineNo(),
-						rangeStart.linePos()
-					)
-				);
 			}
 
 
@@ -209,16 +185,10 @@ namespace parsec::regex {
 							}
 							return static_cast<char>(ch);
 						}
-						invalidHexChar();
+						err::emptyHexCharSeq(m_input.loc());
 					}
 					default: return ch;
 				}
-			}
-
-
-			[[noreturn]]
-			void invalidHexChar() const {
-				throw ParseError(ErrorCodes::InvalidHexChar, m_input.loc());
 			}
 
 
