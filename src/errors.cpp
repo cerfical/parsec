@@ -22,6 +22,9 @@ namespace parsec {
 					case ErrorCodes::Success: return "success";
 					case ErrorCodes::UnexpectedEof: return "unexpected end of file";
 					case ErrorCodes::InvalidChar: return "invalid character '{}'";
+					case ErrorCodes::UnexpectedChar: return "unexpected '{}'";
+					case ErrorCodes::OutOfOrderCharRange: return "character range is out of order";
+					case ErrorCodes::InvalidHexChar: return "expected at least one hexadecimal digit";
 					case ErrorCodes::UnexpectedToken: return "unexpected \"{}\"";
 					case ErrorCodes::TokenMismatch: return "expected \"{}\", but got \"{}\"";
 					case ErrorCodes::UnmatchedParenthesis: return "unmatched parenthesis";
@@ -42,6 +45,14 @@ namespace parsec {
 
 
 	const char* InvalidCharError::what() const {
+		if(m_msg.empty()) {
+			m_msg = std::vformat(code().message(), std::make_format_args(char_utils::escape(m_ch)));
+		}
+		return m_msg.c_str();
+	}
+
+
+	const char* UnexpectedCharError::what() const {
 		if(m_msg.empty()) {
 			m_msg = std::vformat(code().message(), std::make_format_args(char_utils::escape(m_ch)));
 		}

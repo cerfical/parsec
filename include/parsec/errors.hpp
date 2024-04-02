@@ -7,6 +7,7 @@
 #include "errors/ParseError.hpp"
 #include "errors/UnexpectedEofError.hpp"
 #include "errors/InvalidCharError.hpp"
+#include "errors/UnexpectedCharError.hpp"
 #include "errors/UnexpectedTokenError.hpp"
 #include "errors/TokenMismatchError.hpp"
 

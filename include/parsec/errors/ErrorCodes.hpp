@@ -8,7 +8,10 @@ namespace parsec {
 	enum class ErrorCodes {
 		Success,
 		UnexpectedEof,
+		UnexpectedChar,
 		InvalidChar,
+		OutOfOrderCharRange,
+		InvalidHexChar,
 		UnexpectedToken,
 		TokenMismatch,
 		UnmatchedParenthesis

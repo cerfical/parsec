@@ -3,6 +3,9 @@
 #include "core/TextScanner.hpp"
 #include "utils/char_utils.hpp"
 
+#include "errors/UnexpectedCharError.hpp"
+#include "errors/ParseError.hpp"
+
 #include <sstream>
 #include <format>
 
@@ -74,7 +77,7 @@ namespace parsec::regex {
 					unexpectedChar();
 				}
 
-				if(const auto openParen = m_input.pos(); m_input.skipIf('(')) {
+				if(const auto openParen = m_input.loc(); m_input.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_input.skipIf(')')) {
 						return empty();
@@ -98,18 +101,15 @@ namespace parsec::regex {
 			[[noreturn]]
 			void unexpectedChar() const {
 				if(m_input.peek() != ')') {
-					throw ParseError(
-						std::format("unexpected '{}'", char_utils::escape(m_input.peek())),
-						m_input.pos()
-					);
+					throw UnexpectedCharError(m_input.loc(), m_input.peek());
 				}
-				unmatchedParen(m_input.pos());
+				unmatchedParen(m_input.loc());
 			}
 
 
 			[[noreturn]]
-			void unmatchedParen(gsl::index parenLoc) const {
-				throw ParseError("unmatched parenthesis", parenLoc);
+			void unmatchedParen(const SourceLoc& parenLoc) const {
+				throw ParseError(ErrorCodes::UnmatchedParenthesis, parenLoc);
 			}
 
 
@@ -141,7 +141,7 @@ namespace parsec::regex {
 
 			NodePtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
-				const auto charRangeStart = m_input.pos();
+				const auto charRangeStart = m_input.loc();
 				const auto low = parseChar();
 
 				// no char range, just a single character
@@ -169,9 +169,15 @@ namespace parsec::regex {
 
 
 			[[noreturn]]
-			void outOfOrderCharRange(gsl::index charRangeStart) const {
-				throw ParseError("character range is out of order",
-					IndexRange(charRangeStart, m_input.pos())
+			void outOfOrderCharRange(const SourceLoc& rangeStart) const {
+				throw ParseError(
+					ErrorCodes::OutOfOrderCharRange,
+					SourceLoc(
+						rangeStart.startCol(),
+						m_input.loc().pos() - rangeStart.pos(),
+						rangeStart.lineNo(),
+						rangeStart.linePos()
+					)
 				);
 			}
 
@@ -203,7 +209,7 @@ namespace parsec::regex {
 							}
 							return static_cast<char>(ch);
 						}
-						invalidHexSeq();
+						invalidHexChar();
 					}
 					default: return ch;
 				}
@@ -211,10 +217,8 @@ namespace parsec::regex {
 
 
 			[[noreturn]]
-			void invalidHexSeq() const {
-				throw ParseError("expected at least one hexadecimal digit",
-					m_input.pos()
-				);
+			void invalidHexChar() const {
+				throw ParseError(ErrorCodes::InvalidHexChar, m_input.loc());
 			}
 
 
