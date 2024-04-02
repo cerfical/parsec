@@ -60,7 +60,6 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/IndexRange.hpp"
-		"include/parsec/core/LineInfo.hpp"
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
 		"include/parsec/core/Compiler.hpp"

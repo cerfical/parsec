@@ -21,10 +21,10 @@ namespace parsec {
 	}
 	
 	void TextScanner::updateLoc(char ch) {
-		m_pos++;
+		m_inputPos++;
 		if(ch == '\n') {
-			m_line.pos = m_pos;
-			m_line.no++;
+			m_linePos = m_inputPos;
+			m_lineNo++;
 		}
 	}
 

@@ -1,36 +1,55 @@
 #ifndef PARSEC_CORE_SOURCE_LOC_HEADER
 #define PARSEC_CORE_SOURCE_LOC_HEADER
 
-#include "IndexRange.hpp"
-#include "LineInfo.hpp"
-
 namespace parsec {
 
 	/**
-	 * @brief One-line location in source text.
+	 * @brief Describes a one-line location in text.
 	*/
-	struct SourceLoc {
+	class SourceLoc {
+	public:
+
+		explicit SourceLoc(int startCol = 0)
+			: SourceLoc(startCol, 0, 0) {}
+
+		SourceLoc(int startCol, int lineNo, int linePos)
+			: SourceLoc(startCol, 1, lineNo, linePos) {}
 		
-		SourceLoc() = default;
-
-		SourceLoc(const LineInfo& line, const IndexRange& cols) noexcept
-			: line(line), cols(cols)
-		{ }
+		SourceLoc(int startCol, int colCount, int lineNo, int linePos)
+			: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos) {}
 
 
+		int linePos() const {
+			return m_linePos;
+		}
 
-		/**
-		 * @brief Text line of interest.
-		*/
-		LineInfo line;
-		
+		int lineNo() const {
+			return m_lineNo;
+		}
+
+		int colCount() const {
+			return m_colCount;
+		}
+
+		int startCol() const {
+			return m_startCol;
+		}
 
 
-		/**
-		 * @brief Contiguous range of characters within a line.
-		*/
-		IndexRange cols;
+		int endCol() const {
+			return startCol() + colCount();
+		}
 
+		int pos() const {
+			return linePos() + startCol();
+		}
+
+
+	private:
+		int m_startCol = {};
+		int m_colCount = {};
+		int m_lineNo = {};
+		int m_linePos = {};
 	};
 
 }

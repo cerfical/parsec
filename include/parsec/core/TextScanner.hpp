@@ -88,19 +88,10 @@ namespace parsec {
 
 		/** @{ */
 		/**
-		 * @brief The line where the scanner is positioned.
-		*/
-		const LineInfo& line() const noexcept {
-			return m_line;
-		}
-
-
-
-		/**
 		 * @brief Position of the scanner in the input stream.
 		*/
-		gsl::index pos() const noexcept {
-			return m_pos;
+		int pos() const noexcept {
+			return m_inputPos;
 		}
 
 
@@ -109,7 +100,7 @@ namespace parsec {
 		 * @brief Compact representation of the scanner position.
 		*/
 		SourceLoc loc() const noexcept {
-			return SourceLoc(line(), pos());
+			return SourceLoc(m_inputPos - m_linePos, m_lineNo, m_linePos);
 		}
 		/** @} */
 
@@ -128,8 +119,9 @@ namespace parsec {
 		mutable std::string m_labuf;
 		std::istream* m_input = {};
 
-		gsl::index m_pos = 0;
-		LineInfo m_line;
+		int m_inputPos = 0;
+		int m_linePos = 0;
+		int m_lineNo = 0;
 	};
 
 }

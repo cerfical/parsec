@@ -67,11 +67,16 @@ namespace parsec::pars {
 		 * @brief Location of the lexer in the input stream.
 		*/
 		SourceLoc loc() const {
-			const auto endCol = m_input.pos() - m_input.line().pos;
-			const auto startCol = m_tokenStart - m_input.line().pos;
+			const auto inputLoc = m_input.loc();
 
-			return SourceLoc(m_input.line(),
-				IndexRange(startCol, endCol)
+			const auto startCol = m_tokenStart - inputLoc.linePos();
+			const auto colCount = inputLoc.pos() - m_tokenStart;
+
+			return SourceLoc(
+				startCol,
+				colCount,
+				inputLoc.lineNo(),
+				inputLoc.linePos()
 			);
 		}
 		/** @} */
@@ -137,7 +142,7 @@ namespace parsec::pars {
 		TokenKinds parseOperator();
 		TokenKinds parseToken();
 
-		std::streampos m_tokenStart = {};
+		int m_tokenStart = {};
 		std::optional<Token> m_token;
 		std::string m_tokenText;
 
