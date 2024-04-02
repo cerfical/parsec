@@ -22,7 +22,7 @@ namespace parsec::elr {
 			return m_shifts;
 		}
 
-		void addShift(int target, const fg::Symbol& label) {
+		void addShift(int target, const Symbol& label) {
 			m_shifts.emplace_back(target, label);
 		}
 
@@ -31,7 +31,7 @@ namespace parsec::elr {
 			return m_gotos;
 		}
 
-		void addGoto(int target, const fg::Symbol& label) {
+		void addGoto(int target, const Symbol& label) {
 			m_gotos.emplace_back(target, label);
 		}
 
@@ -53,7 +53,7 @@ namespace parsec::elr {
 			return m_reduction;
 		}
 
-		void setReduction(const fg::Symbol& reduceRule, int backLink) {
+		void setReduction(const Symbol& reduceRule, int backLink) {
 			m_reduction = ReduceAction(reduceRule, backLink);
 		}
 

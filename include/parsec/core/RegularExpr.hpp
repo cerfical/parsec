@@ -1,5 +1,5 @@
-#ifndef PARSEC_FG_REGULAR_EXPR_HEADER
-#define PARSEC_FG_REGULAR_EXPR_HEADER
+#ifndef PARSEC_CORE_REGULAR_EXPR_HEADER
+#define PARSEC_CORE_REGULAR_EXPR_HEADER
 
 #include "regex/ExprNode.hpp"
 #include "regex/SymbolAtom.hpp"
@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace parsec::fg {
+namespace parsec {
 
 	class RegularExpr {
 	public:

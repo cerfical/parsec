@@ -1,6 +1,6 @@
-#include "fg/regex.hpp"
+#include "regex.hpp"
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 	namespace {
 		class NodePrinter : private NodeVisitor {
 		public:

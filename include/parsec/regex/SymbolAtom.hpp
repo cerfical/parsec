@@ -1,10 +1,10 @@
-#ifndef PARSEC_FG_REGEX_SYMBOL_ATOM_HEADER
-#define PARSEC_FG_REGEX_SYMBOL_ATOM_HEADER
+#ifndef PARSEC_REGEX_SYMBOL_ATOM_HEADER
+#define PARSEC_REGEX_SYMBOL_ATOM_HEADER
 
-#include "../Symbol.hpp"
+#include "../core/Symbol.hpp"
 #include "ExprNode.hpp"
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 
 	class SymbolAtom : public ExprNode {
 	public:

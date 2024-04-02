@@ -14,9 +14,9 @@ namespace parsec::src_gen {
 		using CodeGen::CodeGen;
 
 	private:
-		void onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) override;
+		void onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) override;
 
-		void onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) override;
+		void onParserGen(const SymbolGrammar& syntax, const ConfigStore& configs) override;
 
 		void onPreambleGen(const ConfigStore& configs) override;
 	};

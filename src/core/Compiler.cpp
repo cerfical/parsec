@@ -9,6 +9,7 @@
 #include <format>
 
 using namespace parsec::pars::ast;
+using namespace parsec::pars;
 
 namespace parsec {
 	namespace {
@@ -52,7 +53,7 @@ namespace parsec {
 				return stringToNameIt->second;
 			}
 
-			const fg::SymbolGrammar& grammar() const noexcept {
+			const SymbolGrammar& grammar() const noexcept {
 				return m_grammar;
 			}
 
@@ -75,9 +76,9 @@ namespace parsec {
 			
 			void defineToken(const std::string& name, const pars::Token& pattern) {
 				if(pattern.is<pars::TokenKinds::PatternString>()) {
-					m_grammar.define(name, fg::RegularExpr::fromPatternString(pattern.text()));
+					m_grammar.define(name, RegularExpr::fromPatternString(pattern.text()));
 				} else {
-					m_grammar.define(name, fg::RegularExpr::fromRawString(pattern.text()));
+					m_grammar.define(name, RegularExpr::fromRawString(pattern.text()));
 				}
 			}
 			
@@ -85,7 +86,7 @@ namespace parsec {
 			void visit(const InlineToken& n) {}
 			void visit(const EmptyNode& n) {}
 			void visit(const EmptyRule& n) {}
-			void visit(const SymbolRule& n) {}
+			void visit(const ast::SymbolRule& n) {}
 			void visit(const ConcatRule& n) {}
 			void visit(const AlternRule& n) {}
 			void visit(const OptionalRule& n) {}
@@ -94,7 +95,7 @@ namespace parsec {
 			void visit(const NamedRule& n) {}
 
 
-			fg::SymbolGrammar m_grammar;
+			SymbolGrammar m_grammar;
 			std::unordered_map<std::string_view, std::string> m_patternStringNames;
 			std::unordered_map<std::string_view, std::string> m_rawStringNames;
 			std::size_t m_inlinePatternId = 0;
@@ -111,11 +112,11 @@ namespace parsec {
 			}
 
 
-			const fg::SymbolGrammar& parser() const noexcept {
+			const SymbolGrammar& parser() const noexcept {
 				return m_parser;
 			}
 
-			const fg::SymbolGrammar& lexer() const noexcept {
+			const SymbolGrammar& lexer() const noexcept {
 				return m_patterns.grammar();
 			}
 
@@ -132,7 +133,7 @@ namespace parsec {
 
 			void visit(const InlineToken& n) {
 				const auto& inlinePatternName = m_patterns.getTokenName(n.pattern());
-				m_rule = fg::Symbol(inlinePatternName);
+				m_rule = Symbol(inlinePatternName);
 			}
 
 			void visit(const NamedToken& n) {}
@@ -140,11 +141,11 @@ namespace parsec {
 
 
 			void visit(const EmptyRule& n) {
-				m_rule = fg::Symbol();
+				m_rule = Symbol();
 			}
 
-			void visit(const SymbolRule& n) {
-				m_rule = fg::Symbol(makeName(n.symbol()));
+			void visit(const ast::SymbolRule& n) {
+				m_rule = Symbol(makeName(n.symbol()));
 			}
 
 			void visit(const ConcatRule& n) {
@@ -190,9 +191,9 @@ namespace parsec {
 
 
 
-			fg::SymbolGrammar m_parser;
+			SymbolGrammar m_parser;
 			PatternCache m_patterns;
-			fg::RegularExpr m_rule;
+			RegularExpr m_rule;
 		};
 	}
 

@@ -1,7 +1,7 @@
 #ifndef PARSEC_ELR_REDUCE_ACTION_HEADER
 #define PARSEC_ELR_REDUCE_ACTION_HEADER
 
-#include "../fg/Symbol.hpp"
+#include "../core/Symbol.hpp"
 
 namespace parsec::elr {
 
@@ -10,11 +10,11 @@ namespace parsec::elr {
 
 		ReduceAction() = default;
 
-		ReduceAction(const fg::Symbol& reduceRule, int backLink)
+		ReduceAction(const Symbol& reduceRule, int backLink)
 			: m_reduceRule(reduceRule), m_backLink(backLink) {}
 
 
-		const fg::Symbol& reduceRule() const {
+		const Symbol& reduceRule() const {
 			return m_reduceRule;
 		}
 
@@ -24,7 +24,7 @@ namespace parsec::elr {
 
 
 	private:
-		fg::Symbol m_reduceRule;
+		Symbol m_reduceRule;
 		int m_backLink = {};
 	};
 

@@ -2,7 +2,8 @@
 #define PARSEC_ELR_TRANS_NETWORK_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "../fg/SymbolGrammar.hpp"
+#include "../core/SymbolGrammar.hpp"
+
 #include "../dfa/Automaton.hpp"
 
 #include <unordered_map>
@@ -16,12 +17,12 @@ namespace parsec::elr {
 
 		TransNetwork() = default;
 
-		explicit TransNetwork(const fg::SymbolGrammar& grammar);
+		explicit TransNetwork(const SymbolGrammar& grammar);
 
 		
 		const dfa::State& stateById(int state) const;
 		
-		const dfa::State& startState(const fg::Symbol& symbol) const;
+		const dfa::State& startState(const Symbol& symbol) const;
 
 		std::span<const dfa::State> states() const {
 			return m_states;
@@ -38,10 +39,10 @@ namespace parsec::elr {
 
 
 	private:
-		void insertMachine(const fg::Symbol& name, const dfa::Automaton& dfa);
+		void insertMachine(const Symbol& name, const dfa::Automaton& dfa);
 
 		std::vector<dfa::State> m_states;
-		std::unordered_map<fg::Symbol, int> m_symbolToStartState;
+		std::unordered_map<Symbol, int> m_symbolToStartState;
 	};
 
 }

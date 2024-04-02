@@ -6,14 +6,14 @@ namespace parsec::elr {
 	}
 
 
-	TransNetwork::TransNetwork(const fg::SymbolGrammar& grammar) {
+	TransNetwork::TransNetwork(const SymbolGrammar& grammar) {
 		for(const auto& rule : grammar.rules()) {
 			// skip empty rules
 			if(!rule) {
 				continue;
 			}
 
-			fg::SymbolGrammar singletonGrammar;
+			SymbolGrammar singletonGrammar;
 			singletonGrammar.define(rule.head(), rule.body());
 
 			insertMachine(rule.head(), dfa::Automaton(singletonGrammar));
@@ -21,7 +21,7 @@ namespace parsec::elr {
 	}
 
 
-	void TransNetwork::insertMachine(const fg::Symbol& name, const dfa::Automaton& dfa) {
+	void TransNetwork::insertMachine(const Symbol& name, const dfa::Automaton& dfa) {
 		// function to be called only in constructors, for exception safety
 		
 		const auto baseStateId = static_cast<int>(m_states.size());
@@ -43,7 +43,7 @@ namespace parsec::elr {
 	}
 
 
-	const dfa::State& TransNetwork::startState(const fg::Symbol& symbol) const {
+	const dfa::State& TransNetwork::startState(const Symbol& symbol) const {
 		const auto symbolToIndexIt = m_symbolToStartState.find(symbol);
 		if(symbolToIndexIt != m_symbolToStartState.end()) {
 			return m_states[symbolToIndexIt->second];

@@ -1,4 +1,4 @@
-#include "fg/regex.hpp"
+#include "regex.hpp"
 
 #include "core/TextScanner.hpp"
 #include "utils/char_utils.hpp"
@@ -6,7 +6,7 @@
 #include <sstream>
 #include <format>
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 	namespace {
 		class ParseInputStream {
 		public:

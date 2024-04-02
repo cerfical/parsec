@@ -1,11 +1,11 @@
-#ifndef PARSEC_FG_SYMBOL_HEADER
-#define PARSEC_FG_SYMBOL_HEADER
+#ifndef PARSEC_CORE_SYMBOL_HEADER
+#define PARSEC_CORE_SYMBOL_HEADER
 
 #include <string>
 #include <string_view>
 #include <ostream>
 
-namespace parsec::fg {
+namespace parsec {
 
 	class Symbol {
 	public:
@@ -58,8 +58,8 @@ namespace parsec::fg {
 namespace std {
 
 	template <>
-	struct hash<parsec::fg::Symbol> {
-		size_t operator()(const parsec::fg::Symbol& symbol) const noexcept {
+	struct hash<parsec::Symbol> {
+		size_t operator()(const parsec::Symbol& symbol) const noexcept {
 			return hash<string>()(symbol.value());
 		}
 	};

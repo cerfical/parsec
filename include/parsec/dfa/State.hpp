@@ -21,7 +21,7 @@ namespace parsec::dfa {
 			return m_transitions;
 		}
 
-		void addTransition(int target, const fg::Symbol& label) {
+		void addTransition(int target, const Symbol& label) {
 			m_transitions.emplace_back(target, label);
 		}
 		
@@ -30,11 +30,11 @@ namespace parsec::dfa {
 			return !matchedRule().isEmpty();
 		}
 
-		const fg::Symbol& matchedRule() const {
+		const Symbol& matchedRule() const {
 			return m_matchedRule;
 		}
 
-		void setMatchedRule(const fg::Symbol& rule) {
+		void setMatchedRule(const Symbol& rule) {
 			m_matchedRule = rule;
 		}
 
@@ -63,7 +63,7 @@ namespace parsec::dfa {
 
 	private:
 		std::vector<StateTrans> m_transitions;
-		fg::Symbol m_matchedRule;
+		Symbol m_matchedRule;
 		int m_id = {};
 		bool m_startState = false;
 	};

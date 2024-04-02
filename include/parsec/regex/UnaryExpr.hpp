@@ -1,9 +1,9 @@
-#ifndef PARSEC_FG_REGEX_UNARY_EXPR_HEADER
-#define PARSEC_FG_REGEX_UNARY_EXPR_HEADER
+#ifndef PARSEC_REGEX_UNARY_EXPR_HEADER
+#define PARSEC_REGEX_UNARY_EXPR_HEADER
 
 #include "ExprNode.hpp"
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 	
 	class UnaryExpr : public ExprNode {
 	public:

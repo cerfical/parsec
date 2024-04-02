@@ -1,5 +1,5 @@
-#ifndef PARSEC_FG_REGEX_ROOT_HEADER
-#define PARSEC_FG_REGEX_ROOT_HEADER
+#ifndef PARSEC_REGEX_HEADER
+#define PARSEC_REGEX_HEADER
 
 #include "regex/SymbolAtom.hpp"
 

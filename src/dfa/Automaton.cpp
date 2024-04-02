@@ -5,9 +5,9 @@
 #include <map>
 
 template <>
-struct boost::hash<parsec::fg::Symbol> {
-	std::size_t operator()(const parsec::fg::Symbol& symbol) {
-		return std::hash<parsec::fg::Symbol>()(symbol);
+struct boost::hash<parsec::Symbol> {
+	std::size_t operator()(const parsec::Symbol& symbol) {
+		return std::hash<parsec::Symbol>()(symbol);
 	}
 };
 
@@ -16,15 +16,15 @@ namespace parsec::dfa {
 		class Item {
 		public:
 
-			Item(const fg::Symbol& head, const fg::RegularExpr::Atom& atom)
+			Item(const Symbol& head, const RegularExpr::Atom& atom)
 				: m_head(head), m_atom(atom) {}
 
 
-			const fg::Symbol& head() const {
+			const Symbol& head() const {
 				return m_head;
 			}
 
-			const fg::RegularExpr::Atom& atom() const {
+			const RegularExpr::Atom& atom() const {
 				return m_atom;
 			}
 
@@ -34,8 +34,8 @@ namespace parsec::dfa {
 
 
 		private:
-			fg::RegularExpr::Atom m_atom;
-			fg::Symbol m_head;
+			RegularExpr::Atom m_atom;
+			Symbol m_head;
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
@@ -58,7 +58,7 @@ namespace parsec::dfa {
 	class Automaton::StateBuilder {
 	public:
 
-		StateBuilder(const fg::SymbolGrammar& grammar, StateList& states)
+		StateBuilder(const SymbolGrammar& grammar, StateList& states)
 			: m_grammar(grammar), m_states(states) {}
 
 		void run() {
@@ -95,7 +95,7 @@ namespace parsec::dfa {
 
 		void buildTransitions(const ItemSet& stateItems, int stateId) {
 			// use map to lexicographically sort transitions by their labels
-			std::map<fg::Symbol, ItemSet> transitions;
+			std::map<Symbol, ItemSet> transitions;
 			
 			for(const auto& item : stateItems) {
 				if(item.isAtEnd()) {
@@ -120,12 +120,12 @@ namespace parsec::dfa {
 
 		std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemSetsToIds;
 
-		const fg::SymbolGrammar& m_grammar;
+		const SymbolGrammar& m_grammar;
 		StateList& m_states;
 	};
 
 
-	Automaton::Automaton(const fg::SymbolGrammar& grammar) {
+	Automaton::Automaton(const SymbolGrammar& grammar) {
 		StateBuilder(grammar, m_states).run();
 	}
 

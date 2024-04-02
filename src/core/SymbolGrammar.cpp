@@ -1,7 +1,7 @@
-#include "fg/SymbolGrammar.hpp"
+#include "core/SymbolGrammar.hpp"
 #include <algorithm>
 
-namespace parsec::fg {
+namespace parsec {
 	void SymbolGrammar::define(const Symbol& symbol, const RegularExpr& expr) {
 		if(!symbol) {
 			throw std::runtime_error("empty grammar symbol");

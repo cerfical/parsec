@@ -5,7 +5,7 @@
 
 namespace parsec::src_gen::cpp_utils {
 	namespace {
-		void genEnumOutputOperator(std::ostream& out, const fg::Symbol& enumName, std::span<const fg::Symbol> valueNames) {
+		void genEnumOutputOperator(std::ostream& out, const Symbol& enumName, std::span<const Symbol> valueNames) {
 			out << std::format("std::ostream& operator<<(std::ostream& out, {} v) {{", enumName.value()) << '\n';
 			out << "\t" << "switch(v) {" << '\n';
 
@@ -20,7 +20,7 @@ namespace parsec::src_gen::cpp_utils {
 		}
 
 
-		void genEnumValues(std::ostream& out, std::span<const fg::Symbol> valueNames) {
+		void genEnumValues(std::ostream& out, std::span<const Symbol> valueNames) {
 			for(bool first = true; const auto& name : valueNames) {
 				if(!first) {
 					out << ',';
@@ -33,7 +33,7 @@ namespace parsec::src_gen::cpp_utils {
 	}
 
 	
-	std::string makeEnum(const fg::Symbol& enumName, std::span<const fg::Symbol> valueNames) {
+	std::string makeEnum(const Symbol& enumName, std::span<const Symbol> valueNames) {
 		std::ostringstream out;
 
 		out << std::format("enum class {} {{", enumName.value());

@@ -1,10 +1,10 @@
-#include "fg/RegularExpr.hpp"
-#include "fg/regex.hpp"
+#include "core/RegularExpr.hpp"
+#include "regex.hpp"
 
 #include <algorithm>
 #include <sstream>
 
-namespace parsec::fg {
+namespace parsec {
 	using namespace regex;
 
 

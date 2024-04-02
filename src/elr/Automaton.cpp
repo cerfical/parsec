@@ -15,7 +15,7 @@ namespace parsec::elr {
 	class Automaton::StateBuilder {
 	public:
 
-		StateBuilder(const fg::SymbolGrammar& grammar, StateList& states)
+		StateBuilder(const SymbolGrammar& grammar, StateList& states)
 			: m_grammar(grammar), m_states(states) {}
 
 		void run() {
@@ -54,7 +54,7 @@ namespace parsec::elr {
 
 		void buildTransitions(std::span<const StateItem> stateItems, int stateId) {
 			// use map to lexicographically sort transitions by their labels
-			std::map<fg::Symbol, ItemSet> transitions;
+			std::map<Symbol, ItemSet> transitions;
 			
 			for(std::size_t i = 0; i < stateItems.size(); i++) {
 				const auto& dfaState = m_transNet.stateById(stateItems[i].dfaState());
@@ -94,12 +94,12 @@ namespace parsec::elr {
 		std::unordered_map<ItemSet, int, ItemSetHasher> m_itemSetsToIds;
 		TransNetwork m_transNet;
 
-		const fg::SymbolGrammar& m_grammar;
+		const SymbolGrammar& m_grammar;
 		StateList& m_states;
 	};
 
 
-	Automaton::Automaton(const fg::SymbolGrammar& grammar) {
+	Automaton::Automaton(const SymbolGrammar& grammar) {
 		StateBuilder(grammar, m_states).run();
 	}
 

@@ -1,12 +1,12 @@
-#ifndef PARSEC_FG_SYMBOL_RULE_HEADER
-#define PARSEC_FG_SYMBOL_RULE_HEADER
+#ifndef PARSEC_CORE_SYMBOL_RULE_HEADER
+#define PARSEC_CORE_SYMBOL_RULE_HEADER
 
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
 #include <ostream>
 
-namespace parsec::fg {
+namespace parsec {
 
 	class SymbolRule {
 	public:

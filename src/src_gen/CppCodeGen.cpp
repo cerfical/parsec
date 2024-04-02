@@ -14,7 +14,7 @@ namespace parsec::src_gen {
 		class CppLexerGen {
 		public:
 
-			CppLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs, std::ostream& out)
+			CppLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs, std::ostream& out)
 				: m_tokens(tokens), m_configs(configs), m_out(out) {
 				m_dfa = dfa::Automaton(tokens);
 			}
@@ -310,17 +310,17 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 			}
 
 
-			const fg::Symbol& eofToken() const {
+			const Symbol& eofToken() const {
 				return m_tokens.resolve(m_configs.eofTokenName()).head();
 			}
 
 
-			const fg::Symbol& wsToken() const {
+			const Symbol& wsToken() const {
 				return m_tokens.resolve(m_configs.wsTokenName()).head();
 			}
 
 
-			const fg::SymbolGrammar& m_tokens;
+			const SymbolGrammar& m_tokens;
 			const ConfigStore& m_configs;
 			
 			std::ostream& m_out;
@@ -332,7 +332,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 		class CppParserGen {
 		public:
 
-			CppParserGen(const fg::SymbolGrammar& syntax, std::ostream& out)
+			CppParserGen(const SymbolGrammar& syntax, std::ostream& out)
 				: m_syntax(syntax), m_out(out) {
 				m_elr = elr::Automaton(syntax);
 			}
@@ -520,7 +520,7 @@ public:
 			}
 
 
-			const fg::SymbolGrammar& m_syntax;
+			const SymbolGrammar& m_syntax;
 			
 			std::ostream& m_out;
 			elr::Automaton m_elr;
@@ -528,12 +528,12 @@ public:
 	}
 
 
-	void CppCodeGen::onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) {
+	void CppCodeGen::onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) {
 		CppLexerGen(tokens, configs, output()).run();
 	}
 
 
-	void CppCodeGen::onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) {
+	void CppCodeGen::onParserGen(const SymbolGrammar& syntax, const ConfigStore& configs) {
 		CppParserGen(syntax, output()).run();
 	}
 

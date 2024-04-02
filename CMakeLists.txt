@@ -68,9 +68,17 @@ target_sources(parsec-lib
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
 
+		"include/parsec/core/Symbol.hpp"
+		"include/parsec/core/RegularExpr.hpp"
+		"include/parsec/core/SymbolRule.hpp"
+		"include/parsec/core/SymbolGrammar.hpp"
+
 	PRIVATE
 		"src/core/TextScanner.cpp"
 		"src/core/Compiler.cpp"
+
+		"src/core/SymbolGrammar.cpp"
+		"src/core/RegularExpr.cpp"
 )
 
 
@@ -125,29 +133,22 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/fg.hpp"
-		"include/parsec/fg/Symbol.hpp"
-		"include/parsec/fg/RegularExpr.hpp"
-		"include/parsec/fg/SymbolRule.hpp"
-		"include/parsec/fg/SymbolGrammar.hpp"
-		"include/parsec/fg/regex.hpp"
-		"include/parsec/fg/regex/ExprNode.hpp"
-		"include/parsec/fg/regex/NodeVisitor.hpp"
-		"include/parsec/fg/regex/SymbolAtom.hpp"
-		"include/parsec/fg/regex/BinaryExpr.hpp"
-		"include/parsec/fg/regex/ConcatExpr.hpp"
-		"include/parsec/fg/regex/AlternExpr.hpp"
-		"include/parsec/fg/regex/UnaryExpr.hpp"
-		"include/parsec/fg/regex/StarClosure.hpp"
-		"include/parsec/fg/regex/PlusClosure.hpp"
-		"include/parsec/fg/regex/ParseError.hpp"
-		"include/parsec/fg/regex/Parser.hpp"
+		"include/parsec/regex.hpp"
+		"include/parsec/regex/ExprNode.hpp"
+		"include/parsec/regex/NodeVisitor.hpp"
+		"include/parsec/regex/SymbolAtom.hpp"
+		"include/parsec/regex/BinaryExpr.hpp"
+		"include/parsec/regex/ConcatExpr.hpp"
+		"include/parsec/regex/AlternExpr.hpp"
+		"include/parsec/regex/UnaryExpr.hpp"
+		"include/parsec/regex/StarClosure.hpp"
+		"include/parsec/regex/PlusClosure.hpp"
+		"include/parsec/regex/ParseError.hpp"
+		"include/parsec/regex/Parser.hpp"
 
 	PRIVATE
-		"src/fg/SymbolGrammar.cpp"
-		"src/fg/RegularExpr.cpp"
-		"src/fg/regex.cpp"
-		"src/fg/regex/Parser.cpp"
+		"src/regex.cpp"
+		"src/regex/Parser.cpp"
 )
 
 

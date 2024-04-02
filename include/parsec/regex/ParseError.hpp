@@ -1,10 +1,10 @@
-#ifndef PARSEC_FG_REGEX_PARSE_ERROR_HEADER
-#define PARSEC_FG_REGEX_PARSE_ERROR_HEADER
+#ifndef PARSEC_REGEX_PARSE_ERROR_HEADER
+#define PARSEC_REGEX_PARSE_ERROR_HEADER
 
-#include "../../core/Error.hpp"
-#include "../../core/IndexRange.hpp"
+#include "../core/Error.hpp"
+#include "../core/IndexRange.hpp"
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 
 	class ParseError : public Error {
 	public:

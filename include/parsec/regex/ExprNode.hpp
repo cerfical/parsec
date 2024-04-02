@@ -1,13 +1,13 @@
-#ifndef PARSEC_FG_REGEX_EXPR_NODE_HEADER
-#define PARSEC_FG_REGEX_EXPR_NODE_HEADER
+#ifndef PARSEC_REGEX_EXPR_NODE_HEADER
+#define PARSEC_REGEX_EXPR_NODE_HEADER
 
-#include "../../core/NonCopyable.hpp"
-#include "../../core/NonMovable.hpp"
+#include "../core/NonCopyable.hpp"
+#include "../core/NonMovable.hpp"
 
 #include <memory>
 #include <ostream>
 
-namespace parsec::fg::regex {
+namespace parsec::regex {
 
 	class NodeVisitor;
 

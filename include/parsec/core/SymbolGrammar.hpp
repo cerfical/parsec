@@ -1,5 +1,5 @@
-#ifndef PARSEC_FG_SYMBOL_GRAMMAR_HEADER
-#define PARSEC_FG_SYMBOL_GRAMMAR_HEADER
+#ifndef PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
+#define PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
 
 #include "../core/NonCopyable.hpp"
 #include "SymbolRule.hpp"
@@ -8,7 +8,7 @@
 #include <vector>
 #include <span>
 
-namespace parsec::fg {
+namespace parsec {
 
 	class SymbolGrammar : private NonCopyable {
 	public:

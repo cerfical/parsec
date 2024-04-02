@@ -1,7 +1,7 @@
 #ifndef PARSEC_DFA_AUTOMATON_HEADER
 #define PARSEC_DFA_AUTOMATON_HEADER
 
-#include "../fg/SymbolGrammar.hpp"
+#include "../core/SymbolGrammar.hpp"
 #include "State.hpp"
 
 #include <vector>
@@ -14,7 +14,7 @@ namespace parsec::dfa {
 
 		Automaton() = default;
 
-		explicit Automaton(const fg::SymbolGrammar& grammar);
+		explicit Automaton(const SymbolGrammar& grammar);
 
 
 		std::span<const State> states() const {

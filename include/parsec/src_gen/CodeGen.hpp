@@ -2,7 +2,7 @@
 #define PARSEC_SRC_GEN_CODE_GEN_HEADER
 
 #include "../core/NonCopyable.hpp"
-#include "../fg/SymbolGrammar.hpp"
+#include "../core/SymbolGrammar.hpp"
 
 #include "ConfigStore.hpp"
 #include <iostream>
@@ -31,7 +31,7 @@ namespace parsec::src_gen {
 		 * @param syntax Grammar description of the language recognized by the parser.
 		 * @param configs Additional configuration parameters.
 		*/
-		void run(const fg::SymbolGrammar& tokens, const fg::SymbolGrammar& syntax, const ConfigStore& configs = {}) {
+		void run(const SymbolGrammar& tokens, const SymbolGrammar& syntax, const ConfigStore& configs = {}) {
 			onPreambleGen(configs);
 			onLexerGen(tokens, configs);
 			onParserGen(syntax, configs);
@@ -51,13 +51,13 @@ namespace parsec::src_gen {
 		/**
 		 * @brief Called to generate the lexical analyzer part of the parser.
 		*/
-		virtual void onLexerGen(const fg::SymbolGrammar& tokens, const ConfigStore& configs) = 0;
+		virtual void onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) = 0;
 		
 
 		/**
 		 * @brief Called to generate the syntax analyzer part of the parser.
 		*/
-		virtual void onParserGen(const fg::SymbolGrammar& syntax, const ConfigStore& configs) = 0;
+		virtual void onParserGen(const SymbolGrammar& syntax, const ConfigStore& configs) = 0;
 
 
 		/**
