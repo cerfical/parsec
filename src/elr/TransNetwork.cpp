@@ -2,12 +2,17 @@
 
 namespace parsec::elr {
 	namespace {
-		const dfa::State emptyState(0);
+		const dfa::State emptyState;
 	}
 
 
 	TransNetwork::TransNetwork(const fg::SymbolGrammar& grammar) {
 		for(const auto& rule : grammar.rules()) {
+			// skip empty rules
+			if(!rule) {
+				continue;
+			}
+
 			fg::SymbolGrammar singletonGrammar;
 			singletonGrammar.define(rule.head(), rule.body());
 
