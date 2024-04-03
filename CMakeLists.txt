@@ -145,11 +145,9 @@ target_sources(parsec-lib
 		"include/parsec/src_gen/ConfigStore.hpp"
 		"include/parsec/src_gen/CodeGen.hpp"
 		"include/parsec/src_gen/CppCodeGen.hpp"
-		"include/parsec/src_gen/cpp_utils.hpp"
 
 	PRIVATE
 		"src/src_gen/CppCodeGen.cpp"
-		"src/src_gen/cpp_utils.cpp"
 )
 
 
@@ -191,12 +189,15 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+		"include/parsec/utils.hpp"
 		"include/parsec/utils/string_utils.hpp"
 		"include/parsec/utils/char_utils.hpp"
+		"include/parsec/utils/cpp_utils.hpp"
 
 	PRIVATE
 		"src/utils/string_utils.cpp"
 		"src/utils/char_utils.cpp"
+		"src/utils/cpp_utils.cpp"
 )
 
 

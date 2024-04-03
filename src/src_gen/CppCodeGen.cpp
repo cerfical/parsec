@@ -1,11 +1,9 @@
 #include "src_gen/CppCodeGen.hpp"
-#include "src_gen/cpp_utils.hpp"
 
 #include "dfa/Automaton.hpp"
 #include "elr/Automaton.hpp"
 
-#include "utils/char_utils.hpp"
-#include "utils/string_utils.hpp"
+#include "utils.hpp"
 
 #include <format>
 

@@ -1,9 +1,9 @@
-#include "src_gen/cpp_utils.hpp"
+#include "utils/cpp_utils.hpp"
 
 #include <format>
 #include <sstream>
 
-namespace parsec::src_gen::cpp_utils {
+namespace parsec::cpp_utils {
 	namespace {
 		void genEnumOutputOperator(std::ostream& out, const Symbol& enumName, std::span<const Symbol> valueNames) {
 			out << std::format("std::ostream& operator<<(std::ostream& out, {} v) {{", enumName.value()) << '\n';

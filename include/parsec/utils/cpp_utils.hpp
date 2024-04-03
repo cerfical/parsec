@@ -1,5 +1,5 @@
-#ifndef PARSEC_SRC_GEN_CPP_UTILS_HEADER
-#define PARSEC_SRC_GEN_CPP_UTILS_HEADER
+#ifndef PARSEC_UTILS_CPP_UTILS_HEADER
+#define PARSEC_UTILS_CPP_UTILS_HEADER
 
 #include "../core/Symbol.hpp"
 
@@ -9,7 +9,7 @@
 /**
  * @brief Auxiliary functions to facilitate C++ source generation.
 */
-namespace parsec::src_gen::cpp_utils {
+namespace parsec::cpp_utils {
 
 	/**
 	 * @brief Make up the source code for a C++ enumeration.
