@@ -1,5 +1,7 @@
 #include "stringify.hpp"
 
+#include "core/RegularExpr.hpp"
+
 #include "pars/TokenKinds.hpp"
 #include "pars/Token.hpp"
 
@@ -10,6 +12,11 @@
 #include <format>
 
 namespace parsec {
+	std::string stringify(const RegularExpr& expr) {
+		return expr ? stringify(*static_cast<regex::NodePtr>(expr)) : "()";
+	}
+
+
 	std::string stringify(pars::TokenKinds tok) {
 		switch(tok) {
 

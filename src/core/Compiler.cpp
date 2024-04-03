@@ -4,6 +4,7 @@
 #include "utils/string_utils.hpp"
 #include "pars/ast.hpp"
 #include "src_gen/CppCodeGen.hpp"
+#include "regex/make.hpp"
 
 #include <sstream>
 #include <format>
@@ -133,7 +134,7 @@ namespace parsec {
 
 			void visit(const InlineToken& n) {
 				const auto& inlinePatternName = m_patterns.getTokenName(n.pattern());
-				m_rule = Symbol(inlinePatternName);
+				m_rule = regex::atom(inlinePatternName);
 			}
 
 			void visit(const NamedToken& n) {}
@@ -141,11 +142,11 @@ namespace parsec {
 
 
 			void visit(const EmptyRule& n) {
-				m_rule = Symbol();
+				m_rule = regex::empty();
 			}
 
 			void visit(const ast::SymbolRule& n) {
-				m_rule = Symbol(makeName(n.symbol()));
+				m_rule = regex::atom(makeName(n.symbol()));
 			}
 
 			void visit(const ConcatRule& n) {
@@ -164,17 +165,17 @@ namespace parsec {
 
 			void visit(const OptionalRule& n) {
 				n.inner()->acceptVisitor(*this);
-				m_rule = optional(m_rule);
+				m_rule = regex::optional(m_rule);
 			}
 
 			void visit(const PlusRule& n) {
 				n.inner()->acceptVisitor(*this);
-				m_rule = plusClosure(m_rule);
+				m_rule = regex::plusClosure(m_rule);
 			}
 			
 			void visit(const StarRule& n) {
 				n.inner()->acceptVisitor(*this);
-				m_rule = starClosure(m_rule);
+				m_rule = regex::starClosure(m_rule);
 			}
 
 			void visit(const NamedRule& n) {

@@ -1,6 +1,7 @@
 #ifndef PARSEC_CORE_SYMBOL_RULE_HEADER
 #define PARSEC_CORE_SYMBOL_RULE_HEADER
 
+#include "../print.hpp"
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 

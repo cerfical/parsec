@@ -4,11 +4,13 @@
 #include <string>
 
 namespace parsec {
+	
+	class RegularExpr;
+
 	namespace pars {
 		enum class TokenKinds;
 		class Token;
 	}
-
 
 	namespace regex {
 		class ExprNode;
@@ -19,6 +21,8 @@ namespace parsec {
 	 * @name Converting objects to strings
 	 * @{
 	*/
+	std::string stringify(const RegularExpr& expr);
+
 	std::string stringify(pars::TokenKinds tok);
 	
 	std::string stringify(const pars::Token& tok);

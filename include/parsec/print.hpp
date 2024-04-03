@@ -19,6 +19,10 @@ namespace parsec {
 	 * @name Printing objects to streams
 	 * @{
 	*/
+	inline std::ostream& operator<<(std::ostream& out, const RegularExpr& expr) {
+		return out << stringify(expr);
+	}
+
 	inline std::ostream& operator<<(std::ostream& out, pars::TokenKinds tok) {
 		return out << stringify(tok);
 	}

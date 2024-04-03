@@ -8,26 +8,32 @@ namespace parsec::regex {
 
 
 	NodePtr altern(NodePtr left, NodePtr right) {
-		return std::make_shared<AlternExpr>(left, right);
+		if(left && right) {
+			return std::make_shared<AlternExpr>(left, right);
+		}
+		return left ? left : right;
 	}
 
 
 	NodePtr concat(NodePtr left, NodePtr right) {
-		return std::make_shared<ConcatExpr>(left, right);
+		if(left && right) {
+			return std::make_shared<ConcatExpr>(left, right);
+		}
+		return left ? left : right;
 	}
 
 
 	NodePtr starClosure(NodePtr inner) {
-		return std::make_shared<StarClosure>(inner);
+		return inner ? std::make_shared<StarClosure>(inner) : inner;
 	}
 
 
 	NodePtr plusClosure(NodePtr inner) {
-		return std::make_shared<PlusClosure>(inner);
+		return inner ? std::make_shared<PlusClosure>(inner) : inner;
 	}
 
 
 	NodePtr optional(NodePtr inner) {
-		return std::make_shared<OptionalExpr>(inner);
+		return inner ? std::make_shared<OptionalExpr>(inner) : inner;
 	}
 }
