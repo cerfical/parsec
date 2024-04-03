@@ -1,8 +1,8 @@
 #ifndef PARSEC_CORE_REGULAR_EXPR_HEADER
 #define PARSEC_CORE_REGULAR_EXPR_HEADER
 
-#include "regex/ExprNode.hpp"
-#include "regex/SymbolAtom.hpp"
+#include "regex/nodes/ExprNode.hpp"
+#include "regex/nodes/SymbolAtom.hpp"
 #include "Symbol.hpp"
 
 #include <vector>

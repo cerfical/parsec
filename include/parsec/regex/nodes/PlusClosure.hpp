@@ -1,11 +1,11 @@
-#ifndef PARSEC_REGEX_OPTIONAL_EXPR_HEADER
-#define PARSEC_REGEX_OPTIONAL_EXPR_HEADER
+#ifndef PARSEC_REGEX_NODES_PLUS_CLOSURE_HEADER
+#define PARSEC_REGEX_NODES_PLUS_CLOSURE_HEADER
 
 #include "UnaryExpr.hpp"
 
 namespace parsec::regex {
-	
-	class OptionalExpr : public UnaryExpr {
+
+	class PlusClosure : public UnaryExpr {
 	public:
 
 		using UnaryExpr::UnaryExpr;
@@ -14,7 +14,7 @@ namespace parsec::regex {
 		void accept(NodeVisitor& visitor) const override;
 
 		bool isNullable() const noexcept override {
-			return true;
+			return inner()->isNullable();
 		}
 
 	};

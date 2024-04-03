@@ -1,7 +1,7 @@
-#ifndef PARSEC_REGEX_SYMBOL_ATOM_HEADER
-#define PARSEC_REGEX_SYMBOL_ATOM_HEADER
+#ifndef PARSEC_REGEX_NODES_SYMBOL_ATOM_HEADER
+#define PARSEC_REGEX_NODES_SYMBOL_ATOM_HEADER
 
-#include "../core/Symbol.hpp"
+#include "../../core/Symbol.hpp"
 #include "ExprNode.hpp"
 
 namespace parsec::regex {

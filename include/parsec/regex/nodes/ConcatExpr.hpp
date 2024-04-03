@@ -1,11 +1,11 @@
-#ifndef PARSEC_REGEX_ALTERN_EXPR_HEADER
-#define PARSEC_REGEX_ALTERN_EXPR_HEADER
+#ifndef PARSEC_REGEX_NODES_CONCAT_EXPR_HEADER
+#define PARSEC_REGEX_NODES_CONCAT_EXPR_HEADER
 
 #include "BinaryExpr.hpp"
 
 namespace parsec::regex {
-
-	class AlternExpr : public BinaryExpr {
+	
+	class ConcatExpr : public BinaryExpr {
 	public:
 
 		using BinaryExpr::BinaryExpr;
@@ -14,7 +14,7 @@ namespace parsec::regex {
 		void accept(NodeVisitor& visitor) const override;
 
 		bool isNullable() const noexcept override {
-			return left()->isNullable() || right()->isNullable();
+			return left()->isNullable() && right()->isNullable();
 		}
 
 	};
