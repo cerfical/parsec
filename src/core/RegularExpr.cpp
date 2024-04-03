@@ -1,5 +1,6 @@
 #include "core/RegularExpr.hpp"
 #include "regex.hpp"
+#include "stringify.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -200,13 +201,11 @@ namespace parsec {
 
 
 	std::string RegularExpr::toString() const {
-		std::ostringstream out;
 		if(!isEmpty()) {
-			m_rootNode->printTo(out);
+			return stringify(*m_rootNode);
 		} else {
-			out << "()";
+			return "()";
 		}
-		return out.str();
 	}
 
 

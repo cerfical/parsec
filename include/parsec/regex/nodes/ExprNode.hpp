@@ -21,9 +21,6 @@ namespace parsec::regex {
 
 		virtual bool isNullable() const noexcept = 0;
 
-		
-		void printTo(std::ostream& out) const;
-
 	};
 
 	using NodePtr = std::shared_ptr<ExprNode>;

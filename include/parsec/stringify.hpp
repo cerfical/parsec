@@ -10,6 +10,11 @@ namespace parsec {
 	}
 
 
+	namespace regex {
+		class ExprNode;
+	}
+
+
 	/**
 	 * @name Converting objects to strings
 	 * @{
@@ -17,6 +22,8 @@ namespace parsec {
 	std::string stringify(pars::TokenKinds tok);
 	
 	std::string stringify(const pars::Token& tok);
+
+	std::string stringify(const regex::ExprNode& n);
 	/** @} */
 
 }
