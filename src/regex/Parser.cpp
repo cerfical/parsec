@@ -206,4 +206,20 @@ namespace parsec::regex {
 	NodePtr Parser::parse(std::istream& input) {
 		return ParserImpl(input).run();
 	}
+
+
+	bool Parser::isMetaChar(char ch) {
+		switch(ch) {
+			case '|':
+			case '*': case '?': case '+':
+			case '(': case ')':
+			case '[': case ']':
+			case '\\': {
+				return true;
+			}
+			default: {
+				return false;
+			}
+		}
+	}
 }

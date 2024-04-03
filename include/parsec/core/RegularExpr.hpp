@@ -17,10 +17,8 @@ namespace parsec {
 		using AtomList = std::vector<Atom>;
 
 
-		static RegularExpr fromPatternString(std::string_view str);
 
-		static RegularExpr fromRawString(std::string_view str);
-
+		explicit RegularExpr(std::string_view regex);
 
 		RegularExpr(regex::NodePtr rootNode)
 			: m_rootNode(rootNode) {}

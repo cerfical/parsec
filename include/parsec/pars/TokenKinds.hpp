@@ -7,7 +7,6 @@
 \
 	PARSEC_PARS_TOKEN_KIND(Ident, Identifier) \
 	PARSEC_PARS_TOKEN_KIND(PatternString, Regex string pattern) \
-	PARSEC_PARS_TOKEN_KIND(RawString, Raw string literal) \
 \
 	PARSEC_PARS_TOKEN_KIND(Star, Asterisk symbol) \
 	PARSEC_PARS_TOKEN_KIND(Plus, Plus symbol) \

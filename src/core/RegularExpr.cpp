@@ -112,17 +112,8 @@ namespace parsec {
 
 
 
-	RegularExpr RegularExpr::fromPatternString(std::string_view str) {
-		return RegularExpr(Parser().parse(str));
-	}
-
-	RegularExpr RegularExpr::fromRawString(std::string_view str) {
-		RegularExpr expr;
-		for(const auto& ch : str) {
-			expr += atom(ch);
-		}
-		return expr;
-	}
+	RegularExpr::RegularExpr(std::string_view regex)
+		: RegularExpr(RegularExpr(Parser().parse(regex))) {}
 
 
 	RegularExpr::AtomList RegularExpr::firstAtoms() const {

@@ -1,6 +1,8 @@
 #include "pars/Lexer.hpp"
 
+#include "regex/Parser.hpp"
 #include "utils/char_utils.hpp"
+
 #include "err.hpp"
 
 namespace parsec::pars {
@@ -65,7 +67,11 @@ namespace parsec::pars {
 				break;
 			}
 
+			// automatically escape regex metachars in raw string literals
 			const auto ch = m_input.get();
+			if(delim == '\'' && regex::Parser::isMetaChar(ch)) {
+				m_tokenText += '\\';
+			}
 			m_tokenText += ch;
 
 			/**
@@ -77,7 +83,7 @@ namespace parsec::pars {
 				m_tokenText += m_input.get();
 			}
 		}
-		return delim == '"' ? TokenKinds::PatternString : TokenKinds::RawString;
+		return TokenKinds::PatternString;
 	}
 
 

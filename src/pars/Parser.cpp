@@ -47,11 +47,7 @@ namespace parsec::pars {
 					const auto name = expect<TokenKinds::Ident>();
 					expect<TokenKinds::Equals>();
 
-					if(const auto& tok = m_lexer.peek(); !tok.is<TokenKinds::PatternString>() && !tok.is<TokenKinds::RawString>()) {
-						err::misplacedToken(tok.loc(), tok.text());
-					}
-
-					auto pattern = ast::makeNode<ast::NamedToken>(name, m_lexer.lex());
+					auto pattern = ast::makeNode<ast::NamedToken>(name, expect<TokenKinds::PatternString>());
 					expect<TokenKinds::Semicolon>();
 
 					tokens = ast::makeNode<ast::ListNode>(
@@ -145,7 +141,7 @@ namespace parsec::pars {
 						}
 						return subrule;
 					}
-					case TokenKinds::PatternString: case TokenKinds::RawString: {
+					case TokenKinds::PatternString: {
 						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
@@ -163,8 +159,7 @@ namespace parsec::pars {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident:
 					case TokenKinds::LeftParen:
-					case TokenKinds::PatternString:
-					case TokenKinds::RawString: {
+					case TokenKinds::PatternString: {
 						return true;
 					}
 					default: {
@@ -190,7 +185,6 @@ namespace parsec::pars {
 
 					case TokenKinds::Ident: return "an identifier";
 					case TokenKinds::PatternString: return "a string pattern";
-					case TokenKinds::RawString: return "a string literal";
 
 					case TokenKinds::Star: return "a '*'";
 					case TokenKinds::Plus: return "a '+'";

@@ -76,11 +76,7 @@ namespace parsec {
 			}
 			
 			void defineToken(const std::string& name, const pars::Token& pattern) {
-				if(pattern.is<pars::TokenKinds::PatternString>()) {
-					m_grammar.define(name, RegularExpr::fromPatternString(pattern.text()));
-				} else {
-					m_grammar.define(name, RegularExpr::fromRawString(pattern.text()));
-				}
+				m_grammar.define(name, RegularExpr(pattern.text()));
 			}
 			
 
