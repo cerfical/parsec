@@ -1,13 +1,14 @@
 #ifndef PARSEC_DEPS_HEADER
 #define PARSEC_DEPS_HEADER
 
+#include <istream>
 #include <optional>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <string_view>
-#include <string>
-#include <stdexcept>
+#include <ostream>
 #include <span>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
 
 #endif
