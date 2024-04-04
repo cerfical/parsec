@@ -1,7 +1,6 @@
 #ifndef PARSEC_CORE_SYMBOL_RULE_HEADER
 #define PARSEC_CORE_SYMBOL_RULE_HEADER
 
-#include "../print.hpp"
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
@@ -40,11 +39,6 @@ namespace parsec {
 		Symbol m_head;
 		RegularExpr m_body;
 	};
-
-
-	inline std::ostream& operator<<(std::ostream& out, const SymbolRule& rule) {
-		return out << rule.head() << ": " << rule.body();
-	}
 
 }
 

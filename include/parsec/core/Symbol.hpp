@@ -3,7 +3,6 @@
 
 #include <string>
 #include <string_view>
-#include <ostream>
 
 namespace parsec {
 
@@ -47,11 +46,6 @@ namespace parsec {
 	private:
 		std::string m_value;
 	};
-
-
-	inline std::ostream& operator<<(std::ostream& out, const Symbol& symbol) {
-		return out << '\'' << symbol.value() << '\'';
-	}
 
 }
 

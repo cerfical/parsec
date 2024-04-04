@@ -6,6 +6,4 @@
 #include "elr/TransNetwork.hpp"
 #include "elr/Automaton.hpp"
 
-#include "elr/print.hpp"
-
 #endif

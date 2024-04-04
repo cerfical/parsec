@@ -47,13 +47,12 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/parsec.hpp"
 		"include/parsec/deps.hpp"
-		"include/parsec/stringify.hpp"
 		"include/parsec/print.hpp"
 		"include/parsec/hash.hpp"
 		"include/parsec/err.hpp"
 
 	PRIVATE
-		"src/stringify.cpp"
+		"src/print.cpp"
 		"src/hash.cpp"
 		"src/err.cpp"
 )
@@ -158,12 +157,10 @@ target_sources(parsec-lib
 		"include/parsec/dfa/StateTrans.hpp"
 		"include/parsec/dfa/State.hpp"
 		"include/parsec/dfa/Automaton.hpp"
-		"include/parsec/dfa/print.hpp"
 		"include/parsec/dfa.hpp"
 
 	PRIVATE
 		"src/dfa/Automaton.cpp"
-		"src/dfa/print.cpp"
 )
 
 
@@ -176,14 +173,12 @@ target_sources(parsec-lib
 		"include/parsec/elr/ReduceAction.hpp"
 		"include/parsec/elr/TransNetwork.hpp"
 		"include/parsec/elr/Automaton.hpp"
-		"include/parsec/elr/print.hpp"
 		"include/parsec/elr.hpp"
 
 	PRIVATE
 		"src/elr/ItemSet.cpp"
 		"src/elr/TransNetwork.cpp"
 		"src/elr/Automaton.cpp"
-		"src/elr/print.cpp"
 )
 
 
