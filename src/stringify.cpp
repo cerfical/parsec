@@ -5,7 +5,6 @@
 #include "pars/TokenKinds.hpp"
 #include "pars/Token.hpp"
 
-#include "regex/NodeVisitor.hpp"
 #include "regex/nodes.hpp"
 
 #include <sstream>
@@ -49,7 +48,11 @@ namespace parsec {
 
 		private:
 			void visit(const SymbolAtom& n) override {
-				m_out << n.symbol();
+				if(n.value()) {
+					m_out << n.value();
+				} else {
+					m_out << "()";
+				}
 			}
 
 			void visit(const OptionalExpr& n) override {

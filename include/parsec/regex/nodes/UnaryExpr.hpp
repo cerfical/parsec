@@ -14,6 +14,11 @@ namespace parsec::regex {
 		~UnaryExpr() override = default;
 
 
+		int atomCount() const noexcept override {
+			return m_inner->atomCount();
+		}
+
+
 		const ExprNode* inner() const {
 			return m_inner.get();
 		}

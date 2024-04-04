@@ -14,6 +14,11 @@ namespace parsec::regex {
 		~BinaryExpr() override = default;
 
 
+		int atomCount() const noexcept override {
+			return m_left->atomCount() + m_right->atomCount();
+		}
+
+
 		const ExprNode* left() const {
 			return m_left.get();
 		}

@@ -1,5 +1,4 @@
 #include "regex/nodes.hpp"
-#include "regex/NodeVisitor.hpp"
 
 namespace parsec::regex {
 	void SymbolAtom::accept(NodeVisitor& visitor) const {

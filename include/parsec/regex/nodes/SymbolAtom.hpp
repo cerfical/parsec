@@ -9,8 +9,8 @@ namespace parsec::regex {
 	class SymbolAtom : public ExprNode {
 	public:
 		
-		explicit SymbolAtom(const Symbol& symbol)
-			: m_symbol(symbol) {}
+		explicit SymbolAtom(const Symbol& value)
+			: m_value(value) {}
 
 		~SymbolAtom() override = default;
 
@@ -18,17 +18,21 @@ namespace parsec::regex {
 		void accept(NodeVisitor& visitor) const override;
 
 		bool isNullable() const noexcept override {
-			return m_symbol.isEmpty();
+			return m_value.isEmpty();
+		}
+
+		int atomCount() const noexcept override {
+			return m_value ? 1 : 0;
 		}
 
 
-		const Symbol& symbol() const {
-			return m_symbol;
+		const Symbol& value() const {
+			return m_value;
 		}
 
 
 	private:
-		Symbol m_symbol;
+		Symbol m_value;
 	};
 
 }

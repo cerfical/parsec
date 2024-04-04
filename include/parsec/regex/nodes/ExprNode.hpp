@@ -21,6 +21,8 @@ namespace parsec::regex {
 
 		virtual bool isNullable() const noexcept = 0;
 
+		virtual int atomCount() const noexcept = 0;
+
 	};
 
 	using NodePtr = std::shared_ptr<ExprNode>;

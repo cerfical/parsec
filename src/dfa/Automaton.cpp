@@ -16,38 +16,42 @@ namespace parsec::dfa {
 		class Item {
 		public:
 
-			Item(const Symbol& head, const RegularExpr::Atom& atom)
-				: m_head(head), m_atom(atom) {}
+			Item(const SymbolRule* rule, int pos)
+				: m_rule(rule), m_pos(pos) {}
 
 
-			const Symbol& head() const {
-				return m_head;
+			const SymbolRule* rule() const {
+				return m_rule;
 			}
 
-			const RegularExpr::Atom& atom() const {
-				return m_atom;
+			const Symbol& value() const {
+				return m_rule->body().posValue(m_pos);
+			}
+
+			int pos() const {
+				return m_pos;
 			}
 
 			bool isAtEnd() const {
-				return m_atom.isEnd();
+				return m_rule->body().isEndPos(m_pos);
 			}
 
 
 		private:
-			RegularExpr::Atom m_atom;
-			Symbol m_head;
+			const SymbolRule* m_rule = {};
+			int m_pos = {};
 		};
 
 		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
 
 
 		inline bool operator==(const Item& lhs, const Item& rhs) {
-			return std::tuple(lhs.head(), lhs.atom().posIndex())
-				== std::tuple(rhs.head(), rhs.atom().posIndex());
+			return std::tuple(lhs.rule()->head(), lhs.pos())
+				== std::tuple(rhs.rule()->head(), rhs.pos());
 		}
 
 		inline std::size_t hash_value(const Item& item) {
-			return boost::hash_value(std::tuple(item.head(), item.atom().posIndex()));
+			return boost::hash_value(std::tuple(item.rule()->head(), item.pos()));
 		}
 
 
@@ -72,8 +76,8 @@ namespace parsec::dfa {
 		ItemSet createStartState() const {
 			ItemSet items;
 			for(const auto& rule : m_grammar.rules()) {
-				for(const auto& atom : rule.body().firstAtoms()) {
-					items.emplace(rule.head(), atom);
+				for(const auto& pos : rule.body().firstPos()) {
+					items.emplace(&rule, pos);
 				}
 			}
 			return items;
@@ -100,15 +104,15 @@ namespace parsec::dfa {
 			for(const auto& item : stateItems) {
 				if(item.isAtEnd()) {
 					if(!m_states[stateId].isMatchState()) {
-						m_states[stateId].setMatchedRule(item.head());
+						m_states[stateId].setMatchedRule(item.rule()->head());
 						continue;
 					}
 					throw std::runtime_error("conflicting rules");
 				}
 
-				auto& itemTrans = transitions[item.atom().symbol()];
-				for(const auto& pos : item.atom().followAtoms()) {
-					itemTrans.emplace(item.head(), pos);
+				auto& itemTrans = transitions[item.value()];
+				for(const auto& pos : item.rule()->body().followPos(item.pos())) {
+					itemTrans.emplace(item.rule(), pos);
 				}
 			}
 

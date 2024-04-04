@@ -2,36 +2,39 @@
 #define PARSEC_CORE_REGULAR_EXPR_HEADER
 
 #include "../regex/nodes/ExprNode.hpp"
-#include "../regex/nodes/SymbolAtom.hpp"
 #include "../regex/make.hpp"
 
-#include <vector>
+#include "Symbol.hpp"
+#include <span>
 
 namespace parsec {
 
 	class RegularExpr {
 	public:
 
-		class Atom;
-
-		using AtomList = std::vector<Atom>;
-
-
+		RegularExpr() = default;
 
 		explicit RegularExpr(std::string_view regex);
 
-		RegularExpr(regex::NodePtr rootNode)
-			: m_rootNode(rootNode) {}
-		
-		RegularExpr() = default;
+		RegularExpr(regex::NodePtr regex)
+			: m_regex(regex) {}
 		
 
 
-		AtomList firstAtoms() const;
+		std::span<const int> firstPos() const;
+
+		std::span<const int> followPos(int posIndex) const;
+
+		const Symbol& posValue(int posIndex) const;
+
+		bool isEndPos(int posIndex) const {
+			return posValue(posIndex).isEmpty();
+		}
+
 
 
 		operator regex::NodePtr() const {
-			return m_rootNode;
+			return m_regex;
 		}
 
 		explicit operator bool() const {
@@ -39,7 +42,7 @@ namespace parsec {
 		}
 
 		bool isEmpty() const {
-			return m_rootNode == nullptr;
+			return m_regex == nullptr;
 		}
 
 
@@ -55,40 +58,11 @@ namespace parsec {
 
 
 	private:
-		static void computeFirstPos(regex::NodePtr, const regex::ExprNode*, AtomList&, std::size_t&);
+		struct ComputeCache;
+		ComputeCache* computeCache() const;
 
-		regex::NodePtr m_rootNode;
-	};
-
-
-
-	class RegularExpr::Atom {
-		friend RegularExpr;
-
-	public:
-
-		AtomList followAtoms() const;
-
-		const Symbol& symbol() const;
-
-		std::size_t posIndex() const {
-			return m_posIndex;
-		}
-
-		bool isEnd() const {
-			return symbol().isEmpty(); 
-		}
-
-	private:
-		Atom(std::size_t posIndex) noexcept
-			: m_posIndex(posIndex) {}
-		
-		Atom(regex::NodePtr rootNode, const regex::SymbolAtom* atomNode, std::size_t posIndex) noexcept
-			: m_rootNode(rootNode), m_atomNode(atomNode), m_posIndex(posIndex) {}
-
-		regex::NodePtr m_rootNode;
-		const regex::SymbolAtom* m_atomNode = {};
-		std::size_t m_posIndex = {};
+		mutable std::shared_ptr<ComputeCache> m_computeCache;
+		regex::NodePtr m_regex;
 	};
 
 

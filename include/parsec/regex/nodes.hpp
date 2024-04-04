@@ -1,6 +1,7 @@
 #ifndef PARSEC_REGEX_NODES_HEADER
 #define PARSEC_REGEX_NODES_HEADER
 
+#include "nodes/NodeVisitor.hpp"
 #include "nodes/SymbolAtom.hpp"
 #include "nodes/OptionalExpr.hpp"
 #include "nodes/StarClosure.hpp"

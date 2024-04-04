@@ -119,10 +119,10 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/regex.hpp"
 		"include/parsec/regex/Parser.hpp"
-		"include/parsec/regex/NodeVisitor.hpp"
 		"include/parsec/regex/nodes.hpp"
 		"include/parsec/regex/make.hpp"
 		
+		"include/parsec/regex/nodes/NodeVisitor.hpp"
 		"include/parsec/regex/nodes/ExprNode.hpp"
 		"include/parsec/regex/nodes/SymbolAtom.hpp"
 		"include/parsec/regex/nodes/BinaryExpr.hpp"
