@@ -51,7 +51,7 @@ namespace parsec::pars {
 
 
 	void Lexer::resetParse() {
-		m_tokenStart = m_input.pos();
+		m_tokenStart = m_input.loc().pos();
 		m_tokenText.clear();
 	}
 

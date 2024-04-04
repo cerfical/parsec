@@ -2,7 +2,7 @@
 #define PARSEC_CORE_TEXT_SCANNER_HEADER
 
 #include "SourceLoc.hpp"
-#include <gsl/util>
+#include "NonCopyable.hpp"
 
 #include <string_view>
 #include <istream>
@@ -13,24 +13,13 @@ namespace parsec {
 	/**
 	 * @brief Facilitates textual data analysis using standard stream classes.
 	*/
-	class TextScanner {
+	class TextScanner : private NonCopyable {
 	public:
 
 		TextScanner() = default;
 
-		TextScanner(std::istream& input)
-			: m_input(&input)
-		{ }
-
-
-
-		/** @{ */
-		TextScanner(const TextScanner&) = delete;
-		TextScanner& operator=(const TextScanner&) = delete;
-
-		TextScanner(TextScanner&&) = default;
-		TextScanner& operator=(TextScanner&&) = default;
-		/** @} */
+		explicit TextScanner(std::istream& input)
+			: m_input(&input) {}
 
 
 
@@ -45,21 +34,10 @@ namespace parsec {
 		/**
 		 * @brief Read a character at the specified offset from the current position without removing it from the stream.
 		*/
-		char peek(gsl::index i = 0) const;
-
-
-		
-		/**
-		 * @brief Check whether the end of input has been reached.
-		*/
-		bool isEof() const {
-			return m_labuf.empty() && checkForEof();
-		}
-		/** @} */
+		char peek(int i = 0) const;
 
 
 
-		/** @{ */
 		/**
 		 * @brief Remove a character from the input if it matches specified character.
 		 * @returns @c true if a skip has taken place, @c false otherwise.
@@ -88,18 +66,18 @@ namespace parsec {
 
 		/** @{ */
 		/**
-		 * @brief Position of the scanner in the input stream.
+		 * @brief Check whether the end of input has been reached.
 		*/
-		int pos() const noexcept {
-			return m_inputPos;
+		bool isEof() const {
+			return m_labuf.empty() && checkForEof();
 		}
 
 
-		
+
 		/**
-		 * @brief Compact representation of the scanner position.
+		 * @brief Information about the position of the scanner in the input stream.
 		*/
-		SourceLoc loc() const noexcept {
+		SourceLoc loc() const {
 			return SourceLoc(m_inputPos - m_linePos, m_lineNo, m_linePos);
 		}
 		/** @} */
@@ -110,8 +88,7 @@ namespace parsec {
 		bool checkForEof() const;
 		void updateLoc(char ch);
 
-		bool fillBuf(std::size_t size) const;
-
+		bool fillLookaheadBuffer(std::size_t size) const;
 
 		mutable std::string m_labuf;
 		std::istream* m_input = {};
