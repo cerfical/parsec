@@ -1,7 +1,9 @@
 #ifndef PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
 #define PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../hash.hpp"
+
+#include "NonCopyable.hpp"
 #include "SymbolRule.hpp"
 
 #include <unordered_map>
@@ -49,7 +51,13 @@ namespace parsec {
 		const std::vector<Symbol>& sortedSymbols() const;
 
 
-		mutable std::unordered_map<Symbol, std::size_t> m_rulesCache;
+		struct SymbolHasher {
+			std::size_t operator()(const Symbol& symbol) const noexcept {
+				return hash(symbol);
+			}
+		};
+
+		mutable std::unordered_map<Symbol, std::size_t, SymbolHasher> m_rulesCache;
 
 		mutable std::vector<Symbol> m_symbols;
 		mutable bool m_symbolsSorted = true;

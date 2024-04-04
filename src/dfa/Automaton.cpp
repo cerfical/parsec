@@ -1,4 +1,5 @@
 #include "dfa/Automaton.hpp"
+#include "hash.hpp"
 
 #include <boost/functional/hash.hpp>
 #include <unordered_set>
@@ -7,7 +8,7 @@
 template <>
 struct boost::hash<parsec::Symbol> {
 	std::size_t operator()(const parsec::Symbol& symbol) {
-		return std::hash<parsec::Symbol>()(symbol);
+		return parsec::hash(symbol);
 	}
 };
 

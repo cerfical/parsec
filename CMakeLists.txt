@@ -49,10 +49,12 @@ target_sources(parsec-lib
 		"include/parsec/deps.hpp"
 		"include/parsec/stringify.hpp"
 		"include/parsec/print.hpp"
+		"include/parsec/hash.hpp"
 		"include/parsec/err.hpp"
 
 	PRIVATE
 		"src/stringify.cpp"
+		"src/hash.cpp"
 		"src/err.cpp"
 )
 
@@ -175,7 +177,6 @@ target_sources(parsec-lib
 		"include/parsec/elr/TransNetwork.hpp"
 		"include/parsec/elr/Automaton.hpp"
 		"include/parsec/elr/print.hpp"
-		"include/parsec/elr/hash.hpp"
 		"include/parsec/elr.hpp"
 
 	PRIVATE
@@ -183,7 +184,6 @@ target_sources(parsec-lib
 		"src/elr/TransNetwork.cpp"
 		"src/elr/Automaton.cpp"
 		"src/elr/print.cpp"
-		"src/elr/hash.cpp"
 )
 
 

@@ -41,8 +41,14 @@ namespace parsec::elr {
 	private:
 		void insertMachine(const Symbol& name, const dfa::Automaton& dfa);
 
+		struct SymbolHasher {
+			std::size_t operator()(const Symbol& symbol) const noexcept {
+				return hash(symbol);
+			}
+		};
+
 		std::vector<dfa::State> m_states;
-		std::unordered_map<Symbol, int> m_symbolToStartState;
+		std::unordered_map<Symbol, int, SymbolHasher> m_symbolToStartState;
 	};
 
 }

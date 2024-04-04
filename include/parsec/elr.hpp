@@ -6,7 +6,6 @@
 #include "elr/TransNetwork.hpp"
 #include "elr/Automaton.hpp"
 
-#include "elr/hash.hpp"
 #include "elr/print.hpp"
 
 #endif

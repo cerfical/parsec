@@ -2,8 +2,9 @@
 #define PARSEC_ELR_ITEM_SET_HEADER
 
 #include "../core/NonCopyable.hpp"
+#include "../hash.hpp"
+
 #include "StateItem.hpp"
-#include "hash.hpp"
 
 #include <vector>
 #include <unordered_set>
@@ -14,7 +15,7 @@ namespace parsec::elr {
 	class TransNetwork;
 
 	class ItemSet : private NonCopyable {
-		friend std::size_t hash(const ItemSet&) noexcept;
+		friend std::size_t parsec::hash(const ItemSet&) noexcept;
 
 	public:
 

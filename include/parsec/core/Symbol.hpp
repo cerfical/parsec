@@ -55,15 +55,4 @@ namespace parsec {
 
 }
 
-namespace std {
-
-	template <>
-	struct hash<parsec::Symbol> {
-		size_t operator()(const parsec::Symbol& symbol) const noexcept {
-			return hash<string>()(symbol.value());
-		}
-	};
-
-}
-
 #endif
