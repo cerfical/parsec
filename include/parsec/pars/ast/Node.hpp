@@ -7,7 +7,7 @@
 #include <concepts>
 #include <memory>
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	class NodeVisitor;
 
@@ -21,7 +21,7 @@ namespace parsec::pars::ast {
 
 
 		/**
-		 * @brief Perform a 'visit' operation on the node using a NodeVisitor instance.
+		 * @brief Perform a "visit" operation on the node using a NodeVisitor instance.
 		*/
 		virtual void acceptVisitor(NodeVisitor& visitor) const = 0;
 

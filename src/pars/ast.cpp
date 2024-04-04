@@ -1,6 +1,6 @@
 #include "pars/ast.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 	void EmptyNode::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
@@ -23,7 +23,7 @@ namespace parsec::pars::ast {
 		visitor.visit(*this);
 	}
 	
-	void SymbolRule::acceptVisitor(NodeVisitor& visitor) const {
+	void SymbolAtom::acceptVisitor(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 

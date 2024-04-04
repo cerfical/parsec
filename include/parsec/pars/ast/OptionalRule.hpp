@@ -3,10 +3,10 @@
 
 #include "UnaryRule.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
-	 * @brief Denotes an optional rule.
+	 * @brief Denotes an "optional" rule.
 	*/
 	class OptionalRule : public UnaryRule {
 	public:

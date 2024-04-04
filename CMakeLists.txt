@@ -102,7 +102,7 @@ target_sources(parsec-lib
 		"include/parsec/pars/ast/InlineToken.hpp"
 		"include/parsec/pars/ast/NamedToken.hpp"
 		"include/parsec/pars/ast/EmptyRule.hpp"
-		"include/parsec/pars/ast/SymbolRule.hpp"
+		"include/parsec/pars/ast/SymbolAtom.hpp"
 		"include/parsec/pars/ast/NamedRule.hpp"
 		"include/parsec/pars/ast/ConcatRule.hpp"
 		"include/parsec/pars/ast/AlternRule.hpp"

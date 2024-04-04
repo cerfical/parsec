@@ -4,7 +4,7 @@
 #include "../Token.hpp"
 #include "Node.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
 	 * @brief Definition of an inline token without a name.
@@ -22,7 +22,7 @@ namespace parsec::pars::ast {
 
 
 		/**
-		 * @brief String pattern for the token.
+		 * @brief String pattern defining the token.
 		*/
 		const Token& pattern() const {
 			return m_pattern;

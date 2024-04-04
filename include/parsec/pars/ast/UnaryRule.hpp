@@ -3,7 +3,7 @@
 
 #include "Node.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
 	 * @brief Rule consisting of one subrule.

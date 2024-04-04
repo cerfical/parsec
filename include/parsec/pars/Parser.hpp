@@ -18,13 +18,13 @@ namespace parsec::pars {
 		/**
 		 * @brief Parse text taken from a stream.
 		*/
-		ast::NodePtr parse(std::istream& input);
+		NodePtr parse(std::istream& input);
 
 
 		/**
 		 * @brief Parse text represented by an arbitrary string.
 		*/
-		ast::NodePtr parse(std::string_view input);
+		NodePtr parse(std::string_view input);
 
 	};
 

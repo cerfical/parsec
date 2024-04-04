@@ -3,7 +3,7 @@
 
 #include "UnaryRule.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
 	 * @brief Denotes an application of the Kleene plus operator to a rule.

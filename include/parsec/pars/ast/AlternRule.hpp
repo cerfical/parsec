@@ -3,7 +3,7 @@
 
 #include "BinaryRule.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
 	 * @brief Alternation of two rules.

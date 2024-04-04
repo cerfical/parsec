@@ -9,7 +9,6 @@
 #include <sstream>
 #include <format>
 
-using namespace parsec::pars::ast;
 using namespace parsec::pars;
 
 namespace parsec {
@@ -22,7 +21,7 @@ namespace parsec {
 			return string_utils::toPascalCase(name);
 		}
 
-		std::string makeName(const pars::Token& tok) {
+		std::string makeName(const Token& tok) {
 			auto name = unifyName(tok.text());
 			if(name.empty()) {
 				throw std::runtime_error("name must contain at least one letter");
@@ -32,7 +31,7 @@ namespace parsec {
 
 
 
-		class PatternCache : private pars::ast::NodeVisitor {
+		class PatternCache : private NodeVisitor {
 		public:
 
 			PatternCache(const Node& n) {
@@ -41,8 +40,8 @@ namespace parsec {
 			}
 
 
-			const std::string& getTokenName(const pars::Token& pattern) {
-				const auto [stringToNameIt, wasInserted] = pattern.is<pars::TokenKinds::PatternString>() ?
+			const std::string& getTokenName(const Token& pattern) {
+				const auto [stringToNameIt, wasInserted] = pattern.is<TokenKinds::PatternString>() ?
 					m_patternStringNames.try_emplace(pattern.text()) :
 					m_rawStringNames.try_emplace(pattern.text());
 
@@ -67,7 +66,7 @@ namespace parsec {
 
 			void visit(const NamedToken& n) {
 				const auto patternName = makeName(n.name());
-				if(n.pattern().is<pars::TokenKinds::PatternString>()) {
+				if(n.pattern().is<TokenKinds::PatternString>()) {
 					m_patternStringNames[n.pattern().text()] = patternName;
 				} else {
 					m_rawStringNames[n.pattern().text()] = patternName;
@@ -75,7 +74,7 @@ namespace parsec {
 				defineToken(patternName, n.pattern());
 			}
 			
-			void defineToken(const std::string& name, const pars::Token& pattern) {
+			void defineToken(const std::string& name, const Token& pattern) {
 				m_grammar.define(name, RegularExpr(pattern.text()));
 			}
 			
@@ -83,7 +82,7 @@ namespace parsec {
 			void visit(const InlineToken& n) {}
 			void visit(const EmptyNode& n) {}
 			void visit(const EmptyRule& n) {}
-			void visit(const ast::SymbolRule& n) {}
+			void visit(const SymbolAtom& n) {}
 			void visit(const ConcatRule& n) {}
 			void visit(const AlternRule& n) {}
 			void visit(const OptionalRule& n) {}
@@ -100,7 +99,7 @@ namespace parsec {
 
 
 
-		class CompiledSpec : private pars::ast::NodeVisitor {
+		class CompiledSpec : private NodeVisitor {
 		public:
 
 			CompiledSpec(const Node& ast)
@@ -141,8 +140,8 @@ namespace parsec {
 				m_rule = regex::empty();
 			}
 
-			void visit(const ast::SymbolRule& n) {
-				m_rule = regex::atom(makeName(n.symbol()));
+			void visit(const SymbolAtom& n) {
+				m_rule = regex::atom(makeName(n.value()));
 			}
 
 			void visit(const ConcatRule& n) {
@@ -196,7 +195,7 @@ namespace parsec {
 
 
 	void Compiler::compile(std::istream& input) {
-		const auto ast = pars::Parser().parse(input);
+		const auto ast = Parser().parse(input);
 		CompiledSpec spec(*ast.get());
 		
 		src_gen::ConfigStore configs;

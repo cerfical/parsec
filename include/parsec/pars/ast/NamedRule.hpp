@@ -4,7 +4,7 @@
 #include "../Token.hpp"
 #include "Node.hpp"
 
-namespace parsec::pars::ast {
+namespace parsec::pars {
 
 	/**
 	 * @brief Represents a rule with a name.

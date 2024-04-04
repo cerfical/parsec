@@ -15,21 +15,18 @@ namespace parsec::pars {
 			explicit ParserImpl(std::istream& input)
 				: m_lexer(input) {}
 
-
-			ast::NodePtr run() {
+			NodePtr run() {
 				return parseSpec();
 			}
 
-
 		private:
-
-			ast::NodePtr parseSpec() {
-				auto spec = ast::makeNode<ast::EmptyNode>();
+			NodePtr parseSpec() {
+				auto spec = makeNode<EmptyNode>();
 				while(!m_lexer.isEof()) {
 					if(m_lexer.skipIf("tokens")) {
-						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseTokenList());
+						spec = makeNode<ListNode>(std::move(spec), parseTokenList());
 					} else if(m_lexer.skipIf("rules")) {
-						spec = ast::makeNode<ast::ListNode>(std::move(spec), parseRuleList());
+						spec = makeNode<ListNode>(std::move(spec), parseRuleList());
 					} else {
 						const auto& tok = m_lexer.peek();
 						err::misplacedToken(tok.loc(), tok.text());
@@ -39,18 +36,18 @@ namespace parsec::pars {
 			}
 
 
-			ast::NodePtr parseTokenList() {
-				auto tokens = ast::makeNode<ast::EmptyNode>();
+			NodePtr parseTokenList() {
+				auto tokens = makeNode<EmptyNode>();
 				expect<TokenKinds::LeftBrace>();
 
 				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
 					const auto name = expect<TokenKinds::Ident>();
 					expect<TokenKinds::Equals>();
 
-					auto pattern = ast::makeNode<ast::NamedToken>(name, expect<TokenKinds::PatternString>());
+					auto pattern = makeNode<NamedToken>(name, expect<TokenKinds::PatternString>());
 					expect<TokenKinds::Semicolon>();
 
-					tokens = ast::makeNode<ast::ListNode>(
+					tokens = makeNode<ListNode>(
 						std::move(tokens),
 						std::move(pattern)
 					);
@@ -60,21 +57,21 @@ namespace parsec::pars {
 			}
 
 
-			ast::NodePtr parseRuleList() {
-				auto rules = ast::makeNode<ast::EmptyNode>();
+			NodePtr parseRuleList() {
+				auto rules = makeNode<EmptyNode>();
 				expect<TokenKinds::LeftBrace>();
 
 				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
 					const auto name = expect<TokenKinds::Ident>();
 					expect<TokenKinds::Equals>();
 
-					auto rule = ast::makeNode<ast::NamedRule>(
+					auto rule = makeNode<NamedRule>(
 						name,
 						parseRule()
 					);
 					expect<TokenKinds::Semicolon>();
 
-					rules = ast::makeNode<ast::ListNode>(
+					rules = makeNode<ListNode>(
 						std::move(rules),
 						std::move(rule)
 					);
@@ -84,38 +81,38 @@ namespace parsec::pars {
 			}
 
 
-			ast::NodePtr parseRule() {
+			NodePtr parseRule() {
 				return parseAltern();
 			}
 
 
-			ast::NodePtr parseAltern() {
+			NodePtr parseAltern() {
 				auto lhs = parseConcat();
 				while(m_lexer.skipIf(TokenKinds::Pipe)) {
-					lhs = ast::makeNode<ast::AlternRule>(std::move(lhs), parseConcat());
+					lhs = makeNode<AlternRule>(std::move(lhs), parseConcat());
 				}
 				return lhs;
 			}
 
 
-			ast::NodePtr parseConcat() {
+			NodePtr parseConcat() {
 				auto lhs = parseRepeat();
 				while(isAtom()) {
-					lhs = ast::makeNode<ast::ConcatRule>(std::move(lhs), parseRepeat());
+					lhs = makeNode<ConcatRule>(std::move(lhs), parseRepeat());
 				}
 				return lhs;
 			}
 
 
-			ast::NodePtr parseRepeat() {
+			NodePtr parseRepeat() {
 				auto inner = parseAtom();
 				while(true) {
 					if(m_lexer.skipIf(TokenKinds::Star)) {
-						inner = ast::makeNode<ast::StarRule>(std::move(inner));
+						inner = makeNode<StarRule>(std::move(inner));
 					} else if(m_lexer.skipIf(TokenKinds::Plus)) {
-						inner = ast::makeNode<ast::PlusRule>(std::move(inner));
+						inner = makeNode<PlusRule>(std::move(inner));
 					} else if(m_lexer.skipIf(TokenKinds::QuestionMark)) {
-						inner = ast::makeNode<ast::OptionalRule>(std::move(inner));
+						inner = makeNode<OptionalRule>(std::move(inner));
 					} else {
 						break;
 					}
@@ -124,15 +121,15 @@ namespace parsec::pars {
 			}
 
 
-			ast::NodePtr parseAtom() {
+			NodePtr parseAtom() {
 				switch(m_lexer.peek().kind()) {
 					case TokenKinds::Ident: {
-						return ast::makeNode<ast::SymbolRule>(m_lexer.lex());
+						return makeNode<SymbolAtom>(m_lexer.lex());
 					}
 					case TokenKinds::LeftParen: {
 						const auto openParen = m_lexer.lex();
 						if(m_lexer.skipIf(TokenKinds::RightParen)) {
-							return ast::makeNode<ast::EmptyRule>();
+							return makeNode<EmptyRule>();
 						}
 
 						auto subrule = parseRule();
@@ -142,7 +139,7 @@ namespace parsec::pars {
 						return subrule;
 					}
 					case TokenKinds::PatternString: {
-						return ast::makeNode<ast::InlineToken>(m_lexer.lex());
+						return makeNode<InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
 						err::misplacedChar(m_lexer.loc(), ')');
@@ -208,13 +205,13 @@ namespace parsec::pars {
 	}
 
 
-	ast::NodePtr Parser::parse(std::string_view input) {
+	NodePtr Parser::parse(std::string_view input) {
 		auto in = std::istringstream(std::string(input));
 		return parse(in);
 	}
 
 
-	ast::NodePtr Parser::parse(std::istream& input) {
+	NodePtr Parser::parse(std::istream& input) {
 		return ParserImpl(input).run();
 	}
 }
