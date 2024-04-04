@@ -121,18 +121,17 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 	}
 
 
-)";
-
-				if(const auto& eof = eofToken()) {
-					m_out << "\t" << std::format("bool is{}() {{", eof.value()) << '\n';
-					m_out << "\t\t" << std::format("return peek().kind() == TokenKinds::{};", eof.value()) << '\n';
-					m_out << "\t" << "}" << '\n';
-					m_out << '\n';
-				}
-
-				m_out << R"(	const SourceLoc& loc() {
-		return peek().loc();
+	bool isEof() const {
+		return isInputEnd();
 	}
+
+	SourceLoc loc() const {
+		const auto colCount = m_inputPos - m_tokenStart;
+		const auto startCol = m_tokenStart - m_inputLinePos;
+		
+		return SourceLoc(startCol, colCount, m_inputLineNo, m_inputLinePos);
+	}
+
 
 	bool skipIf(TokenKinds tok) {
 		if(peek().kind() == tok) {
@@ -167,12 +166,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 
 	Token nextToken() {
 		const auto kind = parseToken();
-
-		const auto colCount = m_inputPos - m_tokenStart;
-		const auto startCol = m_tokenStart - m_inputLinePos;
-
-		const auto loc = SourceLoc(startCol, colCount, m_inputLineNo, m_inputLinePos);
-		return Token(m_tokenText, kind, loc);
+		return Token(m_tokenText, kind, loc());
 	}
 
 )";
@@ -201,7 +195,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 		return m_input->peek();
 	}
 
-	bool isInputEnd() {
+	bool isInputEnd() const {
 		if(!m_input) {
 			return true;
 		}
@@ -528,6 +522,9 @@ public:
 
 	void CppCodeGen::onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) {
 		CppLexerGen(tokens, configs, output()).run();
+
+		output() << '\n';
+		output() << '\n';
 	}
 
 
@@ -603,6 +600,7 @@ private:
 	SourceLoc m_loc;
 };
 )";
+
 		output() << '\n';
 		output() << '\n';
 	}
