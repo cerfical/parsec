@@ -50,6 +50,6 @@ namespace parsec::err {
 
 
 	void unmatchedToken(const SourceLoc& loc, std::string_view expect, std::string_view got) {
-		throw ParseError(loc, std::format("expected \"{}\", but got \"{}\"", expect, got));
+		throw ParseError(loc, std::format("expected {}, but got {}", expect, got));
 	}
 }

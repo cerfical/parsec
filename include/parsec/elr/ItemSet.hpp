@@ -15,8 +15,6 @@ namespace parsec::elr {
 	class TransNetwork;
 
 	class ItemSet : private NonCopyable {
-		friend std::size_t parsec::hash(const ItemSet&) noexcept;
-
 	public:
 
 		friend bool operator==(const ItemSet& lhs, const ItemSet& rhs) noexcept {

@@ -3,6 +3,8 @@
 #include "elr/TransNetwork.hpp"
 #include "elr/ItemSet.hpp"
 
+#include "core/RuleConflictError.hpp"
+
 #include <unordered_map>
 #include <map>
 
@@ -62,7 +64,10 @@ namespace parsec::elr {
 					if(!m_states[stateId].isReduceState()) {
 						m_states[stateId].setReduction(dfaState.matchedRule(), i);
 					} else {
-						throw std::runtime_error("conflicting rules");
+						throw RuleConflictError(
+							m_states[stateId].reduction().reduceRule(),
+							dfaState.matchedRule()
+						);
 					}
 				}
 				

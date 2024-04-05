@@ -68,6 +68,7 @@ target_sources(parsec-lib
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
 		"include/parsec/core/Error.hpp"
+		"include/parsec/core/RuleConflictError.hpp"
 		"include/parsec/core/ParseError.hpp"
 
 		"include/parsec/core/Symbol.hpp"

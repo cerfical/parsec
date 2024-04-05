@@ -177,24 +177,24 @@ namespace parsec::pars {
 
 			static std::string describeToken(TokenKinds tok) {
 				switch(tok) {
-					case TokenKinds::EmptyToken: return "an empty token";
-					case TokenKinds::Eof: return "an end of file";
+					case TokenKinds::EmptyToken: return "empty token";
+					case TokenKinds::Eof: return "end of file";
 
-					case TokenKinds::Ident: return "an identifier";
-					case TokenKinds::PatternString: return "a string pattern";
+					case TokenKinds::Ident: return "identifier";
+					case TokenKinds::PatternString: return "string pattern";
 
-					case TokenKinds::Star: return "a '*'";
-					case TokenKinds::Plus: return "a '+'";
-					case TokenKinds::QuestionMark: return "a '?'";
-					case TokenKinds::Pipe: return "a '|'";
-					case TokenKinds::Semicolon: return "a ';'";
-					case TokenKinds::Equals: return "an '='";
+					case TokenKinds::Star: return "'*'";
+					case TokenKinds::Plus: return "'+'";
+					case TokenKinds::QuestionMark: return "'?'";
+					case TokenKinds::Pipe: return "'|'";
+					case TokenKinds::Semicolon: return "';'";
+					case TokenKinds::Equals: return "'='";
 
-					case TokenKinds::LeftBrace: return "a '{'";
-					case TokenKinds::RightBrace: return "a '}'";
+					case TokenKinds::LeftBrace: return "'{'";
+					case TokenKinds::RightBrace: return "'}'";
 
-					case TokenKinds::LeftParen: return "a '('";
-					case TokenKinds::RightParen: return "a ')'";
+					case TokenKinds::LeftParen: return "'('";
+					case TokenKinds::RightParen: return "')'";
 				}
 				return "";
 			}

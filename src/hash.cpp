@@ -19,13 +19,14 @@ namespace parsec {
 		return std::hash<std::string>()(symbol.value());
 	}
 
-
-
 	std::size_t hash(const elr::StateItem& item) noexcept {
 		return boost::hash_value(std::tuple(item.dfaState(), item.backLink()));
 	}
 
-	std::size_t hash(const elr::ItemSet& items) noexcept {
-		return boost::hash_value(items.m_items);
+	std::size_t hash(const elr::ItemSet& itemSet) noexcept {
+		const auto items = itemSet.items();
+		return boost::hash_unordered_range(
+			items.begin(), items.end()
+		);
 	}
 }

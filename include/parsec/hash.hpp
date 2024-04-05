@@ -13,14 +13,11 @@ namespace parsec {
 	}
 
 
-
 	/**
 	 * @name Finding hash values for objects
 	 * @{
 	*/
 	std::size_t hash(const Symbol& symbol) noexcept;
-
-
 
 	std::size_t hash(const elr::StateItem& item) noexcept;
 
