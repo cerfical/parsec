@@ -59,7 +59,7 @@ namespace parsec::pars {
 		const auto delim = m_input.get();
 		while(true) {
 			if(m_input.peek() == '\n') {
-				throw ParseError::misplacedChar(loc(), '\n');
+				throw ParseError::misplacedChar(m_input.loc(), '\n');
 			}
 
 			if(m_input.skipIf(delim)) {
@@ -128,7 +128,7 @@ namespace parsec::pars {
 			case '+': kind = TokenKinds::Plus; break;
 			case '?': kind = TokenKinds::QuestionMark; break;
 			default: {
-				throw ParseError::invalidChar(loc(), m_input.peek());
+				throw ParseError::invalidChar(m_input.loc(), m_input.peek());
 			}
 		}
 		m_tokenText += m_input.get();

@@ -219,7 +219,22 @@ namespace parsec {
 				}
 
 				void defineToken(const Symbol& name, const Token& pattern) {
-					m_tokens.define(name, RegularExpr(pattern.text()));
+					RegularExpr regex;
+					try {
+						regex = RegularExpr(pattern.text());
+					} catch(const ParseError& e) {
+						// adjust the error location to take into account the location of the pattern token
+						throw ParseError(
+							SourceLoc(
+								pattern.loc().startCol() + e.loc().startCol() + 1,
+								e.loc().colCount(),
+								pattern.loc().lineNo(),
+								pattern.loc().linePos()
+							),
+							e.what()
+						);
+					}
+					m_tokens.define(name, regex);
 				}
 				
 				SymbolGrammar m_tokens;
