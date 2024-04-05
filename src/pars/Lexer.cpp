@@ -1,9 +1,8 @@
 #include "pars/Lexer.hpp"
 
+#include "core/ParseError.hpp"
 #include "regex/Parser.hpp"
 #include "utils/char_utils.hpp"
-
-#include "err.hpp"
 
 namespace parsec::pars {
 	TokenKinds Lexer::parseToken() {
@@ -60,7 +59,7 @@ namespace parsec::pars {
 		const auto delim = m_input.get();
 		while(true) {
 			if(m_input.peek() == '\n') {
-				err::misplacedChar(loc(), '\n');
+				throw ParseError::misplacedChar(loc(), '\n');
 			}
 
 			if(m_input.skipIf(delim)) {
@@ -129,7 +128,7 @@ namespace parsec::pars {
 			case '+': kind = TokenKinds::Plus; break;
 			case '?': kind = TokenKinds::QuestionMark; break;
 			default: {
-				err::invalidChar(loc(), m_input.peek());
+				throw ParseError::invalidChar(loc(), m_input.peek());
 			}
 		}
 		m_tokenText += m_input.get();

@@ -49,12 +49,10 @@ target_sources(parsec-lib
 		"include/parsec/deps.hpp"
 		"include/parsec/print.hpp"
 		"include/parsec/hash.hpp"
-		"include/parsec/err.hpp"
 
 	PRIVATE
 		"src/print.cpp"
 		"src/hash.cpp"
-		"src/err.cpp"
 )
 
 

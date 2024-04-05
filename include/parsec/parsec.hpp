@@ -4,7 +4,6 @@
 #include "core.hpp"
 #include "dfa.hpp"
 #include "elr.hpp"
-#include "err.hpp"
 #include "hash.hpp"
 #include "pars.hpp"
 #include "print.hpp"

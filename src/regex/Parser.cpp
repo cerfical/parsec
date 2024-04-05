@@ -2,9 +2,9 @@
 #include "regex/make.hpp"
 
 #include "core/TextScanner.hpp"
-#include "utils/char_utils.hpp"
+#include "core/ParseError.hpp"
 
-#include "err.hpp"
+#include "utils/char_utils.hpp"
 
 #include <sstream>
 
@@ -24,7 +24,7 @@ namespace parsec::regex {
 
 				auto e = parseExpr();
 				if(!m_input.isEof()) {
-					err::misplacedChar(m_input.loc(), m_input.peek());
+					throw ParseError::misplacedChar(m_input.loc(), m_input.peek());
 				}
 				return e;
 			}
@@ -73,7 +73,7 @@ namespace parsec::regex {
 
 			NodePtr parseAtom() {
 				if(!isAtom()) {
-					err::misplacedChar(m_input.loc(), m_input.peek());
+					throw ParseError::misplacedChar(m_input.loc(), m_input.peek());
 				}
 
 				if(const auto openParen = m_input.loc(); m_input.skipIf('(')) {
@@ -84,7 +84,7 @@ namespace parsec::regex {
 
 					auto e = parseExpr();
 					if(!m_input.skipIf(')')) {
-						err::misplacedChar(openParen, '(');
+						throw ParseError::misplacedChar(openParen, '(');
 					}
 					return e;
 				}
@@ -144,7 +144,7 @@ namespace parsec::regex {
 							rangeStart.lineNo(),
 							rangeStart.linePos()
 						);
-						err::outOfOrderCharRange(rangeLoc);
+						throw ParseError::outOfOrderCharRange(rangeLoc);
 					}
 
 					for(auto ch = low + 1; ch <= high; ) {
@@ -185,7 +185,7 @@ namespace parsec::regex {
 							}
 							return static_cast<char>(ch);
 						}
-						err::emptyHexCharSeq(m_input.loc());
+						throw ParseError::emptyHexCharSeq(m_input.loc());
 					}
 					default: return ch;
 				}

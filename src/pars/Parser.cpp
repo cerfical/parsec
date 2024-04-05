@@ -1,9 +1,8 @@
 #include "pars/Parser.hpp"
 
+#include "core/ParseError.hpp"
 #include "pars/Lexer.hpp"
 #include "pars/ast.hpp"
-
-#include "err.hpp"
 
 #include <sstream>
 
@@ -29,7 +28,9 @@ namespace parsec::pars {
 						spec = makeNode<ListNode>(std::move(spec), parseRuleList());
 					} else {
 						const auto& tok = m_lexer.peek();
-						err::misplacedToken(tok.loc(), tok.text());
+						throw ParseError::misplacedToken(
+							tok.loc(), tok.text()
+						);
 					}
 				}
 				return spec;
@@ -134,7 +135,7 @@ namespace parsec::pars {
 
 						auto subrule = parseRule();
 						if(!m_lexer.skipIf(TokenKinds::RightParen)) {
-							err::misplacedChar(openParen.loc(), '(');
+							throw ParseError::misplacedChar(openParen.loc(), '(');
 						}
 						return subrule;
 					}
@@ -142,11 +143,11 @@ namespace parsec::pars {
 						return makeNode<InlineToken>(m_lexer.lex());
 					}
 					case TokenKinds::RightParen: {
-						err::misplacedChar(m_lexer.loc(), ')');
+						throw ParseError::misplacedChar(m_lexer.loc(), ')');
 					}
 					default: {
 						const auto& tok = m_lexer.peek();
-						err::misplacedToken(tok.loc(), tok.text());
+						throw ParseError::misplacedToken(tok.loc(), tok.text());
 					}
 				}
 			}
@@ -169,7 +170,7 @@ namespace parsec::pars {
 			template <TokenKinds tok>
 			Token expect() {
 				if(const auto& peekTok = m_lexer.peek(); !peekTok.is<tok>()) {
-					err::unmatchedToken(peekTok.loc(), describeToken(tok), describeToken(peekTok.kind()));
+					throw ParseError::unmatchedToken(peekTok.loc(), describeToken(tok), describeToken(peekTok.kind()));
 				}
 				return m_lexer.lex();
 			}

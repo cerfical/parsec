@@ -22,11 +22,32 @@ namespace parsec {
 		static ParseError undefinedName(const SourceLoc& loc);
 
 		[[nodiscard]]
-		static ParseError patternConflict(const SourceLoc& loc, std::string_view conflictPattern);
+		static ParseError patternConflict(const SourceLoc& loc, std::string_view pattern);
 	
 		[[nodiscard]]
-		static ParseError ruleConflict(const SourceLoc& loc, std::string_view conflictRule);
-		
+		static ParseError ruleConflict(const SourceLoc& loc, std::string_view rule);
+
+		[[nodiscard]]
+		static ParseError unexpectedEof(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError invalidChar(const SourceLoc& loc, char ch);
+
+		[[nodiscard]]
+		static ParseError emptyHexCharSeq(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError outOfOrderCharRange(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError misplacedChar(const SourceLoc& loc, char ch);
+
+		[[nodiscard]]
+		static ParseError misplacedToken(const SourceLoc& loc, std::string_view tok);
+
+		[[nodiscard]]
+		static ParseError unmatchedToken(const SourceLoc& loc, std::string_view expect, std::string_view got);
+
 
 		explicit ParseError(const SourceLoc& loc)
 			: ParseError(loc, "parse error") {}
