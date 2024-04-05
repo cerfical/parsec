@@ -9,12 +9,36 @@ namespace parsec {
 	class ParseError : public Error {
 	public:
 
+		[[nodiscard]]
+		static ParseError nameRedefine(const SourceLoc& loc);
+		
+		[[nodiscard]]
+		static ParseError reservedNameRedefine(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError emptyName(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError undefinedName(const SourceLoc& loc);
+
+		[[nodiscard]]
+		static ParseError patternConflict(const SourceLoc& loc, std::string_view conflictPattern);
+	
+		[[nodiscard]]
+		static ParseError ruleConflict(const SourceLoc& loc, std::string_view conflictRule);
+		
+
+		explicit ParseError(const SourceLoc& loc)
+			: ParseError(loc, "parse error") {}
+
 		ParseError(const SourceLoc& loc, const std::string& msg)
 			: Error(msg), m_loc(loc) {}
+
 
 		const SourceLoc& loc() const {
 			return m_loc;
 		}
+
 
 	private:
 		SourceLoc m_loc;

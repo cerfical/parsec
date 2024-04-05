@@ -80,6 +80,8 @@ target_sources(parsec-lib
 		"src/core/TextScanner.cpp"
 		"src/core/Compiler.cpp"
 
+		"src/core/ParseError.cpp"
+
 		"src/core/SymbolGrammar.cpp"
 		"src/core/RegularExpr.cpp"
 )
