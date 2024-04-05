@@ -6,8 +6,10 @@
 
 namespace parsec {
 
+	class SourceLoc;
 	class RegularExpr;
 	class SymbolRule;
+	class SymbolGrammar;
 	class Symbol;
 
 	namespace pars {
@@ -53,6 +55,8 @@ namespace parsec {
 
 
 
+	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
+
 	std::ostream& operator<<(std::ostream& out, const RegularExpr& expr);
 	
 	std::ostream& operator<<(std::ostream& out, const SymbolRule& rule);
@@ -89,6 +93,9 @@ namespace parsec {
 	void print(const elr::TransNetwork& transNet, std::ostream& out = std::cout, std::string_view indent = "");
 
 	void print(const elr::ItemSet& itemSet, std::ostream& out = std::cout, std::string_view indent = "");
+
+
+	void print(const SymbolGrammar& grammar, std::ostream& out = std::cout, std::string_view indent = "");
 	/** @} */
 
 }

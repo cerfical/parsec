@@ -46,7 +46,7 @@ namespace parsec {
 		static ParseError misplacedToken(const SourceLoc& loc, std::string_view tok);
 
 		[[nodiscard]]
-		static ParseError unmatchedToken(const SourceLoc& loc, std::string_view expect, std::string_view got);
+		static ParseError unmatchedToken(const SourceLoc& loc, std::string_view tok);
 
 
 		explicit ParseError(const SourceLoc& loc)

@@ -4,8 +4,6 @@
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
-#include <ostream>
-
 namespace parsec {
 
 	class SymbolRule {

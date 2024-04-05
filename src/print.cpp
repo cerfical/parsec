@@ -1,7 +1,9 @@
 #include "print.hpp"
 
+#include "core/SourceLoc.hpp"
 #include "core/SymbolRule.hpp"
 #include "core/RegularExpr.hpp"
+#include "core/SymbolGrammar.hpp"
 #include "core/Symbol.hpp"
 
 #include "pars/TokenKinds.hpp"
@@ -83,6 +85,12 @@ namespace parsec {
 		}
 	}
 
+	void print(const SymbolGrammar& grammar, std::ostream& out, std::string_view indent) {
+		for(const auto& rule : grammar.rules()) {
+			out << indent << rule << '\n';
+		}
+	}
+
 
 
 	std::ostream& operator<<(std::ostream& out, const elr::ReduceAction& reduce) {
@@ -104,6 +112,14 @@ namespace parsec {
 	}
 
 
+
+	std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
+		out << loc.lineNo() + 1 << ':' << loc.startCol() + 1;
+		if(loc.colCount()) {
+			out << '-' << (loc.endCol() - 1) + 1;
+		}
+		return out;
+	}
 
 	std::ostream& operator<<(std::ostream& out, const RegularExpr& expr) {
 		if(expr) {

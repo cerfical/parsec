@@ -3,14 +3,14 @@
 
 namespace parsec {
 	void SymbolGrammar::define(const Symbol& symbol, const RegularExpr& expr) {
-		if(!symbol) {
-			throw std::runtime_error("empty grammar symbol");
-		}
 		syncRulesCache();
 
 		const auto [nameToRuleIndexIt, wasInserted] = m_rulesCache.try_emplace(symbol, m_rules.size());
 		if(!wasInserted) {
-			throw std::runtime_error("duplicate grammar symbol");
+			// combine all rules with the same head symbol into single rule
+			auto& rule = m_rules[nameToRuleIndexIt->second];
+			rule = SymbolRule(rule.head(), rule.body() | expr);
+			return;
 		}
 
 		try {

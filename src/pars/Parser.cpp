@@ -23,9 +23,9 @@ namespace parsec::pars {
 				auto spec = makeNode<EmptyNode>();
 				while(!m_lexer.isEof()) {
 					if(m_lexer.skipIf("tokens")) {
-						spec = makeNode<ListNode>(std::move(spec), parseTokenList());
+						spec = makeNode<ListNode>(std::move(spec), parseDefList(&ParserImpl::parseToken));
 					} else if(m_lexer.skipIf("rules")) {
-						spec = makeNode<ListNode>(std::move(spec), parseRuleList());
+						spec = makeNode<ListNode>(std::move(spec), parseDefList(&ParserImpl::parseRule));
 					} else {
 						const auto& tok = m_lexer.peek();
 						throw ParseError::misplacedToken(
@@ -37,52 +37,46 @@ namespace parsec::pars {
 			}
 
 
-			NodePtr parseTokenList() {
-				auto tokens = makeNode<EmptyNode>();
+			NodePtr parseDefList(NodePtr(ParserImpl::* parseDef)(const Token&)) {
+				auto defs = makeNode<EmptyNode>();
 				expect<TokenKinds::LeftBrace>();
 
 				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					const auto name = expect<TokenKinds::Ident>();
-					expect<TokenKinds::Equals>();
+					if(m_lexer.peek().is<TokenKinds::Ident>()) {
+						const auto name = m_lexer.lex();
+						expect<TokenKinds::Equals>();
 
-					auto pattern = makeNode<NamedToken>(name, expect<TokenKinds::PatternString>());
-					expect<TokenKinds::Semicolon>();
+						auto def = (name, (this->*parseDef)(name));
+						defs = makeNode<ListNode>(
+							std::move(defs),
+							std::move(def)
+						);
+					}
 
-					tokens = makeNode<ListNode>(
-						std::move(tokens),
-						std::move(pattern)
-					);
+					if(!m_lexer.skipIf(TokenKinds::Semicolon)) {
+						const auto& tok = m_lexer.peek();
+						throw ParseError::misplacedToken(
+							tok.loc(),
+							tok.text()
+						);
+					}
 				}
 
-				return tokens;
+				return defs;
 			}
 
 
-			NodePtr parseRuleList() {
-				auto rules = makeNode<EmptyNode>();
-				expect<TokenKinds::LeftBrace>();
-
-				while(!m_lexer.skipIf(TokenKinds::RightBrace)) {
-					const auto name = expect<TokenKinds::Ident>();
-					expect<TokenKinds::Equals>();
-
-					auto rule = makeNode<NamedRule>(
-						name,
-						parseRule()
-					);
-					expect<TokenKinds::Semicolon>();
-
-					rules = makeNode<ListNode>(
-						std::move(rules),
-						std::move(rule)
-					);
-				}
-
-				return rules;
+			NodePtr parseToken(const Token& name) {
+				return makeNode<NamedToken>(name, expect<TokenKinds::PatternString>());
 			}
 
 
-			NodePtr parseRule() {
+			NodePtr parseRule(const Token& name) {
+				return makeNode<NamedRule>(name, parseRuleExpr());
+			}
+
+
+			NodePtr parseRuleExpr() {
 				return parseAltern();
 			}
 
@@ -133,7 +127,7 @@ namespace parsec::pars {
 							return makeNode<EmptyRule>();
 						}
 
-						auto subrule = parseRule();
+						auto subrule = parseRuleExpr();
 						if(!m_lexer.skipIf(TokenKinds::RightParen)) {
 							throw ParseError::misplacedChar(openParen.loc(), '(');
 						}
@@ -170,7 +164,7 @@ namespace parsec::pars {
 			template <TokenKinds tok>
 			Token expect() {
 				if(const auto& peekTok = m_lexer.peek(); !peekTok.is<tok>()) {
-					throw ParseError::unmatchedToken(peekTok.loc(), describeToken(tok), describeToken(peekTok.kind()));
+					throw ParseError::unmatchedToken(peekTok.loc(), describeToken(tok));
 				}
 				return m_lexer.lex();
 			}

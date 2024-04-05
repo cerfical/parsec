@@ -1,6 +1,8 @@
 #include "core/ParseError.hpp"
 
 #include "utils/char_utils.hpp"
+#include "utils/string_utils.hpp"
+
 #include <format>
 
 namespace parsec {
@@ -75,11 +77,11 @@ namespace parsec {
 
 
 	ParseError ParseError::misplacedToken(const SourceLoc& loc, std::string_view tok) {
-		return ParseError(loc, std::format("unexpected \"{}\"", tok));
+		return ParseError(loc, std::format("unexpected \"{}\"", string_utils::escape(tok)));
 	}
 
 
-	ParseError ParseError::unmatchedToken(const SourceLoc& loc, std::string_view expect, std::string_view got) {
-		return ParseError(loc, std::format("expected {}, but got {}", expect, got));
+	ParseError ParseError::unmatchedToken(const SourceLoc& loc, std::string_view tok) {
+		return ParseError(loc, std::format("{} expected, but got", tok));
 	}
 }
