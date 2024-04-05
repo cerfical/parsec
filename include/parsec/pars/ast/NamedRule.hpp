@@ -18,7 +18,7 @@ namespace parsec::pars {
 		~NamedRule() override = default;
 
 
-		void acceptVisitor(NodeVisitor& visitor) const override;
+		void accept(NodeVisitor& visitor) const override;
 
 
 		/**

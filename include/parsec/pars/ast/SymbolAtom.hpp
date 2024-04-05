@@ -18,7 +18,7 @@ namespace parsec::pars {
 		~SymbolAtom() override = default;
 
 
-		void acceptVisitor(NodeVisitor& visitor) const override;
+		void accept(NodeVisitor& visitor) const override;
 
 
 		/**

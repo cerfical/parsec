@@ -1,6 +1,4 @@
-﻿
-cmake_minimum_required(VERSION 3.23)
-
+﻿cmake_minimum_required(VERSION 3.23)
 
 
 # Basic project information
@@ -13,7 +11,6 @@ option(BUILD_DOC "Generate documentation from the source tree using Doxygen" OFF
 option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static ones" OFF)
 
-find_package(Microsoft.GSL REQUIRED)
 find_package(Boost REQUIRED)
 
 
@@ -35,7 +32,6 @@ target_include_directories(parsec-lib
 )
 
 target_link_libraries(parsec-lib
-	PUBLIC Microsoft.GSL::GSL
 	PRIVATE Boost::boost
 )
 
@@ -62,13 +58,11 @@ target_sources(parsec-lib
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
 		"include/parsec/core/Compiler.hpp"
-	
 		"include/parsec/core/NonCopyable.hpp"
 		"include/parsec/core/NonMovable.hpp"
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/RuleConflictError.hpp"
 		"include/parsec/core/ParseError.hpp"
-
 		"include/parsec/core/Symbol.hpp"
 		"include/parsec/core/RegularExpr.hpp"
 		"include/parsec/core/SymbolRule.hpp"
@@ -77,9 +71,7 @@ target_sources(parsec-lib
 	PRIVATE
 		"src/core/TextScanner.cpp"
 		"src/core/Compiler.cpp"
-
 		"src/core/ParseError.cpp"
-
 		"src/core/SymbolGrammar.cpp"
 		"src/core/RegularExpr.cpp"
 )
@@ -92,7 +84,6 @@ target_sources(parsec-lib
 		"include/parsec/pars/Token.hpp"
 		"include/parsec/pars/Lexer.hpp"
 		"include/parsec/pars/Parser.hpp"
-
 		"include/parsec/pars/ast.hpp"
 		"include/parsec/pars/ast/Node.hpp"
 		"include/parsec/pars/ast/NodeVisitor.hpp"
@@ -122,9 +113,8 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/regex.hpp"
 		"include/parsec/regex/Parser.hpp"
-		"include/parsec/regex/nodes.hpp"
 		"include/parsec/regex/make.hpp"
-		
+		"include/parsec/regex/nodes.hpp"
 		"include/parsec/regex/nodes/NodeVisitor.hpp"
 		"include/parsec/regex/nodes/ExprNode.hpp"
 		"include/parsec/regex/nodes/SymbolAtom.hpp"

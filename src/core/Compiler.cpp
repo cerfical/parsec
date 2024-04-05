@@ -27,39 +27,39 @@ namespace parsec {
 		public:
 
 			void traverse(const Node& ast) {
-				ast.acceptVisitor(*this);
+				ast.accept(*this);
 			}
 
 		private:
 			void visit(const NamedRule& n) override {
-				n.rule()->acceptVisitor(*this);
+				n.rule()->accept(*this);
 			}
 
 			void visit(const ConcatRule& n) override {
-				n.left()->acceptVisitor(*this);
-				n.right()->acceptVisitor(*this);
+				n.left()->accept(*this);
+				n.right()->accept(*this);
 			}
 
 			void visit(const AlternRule& n) override {
-				n.left()->acceptVisitor(*this);
-				n.right()->acceptVisitor(*this);
+				n.left()->accept(*this);
+				n.right()->accept(*this);
 			}
 
 			void visit(const OptionalRule& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner()->accept(*this);
 			}
 
 			void visit(const PlusRule& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner()->accept(*this);
 			}
 
 			void visit(const StarRule& n) override {
-				n.inner()->acceptVisitor(*this);
+				n.inner()->accept(*this);
 			}
 
 			void visit(const ListNode& n) override {
-				n.head()->acceptVisitor(*this);
-				n.tail()->acceptVisitor(*this);
+				n.head()->accept(*this);
+				n.tail()->accept(*this);
 			}
 
 			void visit(const SymbolAtom& n) override {}

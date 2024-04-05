@@ -1,55 +1,55 @@
 #include "pars/ast.hpp"
 
 namespace parsec::pars {
-	void EmptyNode::acceptVisitor(NodeVisitor& visitor) const {
+	void EmptyNode::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void ListNode::acceptVisitor(NodeVisitor& visitor) const {
+	void ListNode::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
 
-	void InlineToken::acceptVisitor(NodeVisitor& visitor) const {
+	void InlineToken::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void NamedToken::acceptVisitor(NodeVisitor& visitor) const {
+	void NamedToken::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
 	
-	void EmptyRule::acceptVisitor(NodeVisitor& visitor) const {
+	void EmptyRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
-	void SymbolAtom::acceptVisitor(NodeVisitor& visitor) const {
+	void SymbolAtom::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void NamedRule::acceptVisitor(NodeVisitor& visitor) const {
+	void NamedRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 	
 
-	void ConcatRule::acceptVisitor(NodeVisitor& visitor) const {
+	void ConcatRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void AlternRule::acceptVisitor(NodeVisitor& visitor) const {
+	void AlternRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
 
-	void OptionalRule::acceptVisitor(NodeVisitor& visitor) const {
+	void OptionalRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void PlusRule::acceptVisitor(NodeVisitor& visitor) const {
+	void PlusRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 
-	void StarRule::acceptVisitor(NodeVisitor& visitor) const {
+	void StarRule::accept(NodeVisitor& visitor) const {
 		visitor.visit(*this);
 	}
 }

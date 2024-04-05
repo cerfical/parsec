@@ -126,7 +126,7 @@ namespace parsec::regex {
 			NodePtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
 				const auto rangeStart = m_input.loc();
-				const auto low = parseChar();
+				const auto low = static_cast<unsigned char>(parseChar());
 
 				// no char range, just a single character
 				auto e = atom(low);
@@ -136,7 +136,7 @@ namespace parsec::regex {
 
 				// string of the form 'l-h' is a character range
 				if(m_input.peek() != ']') {
-					const auto high = parseChar();
+					const auto high = static_cast<unsigned char>(parseChar());
 					if(low > high) {
 						const auto rangeLoc = SourceLoc(
 							rangeStart.startCol(),

@@ -17,7 +17,7 @@ namespace parsec::pars {
 		~ListNode() override = default;
 
 
-		void acceptVisitor(NodeVisitor& visitor) const override;
+		void accept(NodeVisitor& visitor) const override;
 
 
 		/**

@@ -11,7 +11,7 @@ namespace parsec::pars {
 	class EmptyRule : public Node {
 	public:
 
-		void acceptVisitor(NodeVisitor& visitor) const override;
+		void accept(NodeVisitor& visitor) const override;
 
 	};
 

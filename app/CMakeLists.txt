@@ -1,4 +1,3 @@
-
 find_package(Boost REQUIRED COMPONENTS program_options)
 
 
@@ -7,7 +6,6 @@ add_executable(parsec "main.cpp")
 target_link_libraries(parsec
 	PRIVATE parsec-lib
 
-	PRIVATE Microsoft.GSL::GSL
 	PRIVATE Boost::program_options
 	PRIVATE Boost::boost
 )

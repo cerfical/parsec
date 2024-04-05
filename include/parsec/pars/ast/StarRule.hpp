@@ -13,7 +13,7 @@ namespace parsec::pars {
 
 		using UnaryRule::UnaryRule;
 
-		void acceptVisitor(NodeVisitor& visitor) const override;
+		void accept(NodeVisitor& visitor) const override;
 
 	};
 
