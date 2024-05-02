@@ -5,41 +5,44 @@
 #include "State.hpp"
 
 #include <vector>
-#include <span>
 
 namespace parsec::dfa {
 
 	class Automaton : private NonCopyable {
 	public:
 
-		Automaton() = default;
+		Automaton() noexcept = default;
 
 		explicit Automaton(const SymbolGrammar& grammar);
 
+		explicit Automaton(const SymbolRule& pattern);
 
-		std::span<const State> states() const {
+
+		const std::vector<State>& states() const noexcept {
 			return m_states;
 		}
 
-		const State& stateById(int state) const;
 
-		const State& startState() const;
+		const State& stateById(int state) const noexcept;
 
 
-		explicit operator bool() const {
+		const State& startState() const noexcept;
+
+
+		explicit operator bool() const noexcept {
 			return !isEmpty();
 		}
 
-		bool isEmpty() const {
+
+		bool isEmpty() const noexcept {
 			return m_states.empty();
 		}
 
 
 	private:
 		class StateBuilder;
-		using StateList = std::vector<State>;
 
-		StateList m_states;
+		std::vector<State> m_states;
 	};
 
 }

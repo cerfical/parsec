@@ -288,7 +288,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 			}
 
 
-			void lexTransitions(std::span<const dfa::StateTrans> transitions) {
+			void lexTransitions(const std::vector<dfa::StateTrans>& transitions) {
 				if(!transitions.empty()) {
 					m_out << "\t\t" << "switch(peekChar()) {" << '\n';
 					for(const auto& trans : transitions) {

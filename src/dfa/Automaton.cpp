@@ -7,33 +7,29 @@
 #include <unordered_set>
 #include <map>
 
-template <>
-struct boost::hash<parsec::Symbol> {
-	std::size_t operator()(const parsec::Symbol& symbol) {
-		return parsec::hash(symbol);
-	}
-};
-
 namespace parsec::dfa {
 	namespace {
-		class Item {
+		class StateItem {
 		public:
 
-			Item(const SymbolRule* rule, int pos)
+			StateItem(const SymbolRule* rule, int pos) noexcept
 				: m_rule(rule), m_pos(pos) {}
 
 
-			const SymbolRule* rule() const {
+			const SymbolRule* rule() const noexcept {
 				return m_rule;
 			}
+
+
+			int pos() const noexcept {
+				return m_pos;
+			}
+
 
 			const Symbol& value() const {
 				return m_rule->body().posValue(m_pos);
 			}
 
-			int pos() const {
-				return m_pos;
-			}
 
 			bool isAtEnd() const {
 				return m_rule->body().isEndPos(m_pos);
@@ -45,28 +41,44 @@ namespace parsec::dfa {
 			int m_pos = {};
 		};
 
-		using ItemSet = std::unordered_set<Item, boost::hash<Item>>;
+
+		using ItemSet = std::unordered_set<StateItem, boost::hash<StateItem>>;
 
 
-		inline bool operator==(const Item& lhs, const Item& rhs) {
+		inline bool operator==(const StateItem& lhs, const StateItem& rhs) noexcept {
 			return std::tuple(lhs.rule()->head(), lhs.pos())
 				== std::tuple(rhs.rule()->head(), rhs.pos());
-		}
-
-		inline std::size_t hash_value(const Item& item) {
-			return boost::hash_value(std::tuple(item.rule()->head(), item.pos()));
 		}
 
 
 		const State emptyState;
 	}
+}
 
 
+template <>
+struct boost::hash<parsec::Symbol> {
+	std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
+		return parsec::hash(symbol);
+	}
+};
+
+
+template <>
+struct boost::hash<parsec::dfa::StateItem> {
+	std::size_t operator()(const parsec::dfa::StateItem& item) const noexcept {
+		return boost::hash_value(std::tuple(item.rule()->head(), item.pos()));
+	}
+};
+
+
+namespace parsec::dfa {
 	class Automaton::StateBuilder {
 	public:
 
-		StateBuilder(const SymbolGrammar& grammar, StateList& states)
+		StateBuilder(const SymbolGrammar& grammar, std::vector<State>& states)
 			: m_grammar(grammar), m_states(states) {}
+
 
 		void run() {
 			if(auto startState = createStartState(); !startState.empty()) {
@@ -74,6 +86,7 @@ namespace parsec::dfa {
 				m_states[startStateId].setStartState(true);
 			}
 		}
+
 
 	private:
 		ItemSet createStartState() const {
@@ -86,10 +99,10 @@ namespace parsec::dfa {
 			return items;
 		}
 
+
 		int buildState(ItemSet&& stateItems) {
 			const auto [it, wasInserted] = m_itemSetsToIds.emplace(
-				std::move(stateItems),
-				static_cast<int>(m_itemSetsToIds.size())
+				std::move(stateItems), static_cast<int>(m_itemSetsToIds.size())
 			);
 			const auto& [itemSet, stateId] = *it;
 
@@ -99,6 +112,7 @@ namespace parsec::dfa {
 			}
 			return stateId;
 		}
+
 
 		void buildTransitions(const ItemSet& stateItems, int stateId) {
 			// use map to lexicographically sort transitions by their labels
@@ -125,10 +139,11 @@ namespace parsec::dfa {
 			}
 		}
 
+
 		std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemSetsToIds;
 
 		const SymbolGrammar& m_grammar;
-		StateList& m_states;
+		std::vector<State>& m_states;
 	};
 
 
@@ -137,15 +152,24 @@ namespace parsec::dfa {
 	}
 
 
-	const State& Automaton::stateById(int state) const {
-		if(state < m_states.size()) {
+	Automaton::Automaton(const SymbolRule& pattern) {
+		// create a singleton grammar containing the pattern as the only defined symbol
+		SymbolGrammar grammar;
+		grammar.define(pattern.head(), pattern.body());
+		
+		StateBuilder(grammar, m_states).run();
+	}
+
+
+	const State& Automaton::stateById(int state) const noexcept {
+		if(state >= 0 && state < m_states.size()) {
 			return m_states[state];
 		}
 		return emptyState;
 	}
 
 
-	const State& Automaton::startState() const {
+	const State& Automaton::startState() const noexcept {
 		if(!m_states.empty()) {
 			return m_states.front();
 		}
