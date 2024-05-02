@@ -28,7 +28,7 @@ namespace parsec {
 		}
 		out << "( " << state.id() << " )";
 		if(state.isReduceState()) {
-			out << " => " << state.reduction().reduceRule();
+			out << " => " << state.reduction().reduceRule;
 		}
 		out << '\n';
 
@@ -42,7 +42,7 @@ namespace parsec {
 
 		for(const auto& backLink : state.backLinks()) {
 			out << indent << "  ";
-			if(state.isReduceState() && backLink == state.reduction().backLink()) {
+			if(state.isReduceState() && backLink == state.reduction().backLink) {
 				out << "=> ";
 			}
 			out << backLink << '\n';
@@ -82,17 +82,17 @@ namespace parsec {
 
 
 	std::ostream& operator<<(std::ostream& out, const elr::ReduceAction& reduce) {
-		return out << '(' << reduce.reduceRule() << ", " << reduce.backLink() << ')';
+		return out << '(' << reduce.reduceRule << ", " << reduce.backLink << ')';
 	}
 
 	std::ostream& operator<<(std::ostream& out, const elr::StateTrans& trans) {
-		return out << trans.label() << " => ( " << trans.target() << " )";
+		return out << trans.label << " => ( " << trans.target << " )";
 	}
 
 
 
 	std::ostream& operator<<(std::ostream& out, const dfa::StateTrans& trans) {
-		return out << trans.label() << " => ( " << trans.target() << " )";
+		return out << trans.label << " => ( " << trans.target << " )";
 	}
 
 

@@ -94,8 +94,8 @@ namespace parsec::elr {
 					auto& state = m_states.emplace_back(baseStateId + dfaState.id());
 					for(const auto& dfaTrans : dfaState.transitions()) {
 						state.addTransition(
-							baseStateId + dfaTrans.target(),
-							dfaTrans.label()
+							baseStateId + dfaTrans.target,
+							dfaTrans.label
 						);
 					}
 					state.setMatchedRule(dfaState.matchedRule());
@@ -193,7 +193,7 @@ namespace parsec::elr {
 			closure.insert(item);
 
 			for(const auto& trans : m_transNet.stateById(item.dfaState())->transitions()) {
-				if(const auto startState = m_transNet.startState(trans.label())) {
+				if(const auto startState = m_transNet.startState(trans.label)) {
 					closeItem(startState->id(), closure);
 				}
 			}
@@ -211,14 +211,14 @@ namespace parsec::elr {
 						m_states[stateId].setReduction(dfaState->matchedRule(), itemId);
 					} else {
 						throw RuleConflictError(
-							m_states[stateId].reduction().reduceRule(),
+							m_states[stateId].reduction().reduceRule,
 							dfaState->matchedRule()
 						);
 					}
 				}
 				
 				for(const auto& trans : dfaState->transitions()) {
-					transitions[trans.label()].insert(StateItem(trans.target(), itemId));
+					transitions[trans.label].insert(StateItem(trans.target, itemId));
 				}
 
 				itemId++;

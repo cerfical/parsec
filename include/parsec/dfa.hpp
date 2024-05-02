@@ -3,6 +3,5 @@
 
 #include "dfa/Automaton.hpp"
 #include "dfa/State.hpp"
-#include "dfa/StateTrans.hpp"
 
 #endif

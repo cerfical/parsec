@@ -1,11 +1,17 @@
 #ifndef PARSEC_DFA_STATE_HEADER
 #define PARSEC_DFA_STATE_HEADER
 
-#include "StateTrans.hpp"
+#include "../core/Symbol.hpp"
 
 #include <vector>
 
 namespace parsec::dfa {
+
+	struct StateTrans {
+		int target = {};
+		Symbol label;
+	};
+
 
 	class State {
 	public:

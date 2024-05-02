@@ -3,7 +3,5 @@
 
 #include "elr/Automaton.hpp"
 #include "elr/State.hpp"
-#include "elr/StateTrans.hpp"
-#include "elr/ReduceAction.hpp"
 
 #endif

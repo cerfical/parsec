@@ -293,8 +293,8 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 					m_out << "\t\t" << "switch(peekChar()) {" << '\n';
 					for(const auto& trans : transitions) {
 						m_out << "\t\t\t" << std::format("case uchar('{}'): goto state{};",
-							string_utils::escape(trans.label().value()),
-							trans.target()
+							string_utils::escape(trans.label.value()),
+							trans.target
 						) << '\n';
 					}
 					m_out << "\t\t" << "}" << '\n';
@@ -467,15 +467,15 @@ public:
 				m_out << "\t\t" << "switch(m_lexer.peek().kind()) {" << '\n';
 				for(const auto& trans : state.shifts()) {
 					m_out << "\t\t\t" << std::format("case TokenKinds::{}: shiftState(&Parser::state{}); break;",
-						trans.label().value(),
-						trans.target()
+						trans.label.value(),
+						trans.target
 					) << '\n';
 				}
 
 				m_out << "\t\t\t" << "default: " << (state.isReduceState()
 					? std::format("startReduce(ParseRules::{0}, &Parser::on{0}, {1});",
-						state.reduction().reduceRule().value(),
-						state.reduction().backLink())
+						state.reduction().reduceRule.value(),
+						state.reduction().backLink)
 					: "error();")
 					<< " break;" << '\n';
 
@@ -488,8 +488,8 @@ public:
 
 				for(const auto& trans : state.gotos()) {
 					m_out << "\t\t\t" << std::format("case ParseRules::{}: gotoState(&Parser::state{}); break;",
-						trans.label().value(),
-						trans.target()
+						trans.label.value(),
+						trans.target
 					) << '\n';
 				}
 

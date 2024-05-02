@@ -144,7 +144,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/dfa/StateTrans.hpp"
 		"include/parsec/dfa/State.hpp"
 		"include/parsec/dfa/Automaton.hpp"
 		"include/parsec/dfa.hpp"
@@ -156,9 +155,7 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-		"include/parsec/elr/StateTrans.hpp"
 		"include/parsec/elr/State.hpp"
-		"include/parsec/elr/ReduceAction.hpp"
 		"include/parsec/elr/Automaton.hpp"
 		"include/parsec/elr.hpp"
 

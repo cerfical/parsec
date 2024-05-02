@@ -1,12 +1,23 @@
 #ifndef PARSEC_ELR_STATE_HEADER
 #define PARSEC_ELR_STATE_HEADER
 
-#include "StateTrans.hpp"
-#include "ReduceAction.hpp"
+#include "../core/Symbol.hpp"
 
 #include <vector>
 
 namespace parsec::elr {
+
+	struct StateTrans {
+		int target = {};
+		Symbol label;
+	};
+
+
+	struct ReduceAction {
+		Symbol reduceRule;
+		int backLink = {};
+	};
+
 
 	class State {
 	public:
@@ -48,7 +59,7 @@ namespace parsec::elr {
 		
 
 		bool isReduceState() const noexcept {
-			return !reduction().reduceRule().isEmpty();
+			return !reduction().reduceRule.isEmpty();
 		}
 
 
