@@ -4,7 +4,9 @@
 #include "hash.hpp"
 
 #include <boost/functional/hash.hpp>
+
 #include <unordered_set>
+#include <unordered_map>
 #include <map>
 
 namespace parsec::dfa {

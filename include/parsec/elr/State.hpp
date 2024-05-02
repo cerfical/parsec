@@ -5,77 +5,84 @@
 #include "ReduceAction.hpp"
 
 #include <vector>
-#include <span>
 
 namespace parsec::elr {
 
 	class State {
 	public:
 
-		State() = default;
+		State() noexcept = default;
 
-		explicit State(int id)
+		explicit State(int id) noexcept
 			: m_id(id) {}
 
 
-		std::span<const StateTrans> shifts() const {
+		const std::vector<StateTrans>& shifts() const noexcept {
 			return m_shifts;
 		}
+
 
 		void addShift(int target, const Symbol& label) {
 			m_shifts.emplace_back(target, label);
 		}
 
 
-		std::span<const StateTrans> gotos() const {
+		const std::vector<StateTrans>& gotos() const noexcept {
 			return m_gotos;
 		}
+
 
 		void addGoto(int target, const Symbol& label) {
 			m_gotos.emplace_back(target, label);
 		}
 
 
-		std::span<const int> backLinks() const {
+		const std::vector<int>& backLinks() const noexcept {
 			return m_backLinks;
 		}
+
 
 		void addBackLink(int backLink) {
 			m_backLinks.emplace_back(backLink);
 		}
 		
 
-		bool isReduceState() const {
+		bool isReduceState() const noexcept {
 			return !reduction().reduceRule().isEmpty();
 		}
 
-		const ReduceAction& reduction() const {
+
+		const ReduceAction& reduction() const noexcept {
 			return m_reduction;
 		}
 
-		void setReduction(const Symbol& reduceRule, int backLink) {
+
+		void setReduction(const Symbol& reduceRule, int backLink) noexcept {
 			m_reduction = ReduceAction(reduceRule, backLink);
 		}
 
 
-		bool isStartState() const {
+		bool isStartState() const noexcept {
 			return m_startState;
 		}
 
-		void setStartState(bool startState) {
+
+		void setStartState(bool startState) noexcept {
 			m_startState = startState;
 		}
 
 
-		explicit operator bool() const {
+		explicit operator bool() const noexcept {
 			return !isEmpty();
 		}
 
-		bool isEmpty() const {
+
+		bool isEmpty() const noexcept {
 			return m_shifts.empty() && m_gotos.empty() && !isStartState() && !isReduceState();
 		}
 
-		int id() const {
+
+		int id() const noexcept {
 			return m_id;
 		}
 

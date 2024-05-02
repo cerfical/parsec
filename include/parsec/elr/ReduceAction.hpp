@@ -8,17 +8,18 @@ namespace parsec::elr {
 	class ReduceAction {
 	public:
 
-		ReduceAction() = default;
+		ReduceAction() noexcept = default;
 
-		ReduceAction(const Symbol& reduceRule, int backLink)
+		ReduceAction(const Symbol& reduceRule, int backLink) noexcept
 			: m_reduceRule(reduceRule), m_backLink(backLink) {}
 
 
-		const Symbol& reduceRule() const {
+		const Symbol& reduceRule() const noexcept {
 			return m_reduceRule;
 		}
 
-		int backLink() const {
+
+		int backLink() const noexcept {
 			return m_backLink;
 		}
 

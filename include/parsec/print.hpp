@@ -29,12 +29,9 @@ namespace parsec {
 
 	namespace elr {
 		class Automaton;
-		class TransNetwork;
-		class ItemSet;
 		class ReduceAction;
 		class State;
 		class StateTrans;
-		class StateItem;
 	}
 
 
@@ -50,8 +47,6 @@ namespace parsec {
 	std::ostream& operator<<(std::ostream& out, const elr::ReduceAction& reduce);
 
 	std::ostream& operator<<(std::ostream& out, const elr::StateTrans& trans);
-
-	std::ostream& operator<<(std::ostream& out, const elr::StateItem& item);
 
 
 
@@ -90,9 +85,6 @@ namespace parsec {
 
 	void print(const elr::Automaton& elr, std::ostream& out = std::cout, std::string_view indent = "");
 
-	void print(const elr::TransNetwork& transNet, std::ostream& out = std::cout, std::string_view indent = "");
-
-	void print(const elr::ItemSet& itemSet, std::ostream& out = std::cout, std::string_view indent = "");
 
 
 	void print(const SymbolGrammar& grammar, std::ostream& out = std::cout, std::string_view indent = "");

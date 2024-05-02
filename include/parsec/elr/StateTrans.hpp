@@ -8,15 +8,16 @@ namespace parsec::elr {
 	class StateTrans {
 	public:
 
-		StateTrans(int target, const Symbol& label)
+		StateTrans(int target, const Symbol& label) noexcept
 			: m_label(label), m_target(target) {}
 
 
-		const Symbol& label() const {
+		const Symbol& label() const noexcept {
 			return m_label;
 		}
 
-		int target() const {
+
+		int target() const noexcept {
 			return m_target;
 		}
 

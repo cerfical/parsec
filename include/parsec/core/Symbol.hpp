@@ -1,15 +1,17 @@
 #ifndef PARSEC_CORE_SYMBOL_HEADER
 #define PARSEC_CORE_SYMBOL_HEADER
 
+#include <compare>
+#include <memory>
 #include <string>
 #include <string_view>
-#include <memory>
-#include <compare>
 
 namespace parsec {
 
 	class Symbol {
 	public:
+
+		Symbol() noexcept = default;
 
 		Symbol(char value) : Symbol({}, 1, value) {}
 
@@ -21,8 +23,6 @@ namespace parsec {
 
 		Symbol(std::string&& value) : Symbol({}, std::move(value)) {}
 
-		Symbol() : Symbol({}, "") {}
-
 
 		Symbol(const Symbol& other) noexcept = default;
 		Symbol& operator=(const Symbol& other) noexcept = default;
@@ -33,6 +33,10 @@ namespace parsec {
 
 
 		const std::string& value() const noexcept {
+			if(!m_value) {
+				static const std::string empty;
+				return empty;
+			}
 			return *m_value;
 		}
 
@@ -43,7 +47,7 @@ namespace parsec {
 
 
 		bool isEmpty() const noexcept {
-			return m_value->empty();
+			return !m_value || m_value->empty();
 		}
 		
 

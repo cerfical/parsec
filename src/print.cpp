@@ -49,18 +49,6 @@ namespace parsec {
 		}
 	}
 	
-	void print(const elr::TransNetwork& transNet, std::ostream& out, std::string_view indent) {
-		for(const auto& state : transNet.states()) {
-			print(state, out, indent);
-		}
-	}
-
-	void print(const elr::ItemSet& itemSet, std::ostream& out, std::string_view indent) {
-		for(const auto& item : itemSet.items()) {
-			out << indent << item << '\n';
-		}
-	}
-
 
 
 	void print(const dfa::Automaton& dfa, std::ostream& out, std::string_view indent) {
@@ -99,10 +87,6 @@ namespace parsec {
 
 	std::ostream& operator<<(std::ostream& out, const elr::StateTrans& trans) {
 		return out << trans.label() << " => ( " << trans.target() << " )";
-	}
-
-	std::ostream& operator<<(std::ostream& out, const elr::StateItem& item) {
-		return out << '(' << item.dfaState() << ", " << item.backLink() << ')';
 	}
 
 

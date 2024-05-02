@@ -158,16 +158,11 @@ target_sources(parsec-lib
 	PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 		"include/parsec/elr/StateTrans.hpp"
 		"include/parsec/elr/State.hpp"
-		"include/parsec/elr/StateItem.hpp"
-		"include/parsec/elr/ItemSet.hpp"
 		"include/parsec/elr/ReduceAction.hpp"
-		"include/parsec/elr/TransNetwork.hpp"
 		"include/parsec/elr/Automaton.hpp"
 		"include/parsec/elr.hpp"
 
 	PRIVATE
-		"src/elr/ItemSet.cpp"
-		"src/elr/TransNetwork.cpp"
 		"src/elr/Automaton.cpp"
 )
 

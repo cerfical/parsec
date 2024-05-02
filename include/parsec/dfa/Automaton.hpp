@@ -3,8 +3,8 @@
 
 #include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
-
 #include "State.hpp"
+
 #include <vector>
 
 namespace parsec::dfa {

@@ -2,6 +2,7 @@
 #define PARSEC_DFA_STATE_HEADER
 
 #include "StateTrans.hpp"
+
 #include <vector>
 
 namespace parsec::dfa {

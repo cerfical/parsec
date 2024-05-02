@@ -1,79 +1,227 @@
 #include "elr/Automaton.hpp"
 
-#include "elr/TransNetwork.hpp"
-#include "elr/ItemSet.hpp"
-
 #include "core/RuleConflictError.hpp"
+#include "dfa/Automaton.hpp"
 
-#include <unordered_map>
+#include <boost/functional/hash.hpp>
+
 #include <map>
+#include <set>
+#include <unordered_map>
 
 namespace parsec::elr {
 	namespace {
+		class StateItem {
+		public:
+
+			friend auto operator<=>(const StateItem&, const StateItem&) noexcept = default;
+
+
+			StateItem(int dfaState, int backLink = -1) noexcept
+				: m_dfaState(dfaState), m_backLink(backLink) {}
+
+
+			int dfaState() const noexcept {
+				return m_dfaState;
+			}
+
+
+			int backLink() const noexcept {
+				return m_backLink;
+			}
+
+
+		private:
+			int m_backLink = {};
+			int m_dfaState = {};
+		};
+
+
+		using ItemSet = std::set<StateItem>;
+
+
+		class TransNetwork : private NonCopyable {
+		public:
+
+			TransNetwork() = default;
+
+			explicit TransNetwork(const SymbolGrammar& grammar) {
+				for(const auto& rule : grammar.rules()) {
+					// skip empty rules
+					if(!rule) {
+						continue;
+					}
+
+					insertMachine(rule.head(), dfa::Automaton(rule));
+				}
+			}
+
+
+			const dfa::State* stateById(int state) const noexcept {
+				return &m_states[state];
+			}
+
+
+			const dfa::State* startState(const Symbol& symbol) const noexcept {
+				const auto symbolToIndexIt = m_symbolToStartState.find(symbol);
+				if(symbolToIndexIt != m_symbolToStartState.end()) {
+					return &m_states[symbolToIndexIt->second];
+				}
+				return nullptr;
+			}
+
+
+			const std::vector<dfa::State>& states() const noexcept {
+				return m_states;
+			}
+
+
+			explicit operator bool() const noexcept {
+				return !isEmpty();
+			}
+
+
+			bool isEmpty() const noexcept {
+				return m_states.empty();
+			}
+
+
+		private:
+			void insertMachine(const Symbol& name, const dfa::Automaton& dfa) {
+				const auto baseStateId = static_cast<int>(m_states.size());
+				for(const auto& dfaState : dfa.states()) {
+					// create a new state with a unique id for each DFA state
+					auto& state = m_states.emplace_back(baseStateId + dfaState.id());
+					for(const auto& dfaTrans : dfaState.transitions()) {
+						state.addTransition(
+							baseStateId + dfaTrans.target(),
+							dfaTrans.label()
+						);
+					}
+					state.setMatchedRule(dfaState.matchedRule());
+				}
+
+				const auto startState = baseStateId + dfa.startState().id();
+				m_symbolToStartState[name] = startState;
+				m_states[startState].setStartState(true);
+			}
+
+
+			struct SymbolHasher {
+				std::size_t operator()(const Symbol& symbol) const noexcept {
+					return hash(symbol);
+				}
+			};
+
+			std::vector<dfa::State> m_states;
+			std::unordered_map<Symbol, int, SymbolHasher> m_symbolToStartState;
+		};
+
+
 		const State emptyState;
 	}
+}
 
 
+template <>
+struct boost::hash<parsec::elr::StateItem> {
+	std::size_t operator()(const parsec::elr::StateItem& item) const noexcept {
+		return boost::hash_value(std::tuple(item.dfaState(), item.backLink()));
+	}
+};
+
+
+namespace parsec::elr {
 	class Automaton::StateBuilder {
 	public:
 
-		StateBuilder(const SymbolGrammar& grammar, StateList& states)
+		StateBuilder(const SymbolGrammar& grammar, std::vector<State>& states)
 			: m_grammar(grammar), m_states(states) {}
+
 
 		void run() {
 			m_transNet = TransNetwork(m_grammar);
-			if(const auto startStateItems = createStartState(); startStateItems) {
-				const auto startStateId = buildState(startStateItems);
+			if(const auto startState = createStartState(); !startState.empty()) {
+				const auto startStateId = buildState(startState);
 				m_states[startStateId].setStartState(true);
 			}
 		}
 
+
 	private:
 		ItemSet createStartState() {
 			ItemSet startState;
-			startState.insert(
-				m_transNet.startState(m_grammar.root().head()).id()
-			);
+			if(const auto& root = m_grammar.root()) {
+				startState.insert(m_transNet.startState(root.head())->id());
+			}
 			return startState;
 		}
 
+
 		int buildState(const ItemSet& stateItems) {
 			const auto [it, wasInserted] = m_itemSetsToIds.try_emplace(
-				stateItems.closure(m_transNet),
+				closure(stateItems),
 				static_cast<int>(m_itemSetsToIds.size())
 			);
-			const auto& [itemSet, stateId] = *it;
+			const auto& [items, stateId] = *it;
 
 			if(wasInserted) {
 				auto& state = m_states.emplace_back(stateId);
-				for(const auto& item : itemSet.items()) {
+				for(const auto& item : items) {
 					state.addBackLink(item.backLink());
 				}
-				buildTransitions(itemSet.items(), stateId);
+
+				buildTransitions(items, stateId);
 			}
 			return stateId;
 		}
 
-		void buildTransitions(std::span<const StateItem> stateItems, int stateId) {
+
+		ItemSet closure(const ItemSet& items) const {
+			ItemSet closure;
+			for(const auto& item : items) {
+				closeItem(item, closure);
+			}
+			return closure;
+		}
+
+
+		void closeItem(const StateItem& item, ItemSet& closure) const {
+			if(closure.contains(item)) {
+				return;
+			}
+			closure.insert(item);
+
+			for(const auto& trans : m_transNet.stateById(item.dfaState())->transitions()) {
+				if(const auto startState = m_transNet.startState(trans.label())) {
+					closeItem(startState->id(), closure);
+				}
+			}
+		}
+
+
+		void buildTransitions(const ItemSet& items, int stateId) {
 			// use map to lexicographically sort transitions by their labels
 			std::map<Symbol, ItemSet> transitions;
 			
-			for(std::size_t i = 0; i < stateItems.size(); i++) {
-				const auto& dfaState = m_transNet.stateById(stateItems[i].dfaState());
-				if(dfaState.isMatchState()) {
+			for(int itemId = 0; const auto& item : items) {
+				const auto& dfaState = m_transNet.stateById(item.dfaState());
+				if(dfaState->isMatchState()) {
 					if(!m_states[stateId].isReduceState()) {
-						m_states[stateId].setReduction(dfaState.matchedRule(), i);
+						m_states[stateId].setReduction(dfaState->matchedRule(), itemId);
 					} else {
 						throw RuleConflictError(
 							m_states[stateId].reduction().reduceRule(),
-							dfaState.matchedRule()
+							dfaState->matchedRule()
 						);
 					}
 				}
 				
-				for(const auto& trans : dfaState.transitions()) {
-					transitions[trans.label()].insert(StateItem(trans.target(), i));
+				for(const auto& trans : dfaState->transitions()) {
+					transitions[trans.label()].insert(StateItem(trans.target(), itemId));
 				}
+
+				itemId++;
 			}
 
 			for(const auto& [transLabel, transTarget] : transitions) {
@@ -89,18 +237,11 @@ namespace parsec::elr {
 		}
 
 
-		struct ItemSetHasher {
-			std::size_t operator()(const ItemSet& itemSet) const noexcept {
-				return hash(itemSet);
-			}
-		};
-
-
-		std::unordered_map<ItemSet, int, ItemSetHasher> m_itemSetsToIds;
+		std::unordered_map<ItemSet, int, boost::hash<ItemSet>> m_itemSetsToIds;
 		TransNetwork m_transNet;
 
 		const SymbolGrammar& m_grammar;
-		StateList& m_states;
+		std::vector<State>& m_states;
 	};
 
 
@@ -109,15 +250,15 @@ namespace parsec::elr {
 	}
 
 
-	const State& Automaton::stateById(int state) const {
-		if(state < m_states.size()) {
+	const State& Automaton::stateById(int state) const noexcept {
+		if(state >= 0 && state < m_states.size()) {
 			return m_states[state];
 		}
 		return emptyState;
 	}
 
 
-	const State& Automaton::startState() const {
+	const State& Automaton::startState() const noexcept {
 		if(!m_states.empty()) {
 			return m_states.front();
 		}
