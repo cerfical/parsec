@@ -58,8 +58,6 @@ target_sources(parsec-lib
 		"include/parsec/core/TextScanner.hpp"
 		"include/parsec/core/SourceLoc.hpp"
 		"include/parsec/core/Compiler.hpp"
-		"include/parsec/core/NonCopyable.hpp"
-		"include/parsec/core/NonMovable.hpp"
 		"include/parsec/core/Error.hpp"
 		"include/parsec/core/RuleConflictError.hpp"
 		"include/parsec/core/ParseError.hpp"
@@ -180,6 +178,9 @@ target_sources(parsec-lib
 		"include/parsec/utils/string_utils.hpp"
 		"include/parsec/utils/char_utils.hpp"
 		"include/parsec/utils/cpp_utils.hpp"
+		"include/parsec/utils/NonCopyable.hpp"
+		"include/parsec/utils/NonMovable.hpp"
+		"include/parsec/utils/util_types.hpp"
 
 	PRIVATE
 		"src/utils/string_utils.cpp"

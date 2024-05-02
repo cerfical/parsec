@@ -1,9 +1,9 @@
 #ifndef PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
 #define PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
 
+#include "../utils/util_types.hpp"
 #include "../hash.hpp"
 
-#include "NonCopyable.hpp"
 #include "SymbolRule.hpp"
 
 #include <unordered_map>

@@ -1,7 +1,7 @@
 #ifndef PARSEC_SRC_GEN_CODE_GEN_HEADER
 #define PARSEC_SRC_GEN_CODE_GEN_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
 
 #include "ConfigStore.hpp"

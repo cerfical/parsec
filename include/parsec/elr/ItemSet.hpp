@@ -1,7 +1,7 @@
 #ifndef PARSEC_ELR_ITEM_SET_HEADER
 #define PARSEC_ELR_ITEM_SET_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 #include "../hash.hpp"
 
 #include "StateItem.hpp"

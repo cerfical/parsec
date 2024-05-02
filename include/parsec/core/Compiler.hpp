@@ -1,7 +1,7 @@
 #ifndef PARSEC_CORE_COMPILER_HEADER
 #define PARSEC_CORE_COMPILER_HEADER
 
-#include "NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 
 #include <string_view>
 #include <istream>

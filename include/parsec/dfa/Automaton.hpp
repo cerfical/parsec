@@ -1,9 +1,10 @@
 #ifndef PARSEC_DFA_AUTOMATON_HEADER
 #define PARSEC_DFA_AUTOMATON_HEADER
 
+#include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
-#include "State.hpp"
 
+#include "State.hpp"
 #include <vector>
 
 namespace parsec::dfa {

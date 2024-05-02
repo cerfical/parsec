@@ -1,8 +1,8 @@
 #ifndef PARSEC_PARS_LEXER_HEADER
 #define PARSEC_PARS_LEXER_HEADER
 
+#include "../utils/util_types.hpp"
 #include "../core/TextScanner.hpp"
-#include "../core/NonCopyable.hpp"
 
 #include "Token.hpp"
 

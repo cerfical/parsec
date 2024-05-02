@@ -1,7 +1,7 @@
 #ifndef PARSEC_ELR_TRANS_NETWORK_HEADER
 #define PARSEC_ELR_TRANS_NETWORK_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
 
 #include "../dfa/Automaton.hpp"

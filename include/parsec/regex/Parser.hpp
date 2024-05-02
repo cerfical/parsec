@@ -1,7 +1,7 @@
 #ifndef PARSEC_REGEX_PARSER_HEADER
 #define PARSEC_REGEX_PARSER_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 #include "nodes/ExprNode.hpp"
 
 #include <string_view>

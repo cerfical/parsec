@@ -1,8 +1,8 @@
 #ifndef PARSEC_CORE_TEXT_SCANNER_HEADER
 #define PARSEC_CORE_TEXT_SCANNER_HEADER
 
+#include "../utils/util_types.hpp"
 #include "SourceLoc.hpp"
-#include "NonCopyable.hpp"
 
 #include <string_view>
 #include <istream>

@@ -1,8 +1,7 @@
 #ifndef PARSEC_REGEX_NODES_EXPR_NODE_HEADER
 #define PARSEC_REGEX_NODES_EXPR_NODE_HEADER
 
-#include "../../core/NonCopyable.hpp"
-#include "../../core/NonMovable.hpp"
+#include "../utils/util_types.hpp"
 
 #include <memory>
 #include <ostream>

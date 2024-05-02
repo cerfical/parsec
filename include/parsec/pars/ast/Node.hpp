@@ -1,8 +1,7 @@
 #ifndef PARSEC_PARS_AST_NODE_HEADER
 #define PARSEC_PARS_AST_NODE_HEADER
 
-#include "../../core/NonCopyable.hpp"
-#include "../../core/NonMovable.hpp"
+#include "../utils/util_types.hpp"
 
 #include <concepts>
 #include <memory>

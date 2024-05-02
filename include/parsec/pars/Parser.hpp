@@ -1,7 +1,7 @@
 #ifndef PARSEC_PARS_PARSER_HEADER
 #define PARSEC_PARS_PARSER_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 #include "ast/Node.hpp"
 
 #include <string_view>

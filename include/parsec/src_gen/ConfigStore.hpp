@@ -1,7 +1,7 @@
 #ifndef PARSEC_SRC_GEN_CONFIG_STORE_HEADER
 #define PARSEC_SRC_GEN_CONFIG_STORE_HEADER
 
-#include "../core/NonCopyable.hpp"
+#include "../utils/util_types.hpp"
 
 #include <string>
 #include <string_view>
