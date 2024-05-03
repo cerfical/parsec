@@ -31,7 +31,7 @@ namespace parsec::char_utils {
 	 * @brief Find the value of a hexadecimal digit character.
 	*/
 	constexpr inline int evalHexDigit(char ch) noexcept {
-		return (ch >= 'a') ? ch - 'a' + 10 : ((ch >= 'A') ? ch - 'A' : evalDigit(ch));
+		return (ch >= 'a') ? ch - 'a' + 10 : ((ch >= 'A') ? ch - 'A' + 10 : evalDigit(ch));
 	}
 
 
