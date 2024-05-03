@@ -5,6 +5,7 @@ include(GoogleTest)
 
 add_executable(parsec-tests
 	"src/CharUtilsTest.cpp"
+	"src/StringUtilsTest.cpp"
 )
 
 target_link_libraries(parsec-tests
