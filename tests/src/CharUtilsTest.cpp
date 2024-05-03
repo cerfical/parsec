@@ -15,7 +15,7 @@ namespace {
 			std::span<const std::pair<std::type_identity_t<T>, char>> cases
 		) {
 			for(const auto& c : cases) {
-				ASSERT_EQ(c.first, f(c.second));
+				EXPECT_EQ(c.first, f(c.second));
 			}
 		}
 	};
