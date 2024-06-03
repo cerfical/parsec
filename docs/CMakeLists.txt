@@ -1,4 +1,12 @@
-find_package(Doxygen REQUIRED)
+set(DOC_TOOL Doxygen)
+
+
+find_package(${DOC_TOOL})
+
+if(NOT ${DOC_TOOL}_FOUND)
+    message(WARNING "${DOC_TOOL} not found: documentation disabled")
+    return()
+endif()
 
 
 set(DOXYGEN_REPEAT_BRIEF NO)
@@ -23,8 +31,18 @@ set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "README.md")
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 list(APPEND DOXYGEN_EXPAND_AS_DEFINED
-	PARSEC_TOKEN_KIND PARSEC_TOKEN_KIND_LIST PARSEC_PARS_TOKEN_KIND PARSEC_PARS_TOKEN_KIND_LIST
+    "PARSEC_TOKEN_KIND"
+    "PARSEC_TOKEN_KIND_LIST"
+    "PARSEC_PARS_TOKEN_KIND"
+    "PARSEC_PARS_TOKEN_KIND_LIST"
 )
 
 
-doxygen_add_docs(parsec-docs WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/include" "parsec" "../README.md" ALL)
+get_target_property(PARSEC_LIB_HEADERS
+    parsec-lib HEADER_SET
+)
+
+doxygen_add_docs(parsec-docs ALL USE_STAMP_FILE
+    "${PARSEC_LIB_HEADERS}"
+    "../README.md"
+)
