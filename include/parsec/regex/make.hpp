@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_MAKE_HEADER
-#define PARSEC_REGEX_MAKE_HEADER
+#pragma once
 
 #include "../core/Symbol.hpp"
 #include "nodes/ExprNode.hpp"
@@ -29,5 +28,3 @@ namespace parsec::regex {
 	NodePtr optional(NodePtr inner);
 
 }
-
-#endif

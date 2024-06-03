@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_SOURCE_LOC_HEADER
-#define PARSEC_CORE_SOURCE_LOC_HEADER
+#pragma once
 
 namespace parsec {
 
@@ -53,5 +52,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

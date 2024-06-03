@@ -1,5 +1,4 @@
-#ifndef PARSEC_ELR_AUTOMATON_HEADER
-#define PARSEC_ELR_AUTOMATON_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
@@ -45,5 +44,3 @@ namespace parsec::elr {
 	};
 
 }
-
-#endif

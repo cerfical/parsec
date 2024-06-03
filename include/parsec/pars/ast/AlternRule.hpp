@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_ALTERN_RULE_HEADER
-#define PARSEC_PARS_AST_ALTERN_RULE_HEADER
+#pragma once
 
 #include "BinaryRule.hpp"
 
@@ -18,5 +17,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

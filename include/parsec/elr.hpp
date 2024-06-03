@@ -1,7 +1,4 @@
-#ifndef PARSEC_ELR_HEADER
-#define PARSEC_ELR_HEADER
+#pragma once
 
 #include "elr/Automaton.hpp"
 #include "elr/State.hpp"
-
-#endif

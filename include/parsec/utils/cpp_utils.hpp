@@ -1,5 +1,4 @@
-#ifndef PARSEC_UTILS_CPP_UTILS_HEADER
-#define PARSEC_UTILS_CPP_UTILS_HEADER
+#pragma once
 
 #include "../core/Symbol.hpp"
 
@@ -19,5 +18,3 @@ namespace parsec::cpp_utils {
 	std::string makeEnum(const Symbol& enumName, std::span<const Symbol> valueNames);
 
 }
-
-#endif

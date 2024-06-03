@@ -1,5 +1,4 @@
-#ifndef PARSEC_PRINT_HEADER
-#define PARSEC_PRINT_HEADER
+#pragma once
 
 #include <iostream>
 #include <string_view>
@@ -91,5 +90,3 @@ namespace parsec {
 	/** @} */
 
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_PARSER_HEADER
-#define PARSEC_REGEX_PARSER_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "nodes/ExprNode.hpp"
@@ -22,5 +21,3 @@ namespace parsec::regex {
 	};
 
 }
-
-#endif

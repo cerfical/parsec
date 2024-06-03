@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_ERROR_HEADER
-#define PARSEC_CORE_ERROR_HEADER
+#pragma once
 
 #include <stdexcept>
 
@@ -14,5 +13,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_HEADER
-#define PARSEC_PARS_HEADER
+#pragma once
 
 #include "pars/TokenKinds.hpp"
 #include "pars/Token.hpp"
@@ -12,5 +11,3 @@
  * @brief Responsible for parsing textual specifications of syntax analyzers.
 */
 namespace parsec::pars {}
-
-#endif

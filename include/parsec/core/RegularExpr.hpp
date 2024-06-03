@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_REGULAR_EXPR_HEADER
-#define PARSEC_CORE_REGULAR_EXPR_HEADER
+#pragma once
 
 #include "../regex/nodes/ExprNode.hpp"
 #include "../regex/make.hpp"
@@ -76,5 +75,3 @@ namespace parsec {
 	}
 
 }
-
-#endif

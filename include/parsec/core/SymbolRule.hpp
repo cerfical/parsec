@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_SYMBOL_RULE_HEADER
-#define PARSEC_CORE_SYMBOL_RULE_HEADER
+#pragma once
 
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
@@ -39,5 +38,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

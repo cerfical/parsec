@@ -1,5 +1,4 @@
-#ifndef PARSEC_HASH_HEADER
-#define PARSEC_HASH_HEADER
+#pragma once
 
 #include <cstddef>
 
@@ -16,5 +15,3 @@ namespace parsec {
 	/** @} */
 
 }
-
-#endif

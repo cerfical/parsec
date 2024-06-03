@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARSEC_HEADER
-#define PARSEC_PARSEC_HEADER
+#pragma once
 
 #include "core.hpp"
 #include "dfa.hpp"
@@ -15,5 +14,3 @@
  * @brief Root namespace for the parsec library.
 */
 namespace parsec {}
-
-#endif

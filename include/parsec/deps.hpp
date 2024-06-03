@@ -1,5 +1,4 @@
-#ifndef PARSEC_DEPS_HEADER
-#define PARSEC_DEPS_HEADER
+#pragma once
 
 #include <istream>
 #include <optional>
@@ -10,5 +9,3 @@
 #include <string>
 #include <string_view>
 #include <vector>
-
-#endif

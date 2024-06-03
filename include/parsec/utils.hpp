@@ -1,9 +1,6 @@
-#ifndef PARSEC_UTILS_HEADER
-#define PARSEC_UTILS_HEADER
+#pragma once
 
 #include "utils/string_utils.hpp"
 #include "utils/char_utils.hpp"
 #include "utils/cpp_utils.hpp"
 #include "utils/util_types.hpp"
-
-#endif

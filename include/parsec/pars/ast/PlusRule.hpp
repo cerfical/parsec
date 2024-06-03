@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_PLUS_RULE_HEADER
-#define PARSEC_PARS_AST_PLUS_RULE_HEADER
+#pragma once
 
 #include "UnaryRule.hpp"
 
@@ -18,5 +17,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

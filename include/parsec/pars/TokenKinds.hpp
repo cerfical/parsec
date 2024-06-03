@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_TOKEN_KINDS_HEADER
-#define PARSEC_PARS_TOKEN_KINDS_HEADER
+#pragma once
 
 #define PARSEC_PARS_TOKEN_KIND_LIST \
 	PARSEC_PARS_TOKEN_KIND(EmptyToken, Empty token) \
@@ -37,5 +36,3 @@ namespace parsec::pars {
 #undef PARSEC_PARS_TOKEN_KIND
 
 }
-
-#endif

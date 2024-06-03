@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_RULE_CONFLICT_ERROR_HEADER
-#define PARSEC_CORE_RULE_CONFLICT_ERROR_HEADER
+#pragma once
 
 #include "Symbol.hpp"
 #include "Error.hpp"
@@ -28,5 +27,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

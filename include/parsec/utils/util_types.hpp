@@ -1,7 +1,4 @@
-#ifndef PARSEC_UTILS_UTIL_TYPES_HEADER
-#define PARSEC_UTILS_UTIL_TYPES_HEADER
+#pragma once
 
 #include "NonCopyable.hpp"
 #include "NonMovable.hpp"
-
-#endif

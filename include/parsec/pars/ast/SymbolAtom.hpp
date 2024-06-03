@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_SYMBOL_ATOM_HEADER
-#define PARSEC_PARS_AST_SYMBOL_ATOM_HEADER
+#pragma once
 
 #include "../Token.hpp"
 #include "Node.hpp"
@@ -34,5 +33,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

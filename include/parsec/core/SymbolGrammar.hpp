@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
-#define PARSEC_CORE_SYMBOL_GRAMMAR_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "../hash.hpp"
@@ -70,5 +69,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

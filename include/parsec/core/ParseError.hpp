@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_PARSE_ERROR_HEADER
-#define PARSEC_CORE_PARSE_ERROR_HEADER
+#pragma once
 
 #include "SourceLoc.hpp"
 #include "Error.hpp"
@@ -66,5 +65,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

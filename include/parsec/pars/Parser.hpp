@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_PARSER_HEADER
-#define PARSEC_PARS_PARSER_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "ast/Node.hpp"
@@ -29,5 +28,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_NODES_NODE_VISITOR_HEADER
-#define PARSEC_REGEX_NODES_NODE_VISITOR_HEADER
+#pragma once
 
 namespace parsec::regex {
 
@@ -29,5 +28,3 @@ namespace parsec::regex {
 	};
 
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_NON_COPYABLE_HEADER
-#define PARSEC_CORE_NON_COPYABLE_HEADER
+#pragma once
 
 namespace parsec {
 
@@ -20,5 +19,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

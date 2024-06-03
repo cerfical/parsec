@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_TEXT_SCANNER_HEADER
-#define PARSEC_CORE_TEXT_SCANNER_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "SourceLoc.hpp"
@@ -99,5 +98,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

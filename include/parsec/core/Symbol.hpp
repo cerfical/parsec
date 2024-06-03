@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_SYMBOL_HEADER
-#define PARSEC_CORE_SYMBOL_HEADER
+#pragma once
 
 #include <compare>
 #include <memory>
@@ -71,5 +70,3 @@ namespace parsec {
 	}
 
 }
-
-#endif

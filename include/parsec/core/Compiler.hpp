@@ -1,5 +1,4 @@
-#ifndef PARSEC_CORE_COMPILER_HEADER
-#define PARSEC_CORE_COMPILER_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 
@@ -40,5 +39,3 @@ namespace parsec {
 	};
 
 }
-
-#endif

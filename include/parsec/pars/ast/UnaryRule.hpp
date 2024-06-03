@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_UNARY_RULE_HEADER
-#define PARSEC_PARS_AST_UNARY_RULE_HEADER
+#pragma once
 
 #include "Node.hpp"
 
@@ -30,5 +29,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

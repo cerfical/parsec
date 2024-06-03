@@ -1,5 +1,4 @@
-#ifndef PARSEC_SRC_GEN_CONFIG_STORE_HEADER
-#define PARSEC_SRC_GEN_CONFIG_STORE_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 
@@ -51,5 +50,3 @@ namespace parsec::src_gen {
 	};
 
 }
-
-#endif

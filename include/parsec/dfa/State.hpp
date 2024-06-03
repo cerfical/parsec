@@ -1,5 +1,4 @@
-#ifndef PARSEC_DFA_STATE_HEADER
-#define PARSEC_DFA_STATE_HEADER
+#pragma once
 
 #include "../core/Symbol.hpp"
 
@@ -81,5 +80,3 @@ namespace parsec::dfa {
 	};
 
 }
-
-#endif

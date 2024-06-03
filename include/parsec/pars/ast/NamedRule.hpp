@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_NAMED_RULE_HEADER
-#define PARSEC_PARS_AST_NAMED_RULE_HEADER
+#pragma once
 
 #include "../Token.hpp"
 #include "Node.hpp"
@@ -43,5 +42,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

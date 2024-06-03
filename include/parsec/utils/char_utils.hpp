@@ -1,5 +1,4 @@
-#ifndef PARSEC_UTILS_CHAR_UTILS_HEADER
-#define PARSEC_UTILS_CHAR_UTILS_HEADER
+#pragma once
 
 #include <string>
 #include <cctype>
@@ -132,5 +131,3 @@ namespace parsec::char_utils {
 	}
 
 }
-
-#endif

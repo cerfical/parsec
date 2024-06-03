@@ -1,5 +1,4 @@
-#ifndef PARSEC_SRC_GEN_CODE_GEN_HEADER
-#define PARSEC_SRC_GEN_CODE_GEN_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
@@ -71,5 +70,3 @@ namespace parsec::src_gen {
 	};
 
 }
-
-#endif

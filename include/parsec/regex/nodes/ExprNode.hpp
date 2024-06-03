@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_NODES_EXPR_NODE_HEADER
-#define PARSEC_REGEX_NODES_EXPR_NODE_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 
@@ -27,5 +26,3 @@ namespace parsec::regex {
 	using NodePtr = std::shared_ptr<ExprNode>;
 
 }
-
-#endif

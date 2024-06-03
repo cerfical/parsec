@@ -1,5 +1,4 @@
-#ifndef PARSEC_ELR_STATE_HEADER
-#define PARSEC_ELR_STATE_HEADER
+#pragma once
 
 #include "../core/Symbol.hpp"
 
@@ -110,5 +109,3 @@ namespace parsec::elr {
 	};
 
 }
-
-#endif

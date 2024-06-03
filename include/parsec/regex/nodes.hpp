@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_NODES_HEADER
-#define PARSEC_REGEX_NODES_HEADER
+#pragma once
 
 #include "nodes/NodeVisitor.hpp"
 #include "nodes/SymbolAtom.hpp"
@@ -8,5 +7,3 @@
 #include "nodes/PlusClosure.hpp"
 #include "nodes/ConcatExpr.hpp"
 #include "nodes/AlternExpr.hpp"
-
-#endif

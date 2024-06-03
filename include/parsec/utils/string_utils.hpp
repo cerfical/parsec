@@ -1,5 +1,4 @@
-#ifndef PARSEC_UTILS_STRING_UTILS_HEADER
-#define PARSEC_UTILS_STRING_UTILS_HEADER
+#pragma once
 
 #include <string_view>
 #include <string>
@@ -43,5 +42,3 @@ namespace parsec::string_utils {
 	std::string escape(std::string_view str);
 
 }
-
-#endif

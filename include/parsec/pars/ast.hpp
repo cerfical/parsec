@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_HEADER
-#define PARSEC_PARS_AST_HEADER
+#pragma once
 
 #include "ast/Node.hpp"
 #include "ast/NodeVisitor.hpp"
@@ -18,5 +17,3 @@
 #include "ast/OptionalRule.hpp"
 #include "ast/PlusRule.hpp"
 #include "ast/StarRule.hpp"
-
-#endif

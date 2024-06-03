@@ -1,5 +1,4 @@
-#ifndef PARSEC_SRC_GEN_CPP_CODE_GEN_HEADER
-#define PARSEC_SRC_GEN_CPP_CODE_GEN_HEADER
+#pragma once
 
 #include "CodeGen.hpp"
 
@@ -22,5 +21,3 @@ namespace parsec::src_gen {
 	};
 
 }
-
-#endif

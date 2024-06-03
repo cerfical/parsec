@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_TOKEN_HEADER
-#define PARSEC_PARS_TOKEN_HEADER
+#pragma once
 
 #include "../core/SourceLoc.hpp"
 #include "TokenKinds.hpp"
@@ -67,5 +66,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

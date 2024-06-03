@@ -1,5 +1,4 @@
-#ifndef PARSEC_PARS_AST_NODE_VISITOR_HEADER
-#define PARSEC_PARS_AST_NODE_VISITOR_HEADER
+#pragma once
 
 namespace parsec::pars {
 
@@ -44,5 +43,3 @@ namespace parsec::pars {
 	};
 
 }
-
-#endif

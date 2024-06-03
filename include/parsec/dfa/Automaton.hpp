@@ -1,5 +1,4 @@
-#ifndef PARSEC_DFA_AUTOMATON_HEADER
-#define PARSEC_DFA_AUTOMATON_HEADER
+#pragma once
 
 #include "../utils/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
@@ -47,5 +46,3 @@ namespace parsec::dfa {
 	};
 
 }
-
-#endif

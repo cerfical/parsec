@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_NODES_PLUS_CLOSURE_HEADER
-#define PARSEC_REGEX_NODES_PLUS_CLOSURE_HEADER
+#pragma once
 
 #include "UnaryExpr.hpp"
 
@@ -20,5 +19,3 @@ namespace parsec::regex {
 	};
 
 }
-
-#endif

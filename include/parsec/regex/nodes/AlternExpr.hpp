@@ -1,5 +1,4 @@
-#ifndef PARSEC_REGEX_NODES_ALTERN_EXPR_HEADER
-#define PARSEC_REGEX_NODES_ALTERN_EXPR_HEADER
+#pragma once
 
 #include "BinaryExpr.hpp"
 
@@ -20,5 +19,3 @@ namespace parsec::regex {
 	};
 
 }
-
-#endif

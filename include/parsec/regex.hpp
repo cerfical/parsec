@@ -1,8 +1,5 @@
-#ifndef PARSEC_REGEX_HEADER
-#define PARSEC_REGEX_HEADER
+#pragma once
 
 #include "regex/Parser.hpp"
 #include "regex/nodes.hpp"
 #include "regex/make.hpp"
-
-#endif
