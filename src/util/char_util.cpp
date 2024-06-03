@@ -1,7 +1,7 @@
-#include "utils/char_utils.hpp"
+#include "util/char_util.hpp"
 #include <format>
 
-namespace parsec::char_utils {
+namespace parsec::char_util {
 	std::string escape(char ch) {
 		if(isPrint(ch)) {
 			switch(ch) {

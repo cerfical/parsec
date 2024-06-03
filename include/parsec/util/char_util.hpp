@@ -6,7 +6,7 @@
 /**
  * @brief Utilities for working with characters.
 */
-namespace parsec::char_utils {
+namespace parsec::char_util {
 		
 	/**
 	 * @brief Safely convert a character to an integer.

@@ -4,7 +4,7 @@
 #include "core/TextScanner.hpp"
 #include "core/ParseError.hpp"
 
-#include "utils/char_utils.hpp"
+#include "util/char_util.hpp"
 
 #include <sstream>
 
@@ -178,10 +178,10 @@ namespace parsec::regex {
 					case 't': return '\t';
 					case 'v': return '\v';
 					case 'x': {
-						if(char_utils::isHexDigit(m_input.peek())) {
-							auto ch = char_utils::evalHexDigit(m_input.get());
-							if(!m_input.isEof() && char_utils::isHexDigit(m_input.peek())) {
-								ch = ch * 16 + char_utils::evalHexDigit(m_input.get());
+						if(char_util::isHexDigit(m_input.peek())) {
+							auto ch = char_util::evalHexDigit(m_input.get());
+							if(!m_input.isEof() && char_util::isHexDigit(m_input.peek())) {
+								ch = ch * 16 + char_util::evalHexDigit(m_input.get());
 							}
 							return static_cast<char>(ch);
 						}

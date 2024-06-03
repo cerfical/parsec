@@ -159,18 +159,18 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/utils.hpp"
-        "include/parsec/utils/string_utils.hpp"
-        "include/parsec/utils/char_utils.hpp"
-        "include/parsec/utils/cpp_utils.hpp"
-        "include/parsec/utils/NonCopyable.hpp"
-        "include/parsec/utils/NonMovable.hpp"
-        "include/parsec/utils/util_types.hpp"
+        "include/parsec/util.hpp"
+        "include/parsec/util/string_util.hpp"
+        "include/parsec/util/char_util.hpp"
+        "include/parsec/util/cpp_util.hpp"
+        "include/parsec/util/NonCopyable.hpp"
+        "include/parsec/util/NonMovable.hpp"
+        "include/parsec/util/util_types.hpp"
 
     PRIVATE
-        "src/utils/string_utils.cpp"
-        "src/utils/char_utils.cpp"
-        "src/utils/cpp_utils.cpp"
+        "src/util/string_util.cpp"
+        "src/util/char_util.cpp"
+        "src/util/cpp_util.cpp"
 )
 
 

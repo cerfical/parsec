@@ -3,7 +3,7 @@
 #include "core/RuleConflictError.hpp"
 #include "core/ParseError.hpp"
 
-#include "utils/string_utils.hpp"
+#include "util/string_util.hpp"
 #include "src_gen/CppCodeGen.hpp"
 #include "regex/make.hpp"
 #include "pars.hpp"
@@ -19,7 +19,7 @@ namespace parsec {
 		constexpr auto eofTokenName = "Eof", unnamedTokenPrefix = "Unnamed";
 		
 		Symbol makeName(const Token& name) {
-			return string_utils::toPascalCase(name.text());
+			return string_util::toPascalCase(name.text());
 		}
 
 

@@ -8,7 +8,7 @@
 /**
  * @brief Auxiliary functions to facilitate C++ source generation.
 */
-namespace parsec::cpp_utils {
+namespace parsec::cpp_util {
 
 	/**
 	 * @brief Make up the source code for a C++ enumeration.

@@ -3,7 +3,7 @@
 #include "dfa/Automaton.hpp"
 #include "elr/Automaton.hpp"
 
-#include "utils.hpp"
+#include "util.hpp"
 
 #include <format>
 
@@ -31,7 +31,7 @@ namespace parsec::src_gen {
 
 		private:
 			void tokenKindsEnum() {
-				m_out << cpp_utils::makeEnum("TokenKinds", m_tokens.symbols());
+				m_out << cpp_util::makeEnum("TokenKinds", m_tokens.symbols());
 			}
 
 
@@ -293,7 +293,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 					m_out << "\t\t" << "switch(peekChar()) {" << '\n';
 					for(const auto& trans : transitions) {
 						m_out << "\t\t\t" << std::format("case uchar('{}'): goto state{};",
-							string_utils::escape(trans.label.value()),
+							string_util::escape(trans.label.value()),
 							trans.target
 						) << '\n';
 					}
@@ -339,7 +339,7 @@ std::ostream& operator<<(std::ostream& out, const Token& tok) {
 
 		private:
 			void parseRulesEnum() {
-				m_out << cpp_utils::makeEnum("ParseRules", m_syntax.symbols());
+				m_out << cpp_util::makeEnum("ParseRules", m_syntax.symbols());
 			}
 
 

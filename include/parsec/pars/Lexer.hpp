@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../utils/util_types.hpp"
+#include "../util/util_types.hpp"
 #include "../core/TextScanner.hpp"
 
 #include "Token.hpp"

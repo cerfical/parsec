@@ -1,4 +1,4 @@
-#include <parsec/utils/string_utils.hpp>
+#include <parsec/util/string_util.hpp>
 
 #include <gtest/gtest.h>
 
@@ -8,7 +8,7 @@
 using namespace parsec;
 
 namespace {
-	class StringUtilsTest : public testing::Test {
+	class StringUtilTest : public testing::Test {
 	protected:
 		void testStringConvFunc(std::string(*f)(std::string_view),
 			std::span<const std::pair<std::string, std::string>> cases
@@ -20,7 +20,7 @@ namespace {
 	};
 
 
-	TEST_F(StringUtilsTest, toPascalCaseConv) {
+	TEST_F(StringUtilTest, toPascalCaseConv) {
 		static const std::pair<std::string, std::string> cases[] = {
 			{ "", "" },
 			{ "A", "a" },
@@ -35,11 +35,11 @@ namespace {
 			{ "AbAb", "abAb" },
 			{ "AbAb3", "12abAb3" }
 		};
-		testStringConvFunc(string_utils::toPascalCase, cases);
+		testStringConvFunc(string_util::toPascalCase, cases);
 	}
 
 
-	TEST_F(StringUtilsTest, toCapitalCaseConv) {
+	TEST_F(StringUtilTest, toCapitalCaseConv) {
 		static const std::pair<std::string, std::string> cases[] = {
 			{ "", "" },
 			{ "A", "a" },
@@ -47,11 +47,11 @@ namespace {
 			{ "Ab", "Ab" },
 			{ "Ab", "AB" }
 		};
-		testStringConvFunc(string_utils::capitalize, cases);
+		testStringConvFunc(string_util::capitalize, cases);
 	}
 
 
-	TEST_F(StringUtilsTest, toLowerCaseConv) {
+	TEST_F(StringUtilTest, toLowerCaseConv) {
 		static const std::pair<std::string, std::string> cases[] = {
 			{ "", "" },
 			{ "a", "A" },
@@ -59,11 +59,11 @@ namespace {
 			{ "ab", "Ab" },
 			{ "ab", "AB" }
 		};
-		testStringConvFunc(string_utils::toLower, cases);
+		testStringConvFunc(string_util::toLower, cases);
 	}
 
 
-	TEST_F(StringUtilsTest, toUpperCaseConv) {
+	TEST_F(StringUtilTest, toUpperCaseConv) {
 		static const std::pair<std::string, std::string> cases[] = {
 			{ "", "" },
 			{ "A", "a" },
@@ -71,16 +71,16 @@ namespace {
 			{ "AB", "Ab" },
 			{ "AB", "AB" }
 		};
-		testStringConvFunc(string_utils::toUpper, cases);
+		testStringConvFunc(string_util::toUpper, cases);
 	}
 
 
-	TEST_F(StringUtilsTest, stringEscape) {
+	TEST_F(StringUtilTest, stringEscape) {
 		static const std::pair<std::string, std::string> cases[] = {
 			{ R"()", "" },
 			{ R"(abc)", "abc" },
 			{ R"(\n\t \xffp)", "\n\t \xffp" }
 		};
-		testStringConvFunc(string_utils::escape, cases);
+		testStringConvFunc(string_util::escape, cases);
 	}
 }

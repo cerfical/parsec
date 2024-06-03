@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../utils/util_types.hpp"
+#include "../util/util_types.hpp"
 
 #include <string>
 #include <string_view>

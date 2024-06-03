@@ -6,7 +6,7 @@
 /**
  * @brief Utilities for working with character strings.
 */
-namespace parsec::string_utils {
+namespace parsec::string_util {
 
 	/**
 	 * @brief Make up a valid PascalCase identifier from a string.
