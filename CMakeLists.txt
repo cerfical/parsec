@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.23)
 
 
 # Basic project information
@@ -12,10 +12,6 @@ option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static ones" OFF)
 
 find_package(Boost REQUIRED)
-
-
-configure_file("src/config.hpp.in" "include/parsec/config.hpp")
-
 
 
 # Setup the main project library
@@ -199,3 +195,11 @@ endif()
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples/calc)
 endif()
+
+
+# Generate .gitignore file to take care of the build directory automatically
+file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" [[
+*
+]])
+
+configure_file("src/config.hpp.in" "include/parsec/config.hpp")
