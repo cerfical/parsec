@@ -1,0 +1,114 @@
+ColumnLimit: 120
+Language: Cpp
+
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Right
+AlignConsecutiveShortCaseStatements:
+  AcrossComments: true
+  AcrossEmptyLines: false
+  AlignCaseColons: false
+  Enabled: true
+AlignOperands: DontAlign
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortCompoundRequirementOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+BinPackArguments: true
+BinPackParameters: true
+PackConstructorInitializers: NextLineOnly
+PointerAlignment: Left
+QualifierAlignment: Custom
+
+Cpp11BracedListStyle: false
+FixNamespaceComments: false
+IntegerLiteralSeparator:
+  Decimal: 3
+  DecimalMinDigits: 5
+QualifierOrder: ['friend', 'static', 'inline', 'constexpr', 'const', 'type']
+ReflowComments: false
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+
+# Indentation
+AccessModifierOffset: -4
+ContinuationIndentWidth: 4
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentRequiresClause: true
+IndentWidth: 4
+LambdaBodyIndentation: Signature
+NamespaceIndentation: All
+TabWidth: 4
+UseTab: Never
+
+# New lines and breaks
+AllowBreakBeforeNoexceptSpecifier: Never
+BreakAfterAttributes: Always
+BreakBeforeBraces: Attach
+BreakBeforeConceptDeclarations: Always
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+EmptyLineAfterAccessModifier: Leave
+EmptyLineBeforeAccessModifier: Leave
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 2
+SeparateDefinitionBlocks: Leave
+
+# Spacing
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: false
+  AfterForeachMacros: false
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName: false
+  AfterIfMacros: false
+  AfterOverloadedOperator: false
+  AfterPlacementOperator: false
+  AfterRequiresInClause: false
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: Never
+
+# Structural characters handling
+InsertBraces: true
+RemoveParentheses: ReturnStatement
+RemoveSemicolon: true
+
+# Put more specific includes first
+SortIncludes: CaseSensitive
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Local includes
+  - Regex: '".*"'
+    Priority: 1
+  # System includes
+  - Regex: '<parsec/.*/.*>'
+    Priority: 2
+    SortPriority: 2
+  - Regex: '<parsec/.*>'
+    Priority: 2
+    SortPriority: 3
+  - Regex: '<.*/.*>'
+    Priority: 4
+  - Regex: '<.*>'
+    Priority: 5
