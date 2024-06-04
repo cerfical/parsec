@@ -1,4 +1,4 @@
-set(TEST_TOOL GTest)
+set(TEST_TOOL Catch2)
 
 find_package(${TEST_TOOL})
 
@@ -9,22 +9,18 @@ if(NOT ${TEST_TOOL}_FOUND)
 endif()
 
 
-include(GoogleTest)
-
-
 add_executable(parsec-tests
-    "CharUtilTest.cpp"
-    "StringUtilTest.cpp"
-    "RegularExprParseTest.cpp"
+    "char_util.cpp"
+    "regex_parse.cpp"
+    "string_util.cpp"
 )
 
 target_link_libraries(parsec-tests
     PRIVATE parsec-lib
-
-    PRIVATE GTest::gtest_main
-    PRIVATE GTest::gtest
-    PRIVATE GTest::gmock
+    PRIVATE Catch2::Catch2WithMain
 )
 
 
-gtest_discover_tests(parsec-tests)
+include(Catch)
+
+catch_discover_tests(parsec-tests)
