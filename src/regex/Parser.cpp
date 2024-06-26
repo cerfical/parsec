@@ -185,7 +185,7 @@ namespace parsec::regex {
 							}
 							return static_cast<char>(ch);
 						}
-						throw ParseError::emptyHexCharSeq(m_input.loc());
+						throw ParseError::emptyHexEscapeSeq(m_input.loc());
 					}
 					default: return ch;
 				}
