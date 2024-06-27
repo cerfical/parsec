@@ -66,17 +66,12 @@ namespace parsec::pars {
 		 * @brief Location of the lexer in the input stream.
 		*/
 		SourceLoc loc() const {
-			const auto inputLoc = m_input.loc();
-
-			const auto startCol = m_tokenStart - inputLoc.linePos();
-			const auto colCount = inputLoc.pos() - m_tokenStart;
-
-			return SourceLoc(
-				startCol,
-				colCount,
-				inputLoc.lineNo(),
-				inputLoc.linePos()
-			);
+			const auto& inputPos = m_input.pos();
+			return {
+				.offset = m_tokenStart,
+				.colCount = inputPos.offset - m_tokenStart,
+				.line = inputPos.line,
+			};
 		}
 		/** @} */
 

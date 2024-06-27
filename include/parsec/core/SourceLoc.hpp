@@ -2,53 +2,77 @@
 
 namespace parsec {
 
-	/**
-	 * @brief Describes a one-line location in text.
-	*/
-	class SourceLoc {
-	public:
+    /**
+     * @brief Describes a line inside some text.
+     */
+    struct LineInfo {
 
-		explicit SourceLoc(int startCol = 0)
-			: SourceLoc(startCol, 0, 0) {}
-
-		SourceLoc(int startCol, int lineNo, int linePos)
-			: SourceLoc(startCol, 1, lineNo, linePos) {}
-		
-		SourceLoc(int startCol, int colCount, int lineNo, int linePos)
-			: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos) {}
+        /**
+         * @brief The absolute position of the line in the text.
+         */
+        int offset = {};
 
 
-		int linePos() const {
-			return m_linePos;
-		}
-
-		int lineNo() const {
-			return m_lineNo;
-		}
-
-		int colCount() const {
-			return m_colCount;
-		}
-
-		int startCol() const {
-			return m_startCol;
-		}
+        /**
+         * @brief The ordinal number of the line.
+         */
+        int no = {};
+    };
 
 
-		int endCol() const {
-			return startCol() + colCount();
-		}
+    /**
+     * @brief Describes a location inside a single line of text.
+     */
+    struct SourceLoc {
 
-		int pos() const {
-			return linePos() + startCol();
-		}
+        /**
+         * @brief Check whether the location is not empty, i.e., contains at least one column.
+         */
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
 
 
-	private:
-		int m_startCol = {};
-		int m_colCount = {};
-		int m_lineNo = {};
-		int m_linePos = {};
-	};
+        /**
+         * @brief Check whether the location is empty, i.e., contains no columns.
+         */
+        bool isEmpty() const noexcept {
+            return colCount == 0;
+        }
+
+
+        /**
+         * @brief The relative position of the first column.
+         */
+        int startCol() const noexcept {
+            return offset - line.offset;
+        }
+
+
+        /**
+         * @brief The relative position of the after-the-last column.
+         */
+        int endCol() const noexcept {
+            return startCol() + colCount;
+        }
+
+
+        /**
+         * @brief The absolute position of the location in the text.
+         */
+        int offset = {};
+
+
+        /**
+         * @brief The number of characters spanning the location.
+         */
+        int colCount = {};
+
+
+        /**
+         * @brief The line containing the location.
+         */
+        LineInfo line;
+    };
 
 }

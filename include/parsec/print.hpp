@@ -5,7 +5,7 @@
 
 namespace parsec {
 
-	class SourceLoc;
+	struct SourceLoc;
 	class RegularExpr;
 	class SymbolRule;
 	class SymbolGrammar;

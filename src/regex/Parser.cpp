@@ -24,7 +24,7 @@ namespace parsec::regex {
 
 				auto e = parseExpr();
 				if(!m_input.isEof()) {
-					throw ParseError::misplacedChar(m_input.loc(), m_input.peek());
+					throw ParseError::misplacedChar(m_input.pos(), m_input.peek());
 				}
 				return e;
 			}
@@ -73,10 +73,10 @@ namespace parsec::regex {
 
 			NodePtr parseAtom() {
 				if(!isAtom()) {
-					throw ParseError::misplacedChar(m_input.loc(), m_input.peek());
+					throw ParseError::misplacedChar(m_input.pos(), m_input.peek());
 				}
 
-				if(const auto openParen = m_input.loc(); m_input.skipIf('(')) {
+				if(const auto openParen = m_input.pos(); m_input.skipIf('(')) {
 					// empty parenthesized expression
 					if(m_input.skipIf(')')) {
 						return empty();
@@ -125,7 +125,7 @@ namespace parsec::regex {
 
 			NodePtr parseCharRange() {
 				// save the position and value of the lower bound of the possible character range
-				const auto rangeStart = m_input.loc();
+				auto rngLoc = m_input.pos();
 				const auto low = static_cast<unsigned char>(parseChar());
 
 				// no char range, just a single character
@@ -138,13 +138,10 @@ namespace parsec::regex {
 				if(m_input.peek() != ']') {
 					const auto high = static_cast<unsigned char>(parseChar());
 					if(low > high) {
-						const auto rangeLoc = SourceLoc(
-							rangeStart.startCol(),
-							m_input.loc().pos() - rangeStart.pos(),
-							rangeStart.lineNo(),
-							rangeStart.linePos()
-						);
-						throw ParseError::outOfOrderCharRange(rangeLoc);
+						const auto& inputPos = m_input.pos();
+						rngLoc.colCount = inputPos.offset - rngLoc.offset;
+
+						throw ParseError::outOfOrderCharRange(rngLoc);
 					}
 
 					for(auto ch = low + 1; ch <= high; ) {
@@ -185,7 +182,7 @@ namespace parsec::regex {
 							}
 							return static_cast<char>(ch);
 						}
-						throw ParseError::emptyHexEscapeSeq(m_input.loc());
+						throw ParseError::emptyHexEscapeSeq(m_input.pos());
 					}
 					default: return ch;
 				}

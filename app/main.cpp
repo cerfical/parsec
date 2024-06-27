@@ -118,20 +118,21 @@ private:
 			std::cerr << "unknown error has occurred" << '\n';
 		}
 	}
-	
-	void printParseError(const parsec::ParseError& e) {
-		auto line = readInputLine(e.loc().linePos());
+
+	void printParseError(const parsec::ParseError& err) {
+		const auto& errLoc = err.loc();
+		auto line = readInputLine(errLoc.line.offset);
 		
 		const auto srcLineSize = line.size();
 		algo::trim_left(line);
 		const auto leadingWsSize = srcLineSize - line.size();
 		algo::trim_right(line);
 
-		const auto marker = makeVisualMarker(line, e.loc().startCol() - leadingWsSize, e.loc().colCount());
+		const auto marker = makeVisualMarker(line, errLoc.startCol() - leadingWsSize, errLoc.colCount);
 		const auto indent = std::string(tabSize, ' ');
 
 		std::cerr
-			<< m_inputPath.generic_string() << ':' << e.loc() << ": error: " << e.what() << '\n'
+			<< m_inputPath.generic_string() << ':' << errLoc << ": error: " << err.what() << '\n'
 			<< indent << line << '\n'
 			<< indent << marker << '\n';
 	}

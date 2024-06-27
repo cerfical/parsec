@@ -1,100 +1,103 @@
 #pragma once
 
-#include "../util/util_types.hpp"
 #include "SourceLoc.hpp"
 
-#include <string_view>
+#include <cstddef>
 #include <istream>
 #include <string>
+#include <string_view>
 
 namespace parsec {
 
-	/**
-	 * @brief Facilitates textual data analysis using standard stream classes.
-	*/
-	class TextScanner : private NonCopyable {
-	public:
+    /**
+     * @brief Facilitates textual data analysis using standard stream classes.
+     */
+    class TextScanner {
+    public:
 
-		TextScanner() = default;
+        TextScanner(const TextScanner&) = delete;
+        TextScanner& operator=(const TextScanner&) = delete;
 
-		explicit TextScanner(std::istream& input)
-			: m_input(&input) {}
+        TextScanner(TextScanner&&) = default;
+        TextScanner& operator=(TextScanner&&) = default;
 
-
-
-		/** @{ */
-		/**
-		 * @brief Read and remove from the stream the next input character.
-		*/
-		char get();
-
-		
-
-		/**
-		 * @brief Read a character at the specified offset from the current position without removing it from the stream.
-		*/
-		char peek(int i = 0) const;
+        TextScanner() noexcept = default;
+        ~TextScanner() = default;
 
 
-
-		/**
-		 * @brief Remove a character from the input if it matches specified character.
-		 * @returns @c true if a skip has taken place, @c false otherwise.
-		*/
-		bool skipIf(char ch);
-
-
-		
-		/**
-		 * @brief Remove a character sequence from the input if it matches specified text.
-		 * @returns @c true if a skip has taken place, @c false otherwise.
-		*/
-		bool skipIf(std::string_view text);
+        /** @{ */
+        /**
+         * @brief Construct a new scanner to operate on provided `std::istream`.
+         */
+        explicit TextScanner(std::istream& input)
+            : input_(&input) {}
 
 
-
-		/**
-		 * @brief Remove the next character from the input.
-		*/
-		void skip() {
-			get();
-		}
-		/** @} */
+        /**
+         * @brief Read and remove from the stream the next input character.
+         */
+        char get();
 
 
-
-		/** @{ */
-		/**
-		 * @brief Check whether the end of input has been reached.
-		*/
-		bool isEof() const {
-			return m_labuf.empty() && checkForEof();
-		}
+        /**
+         * @brief Read a character at the offset from the current position without removing it.
+         */
+        char peek(int off = 0) const;
 
 
-
-		/**
-		 * @brief Information about the position of the scanner in the input stream.
-		*/
-		SourceLoc loc() const {
-			return SourceLoc(m_inputPos - m_linePos, m_lineNo, m_linePos);
-		}
-		/** @} */
+        /**
+         * @brief Remove a character from the input if it matches specified character.
+         * @returns @c true if a skip has taken place, @c false otherwise.
+         */
+        bool skipIf(char ch);
 
 
+        /**
+         * @brief Remove a character sequence from the input if it matches specified text.
+         * @returns @c true if a skip has taken place, @c false otherwise.
+         */
+        bool skipIf(std::string_view text);
 
-	private:
-		bool checkForEof() const;
-		void updateLoc(char ch);
 
-		bool fillLookaheadBuffer(std::size_t size) const;
+        /**
+         * @brief Remove the next character from the input.
+         */
+        void skip() {
+            get();
+        }
 
-		mutable std::string m_labuf;
-		std::istream* m_input = {};
 
-		int m_inputPos = 0;
-		int m_linePos = 0;
-		int m_lineNo = 0;
-	};
+        /**
+         * @brief Check whether the end of input has been reached.
+         */
+        bool isEof() const {
+            return labuf_.empty() && checkForEof();
+        }
+
+
+        /**
+         * @brief The current position of the scanner in the input stream.
+         */
+        const SourceLoc& pos() const {
+            return pos_;
+        }
+        /** @} */
+
+
+    private:
+        bool fillLookaheadBuffer(std::size_t size) const;
+        bool checkForEof() const;
+
+        void updateLocInfo(char ch) noexcept;
+
+
+        mutable std::string labuf_;
+        std::istream* input_ = {};
+
+        SourceLoc pos_ = {
+            .offset = 0,
+            .colCount = 1,
+        };
+    };
 
 }

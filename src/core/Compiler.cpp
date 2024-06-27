@@ -251,15 +251,18 @@ namespace parsec {
                     RegularExpr regex;
                     try {
                         regex = RegularExpr(pattern.text());
-                    } catch(const ParseError& e) {
-                        // adjust the error location to take into account the location of the pattern token
-                        throw ParseError(
-                            SourceLoc(
-                                pattern.loc().startCol() + e.loc().startCol() + 1, e.loc().colCount(),
-                                pattern.loc().lineNo(), pattern.loc().linePos()
-                            ),
-                            e.what()
-                        );
+                    } catch(const ParseError& err) {
+                        const auto& patLoc = pattern.loc();
+                        const auto& errLoc = err.loc();
+
+                        // adjust the error location to take into account the pattern's token
+                        static constexpr int LeftPatternDelim = 1;
+                        const auto newLoc = SourceLoc {
+                            .offset = patLoc.offset + errLoc.offset + LeftPatternDelim,
+                            .colCount = errLoc.colCount,
+                            .line = patLoc.line,
+                        };
+                        throw ParseError(newLoc, err.what());
                     }
                     tokens_.define(name, regex);
                 }
