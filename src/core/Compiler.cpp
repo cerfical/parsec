@@ -1,8 +1,8 @@
 #include "core/Compiler.hpp"
 
+#include "core/NameConflictError.hpp"
 #include "core/ParseError.hpp"
 #include "core/RegularExpr.hpp"
-#include "core/RuleConflictError.hpp"
 #include "core/SourceLoc.hpp"
 #include "core/Symbol.hpp"
 #include "core/SymbolGrammar.hpp"
@@ -42,6 +42,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <utility>
+
 
 namespace parsec {
     using namespace pars;
@@ -367,11 +368,11 @@ namespace parsec {
 
         try {
             CppCodeGen(*output_).run(tokens, rules, ConfigStore().eofTokenName(EofTokenName));
-        } catch(const RuleConflictError& err) {
-            const auto* const srcTok1 = names.lookupToken(err.rule1().value());
-            const auto* const srcTok2 = names.lookupToken(err.rule2().value());
+        } catch(const NameConflictError& err) {
+            const auto* const srcTok1 = names.lookupToken(err.name1().value());
+            const auto* const srcTok2 = names.lookupToken(err.name2().value());
 
-            if(tokens.contains(err.rule1())) {
+            if(tokens.contains(err.name1())) {
                 throw ParseError::patternConflict(srcTok1->loc(), srcTok2->text());
             }
             throw ParseError::ruleConflict(srcTok1->loc(), srcTok2->text());

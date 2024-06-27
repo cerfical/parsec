@@ -1,6 +1,6 @@
 #include "dfa/Automaton.hpp"
 
-#include "core/RuleConflictError.hpp"
+#include "core/NameConflictError.hpp"
 #include "hash.hpp"
 
 #include <boost/functional/hash.hpp>
@@ -126,7 +126,7 @@ namespace parsec::dfa {
 						m_states[stateId].setMatchedRule(item.rule()->head());
 						continue;
 					}
-					throw RuleConflictError(m_states[stateId].matchedRule(), item.rule()->head());
+					throw NameConflictError(m_states[stateId].matchedRule(), item.rule()->head());
 				}
 
 				auto& itemTrans = transitions[item.value()];

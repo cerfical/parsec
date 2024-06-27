@@ -1,6 +1,6 @@
 #include "elr/Automaton.hpp"
 
-#include "core/RuleConflictError.hpp"
+#include "core/NameConflictError.hpp"
 #include "dfa/Automaton.hpp"
 
 #include <boost/functional/hash.hpp>
@@ -210,7 +210,7 @@ namespace parsec::elr {
 					if(!m_states[stateId].isReduceState()) {
 						m_states[stateId].setReduction(dfaState->matchedRule(), itemId);
 					} else {
-						throw RuleConflictError(
+						throw NameConflictError(
 							m_states[stateId].reduction().reduceRule,
 							dfaState->matchedRule()
 						);

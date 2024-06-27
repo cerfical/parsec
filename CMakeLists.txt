@@ -52,7 +52,7 @@ target_sources(parsec-lib
         "include/parsec/core/SourceLoc.hpp"
         "include/parsec/core/Compiler.hpp"
         "include/parsec/core/Error.hpp"
-        "include/parsec/core/RuleConflictError.hpp"
+        "include/parsec/core/NameConflictError.hpp"
         "include/parsec/core/ParseError.hpp"
         "include/parsec/core/Symbol.hpp"
         "include/parsec/core/RegularExpr.hpp"
