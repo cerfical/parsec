@@ -4,74 +4,132 @@
 #include "../regex/make.hpp"
 
 #include "Symbol.hpp"
-#include <span>
+
+#include <memory>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 namespace parsec {
 
-	class RegularExpr {
-	public:
+    /**
+     * @brief Presents a regular expression as a linear sequence of symbols.
+     */
+    class RegularExpr {
+    public:
 
-		RegularExpr() = default;
+        friend RegularExpr operator+(const RegularExpr& lhs, const RegularExpr& rhs) {
+            return regex::concat(lhs, rhs);
+        }
 
-		explicit RegularExpr(std::string_view regex);
-
-		RegularExpr(regex::NodePtr regex)
-			: m_regex(regex) {}
-		
-
-
-		std::span<const int> firstPos() const;
-
-		std::span<const int> followPos(int posIndex) const;
-
-		const Symbol& posValue(int posIndex) const;
-
-		bool isEndPos(int posIndex) const {
-			return posValue(posIndex).isEmpty();
-		}
+        friend RegularExpr operator|(const RegularExpr& lhs, const RegularExpr& rhs) {
+            return regex::altern(lhs, rhs);
+        }
 
 
+        friend RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
+            return lhs = lhs + rhs;
+        }
 
-		operator regex::NodePtr() const {
-			return m_regex;
-		}
-
-		explicit operator bool() const {
-			return !isEmpty();
-		}
-
-		bool isEmpty() const {
-			return m_regex == nullptr;
-		}
+        friend RegularExpr& operator|=(RegularExpr& lhs, const RegularExpr& rhs) {
+            return lhs = lhs | rhs;
+        }
 
 
-
-		RegularExpr& operator|=(const RegularExpr& other) {
-			return *this = regex::altern(*this, other);
-		}
-
-		RegularExpr& operator+=(const RegularExpr& other) {
-			return *this = regex::concat(*this, other);
-		}
+        using PosList = std::vector<int>;
 
 
+        RegularExpr(const RegularExpr&) noexcept = default;
+        RegularExpr& operator=(const RegularExpr&) noexcept = default;
 
-	private:
-		struct ComputeCache;
-		ComputeCache* computeCache() const;
+        RegularExpr(RegularExpr&&) noexcept = default;
+        RegularExpr& operator=(RegularExpr&&) noexcept = default;
 
-		mutable std::shared_ptr<ComputeCache> m_computeCache;
-		regex::NodePtr m_regex;
-	};
-
+        ~RegularExpr() = default;
 
 
-	inline RegularExpr operator+(const RegularExpr& left, const RegularExpr& right) {
-		return regex::concat(left, right);
-	}
+        /** @{ */
+        /**
+         * @brief Construct an empty regular expression.
+         */
+        RegularExpr() noexcept = default;
 
-	inline RegularExpr operator|(const RegularExpr& left, const RegularExpr& right) {
-		return regex::altern(left, right);
-	}
+
+        /**
+         * @brief Parse a regular expression from a string.
+         */
+        explicit RegularExpr(std::string_view regex);
+
+
+        /**
+         * @brief Construct a regular expression directly from its AST.
+         */
+        RegularExpr(regex::NodePtr rootNode) noexcept
+            : rootNode_(std::move(rootNode)) {}
+        /** @} */
+
+
+        /** @{ */
+        /**
+         * @brief Get the 'firstpos' set for the expression.
+         */
+        const PosList& firstPos() const;
+
+
+        /**
+         * @brief Get the 'followpos' set for a position in the expression.
+         */
+        const PosList& followPos(int pos) const;
+
+
+        /**
+         * @brief Get a symbol for a position in the expression.
+         */
+        const Symbol& posValue(int pos) const;
+
+
+        /**
+         * @brief Check if a position is the end position for the expression.
+         */
+        bool isEndPos(int pos) const {
+            return posValue(pos).isEmpty();
+        }
+
+
+        /**
+         * @brief Convert the regular expression to its AST equivalent.
+         */
+        operator regex::NodePtr() const noexcept {
+            return rootNode_;
+        }
+
+
+        /**
+         * @brief Check if the regular expression is non-empty.
+         */
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
+
+
+        /**
+         * @brief Check if the regular expression is empty.
+         */
+        bool isEmpty() const noexcept {
+            return rootNode_ == nullptr;
+        }
+        /** @} */
+
+
+    private:
+        static inline PosList emptyPosList;
+        static inline Symbol emptyPosValue;
+
+        class ComputeCache;
+        ComputeCache* computeCache() const;
+
+        mutable std::shared_ptr<ComputeCache> computeCache_;
+        regex::NodePtr rootNode_;
+    };
 
 }

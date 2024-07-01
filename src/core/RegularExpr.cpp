@@ -1,266 +1,274 @@
 #include "core/RegularExpr.hpp"
 
+#include "core/Symbol.hpp"
+
+#include "regex/nodes/AlternExpr.hpp"
+#include "regex/nodes/ConcatExpr.hpp"
+#include "regex/nodes/ExprNode.hpp"
+#include "regex/nodes/NodeVisitor.hpp"
+#include "regex/nodes/OptionalExpr.hpp"
+#include "regex/nodes/PlusClosure.hpp"
+#include "regex/nodes/StarClosure.hpp"
+#include "regex/nodes/SymbolAtom.hpp"
 #include "regex/Parser.hpp"
-#include "regex/nodes.hpp"
+#include "regex/make.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace parsec {
-	using namespace regex;
+    using namespace regex;
 
 
-	using AtomList = std::vector<const SymbolAtom*>;
+    class RegularExpr::ComputeCache {
+    public:
 
-	using IndexList = std::vector<int>;
-
-
-	namespace {
-		void computeFirstOrLastPos(const ExprNode& n, IndexList& indices, int nextAtomIndex, bool firstOrLast) {
-			class Impl : NodeVisitor {
-			public:
-
-				Impl(IndexList& indices, int nextAtomIndex, bool firstOrLast)
-					: m_indices(indices), m_nextAtomIndex(nextAtomIndex), m_firstOrLast(firstOrLast) {}
-
-				void operator()(const ExprNode& n) {
-					n.accept(*this);
-				}
-
-			private:
-				void visit(const SymbolAtom& n) override {
-					if(n.value()) {
-						// only non-empty atoms must have positional indices assigned
-						m_indices.push_back(m_nextAtomIndex);
-					}
-				}
-
-				void visit(const PlusClosure& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const StarClosure& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const OptionalExpr& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const AlternExpr& n) override {
-					computeFirstOrLastPos(*n.left(), m_indices, m_nextAtomIndex, m_firstOrLast);
-					computeFirstOrLastPos(*n.right(), m_indices, m_nextAtomIndex + n.left()->atomCount(), m_firstOrLast);
-				}
-
-				void visit(const ConcatExpr& n) override {
-					if(m_firstOrLast || n.right()->isNullable()) {
-						computeFirstOrLastPos(*n.left(), m_indices, m_nextAtomIndex, m_firstOrLast);
-					}
-
-					if(!m_firstOrLast || n.left()->isNullable()) {
-						computeFirstOrLastPos(*n.right(), m_indices, m_nextAtomIndex + n.left()->atomCount(), m_firstOrLast);
-					}
-				}
+        ComputeCache(NodePtr rootNode)
+            : regexWithEndMark_(std::move(rootNode), atom('$')) {}
 
 
-				IndexList& m_indices;
+        const Symbol& posValue(int pos) {
+            class Impl : private NodeVisitor {
+            public:
+                AtomList operator()(const ExprNode& n) {
+                    n.accept(*this);
+                    return std::move(atoms_);
+                }
 
-				int m_nextAtomIndex = {};
-				bool m_firstOrLast = {};
-			};
-			
-			Impl(indices, nextAtomIndex, firstOrLast)(n);
-		}
+            private:
+                void visit(const SymbolAtom& n) override {
+                    if(n.value()) {
+                        atoms_.push_back(&n);
+                    }
+                }
 
+                void visit(const PlusClosure& n) override {
+                    n.inner()->accept(*this);
+                }
 
-		IndexList computeFirstPos(const ExprNode& n, int baseAtomIndex) {
-			IndexList firstPos;
-			computeFirstOrLastPos(n, firstPos, baseAtomIndex, true);
-			return firstPos;
-		}
+                void visit(const StarClosure& n) override {
+                    n.inner()->accept(*this);
+                }
 
+                void visit(const OptionalExpr& n) override {
+                    n.inner()->accept(*this);
+                }
 
-		IndexList computeLastPos(const ExprNode& n, int baseAtomIndex) {
-			IndexList lastPos;
-			computeFirstOrLastPos(n, lastPos, baseAtomIndex, false);
-			return lastPos;
-		}
+                void visit(const AlternExpr& n) override {
+                    n.left()->accept(*this);
+                    n.right()->accept(*this);
+                }
 
+                void visit(const ConcatExpr& n) override {
+                    n.left()->accept(*this);
+                    n.right()->accept(*this);
+                }
 
-		std::vector<IndexList> computeFollowPos(const ExprNode& n) {
-			class Impl : NodeVisitor {
-			public:
+                AtomList atoms_;
+            } impl;
 
-				std::vector<IndexList> operator()(const ExprNode& n) {
-					n.accept(*this);
-					return std::move(m_followPos);
-				}
+            if(atoms_.empty()) {
+                atoms_ = impl(*regexWithEndMark_.left());
+            }
 
-			private:
-				void visit(const SymbolAtom& n) override {
-					m_atomCount++;
-				}
-
-				void visit(const PlusClosure& n) override {
-					addFirstPosToLastPos(*n.inner(), *n.inner(), m_atomCount);
-					n.inner()->accept(*this);
-				}
-
-				void visit(const StarClosure& n) override {
-					addFirstPosToLastPos(*n.inner(), *n.inner(), m_atomCount);
-					n.inner()->accept(*this);
-				}
-
-				void visit(const OptionalExpr& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const AlternExpr& n) override {
-					n.left()->accept(*this);
-					n.right()->accept(*this);
-				}
-
-				void visit(const ConcatExpr& n) override {
-					const auto preLeftAtomCount = m_atomCount;
-					n.left()->accept(*this);
-					
-					addFirstPosToLastPos(*n.left(), *n.right(), preLeftAtomCount);
-					n.right()->accept(*this);
-				}
-
-				void addFirstPosToLastPos(const ExprNode& last, const ExprNode& first, int lastPosBaseAtomIndex) {
-					const auto lastPos = computeLastPos(last, lastPosBaseAtomIndex);
-					if(!lastPos.empty()) {
-						const auto firstPos = computeFirstPos(first, m_atomCount);
-						for(const auto& pos : lastPos) {
-							if(pos >= m_followPos.size()) {
-								m_followPos.resize(pos + 1);
-							}
-							m_followPos[pos].insert(m_followPos[pos].end(), firstPos.begin(), firstPos.end());
-						}
-					}
-				}
+            if(pos >= 0 && pos < atoms_.size()) {
+                return atoms_[pos]->value();
+            }
+            return emptyPosValue;
+        }
 
 
-				std::vector<IndexList> m_followPos;
-				int m_atomCount = 0;
-			} impl;
-			return impl(n);
-		}
+        const PosList& followPos(int pos) {
+            class Impl : private NodeVisitor {
+            public:
+
+                std::vector<PosList> operator()(const ExprNode& n) {
+                    n.accept(*this);
+                    return std::move(followPos_);
+                }
+
+            private:
+                void visit(const SymbolAtom& /* n*/) override {
+                    atomCount_++;
+                }
+
+                void visit(const PlusClosure& n) override {
+                    addFirstPosToLastPos(*n.inner(), *n.inner(), atomCount_);
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const StarClosure& n) override {
+                    addFirstPosToLastPos(*n.inner(), *n.inner(), atomCount_);
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const OptionalExpr& n) override {
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const AlternExpr& n) override {
+                    n.left()->accept(*this);
+                    n.right()->accept(*this);
+                }
+
+                void visit(const ConcatExpr& n) override {
+                    const auto preLeftAtomCount = atomCount_;
+                    n.left()->accept(*this);
+
+                    addFirstPosToLastPos(*n.left(), *n.right(), preLeftAtomCount);
+                    n.right()->accept(*this);
+                }
+
+                void addFirstPosToLastPos(const ExprNode& last, const ExprNode& first, int lastPosBaseAtomIndex) {
+                    const auto lastPos = computeFirstOrLastPos(last, lastPosBaseAtomIndex, false);
+                    if(!lastPos.empty()) {
+                        const auto firstPos = computeFirstOrLastPos(first, atomCount_, true);
+                        for(const auto& pos : lastPos) {
+                            if(pos >= followPos_.size()) {
+                                followPos_.resize(pos + 1);
+                            }
+                            followPos_[pos].insert(followPos_[pos].end(), firstPos.begin(), firstPos.end());
+                        }
+                    }
+                }
+
+                std::vector<PosList> followPos_;
+                int atomCount_ = 0;
+            };
+
+            if(followPos_.empty()) {
+                followPos_ = Impl()(regexWithEndMark_);
+
+                // make sure that the followpos sets are all sorted and contain only unique elements
+                for(auto& follow : followPos_) {
+                    const auto unique = (std::ranges::sort(follow), std::ranges::unique(follow));
+                    follow.erase(unique.begin(), unique.end());
+                }
+            }
+
+            if(pos >= 0 && pos < followPos_.size()) {
+                return followPos_[pos];
+            }
+            return emptyPosList;
+        }
 
 
-		AtomList collectNonEmptyAtoms(const ExprNode& n) {
-			class Impl : NodeVisitor {
-			public:
-
-				AtomList operator()(const ExprNode& n) {
-					n.accept(*this);
-					return std::move(m_atoms);
-				}
-
-			private:
-				void visit(const SymbolAtom& n) override {
-					if(n.value()) {
-						m_atoms.push_back(&n);
-					}
-				}
-
-				void visit(const PlusClosure& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const StarClosure& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const OptionalExpr& n) override {
-					n.inner()->accept(*this);
-				}
-
-				void visit(const AlternExpr& n) override {
-					n.left()->accept(*this);
-					n.right()->accept(*this);
-				}
-
-				void visit(const ConcatExpr& n) override {
-					n.left()->accept(*this);
-					n.right()->accept(*this);
-				}
+        const PosList& firstPos() {
+            if(firstPos_.empty()) {
+                firstPos_ = computeFirstOrLastPos(regexWithEndMark_, 0, true);
+            }
+            return firstPos_;
+        }
 
 
-				AtomList m_atoms;
-			} impl;
-			return impl(n);
-		}
-	}
+    private:
+        using AtomList = std::vector<const SymbolAtom*>;
+
+        static PosList computeFirstOrLastPos(const ExprNode& n, int nextAtomIndex, bool firstOrLast) {
+            class Impl : private NodeVisitor {
+            public:
+
+                Impl(int nextAtomIndex, bool firstOrLast) noexcept
+                    : nextAtomIndex_(nextAtomIndex), firstOrLast_(firstOrLast) {}
+
+                PosList operator()(const ExprNode& n) {
+                    n.accept(*this);
+                    return std::move(indices_);
+                }
+
+            private:
+                void visit(const SymbolAtom& n) override {
+                    if(n.value()) {
+                        // only non-empty atoms must have positional indices assigned
+                        indices_.push_back(nextAtomIndex_);
+                    }
+                }
+
+                void visit(const PlusClosure& n) override {
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const StarClosure& n) override {
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const OptionalExpr& n) override {
+                    n.inner()->accept(*this);
+                }
+
+                void visit(const AlternExpr& n) override {
+                    n.left()->accept(*this);
+
+                    const auto leftSize = n.left()->atomCount();
+                    nextAtomIndex_ += leftSize;
+                    n.right()->accept(*this);
+                    nextAtomIndex_ -= leftSize;
+                }
+
+                void visit(const ConcatExpr& n) override {
+                    if(firstOrLast_ || n.right()->isNullable()) {
+                        n.left()->accept(*this);
+                    }
+
+                    if(!firstOrLast_ || n.left()->isNullable()) {
+                        const auto leftSize = n.left()->atomCount();
+                        nextAtomIndex_ += leftSize;
+                        n.right()->accept(*this);
+                        nextAtomIndex_ -= leftSize;
+                    }
+                }
+
+                PosList indices_;
+                int nextAtomIndex_ = {};
+                bool firstOrLast_ = {};
+            };
+
+            return Impl(nextAtomIndex, firstOrLast)(n);
+        }
+
+        ConcatExpr regexWithEndMark_;
+
+        PosList firstPos_;
+        std::vector<PosList> followPos_;
+        AtomList atoms_;
+    };
 
 
-	struct RegularExpr::ComputeCache {
-		ComputeCache(NodePtr regex)
-			: regexWithEndMark(regex, atom('$')) {}
-
-		ConcatExpr regexWithEndMark;
-
-		IndexList firstPos;
-		std::vector<IndexList> followPos;
-		AtomList atoms;
-	};
+    RegularExpr::RegularExpr(std::string_view regex)
+        : RegularExpr(Parser().parse(regex)) {}
 
 
-	std::span<const int> RegularExpr::firstPos() const {
-		if(const auto cachePtr = computeCache()) {
-			if(cachePtr->firstPos.empty()) {
-				cachePtr->firstPos = computeFirstPos(cachePtr->regexWithEndMark, 0);
-			}
-			return cachePtr->firstPos;
-		}
-		return {};
-	}
+    const RegularExpr::PosList& RegularExpr::firstPos() const {
+        if(auto* const cache = computeCache()) {
+            return cache->firstPos();
+        }
+        return emptyPosList;
+    }
 
 
-	std::span<const int> RegularExpr::followPos(int pos) const {
-		if(const auto cachePtr = computeCache()) {
-			if(cachePtr->followPos.empty()) {
-				cachePtr->followPos = computeFollowPos(cachePtr->regexWithEndMark);
-
-				// make sure that the followpos sets are all sorted and contain only unique elements
-				for(auto& fp : cachePtr->followPos) {
-					const auto unique = (std::ranges::sort(fp), std::ranges::unique(fp));
-					fp.erase(unique.begin(), unique.end());
-				}
-			}
-
-			if(pos >= 0 && pos < cachePtr->followPos.size()) {
-				return cachePtr->followPos[pos];
-			}
-		}
-		return {};
-	}
+    const RegularExpr::PosList& RegularExpr::followPos(int pos) const {
+        if(auto* const cache = computeCache()) {
+            return cache->followPos(pos);
+        }
+        return emptyPosList;
+    }
 
 
-	const Symbol& RegularExpr::posValue(int pos) const {
-		if(const auto cachePtr = computeCache()) {
-			if(cachePtr->atoms.empty()) {
-				cachePtr->atoms = collectNonEmptyAtoms(*m_regex);
-			}
-			if(pos >= 0 && pos < cachePtr->atoms.size()) {
-				return cachePtr->atoms[pos]->value();
-			}
-		}
-
-		static Symbol emptySymbol;
-		return emptySymbol;
-	}
+    const Symbol& RegularExpr::posValue(int pos) const {
+        if(auto* const cache = computeCache()) {
+            return cache->posValue(pos);
+        }
+        return emptyPosValue;
+    }
 
 
-	RegularExpr::ComputeCache* RegularExpr::computeCache() const {
-		if(m_regex && !m_computeCache) {
-			m_computeCache = std::make_shared<ComputeCache>(m_regex);
-		}
-		return m_computeCache.get();
-	}
-
-
-	RegularExpr::RegularExpr(std::string_view regex)
-		: RegularExpr(RegularExpr(Parser().parse(regex))) {}
+    RegularExpr::ComputeCache* RegularExpr::computeCache() const {
+        if(rootNode_ && !computeCache_) {
+            computeCache_ = std::make_shared<ComputeCache>(rootNode_);
+        }
+        return computeCache_.get();
+    }
 }
