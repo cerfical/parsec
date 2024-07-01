@@ -32,8 +32,6 @@
 
 #include "util/string_util.hpp"
 
-#include "hash.hpp"
-
 #include <cstddef>
 #include <format>
 #include <istream>
@@ -143,13 +141,7 @@ namespace parsec {
             }
 
         private:
-            struct SymbolHasher {
-                std::size_t operator()(const Symbol& symbol) const noexcept {
-                    return hash(symbol);
-                }
-            };
-
-            std::unordered_map<Symbol, Token, SymbolHasher> namesToTokens_;
+            std::unordered_map<Symbol, Token> namesToTokens_;
         };
 
 

@@ -1,87 +1,92 @@
 #include "core/SymbolGrammar.hpp"
+
+#include "core/RegularExpr.hpp"
+#include "core/Symbol.hpp"
+#include "core/SymbolRule.hpp"
+
 #include <algorithm>
+#include <cstddef>
+#include <ranges>
+#include <utility>
 
 namespace parsec {
-	void SymbolGrammar::define(const Symbol& symbol, const RegularExpr& expr) {
-		syncRulesCache();
+    void SymbolGrammar::define(const Symbol& symbol, const RegularExpr& rule) {
+        const auto [nameToRuleIdxIt, ok] = rulesCache_.try_emplace(symbol, rules_.size());
+        if(!ok) {
+            // combine all rules with the same head symbol into single rule
+            auto& oldRule = rules_[nameToRuleIdxIt->second];
+            oldRule = SymbolRule(oldRule.head(), oldRule.body() | rule);
+            return;
+        }
 
-		const auto [nameToRuleIndexIt, wasInserted] = m_rulesCache.try_emplace(symbol, m_rules.size());
-		if(!wasInserted) {
-			// combine all rules with the same head symbol into single rule
-			auto& rule = m_rules[nameToRuleIndexIt->second];
-			rule = SymbolRule(rule.head(), rule.body() | expr);
-			return;
-		}
+        try {
+            symbols_.push_back(symbol);
+        } catch(...) {
+            rulesCache_.erase(nameToRuleIdxIt);
+            throw;
+        }
 
-		try {
-			m_symbols.push_back(symbol);
-		} catch(...) {
-			m_rulesCache.erase(nameToRuleIndexIt);
-			throw;
-		}
+        try {
+            rules_.emplace_back(symbol, rule);
+        } catch(...) {
+            symbols_.pop_back();
+            rulesCache_.erase(nameToRuleIdxIt);
+            throw;
+        }
 
-		try {
-			m_rules.emplace_back(symbol, expr);
-		} catch(...) {
-			m_symbols.pop_back();
-			m_rulesCache.erase(nameToRuleIndexIt);
-			throw;
-		}
-
-		m_symbolsSorted = false;
-		m_rulesSorted = false;
-	}
+        symbolsSorted_ = false;
+        rulesSorted_ = false;
+    }
 
 
-	const SymbolRule& SymbolGrammar::resolve(const Symbol& symbol) const {
-		syncRulesCache();
+    const SymbolRule& SymbolGrammar::resolve(const Symbol& symbol) const noexcept {
+        updateRulesCache();
 
-		const auto nameToRuleIndexIt = m_rulesCache.find(symbol);
-		if(nameToRuleIndexIt == m_rulesCache.end()) {
-			static SymbolRule emptyRule;
-			return emptyRule;
-		}
-		return m_rules[nameToRuleIndexIt->second];
-	}
-
-
-	void SymbolGrammar::syncRulesCache() const {
-		if(m_rulesCache.empty()) {
-			for(std::size_t i = 0; i < m_rules.size(); i++) {
-				try {
-					m_rulesCache[m_rules[i].head()] = i;
-				} catch(...) {
-					m_rulesCache.clear();
-					throw;
-				}
-			}
-		}
-	}
+        const auto nameToRuleIdxIt = rulesCache_.find(symbol);
+        if(nameToRuleIdxIt == rulesCache_.end()) {
+            static SymbolRule emptyRule;
+            return emptyRule;
+        }
+        return rules_[nameToRuleIdxIt->second];
+    }
 
 
-	const std::vector<Symbol>& SymbolGrammar::sortedSymbols() const {
-		if(!m_symbolsSorted) {
-			std::ranges::sort(m_symbols);
-			m_symbolsSorted = true;
-		}
-		return m_symbols;
-	}
+    bool SymbolGrammar::contains(const Symbol& symbol) const noexcept {
+        return rulesCache_.contains(symbol);
+    }
 
 
-	const std::vector<SymbolRule>& SymbolGrammar::sortedRules() const {
-		if(!m_rulesSorted) {
-			/*
-			 * Sorting will likely change the order of rules in the vector, and so the cached indices will refer to rules with names
-			 * other than the ones they originally referenced.
-			 * Therefore, we clear the cache to force a recalculation, if it is needed later.
-			*/
-			m_rulesCache.clear();
+    void SymbolGrammar::updateRulesCache() const noexcept {
+        if(!cacheValid_) {
+            for(size_t idx = 0; idx < rules_.size(); idx++) {
+                rulesCache_[rules_[idx].head()] = idx;
+            }
+            cacheValid_ = true;
+        }
+    }
 
-			std::ranges::sort(m_rules, [](const auto& lhs, const auto& rhs) {
-				return lhs.head() < rhs.head();
-			});
-			m_rulesSorted = true;
-		}
-		return m_rules;
-	}
+
+    const SymbolGrammar::SymbolList& SymbolGrammar::symbols() const noexcept {
+        if(!symbolsSorted_) {
+            std::ranges::sort(symbols_);
+            symbolsSorted_ = true;
+        }
+        return symbols_;
+    }
+
+
+    const SymbolGrammar::RuleList& SymbolGrammar::rules() const noexcept {
+        if(!rulesSorted_) {
+            /*
+             * Sorting will likely change the order of rules in the vector, and so the cached indices will refer to
+             * rules with names other than the ones they originally referenced. Therefore, we invalidate the cache to
+             * force a recalculation, if it is needed later.
+             */
+            cacheValid_ = false;
+
+            std::ranges::sort(rules_, [](const auto& lhs, const auto& rhs) { return lhs.head() < rhs.head(); });
+            rulesSorted_ = true;
+        }
+        return rules_;
+    }
 }

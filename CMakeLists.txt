@@ -37,11 +37,9 @@ target_sources(parsec-lib
         "include/parsec/parsec.hpp"
         "include/parsec/deps.hpp"
         "include/parsec/print.hpp"
-        "include/parsec/hash.hpp"
 
     PRIVATE
         "src/print.cpp"
-        "src/hash.cpp"
 )
 
 

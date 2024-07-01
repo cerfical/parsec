@@ -1,72 +1,113 @@
 #pragma once
 
 #include <compare>
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace parsec {
 
-	class Symbol {
-	public:
+    /**
+     * @brief Immutable symbolic name.
+     */
+    class Symbol {
+    public:
 
-		Symbol() noexcept = default;
+        friend bool operator==(const Symbol& lhs, const Symbol& rhs) noexcept {
+            return lhs.value() == rhs.value();
+        }
 
-		Symbol(char value) : Symbol({}, 1, value) {}
-
-		Symbol(const char* value) : Symbol({}, value) {}
-
-		Symbol(std::string_view value) : Symbol({}, value) {}
-
-		Symbol(const std::string& value) : Symbol({}, value) {}
-
-		Symbol(std::string&& value) : Symbol({}, std::move(value)) {}
-
-
-		Symbol(const Symbol& other) noexcept = default;
-		Symbol& operator=(const Symbol& other) noexcept = default;
+        friend std::strong_ordering operator<=>(const Symbol& lhs, const Symbol& rhs) noexcept {
+            return lhs.value() <=> rhs.value();
+        }
 
 
-		Symbol(Symbol&& other) noexcept = default;
-		Symbol& operator=(Symbol&& other) noexcept = default;
+        Symbol(const Symbol& other) noexcept = default;
+        Symbol& operator=(const Symbol& other) noexcept = default;
+
+        Symbol(Symbol&& other) noexcept = default;
+        Symbol& operator=(Symbol&& other) noexcept = default;
+
+        ~Symbol() = default;
 
 
-		const std::string& value() const noexcept {
-			if(!m_value) {
-				static const std::string empty;
-				return empty;
-			}
-			return *m_value;
-		}
+        /** @{ */
+        /**
+         * @brief Construct an empty symbol.
+         */
+        Symbol() noexcept = default;
 
 
-		explicit operator bool() const noexcept {
-			return !isEmpty();
-		}
+        /**
+         * @brief Construct a symbol from a single character.
+         */
+        Symbol(char value)
+            : Symbol(std::string(1, value)) {}
 
 
-		bool isEmpty() const noexcept {
-			return !m_value || m_value->empty();
-		}
-		
-
-	private:
-		template <typename... Args>
-		explicit Symbol(int, Args&&... args)
-			: m_value(std::make_shared<std::string>(std::forward<Args>(args)...)) {}
-
-		std::shared_ptr<std::string> m_value;
-	};
+        /**
+         * @brief Construct a symbol from a string literal.
+         */
+        Symbol(const char* value)
+            : Symbol(std::string(value)) {}
 
 
+        /**
+         * @brief Construct a symbol from an arbitrary char sequence.
+         */
+        Symbol(std::string_view value)
+            : Symbol(std::string(value)) {}
 
-	inline bool operator==(const Symbol& lhs, const Symbol& rhs) noexcept {
-		return lhs.value() == rhs.value();
-	}
+
+        /**
+         * @brief Construct a symbol from a string.
+         */
+        Symbol(std::string value)
+            : value_(value.empty() ? nullptr : std::make_shared<std::string>(std::move(value))) {}
+        /** @} */
 
 
-	inline std::strong_ordering operator<=>(const Symbol& lhs, const Symbol& rhs) noexcept {
-		return lhs.value() <=> rhs.value();
-	}
+        /** @{ */
+        /**
+         * @brief A character string representing the symbol's name.
+         */
+        const std::string& value() const noexcept {
+            if(isEmpty()) {
+                static constexpr std::string EmptyValue;
+                return EmptyValue;
+            }
+            return *value_;
+        }
+
+
+        /**
+         * @brief Check if the symbol has a non-empty value.
+         */
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
+
+
+        /**
+         * @brief Check if the symbol has an empty value.
+         */
+        bool isEmpty() const noexcept {
+            return !value_;
+        }
+        /** @} */
+
+
+    private:
+        std::shared_ptr<std::string> value_;
+    };
 
 }
+
+template <> struct std::hash<parsec::Symbol> {
+    std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
+        return std::hash<std::string>()(symbol.value());
+    }
+};

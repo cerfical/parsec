@@ -3,38 +3,77 @@
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
+#include <utility>
+
 namespace parsec {
 
-	class SymbolRule {
-	public:
+    /**
+     * @brief Defines a relationship between symbols to form other symbols.
+     */
+    class SymbolRule {
+    public:
 
-		SymbolRule() = default;
+        SymbolRule(const SymbolRule&) noexcept = default;
+        SymbolRule& operator=(const SymbolRule&) noexcept = default;
 
-		SymbolRule(const Symbol& head, const RegularExpr& body)
-			: m_head(head), m_body(body) {}
+        SymbolRule(SymbolRule&&) noexcept = default;
+        SymbolRule& operator=(SymbolRule&&) noexcept = default;
 
-
-		explicit operator bool() const {
-			return !isEmpty();
-		}
-
-		bool isEmpty() const {
-			return body().isEmpty();
-		}
+        ~SymbolRule() = default;
 
 
-		const Symbol& head() const {
-			return m_head;
-		}
-
-		const RegularExpr& body() const {
-			return m_body;
-		}
+        /** @{ */
+        /**
+         * @brief Construct an empty rule.
+         */
+        SymbolRule() noexcept = default;
 
 
-	private:
-		Symbol m_head;
-		RegularExpr m_body;
-	};
+        /**
+         * @brief Construct a rule with a head and a body.
+         */
+        SymbolRule(Symbol head, RegularExpr body) noexcept
+            : head_(std::move(head)), body_(std::move(body)) {}
+        /** @} */
+
+
+        /** @{ */
+        /**
+         * @brief Check if the rule has a non-empty body.
+         */
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
+
+
+        /**
+         * @brief Check if the rule has an empty body.
+         */
+        bool isEmpty() const noexcept {
+            return body().isEmpty();
+        }
+
+
+        /**
+         * @brief The combination of symbols to yield a new symbol instance.
+         */
+        const RegularExpr& body() const noexcept {
+            return body_;
+        }
+
+
+        /**
+         * @brief The symbol yielded by the body.
+         */
+        const Symbol& head() const noexcept {
+            return head_;
+        }
+        /** @} */
+
+
+    private:
+        Symbol head_;
+        RegularExpr body_;
+    };
 
 }

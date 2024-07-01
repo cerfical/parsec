@@ -1,7 +1,6 @@
 #include "dfa/Automaton.hpp"
 
 #include "core/NameConflictError.hpp"
-#include "hash.hpp"
 
 #include <boost/functional/hash.hpp>
 
@@ -61,7 +60,7 @@ namespace parsec::dfa {
 template <>
 struct boost::hash<parsec::Symbol> {
 	std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
-		return parsec::hash(symbol);
+		return std::hash<parsec::Symbol>()(symbol);
 	}
 };
 
