@@ -100,7 +100,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/regex.hpp"
         "include/parsec/regex/Parser.hpp"
         "include/parsec/regex/make.hpp"
         "include/parsec/regex/nodes.hpp"
@@ -161,9 +160,6 @@ target_sources(parsec-lib
         "include/parsec/util/string_util.hpp"
         "include/parsec/util/char_util.hpp"
         "include/parsec/util/cpp_util.hpp"
-        "include/parsec/util/NonCopyable.hpp"
-        "include/parsec/util/NonMovable.hpp"
-        "include/parsec/util/util_types.hpp"
 
     PRIVATE
         "src/util/string_util.cpp"

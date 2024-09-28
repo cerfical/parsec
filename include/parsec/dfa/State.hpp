@@ -6,77 +6,77 @@
 
 namespace parsec::dfa {
 
-	struct StateTrans {
-		int target = {};
-		Symbol label;
-	};
+    struct StateTrans {
+        int target = {};
+        Symbol label;
+    };
 
 
-	class State {
-	public:
+    class State {
+    public:
 
-		State() noexcept = default;
+        State() noexcept = default;
 
-		explicit State(int id) noexcept
-			: m_id(id) {}
-
-
-		const std::vector<StateTrans>& transitions() const noexcept {
-			return m_transitions;
-		}
+        explicit State(int id) noexcept
+            : id_(id) {}
 
 
-		void addTransition(int target, const Symbol& label) {
-			m_transitions.emplace_back(target, label);
-		}
-		
-
-		bool isMatchState() const noexcept {
-			return !matchedRule().isEmpty();
-		}
+        const std::vector<StateTrans>& transitions() const noexcept {
+            return transitions_;
+        }
 
 
-		const Symbol& matchedRule() const noexcept {
-			return m_matchedRule;
-		}
+        void addTransition(int target, const Symbol& label) {
+            transitions_.emplace_back(target, label);
+        }
 
 
-		void setMatchedRule(const Symbol& rule) noexcept {
-			m_matchedRule = rule;
-		}
+        bool isMatchState() const noexcept {
+            return !matchedRule().isEmpty();
+        }
 
 
-		bool isStartState() const noexcept {
-			return m_startState;
-		}
+        const Symbol& matchedRule() const noexcept {
+            return matchedRule_;
+        }
 
 
-		void setStartState(bool startState) noexcept {
-			m_startState = startState;
-		}
+        void setMatchedRule(const Symbol& rule) noexcept {
+            matchedRule_ = rule;
+        }
 
 
-		explicit operator bool() const noexcept {
-			return !isEmpty();
-		}
+        bool isStartState() const noexcept {
+            return startState_;
+        }
 
 
-		bool isEmpty() const noexcept {
-			return m_transitions.empty() && !isStartState() && !isMatchState();
-		}
+        void setStartState(bool startState) noexcept {
+            startState_ = startState;
+        }
 
 
-		int id() const noexcept {
-			return m_id;
-		}
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
 
 
-	private:
-		std::vector<StateTrans> m_transitions;
-		Symbol m_matchedRule;
+        bool isEmpty() const noexcept {
+            return transitions_.empty() && !isStartState() && !isMatchState();
+        }
 
-		int m_id = {};
-		bool m_startState = false;
-	};
+
+        int id() const noexcept {
+            return id_;
+        }
+
+
+    private:
+        std::vector<StateTrans> transitions_;
+        Symbol matchedRule_;
+
+        int id_ = {};
+        bool startState_ = false;
+    };
 
 }

@@ -1,16 +1,24 @@
 Checks:
   - bugprone-*
+  - clang-analyzer-*
   - cppcoreguidelines-*
   - misc-*
   - modernize-*
   - performance-*
   - readability-*
-  - clang-analyzer
+
+  - -bugprone-easily-swappable-parameters
+  - -cppcoreguidelines-avoid-const-or-ref-data-members
+  - -cppcoreguidelines-virtual-class-destructor
+  - -misc-no-recursion
+  - -modernize-return-braced-init-list
+  - -modernize-use-nodiscard
   - -modernize-use-trailing-return-type
-  - -readability-uppercase-literal-suffix
+  - -readability-identifier-length
+  - -readability-simplify-boolean-expr
 
 CheckOptions:
-  # All type-defining constructs are always in `CamelCase`
+  # Types
   readability-identifier-naming.ClassCase: CamelCase
   readability-identifier-naming.ConceptCase: CamelCase
   readability-identifier-naming.EnumCase: CamelCase
@@ -18,29 +26,25 @@ CheckOptions:
   readability-identifier-naming.TypeTemplateParameterCase: CamelCase
   readability-identifier-naming.UnionCase: CamelCase
 
-  # Constants are also `CamelCase` to distinguish them from ordinary variables
+  # Constants
   readability-identifier-naming.ConstexprVariableCase: CamelCase
   readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.ValueTemplateParameterCase: CamelCase
 
-  # Functions, methods and variables are `camelBack`
+  # Functions, methods, variables
   readability-identifier-naming.FunctionCase: camelBack
   readability-identifier-naming.MemberCase: camelBack
   readability-identifier-naming.ParameterCase: camelBack
   readability-identifier-naming.PrivateMemberCase: camelBack
-  readability-identifier-naming.ValueTemplateParameterCase: camelBack
   readability-identifier-naming.VariableCase: camelBack
-
-  # Make data member names different from their associated getters
   readability-identifier-naming.PrivateMemberSuffix: _
-  
-  # Special handling of namespaces and macros
+
+  # Namespaces, macros
   readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
   readability-identifier-naming.NamespaceCase: lower_case
-  
-  # Ignore simple struct-like types
-  cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+
   misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
-  
-  # Allow easy initialization of PImpl implementation classes
-  cppcoreguidelines-non-private-member-variables-in-classes.IgnorePublicMemberVariables: true
-  misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables: true
+  readability-implicit-bool-conversion.AllowPointerConditions: true
+
+  cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues: "1;10"
+  readability-magic-numbers.IgnoredIntegerValues: "1;10"

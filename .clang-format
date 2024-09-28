@@ -1,4 +1,4 @@
-ColumnLimit: 120
+ColumnLimit: 0
 Language: Cpp
 
 AlignAfterOpenBracket: BlockIndent
@@ -8,7 +8,7 @@ AlignConsecutiveShortCaseStatements:
   AcrossEmptyLines: false
   AlignCaseColons: false
   Enabled: true
-AlignOperands: DontAlign
+AlignOperands: AlignAfterOperator
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Empty
@@ -19,8 +19,8 @@ AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: false
 PackConstructorInitializers: NextLineOnly
 PointerAlignment: Left
 QualifierAlignment: Custom
@@ -31,7 +31,7 @@ IntegerLiteralSeparator:
   Decimal: 3
   DecimalMinDigits: 5
 QualifierOrder: ['friend', 'static', 'inline', 'constexpr', 'const', 'type']
-ReflowComments: false
+ReflowComments: true
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
 
@@ -49,8 +49,11 @@ TabWidth: 4
 UseTab: Never
 
 # New lines and breaks
+AlignEscapedNewlines: DontAlign
 AllowBreakBeforeNoexceptSpecifier: Never
+AlwaysBreakTemplateDeclarations: true
 BreakAfterAttributes: Always
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Attach
 BreakBeforeConceptDeclarations: Always
 BreakBeforeTernaryOperators: true
@@ -79,7 +82,7 @@ SpaceBeforeParensOptions:
   AfterIfMacros: false
   AfterOverloadedOperator: false
   AfterPlacementOperator: false
-  AfterRequiresInClause: false
+  AfterRequiresInClause: true
   AfterRequiresInExpression: false
   BeforeNonEmptyParentheses: false
 SpaceBeforeRangeBasedForLoopColon: true
@@ -98,17 +101,27 @@ SortIncludes: CaseSensitive
 
 IncludeBlocks: Regroup
 IncludeCategories:
-  # Local includes
-  - Regex: '".*"'
-    Priority: 1
+  # Group local includes by common prefix path
+  - { Regex: '"(\.\./)*core/.*"', Priority: 1 }
+  - { Regex: '"(\.\./)*dfa/.*"', Priority: 2 }
+  - { Regex: '"(\.\./)*elr/.*"', Priority: 3 }
+  - { Regex: '"(\.\./)*pars/.*/.*"', Priority: 4, SortPriority: 4 }
+  - { Regex: '"(\.\./)*pars/.*"', Priority: 4, SortPriority: 5 }
+  - { Regex: '"(\.\./)*regex/.*/.*"', Priority: 5, SortPriority: 5 }
+  - { Regex: '"(\.\./)*regex/.*"', Priority: 5, SortPriority: 6 }
+  - { Regex: '"(\.\./)*src_gen/.*"', Priority: 6 }
+  - { Regex: '"(\.\./)*util/.*"', Priority: 7 }
+  - { Regex: '"(\.\./)+.*"', Priority: 8 }
+  - { Regex: '".*"', Priority: 9 }
+
   # System includes
   - Regex: '<parsec/.*/.*>'
-    Priority: 2
-    SortPriority: 2
+    Priority: 20
+    SortPriority: 20
   - Regex: '<parsec/.*>'
-    Priority: 2
-    SortPriority: 3
+    Priority: 20
+    SortPriority: 21
   - Regex: '<.*/.*>'
-    Priority: 4
+    Priority: 22
   - Regex: '<.*>'
-    Priority: 5
+    Priority: 23

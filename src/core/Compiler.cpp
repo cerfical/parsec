@@ -345,7 +345,7 @@ namespace parsec {
 
 
     void Compiler::compile(std::istream& input) {
-        const auto ast = Parser().parse(input);
+        const auto ast = Parser::parse(input);
 
         NameTable names;
         PatternNameCache patterns;

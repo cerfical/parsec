@@ -9,14 +9,17 @@
 
 
 using namespace parsec::regex;
+using namespace parsec;
 
 constexpr auto Tags = "[regex][parse]";
 
 
 SCENARIO("parsing a regular expression", Tags) {
     const auto parseRegex = [](std::string_view str) {
-        const auto ast = Parser().parse(str);
-        return (std::ostringstream() << *ast).str();
+        const auto ast = Parser::parse(str);
+        std::ostringstream out;
+        out << *ast;
+        return std::move(out).str();
     };
 
     GIVEN("a regular expression represented as a string") {

@@ -1,146 +1,145 @@
 #pragma once
 
-#include "../util/util_types.hpp"
 #include "../core/TextScanner.hpp"
 
 #include "Token.hpp"
 
-#include <string_view>
+#include <istream>
 #include <optional>
 #include <string>
-#include <istream>
+#include <string_view>
 
 namespace parsec::pars {
-	
-	/**
-	 * @brief Breaks input text into a sequence of Token%s.
-	*/
-	class Lexer : private NonCopyable {
-	public:
 
-		Lexer() = default;
-		
-		explicit Lexer(std::istream& input)
-			: m_input(input) {}
+    /**
+     * @brief Breaks input text into a sequence of Token%s.
+     */
+    class Lexer {
+    public:
 
+        Lexer(const Lexer& other) = delete;
+        Lexer& operator=(const Lexer& other) = delete;
 
+        Lexer(Lexer&& other) noexcept = default;
+        Lexer& operator=(Lexer&& other) noexcept = default;
 
-		/** @{ */
-		/**
-		 * @brief Perform the input analysis and extract the next token.
-		*/
-		Token lex() {
-			if(!m_token) {
-				m_token = nextToken();
-			}
-			
-			auto tok = std::move(m_token.value());
-			m_token.reset();
-			return tok;
-		}
+        ~Lexer() = default;
 
 
+        Lexer() = default;
 
-		/**
-		 * @brief Check the next token without extracting it.
-		*/
-		const Token& peek() {
-			if(!m_token) {
-				m_token = nextToken();
-			}
-			return *m_token;
-		}
+        explicit Lexer(std::istream& input)
+            : input_(input) {}
 
 
+        /** @{ */
+        /**
+         * @brief Perform the input analysis and extract the next token.
+         */
+        Token lex() {
+            if(!token_) {
+                token_ = nextToken();
+            }
 
-		/**
-		 * @brief Check whether the end of input has been reached.
-		*/
-		bool isEof() {
-			return peek().is<TokenKinds::Eof>();
-		}
-
-
-
-		/**
-		 * @brief Location of the lexer in the input stream.
-		*/
-		SourceLoc loc() const {
-			const auto& inputPos = m_input.pos();
-			return {
-				.offset = m_tokenStart,
-				.colCount = inputPos.offset - m_tokenStart,
-				.line = inputPos.line,
-			};
-		}
-		/** @} */
+            auto tok = std::move(token_.value());
+            token_.reset();
+            return tok;
+        }
 
 
-
-		/** @{ */
-		/**
-		 * @brief Remove a token from the input if it is of the specified type.
-		 * @returns @c true if a skip has taken place, @c false otherwise.
-		*/
-		bool skipIf(TokenKinds tok) {
-			if(peek().kind() == tok) {
-				skip();
-				return true;
-			}
-			return false;
-		}
+        /**
+         * @brief Check the next token without extracting it.
+         */
+        const Token& peek() {
+            if(!token_) {
+                token_ = nextToken();
+            }
+            return *token_;
+        }
 
 
-
-		/**
-		 * @brief Remove a token from the input if its text matches specified text.
-		 * @returns @c true if a skip has taken place, @c false otherwise.
-		*/
-		bool skipIf(std::string_view tok) {
-			if(peek().text() == tok) {
-				skip();
-				return true;
-			}
-			return false;
-		}
+        /**
+         * @brief Check whether the end of input has been reached.
+         */
+        bool isEof() {
+            return peek().is<TokenKinds::Eof>();
+        }
 
 
+        /**
+         * @brief Location of the lexer in the input stream.
+         */
+        SourceLoc loc() const {
+            const auto& inputPos = input_.pos();
+            return {
+                .offset = tokenStart_,
+                .colCount = inputPos.offset - tokenStart_,
+                .line = inputPos.line,
+            };
+        }
+        /** @} */
 
-		/**
-		 * @brief Remove the next token from the input.
-		*/
-		void skip() {
-			lex();
-		}
-		/** @} */
+
+        /** @{ */
+        /**
+         * @brief Remove a token from the input if it is of the specified type.
+         * @returns @c true if a skip has taken place, @c false otherwise.
+         */
+        bool skipIf(TokenKinds tok) {
+            if(peek().kind() == tok) {
+                skip();
+                return true;
+            }
+            return false;
+        }
+
+
+        /**
+         * @brief Remove a token from the input if its text matches specified text.
+         * @returns @c true if a skip has taken place, @c false otherwise.
+         */
+        bool skipIf(std::string_view tok) {
+            if(peek().text() == tok) {
+                skip();
+                return true;
+            }
+            return false;
+        }
+
+
+        /**
+         * @brief Remove the next token from the input.
+         */
+        void skip() {
+            lex();
+        }
+        /** @} */
 
 
 
-	private:
-		Token nextToken() {
-			const auto kind = parseToken();
-			return Token(
-				m_tokenText, kind, loc()
-			);
-		}
+    private:
+        Token nextToken() {
+            const auto kind = parseToken();
+            return Token(tokenText_, kind, loc());
+        }
 
-		void skipWhitespace();
-		void resetParse();
+        void skipWhitespace();
+        void resetParse();
 
-		TokenKinds parseStringLiteral();
-		bool isStringLiteralStart() const;
-		
-		TokenKinds parseIdent();
-		bool isIdentStart() const;
+        TokenKinds parseStringLiteral();
+        bool isStringLiteralStart() const;
 
-		TokenKinds parseOperator();
-		TokenKinds parseToken();
+        TokenKinds parseIdent();
+        bool isIdentStart() const;
 
-		int m_tokenStart = {};
-		std::optional<Token> m_token;
-		std::string m_tokenText;
+        TokenKinds parseOperator();
+        TokenKinds parseToken();
 
-		TextScanner m_input;
-	};
+        int tokenStart_ = {};
+        std::optional<Token> token_;
+        std::string tokenText_;
+
+        TextScanner input_;
+    };
 
 }

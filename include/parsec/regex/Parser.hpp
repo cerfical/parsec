@@ -1,23 +1,23 @@
 #pragma once
 
-#include "../util/util_types.hpp"
 #include "nodes/ExprNode.hpp"
 
-#include <string_view>
 #include <istream>
+#include <string_view>
 
 namespace parsec::regex {
 
-	class Parser : private NonCopyable {
-	public:
+    class Parser {
+    public:
 
-		static bool isMetaChar(char ch);
+        Parser() = delete;
 
 
-		NodePtr parse(std::string_view regex);
-		
-		NodePtr parse(std::istream& input);
-		
-	};
+        static bool isMetaChar(char ch);
+
+        static NodePtr parse(std::string_view input);
+
+        static NodePtr parse(std::istream& input);
+    };
 
 }

@@ -76,8 +76,8 @@ namespace parsec {
          */
         const std::string& value() const noexcept {
             if(isEmpty()) {
-                static constexpr std::string EmptyValue;
-                return EmptyValue;
+                static const std::string empty;
+                return empty;
             }
             return *value_;
         }
@@ -106,7 +106,8 @@ namespace parsec {
 
 }
 
-template <> struct std::hash<parsec::Symbol> {
+template <>
+struct std::hash<parsec::Symbol> {
     std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
         return std::hash<std::string>()(symbol.value());
     }

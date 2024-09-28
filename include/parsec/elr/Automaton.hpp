@@ -1,46 +1,56 @@
 #pragma once
 
-#include "../util/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
+
 #include "State.hpp"
 
 #include <vector>
 
+
 namespace parsec::elr {
 
-	class Automaton : private NonCopyable {
-	public:
+    class Automaton {
+    public:
 
-		Automaton() noexcept = default;
+        Automaton(const Automaton& other) = delete;
+        Automaton& operator=(const Automaton& other) = delete;
 
-		explicit Automaton(const SymbolGrammar& grammar);
+        Automaton(Automaton&& other) noexcept = default;
+        Automaton& operator=(Automaton&& other) noexcept = default;
 
-
-		const std::vector<State>& states() const noexcept {
-			return m_states;
-		}
-
-
-		const State& stateById(int state) const noexcept;
+        ~Automaton() = default;
 
 
-		const State& startState() const noexcept;
+        Automaton() noexcept = default;
+
+        explicit Automaton(const SymbolGrammar& grammar);
 
 
-		explicit operator bool() const noexcept {
-			return !isEmpty();
-		}
+        const std::vector<State>& states() const noexcept {
+            return states_;
+        }
 
 
-		bool isEmpty() const noexcept {
-			return m_states.empty();
-		}
+        const State& stateById(int state) const noexcept;
 
 
-	private:
-		class StateBuilder;
-		
-		std::vector<State> m_states;
-	};
+        const State& startState() const noexcept;
+
+
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
+
+
+        bool isEmpty() const noexcept {
+            return states_.empty();
+        }
+
+
+    private:
+        class StateBuilder;
+
+        std::vector<State> states_;
+    };
 
 }

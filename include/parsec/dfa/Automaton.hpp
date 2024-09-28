@@ -1,48 +1,57 @@
 #pragma once
 
-#include "../util/util_types.hpp"
 #include "../core/SymbolGrammar.hpp"
+
 #include "State.hpp"
 
 #include <vector>
 
 namespace parsec::dfa {
 
-	class Automaton : private NonCopyable {
-	public:
+    class Automaton {
+    public:
 
-		Automaton() noexcept = default;
+        Automaton(const Automaton& other) = delete;
+        Automaton& operator=(const Automaton& other) = delete;
 
-		explicit Automaton(const SymbolGrammar& grammar);
+        Automaton(Automaton&& other) noexcept = default;
+        Automaton& operator=(Automaton&& other) noexcept = default;
 
-		explicit Automaton(const SymbolRule& pattern);
-
-
-		const std::vector<State>& states() const noexcept {
-			return m_states;
-		}
+        ~Automaton() = default;
 
 
-		const State& stateById(int state) const noexcept;
+        Automaton() noexcept = default;
+
+        explicit Automaton(const SymbolGrammar& grammar);
+
+        explicit Automaton(const SymbolRule& pattern);
 
 
-		const State& startState() const noexcept;
+        const std::vector<State>& states() const noexcept {
+            return states_;
+        }
 
 
-		explicit operator bool() const noexcept {
-			return !isEmpty();
-		}
+        const State& stateById(int state) const noexcept;
 
 
-		bool isEmpty() const noexcept {
-			return m_states.empty();
-		}
+        const State& startState() const noexcept;
 
 
-	private:
-		class StateBuilder;
+        explicit operator bool() const noexcept {
+            return !isEmpty();
+        }
 
-		std::vector<State> m_states;
-	};
+
+        bool isEmpty() const noexcept {
+            return states_.empty();
+        }
+
+
+    private:
+        class StateBuilder;
+
+        std::vector<State> states_;
+    };
 
 }
