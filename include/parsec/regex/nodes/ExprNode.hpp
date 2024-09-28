@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <ostream>
 
 namespace parsec::regex {
 
@@ -28,5 +29,8 @@ namespace parsec::regex {
     };
 
     using NodePtr = std::shared_ptr<ExprNode>;
+
+
+    std::ostream& operator<<(std::ostream& out, const ExprNode& n);
 
 }

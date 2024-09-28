@@ -1,607 +1,593 @@
 #include "src_gen/CppCodeGen.hpp"
 
 #include "dfa/Automaton.hpp"
+
 #include "elr/Automaton.hpp"
 
-#include "util.hpp"
+#include "util/cpp_util.hpp"
+#include "util/string_util.hpp"
 
 #include <format>
 
 namespace parsec::src_gen {
-	namespace {
-		class CppLexerGen {
-		public:
+    namespace {
+        class CppLexerGen {
+        public:
 
-			CppLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs, std::ostream& out)
-				: m_tokens(tokens), m_configs(configs), m_out(out) {
-				m_dfa = dfa::Automaton(tokens);
-			}
+            CppLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs, std::ostream& out)
+                : tokens_(tokens), configs_(configs), out_(out) {
+                dfa_ = dfa::Automaton(tokens);
+            }
 
-			void run() {
-				tokenKindsEnum();
-				m_out << '\n';
-				m_out << '\n';
+            void run() {
+                tokenKindsEnum();
+                out_ << '\n';
+                out_ << '\n';
 
-				tokenClass();
-				m_out << '\n';
-				m_out << '\n';
+                tokenClass();
+                out_ << '\n';
+                out_ << '\n';
 
-				lexerClass();
-			}
+                lexerClass();
+            }
 
-		private:
-			void tokenKindsEnum() {
-				m_out << cpp_util::makeEnum("TokenKinds", m_tokens.symbols());
-			}
+        private:
+            void tokenKindsEnum() {
+                out_ << cpp_util::makeEnum("TokenKinds", tokens_.symbols());
+            }
 
 
-			void tokenClass() {
-				m_out << R"-(class Token {
+            void tokenClass() {
+                out_ << R"-(class Token {
 public:
 
-	Token() = default;
+    Token() = default;
 
-	Token(const std::string& text, TokenKinds kind, const SourceLoc& loc)
-		: m_text(text), m_loc(loc), m_kind(kind) {}
-
-
-	const std::string& text() const {
-		return m_text;
-	}
-
-	const SourceLoc& loc() const {
-		return m_loc;
-	}
-
-	TokenKinds kind() const {
-		return m_kind;
-	}
+    Token(const std::string& text, TokenKinds kind, const SourceLoc& loc)
+        : text_(text), loc_(loc), kind_(kind) {}
 
 
-	template <TokenKinds tok>
-	bool is() const {
-		return kind() == tok;
-	}
+    const std::string& text() const {
+        return text_;
+    }
+
+    const SourceLoc& loc() const {
+        return loc_;
+    }
+
+    TokenKinds kind() const {
+        return kind_;
+    }
+
+
+    template <TokenKinds K>
+    bool is() const {
+        return kind() == tok;
+    }
 
 
 private:
-	std::string m_text;
-	SourceLoc m_loc;
-	TokenKinds m_kind = {};
+    std::string text_;
+    SourceLoc loc_;
+    TokenKinds kind_ = {};
 };
 
 std::ostream& operator<<(std::ostream& out, const Token& tok) {
-	return out << "(" << tok.kind() << ": \"" << tok.text() << "\")";
+    return out << "(" << tok.kind() << ": \"" << tok.text() << "\")";
 }
 )-";
-			}
+            }
 
 
-			void lexerClass() {
-				m_out << "class Lexer {" << '\n';
-				
-				lexerClassPublic();
-				lexerClassPrivate();
+            void lexerClass() {
+                out_ << "class Lexer {" << '\n';
 
-				m_out << "};" << '\n';
-			}
+                lexerClassPublic();
+                lexerClassPrivate();
 
-
-			void lexerClassPublic() {
-				m_out << R"(public:
-
-	Lexer() = default;
-
-	explicit Lexer(std::istream& input)
-		: m_input(&input) {}
+                out_ << "};" << '\n';
+            }
 
 
-	Lexer(const Lexer&) = delete;
-	Lexer& operator=(const Lexer&) = delete;
+            void lexerClassPublic() {
+                out_ << R"(public:
 
-	Lexer(Lexer&&) = default;
-	Lexer& operator=(Lexer&&) = default;
+    Lexer() = default;
 
-
-	const Token& peek() {
-		if(!m_token) {
-			m_token = nextToken();
-		}
-		return *m_token;
-	}
-
-	Token lex() {
-		if(!m_token) {
-			m_token = nextToken();
-		}
-
-		Token tok = std::move(m_token.value());
-		m_token.reset();
-		return tok;
-	}
+    explicit Lexer(std::istream& input)
+        : input_(&input) {}
 
 
-	bool isEof() const {
-		return isInputEnd();
-	}
+    Lexer(const Lexer&) = delete;
+    Lexer& operator=(const Lexer&) = delete;
 
-	SourceLoc loc() const {
-		const auto colCount = m_inputPos - m_tokenStart;
-		const auto startCol = m_tokenStart - m_inputLinePos;
-		
-		return SourceLoc(startCol, colCount, m_inputLineNo, m_inputLinePos);
-	}
+    Lexer(Lexer&&) = default;
+    Lexer& operator=(Lexer&&) = default;
 
 
-	bool skipIf(TokenKinds tok) {
-		if(peek().kind() == tok) {
-			skip();
-			return true;
-		}
-		return false;
-	}
+    const Token& peek() {
+        if(!token_) {
+            token_ = nextToken();
+        }
+        return *token_;
+    }
 
-	bool skipIf(std::string_view tok) {
-		if(peek().text() == tok) {
-			skip();
-			return true;
-		}
-		return false;
-	}
+    Token lex() {
+        if(!token_) {
+            token_ = nextToken();
+        }
 
-	void skip() {
-		lex();
-	}
+        Token tok = std::move(token_.value());
+        token_.reset();
+        return tok;
+    }
+
+
+    bool isEof() const {
+        return isInputEnd();
+    }
+
+    SourceLoc loc() const {
+        const auto colCount = inputPos_ - tokenStart_;
+        const auto startCol = tokenStart_ - inputLinePos_;
+        
+        return SourceLoc(startCol, colCount, inputLineNo_, inputLinePos_);
+    }
+
+
+    bool skipIf(TokenKinds tok) {
+        if(peek().kind() == tok) {
+            skip();
+            return true;
+        }
+        return false;
+    }
+
+    bool skipIf(std::string_view tok) {
+        if(peek().text() == tok) {
+            skip();
+            return true;
+        }
+        return false;
+    }
+
+    void skip() {
+        lex();
+    }
 
 
 )";
-			}
+            }
 
 
-			void lexerClassPrivate() {
-				m_out << R"(private:
-	consteval static unsigned char uchar(char ch) noexcept {
-		return static_cast<unsigned char>(ch);
-	}
+            void lexerClassPrivate() {
+                out_ << R"(private:
+    consteval static unsigned char uchar(char ch) noexcept {
+        return static_cast<unsigned char>(ch);
+    }
 
-	Token nextToken() {
-		const auto kind = parseToken();
-		return Token(m_tokenText, kind, loc());
-	}
+    Token nextToken() {
+        const auto kind = parseToken();
+        return Token(tokenText_, kind, loc());
+    }
 
 )";
 
-				lexerClassParseTokenFunc();
-				m_out << '\n';
+                lexerClassParseTokenFunc();
+                out_ << '\n';
 
-				m_out << R"(	int getChar() {
-		if(isInputEnd()) {
-			return std::char_traits<char>::eof();
-		}
+                out_ << R"(    int getChar() {
+        if(isInputEnd()) {
+            return std::char_traits<char>::eof();
+        }
 
-		const auto ch = m_input->get();
-		if(ch == uchar('\n')) {
-			m_inputLinePos = m_inputPos;
-			m_inputLineNo++;
-		}
-		m_inputPos++;
-		return ch;
-	}
+        const auto ch = input_->get();
+        if(ch == uchar('\n')) {
+            inputLinePos_ = inputPos_;
+            inputLineNo_++;
+        }
+        inputPos_++;
+        return ch;
+    }
 
-	int peekChar() {
-		if(isInputEnd()) {
-			return std::char_traits<char>::eof();
-		}
-		return m_input->peek();
-	}
+    int peekChar() {
+        if(isInputEnd()) {
+            return std::char_traits<char>::eof();
+        }
+        return input_->peek();
+    }
 
-	bool isInputEnd() const {
-		if(!m_input) {
-			return true;
-		}
+    bool isInputEnd() const {
+        if(!input_) {
+            return true;
+        }
 
-		if(m_input->peek() == std::char_traits<char>::eof()) {
-			m_input->clear(m_input->rdstate() ^ std::ios::eofbit);
-			return true;
-		}
-		return false;
-	}
+        if(input_->peek() == std::char_traits<char>::eof()) {
+            input_->clear(input_->rdstate() ^ std::ios::eofbit);
+            return true;
+        }
+        return false;
+    }
 
-	[[noreturn]]
-	void error() {
-		throw ParseError(isInputEnd() ? "unexpected end of file" : "malformed token", loc());
-	}
+    [[noreturn]]
+    void error() {
+        throw ParseError(isInputEnd() ? "unexpected end of file" : "malformed token", loc());
+    }
 
-	std::istream* m_input = {};
-	int m_inputPos = 0;
-	int m_inputLineNo = 0;
-	int m_inputLinePos = 0;
+    std::istream* input_ = {};
+    int inputPos_ = 0;
+    int inputLineNo_ = 0;
+    int inputLinePos_ = 0;
 
-	std::optional<Token> m_token;
-	std::string m_tokenText;
-	int m_tokenStart = {};
+    std::optional<Token> token_;
+    std::string tokenText_;
+    int tokenStart_ = {};
 )";
-			}
+            }
 
 
-			void lexerClassParseTokenFunc() {
-				m_out << "\t" << "TokenKinds parseToken() {" << '\n';
-				m_out << "\t\t" << "TokenKinds kind = {};" << '\n';
-				m_out << "\t" << "reset:" << '\n';
+            void lexerClassParseTokenFunc() {
+                out_ << "\t" << "TokenKinds parseToken() {" << '\n';
+                out_ << "\t\t" << "TokenKinds kind = {};" << '\n';
+                out_ << "\t" << "reset:" << '\n';
 
-				if(const auto& eof = eofToken()) {
-					m_out << "\t\t" << "if(isInputEnd()) {" << '\n';
-					m_out << "\t\t\t" << std::format("kind = TokenKinds::{};", eof.value()) << '\n';
-					m_out << "\t\t\t" << "goto accept;" << '\n';
-					m_out << "\t\t" << "}" << '\n';
-				}
-				m_out << "\t\t" << "m_tokenStart = m_inputPos;" << '\n';
-				m_out << "\t\t" << "m_tokenText.clear();" << '\n';
+                if(const auto& eof = eofToken()) {
+                    out_ << "\t\t" << "if(isInputEnd()) {" << '\n';
+                    out_ << "\t\t\t" << std::format("kind = TokenKinds::{};", eof.value()) << '\n';
+                    out_ << "\t\t\t" << "goto accept;" << '\n';
+                    out_ << "\t\t" << "}" << '\n';
+                }
+                out_ << "\t\t" << "tokenStart_ = inputPos_;" << '\n';
+                out_ << "\t\t" << "tokenText_.clear();" << '\n';
 
-				lexStates();
+                lexStates();
 
-				m_out << "\t" << "accept:" << '\n';
-				if(const auto& ws = wsToken()) {
-					m_out << "\t\t" << std::format("if(kind == TokenKinds::{}) {{", ws.value()) << '\n';
-					m_out << "\t\t\t" << "goto reset;" << '\n';
-					m_out << "\t\t" << "}" << '\n';
-				}
-				m_out << "\t\t" << "return kind;" << '\n';
-				m_out << "\t" << "}" << '\n';
-			}
-
-
-			void lexStates() {
-				if(m_dfa) {
-					m_out << "\t\t" << "goto start;" << '\n';
-					m_out << '\n';
-
-					for(const auto& state : m_dfa.states()) {
-						lexState(state);
-						m_out << '\n';
-					}
-				} else {
-					m_out << "\t\t" << "error();" << '\n';
-					m_out << '\n';
-				}
-			}
+                out_ << "\t" << "accept:" << '\n';
+                if(const auto& ws = wsToken()) {
+                    out_ << "\t\t" << std::format("if(kind == TokenKinds::{}) {{", ws.value()) << '\n';
+                    out_ << "\t\t\t" << "goto reset;" << '\n';
+                    out_ << "\t\t" << "}" << '\n';
+                }
+                out_ << "\t\t" << "return kind;" << '\n';
+                out_ << "\t" << "}" << '\n';
+            }
 
 
-			void lexState(const dfa::State& state) {
-				m_out << "\t" << std::format("state{}:", state.id()) << '\n';
-				m_out << "\t\t" << "m_tokenText += getChar();" << '\n';
+            void lexStates() {
+                if(dfa_) {
+                    out_ << "\t\t" << "goto start;" << '\n';
+                    out_ << '\n';
 
-				if(state.isStartState()) {
-					m_out << "\t" << "start:" << '\n';
-				}
-
-				lexTransitions(state.transitions());
-
-				if(state.isMatchState()) {
-					m_out << "\t\t" << std::format("kind = TokenKinds::{};",
-						state.matchedRule().value()
-					) << '\n';
-					m_out << "\t\t" << "goto accept;" << '\n';
-				} else {
-					m_out << "\t\t" << "error();" << '\n';
-				}
-			}
+                    for(const auto& state : dfa_.states()) {
+                        lexState(state);
+                        out_ << '\n';
+                    }
+                } else {
+                    out_ << "\t\t" << "error();" << '\n';
+                    out_ << '\n';
+                }
+            }
 
 
-			void lexTransitions(const std::vector<dfa::StateTrans>& transitions) {
-				if(!transitions.empty()) {
-					m_out << "\t\t" << "switch(peekChar()) {" << '\n';
-					for(const auto& trans : transitions) {
-						m_out << "\t\t\t" << std::format("case uchar('{}'): goto state{};",
-							string_util::escape(trans.label.value()),
-							trans.target
-						) << '\n';
-					}
-					m_out << "\t\t" << "}" << '\n';
-				}
-			}
+            void lexState(const dfa::State& state) {
+                out_ << "\t" << std::format("state{}:", state.id()) << '\n';
+                out_ << "\t\t" << "tokenText_ += getChar();" << '\n';
+
+                if(state.isStartState()) {
+                    out_ << "\t" << "start:" << '\n';
+                }
+
+                lexTransitions(state.transitions());
+
+                if(state.isMatchState()) {
+                    out_ << "\t\t" << std::format("kind = TokenKinds::{};", state.matchedRule().value()) << '\n';
+                    out_ << "\t\t" << "goto accept;" << '\n';
+                } else {
+                    out_ << "\t\t" << "error();" << '\n';
+                }
+            }
 
 
-			const Symbol& eofToken() const {
-				return m_tokens.resolve(m_configs.eofTokenName()).head();
-			}
+            void lexTransitions(const std::vector<dfa::StateTrans>& transitions) {
+                if(!transitions.empty()) {
+                    out_ << "\t\t" << "switch(peekChar()) {" << '\n';
+                    for(const auto& trans : transitions) {
+                        out_ << "\t\t\t" << std::format("case uchar('{}'): goto state{};", string_util::escape(trans.label.value()), trans.target) << '\n';
+                    }
+                    out_ << "\t\t" << "}" << '\n';
+                }
+            }
 
 
-			const Symbol& wsToken() const {
-				return m_tokens.resolve(m_configs.wsTokenName()).head();
-			}
+            const Symbol& eofToken() const {
+                return tokens_.resolve(configs_.eofTokenName()).head();
+            }
 
 
-			const SymbolGrammar& m_tokens;
-			const ConfigStore& m_configs;
-			
-			std::ostream& m_out;
-			dfa::Automaton m_dfa;
-		};
+            const Symbol& wsToken() const {
+                return tokens_.resolve(configs_.wsTokenName()).head();
+            }
 
 
+            const SymbolGrammar& tokens_;
+            const ConfigStore& configs_;
 
-		class CppParserGen {
-		public:
-
-			CppParserGen(const SymbolGrammar& syntax, std::ostream& out)
-				: m_syntax(syntax), m_out(out) {
-				m_elr = elr::Automaton(syntax);
-			}
-
-			void run() {
-				parseRulesEnum();
-				m_out << '\n';
-				m_out << '\n';
-
-				parserClass();
-			}
-
-		private:
-			void parseRulesEnum() {
-				m_out << cpp_util::makeEnum("ParseRules", m_syntax.symbols());
-			}
+            std::ostream& out_;
+            dfa::Automaton dfa_;
+        };
 
 
-			void parserClass() {
-				m_out << R"(class Parser {
+        class CppParserGen {
+        public:
+
+            CppParserGen(const SymbolGrammar& syntax, std::ostream& out)
+                : syntax_(syntax), out_(out) {
+                elr_ = elr::Automaton(syntax);
+            }
+
+            void run() {
+                parseRulesEnum();
+                out_ << '\n';
+                out_ << '\n';
+
+                parserClass();
+            }
+
+        private:
+            void parseRulesEnum() {
+                out_ << cpp_util::makeEnum("ParseRules", syntax_.symbols());
+            }
+
+
+            void parserClass() {
+                out_ << R"(class Parser {
 public:
 
-	Parser() = default;
+    Parser() = default;
 
-	Parser(const Parser&) = delete;
-	Parser& operator=(const Parser&) = delete;
+    Parser(const Parser&) = delete;
+    Parser& operator=(const Parser&) = delete;
 
-	Parser(Parser&&) = default;
-	Parser& operator=(Parser&&) = default;
+    Parser(Parser&&) = default;
+    Parser& operator=(Parser&&) = default;
 
 
-	void parse(std::string_view str) {
-		auto in = std::istringstream(std::string(str));
-		parse(in);
-	}
+    void parse(std::string_view str) {
+        auto in = std::istringstream(std::string(str));
+        parse(in);
+    }
 
-	void parse(std::istream& input) {
-		m_lexer = Lexer(input);
-		startParse();
-	}
+    void parse(std::istream& input) {
+        lexer_ = Lexer(input);
+        startParse();
+    }
 
 
 )";
 
-				parserClassProtected();
-				parserClassPrivate();
-				
-				m_out << "};" << '\n';
-			}
+                parserClassProtected();
+                parserClassPrivate();
+
+                out_ << "};" << '\n';
+            }
 
 
-			void parserClassProtected() {
-				m_out << "protected:" << '\n';
-				for(const auto& symbol : m_syntax.symbols()) {
-					m_out << "\t" << std::format("virtual void on{}(std::span<const Token> tokens) {{}}", symbol.value()) << '\n';
-				}
-				m_out << '\n';
-			}
+            void parserClassProtected() {
+                out_ << "protected:" << '\n';
+                for(const auto& symbol : syntax_.symbols()) {
+                    out_ << "\t" << std::format("virtual void on{}(std::span<const Token> tokens) {{}}", symbol.value()) << '\n';
+                }
+                out_ << '\n';
+            }
 
 
-			void parserClassPrivate() {
-				m_out << R"(private:
-	using ParseHook = void (Parser::*)(std::span<const Token>);
-	using StateFunc = void (Parser::*)();
+            void parserClassPrivate() {
+                out_ << R"(private:
+    using ParseHook = void (Parser::*)(std::span<const Token>);
+    using StateFunc = void (Parser::*)();
 
 
-	[[noreturn]] void error() {
-		throw ParseError("unexpected token", m_lexer.loc());
-	}
+    [[noreturn]] void error() {
+        throw ParseError("unexpected token", lexer_.loc());
+    }
 
-	void shiftState(StateFunc state) {
-		m_parsedTokens.push_back(m_lexer.lex());
-		(this->*state)();
-		m_reduceTokenCount++;
-	}
+    void shiftState(StateFunc state) {
+        parsedTokens_.push_back(lexer_.lex());
+        (this->*state)();
+        reduceTokenCount_++;
+    }
 
-	void gotoState(StateFunc state) {
-		(this->*state)();
-	}
+    void gotoState(StateFunc state) {
+        (this->*state)();
+    }
 
-	void startReduce(ParseRules rule, ParseHook hook, int backLink) noexcept {
-		m_reduceRule = rule;
-		m_reduceHook = hook;
-		m_reduceBackLink = backLink;
-	}
+    void startReduce(ParseRules rule, ParseHook hook, int backLink) noexcept {
+        reduceRule_ = rule;
+        reduceHook_ = hook;
+        reduceBackLink_ = backLink;
+    }
 
-	bool reduce(const int backLinks[]) {
-		m_reduceBackLink = backLinks[m_reduceBackLink];
-		if(m_reduceBackLink == -1) {
-			(this->*m_reduceHook)(std::span(m_parsedTokens.end() - m_reduceTokenCount, m_reduceTokenCount));
-			m_parsedTokens.resize(m_parsedTokens.size() - m_reduceTokenCount);
-			m_reduceTokenCount = 0;
-			return true;
-		}
-		return false;
-	}
+    bool reduce(const int backLinks[]) {
+        reduceBackLink_ = backLinks[reduceBackLink_];
+        if(reduceBackLink_ == -1) {
+            (this->*reduceHook_)(std::span(parsedTokens_.end() - reduceTokenCount_, reduceTokenCount_));
+            parsedTokens_.resize(parsedTokens_.size() - reduceTokenCount_);
+            reduceTokenCount_ = 0;
+            return true;
+        }
+        return false;
+    }
 
 )";
 
-				if(m_elr) {
-					m_out << "\t" << "void startParse() {" << '\n';
-					m_out << "\t\t" << std::format("state{}();", m_elr.startState().id()) << '\n';
-					m_out << "\t" << "}" << '\n';
-					m_out << '\n';
-					m_out << '\n';
+                if(elr_) {
+                    out_ << "\t" << "void startParse() {" << '\n';
+                    out_ << "\t\t" << std::format("state{}();", elr_.startState().id()) << '\n';
+                    out_ << "\t" << "}" << '\n';
+                    out_ << '\n';
+                    out_ << '\n';
 
-					for(const auto& state : m_elr.states()) {
-						parserState(state);
-						m_out << '\n';
-					}
-				} else {
-					m_out << "\t" << "void startParse() {}" << '\n';
-					m_out << '\n';
-				}
+                    for(const auto& state : elr_.states()) {
+                        parserState(state);
+                        out_ << '\n';
+                    }
+                } else {
+                    out_ << "\t" << "void startParse() {}" << '\n';
+                    out_ << '\n';
+                }
 
-				m_out << R"(
-	ParseHook m_reduceHook = {};
-	std::size_t m_reduceTokenCount = 0;
-	ParseRules m_reduceRule = {};
-	int m_reduceBackLink = -1;
+                out_ << R"(
+    ParseHook reduceHook_ = {};
+    std::size_t reduceTokenCount_ = 0;
+    ParseRules reduceRule_ = {};
+    int reduceBackLink_ = -1;
 
-	std::vector<Token> m_parsedTokens;
-	Lexer m_lexer;
+    std::vector<Token> parsedTokens_;
+    Lexer lexer_;
 )";
-			}
+            }
 
 
-			void parserState(const elr::State& state) {
-				m_out << "\t" << std::format("void state{}() {{", state.id()) << '\n';
+            void parserState(const elr::State& state) {
+                out_ << "\t" << std::format("void state{}() {{", state.id()) << '\n';
 
-				parserStateBackLinks(state);
-				parserStateShifts(state);
-				parserStateGotos(state);
+                parserStateBackLinks(state);
+                parserStateShifts(state);
+                parserStateGotos(state);
 
-				m_out << "\t" << "}" << '\n';
-			}
-
-
-			void parserStateShifts(const elr::State& state) {
-				m_out << "\t\t" << "switch(m_lexer.peek().kind()) {" << '\n';
-				for(const auto& trans : state.shifts()) {
-					m_out << "\t\t\t" << std::format("case TokenKinds::{}: shiftState(&Parser::state{}); break;",
-						trans.label.value(),
-						trans.target
-					) << '\n';
-				}
-
-				m_out << "\t\t\t" << "default: " << (state.isReduceState()
-					? std::format("startReduce(ParseRules::{0}, &Parser::on{0}, {1});",
-						state.reduction().reduceRule.value(),
-						state.reduction().backLink)
-					: "error();")
-					<< " break;" << '\n';
-
-				m_out << "\t\t" << "}" << '\n';
-			}
+                out_ << "\t" << "}" << '\n';
+            }
 
 
-			void parserStateGotos(const elr::State& state) {
-				m_out << "\t\t" << "while(reduce(backLinks)) switch(m_reduceRule) {" << '\n';
+            void parserStateShifts(const elr::State& state) {
+                out_ << "\t\t" << "switch(lexer_.peek().kind()) {" << '\n';
+                for(const auto& trans : state.shifts()) {
+                    out_ << "\t\t\t" << std::format("case TokenKinds::{}: shiftState(&Parser::state{}); break;", trans.label.value(), trans.target) << '\n';
+                }
 
-				for(const auto& trans : state.gotos()) {
-					m_out << "\t\t\t" << std::format("case ParseRules::{}: gotoState(&Parser::state{}); break;",
-						trans.label.value(),
-						trans.target
-					) << '\n';
-				}
+                out_ << "\t\t\t" << "default: " << (state.isReduceState() ? std::format("startReduce(ParseRules::{0}, &Parser::on{0}, {1});", state.reduction().reduceRule.value(), state.reduction().backLink) : "error();")
+                     << " break;" << '\n';
 
-				m_out << "\t\t\t" << "default: break;" << '\n';
-				m_out << "\t\t" << "}" << '\n';
-			}
+                out_ << "\t\t" << "}" << '\n';
+            }
 
 
-			void parserStateBackLinks(const elr::State& state) {
-				m_out << "\t\t" << "static const int backLinks[] = {";
-				for(bool first = true; const auto & backLink : state.backLinks()) {
-					if(!first) {
-						m_out << ',';
-					} else {
-						first = false;
-					}
-					m_out << ' ' << backLink;
-				}
-				m_out << " };" << '\n';
-			}
+            void parserStateGotos(const elr::State& state) {
+                out_ << "\t\t" << "while(reduce(backLinks)) switch(reduceRule_) {" << '\n';
+
+                for(const auto& trans : state.gotos()) {
+                    out_ << "\t\t\t" << std::format("case ParseRules::{}: gotoState(&Parser::state{}); break;", trans.label.value(), trans.target) << '\n';
+                }
+
+                out_ << "\t\t\t" << "default: break;" << '\n';
+                out_ << "\t\t" << "}" << '\n';
+            }
 
 
-			const SymbolGrammar& m_syntax;
-			
-			std::ostream& m_out;
-			elr::Automaton m_elr;
-		};
-	}
+            void parserStateBackLinks(const elr::State& state) {
+                out_ << "\t\t" << "static const int backLinks[] = {";
+                for(bool first = true; const auto& backLink : state.backLinks()) {
+                    if(!first) {
+                        out_ << ',';
+                    } else {
+                        first = false;
+                    }
+                    out_ << ' ' << backLink;
+                }
+                out_ << " };" << '\n';
+            }
 
 
-	void CppCodeGen::onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) {
-		CppLexerGen(tokens, configs, output()).run();
+            const SymbolGrammar& syntax_;
 
-		output() << '\n';
-		output() << '\n';
-	}
-
-
-	void CppCodeGen::onParserGen(const SymbolGrammar& syntax, const ConfigStore& configs) {
-		CppParserGen(syntax, output()).run();
-	}
+            std::ostream& out_;
+            elr::Automaton elr_;
+        };
+    }
 
 
-	void CppCodeGen::onPreambleGen(const ConfigStore& configs) {
-		output() << R"(class SourceLoc {
+    void CppCodeGen::onLexerGen(const SymbolGrammar& tokens, const ConfigStore& configs) {
+        CppLexerGen(tokens, configs, output()).run();
+
+        output() << '\n';
+        output() << '\n';
+    }
+
+
+    void CppCodeGen::onParserGen(const SymbolGrammar& syntax, const ConfigStore& /* configs */) {
+        CppParserGen(syntax, output()).run();
+    }
+
+
+    void CppCodeGen::onPreambleGen(const ConfigStore& /* configs */) {
+        output() << R"(class SourceLoc {
 public:
 
-	SourceLoc() = default;
+    SourceLoc() = default;
 
-	SourceLoc(int startCol, int colCount, int lineNo, int linePos)
-		: m_startCol(startCol), m_colCount(colCount), m_lineNo(lineNo), m_linePos(linePos) {}
-
-
-	int linePos() const {
-		return m_linePos;
-	}
-
-	int lineNo() const {
-		return m_lineNo;
-	}
-
-	int colCount() const {
-		return m_colCount;
-	}
-
-	int startCol() const {
-		return m_startCol;
-	}
+    SourceLoc(int startCol, int colCount, int lineNo, int linePos)
+        : startCol_(startCol), colCount_(colCount), lineNo_(lineNo), linePos_(linePos) {}
 
 
-	int endCol() const {
-		return startCol() + colCount();
-	}
+    int linePos() const {
+        return linePos_;
+    }
 
-	int pos() const {
-		return linePos() + startCol();
-	}
+    int lineNo() const {
+        return lineNo_;
+    }
+
+    int colCount() const {
+        return colCount_;
+    }
+
+    int startCol() const {
+        return startCol_;
+    }
+
+
+    int endCol() const {
+        return startCol() + colCount();
+    }
+
+    int pos() const {
+        return linePos() + startCol();
+    }
 
 
 private:
-	int m_startCol = {};
-	int m_colCount = {};
-	int m_lineNo = {};
-	int m_linePos = {};
+    int startCol_ = {};
+    int colCount_ = {};
+    int lineNo_ = {};
+    int linePos_ = {};
 };
 
 std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
-	out << '(' << loc.lineNo() + 1 << ": " << loc.startCol() + 1;
-	if(loc.colCount()) {
-		out << '-' << (loc.endCol() - 1) + 1;
-	}
-	out << ')';
-	return out;
+    out << '(' << loc.lineNo() + 1 << ": " << loc.startCol() + 1;
+    if(loc.colCount()) {
+        out << '-' << (loc.endCol() - 1) + 1;
+    }
+    out << ')';
+    return out;
 }
 
 
 class ParseError : public std::runtime_error {
 public:
-		
-	ParseError(const std::string& msg, const SourceLoc& loc)
-		: runtime_error(msg), m_loc(loc) {}
+        
+    ParseError(const std::string& msg, const SourceLoc& loc)
+        : runtime_error(msg), loc_(loc) {}
 
-	const SourceLoc& loc() const {
-		return m_loc;
-	}
+    const SourceLoc& loc() const {
+        return loc_;
+    }
 
 private:
-	SourceLoc m_loc;
+    SourceLoc loc_;
 };
 )";
 
-		output() << '\n';
-		output() << '\n';
-	}
+        output() << '\n';
+        output() << '\n';
+    }
 }

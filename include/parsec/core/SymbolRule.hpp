@@ -3,6 +3,7 @@
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
+#include <ostream>
 #include <utility>
 
 namespace parsec {
@@ -75,5 +76,7 @@ namespace parsec {
         Symbol head_;
         RegularExpr body_;
     };
+
+    std::ostream& operator<<(std::ostream& out, const SymbolRule& rule);
 
 }

@@ -2,6 +2,7 @@
 
 #include "../core/Symbol.hpp"
 
+#include <ostream>
 #include <vector>
 
 namespace parsec::dfa {
@@ -10,6 +11,8 @@ namespace parsec::dfa {
         int target = {};
         Symbol label;
     };
+
+    std::ostream& operator<<(std::ostream& out, const StateTrans& trans);
 
 
     class State {

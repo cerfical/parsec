@@ -2,8 +2,19 @@
 
 #include "core/ParseError.hpp"
 
+#include "pars/ast/AlternRule.hpp"
+#include "pars/ast/ConcatRule.hpp"
+#include "pars/ast/EmptyNode.hpp"
+#include "pars/ast/EmptyRule.hpp"
+#include "pars/ast/InlineToken.hpp"
+#include "pars/ast/ListNode.hpp"
+#include "pars/ast/NamedRule.hpp"
+#include "pars/ast/NamedToken.hpp"
+#include "pars/ast/OptionalRule.hpp"
+#include "pars/ast/PlusRule.hpp"
+#include "pars/ast/StarRule.hpp"
+#include "pars/ast/SymbolAtom.hpp"
 #include "pars/Lexer.hpp"
-#include "pars/ast.hpp"
 
 #include <sstream>
 

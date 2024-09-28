@@ -45,7 +45,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/core.hpp"
         "include/parsec/core/TextScanner.hpp"
         "include/parsec/core/SourceLoc.hpp"
         "include/parsec/core/Compiler.hpp"
@@ -68,12 +67,10 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/pars.hpp"
         "include/parsec/pars/TokenKinds.hpp"
         "include/parsec/pars/Token.hpp"
         "include/parsec/pars/Lexer.hpp"
         "include/parsec/pars/Parser.hpp"
-        "include/parsec/pars/ast.hpp"
         "include/parsec/pars/ast/Node.hpp"
         "include/parsec/pars/ast/NodeVisitor.hpp"
         "include/parsec/pars/ast/UnaryRule.hpp"
@@ -102,7 +99,6 @@ target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/regex/Parser.hpp"
         "include/parsec/regex/make.hpp"
-        "include/parsec/regex/nodes.hpp"
         "include/parsec/regex/nodes/NodeVisitor.hpp"
         "include/parsec/regex/nodes/ExprNode.hpp"
         "include/parsec/regex/nodes/SymbolAtom.hpp"
@@ -122,7 +118,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/src_gen.hpp"
         "include/parsec/src_gen/ConfigStore.hpp"
         "include/parsec/src_gen/CodeGen.hpp"
         "include/parsec/src_gen/CppCodeGen.hpp"
@@ -136,7 +131,6 @@ target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/dfa/State.hpp"
         "include/parsec/dfa/Automaton.hpp"
-        "include/parsec/dfa.hpp"
 
     PRIVATE
         "src/dfa/Automaton.cpp"
@@ -147,7 +141,6 @@ target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/elr/State.hpp"
         "include/parsec/elr/Automaton.hpp"
-        "include/parsec/elr.hpp"
 
     PRIVATE
         "src/elr/Automaton.cpp"
@@ -156,7 +149,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/util.hpp"
         "include/parsec/util/string_util.hpp"
         "include/parsec/util/char_util.hpp"
         "include/parsec/util/cpp_util.hpp"

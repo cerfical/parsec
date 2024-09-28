@@ -6,6 +6,7 @@
 #include "Symbol.hpp"
 
 #include <memory>
+#include <ostream>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -131,5 +132,7 @@ namespace parsec {
         mutable std::shared_ptr<ComputeCache> computeCache_;
         regex::NodePtr rootNode_;
     };
+
+    std::ostream& operator<<(std::ostream& out, const RegularExpr& expr);
 
 }

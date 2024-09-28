@@ -2,6 +2,7 @@
 
 #include "../core/Symbol.hpp"
 
+#include <ostream>
 #include <vector>
 
 namespace parsec::elr {
@@ -11,11 +12,15 @@ namespace parsec::elr {
         Symbol label;
     };
 
+    std::ostream& operator<<(std::ostream& out, const StateTrans& trans);
+
 
     struct ReduceAction {
         Symbol reduceRule;
         int backLink = {};
     };
+
+    std::ostream& operator<<(std::ostream& out, const ReduceAction& reduce);
 
 
     class State {

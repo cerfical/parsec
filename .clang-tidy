@@ -9,11 +9,15 @@ Checks:
 
   - -bugprone-easily-swappable-parameters
   - -cppcoreguidelines-avoid-const-or-ref-data-members
+  - -cppcoreguidelines-avoid-c-arrays
+  - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-virtual-class-destructor
   - -misc-no-recursion
+  - -modernize-avoid-c-arrays
   - -modernize-return-braced-init-list
   - -modernize-use-nodiscard
   - -modernize-use-trailing-return-type
+  - -performance-enum-size
   - -readability-identifier-length
   - -readability-simplify-boolean-expr
 

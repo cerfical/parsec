@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 namespace parsec {
 
     /**
@@ -74,5 +76,7 @@ namespace parsec {
          */
         LineInfo line;
     };
+
+    std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
 
 }

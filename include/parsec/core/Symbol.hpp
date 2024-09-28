@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -103,6 +104,8 @@ namespace parsec {
     private:
         std::shared_ptr<std::string> value_;
     };
+
+    std::ostream& operator<<(std::ostream& out, const Symbol& symbol);
 
 }
 
