@@ -28,7 +28,7 @@ namespace parsec::pars {
 
         Lexer() = default;
 
-        explicit Lexer(std::istream& input)
+        explicit Lexer(std::istream* input) noexcept
             : input_(input) {}
 
 

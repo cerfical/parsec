@@ -29,8 +29,8 @@ namespace parsec {
         /**
          * @brief Construct a new scanner to operate on provided `std::istream`.
          */
-        explicit TextScanner(std::istream& input)
-            : input_(&input) {}
+        explicit TextScanner(std::istream* input) noexcept
+            : input_(input) {}
 
 
         /**

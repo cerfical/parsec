@@ -16,7 +16,7 @@ constexpr auto Tags = "[regex][parse]";
 
 SCENARIO("parsing a regular expression", Tags) {
     const auto parseRegex = [](std::string_view str) {
-        const auto ast = Parser::parse(str);
+        const auto ast = Parser::parseFrom(str);
         std::ostringstream out;
         out << *ast;
         return std::move(out).str();

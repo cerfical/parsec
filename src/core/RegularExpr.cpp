@@ -238,7 +238,7 @@ namespace parsec {
 
 
     RegularExpr::RegularExpr(std::string_view regex)
-        : RegularExpr(Parser::parse(regex)) {}
+        : RegularExpr(Parser::parseFrom(regex)) {}
 
 
     const RegularExpr::PosList& RegularExpr::firstPos() const {

@@ -7,6 +7,9 @@
 #include "core/Symbol.hpp"
 #include "core/SymbolGrammar.hpp"
 
+#include "pars/Parser.hpp"
+#include "pars/Token.hpp"
+
 #include "pars/ast/AlternRule.hpp"
 #include "pars/ast/ConcatRule.hpp"
 #include "pars/ast/EmptyNode.hpp"
@@ -21,11 +24,9 @@
 #include "pars/ast/PlusRule.hpp"
 #include "pars/ast/StarRule.hpp"
 #include "pars/ast/SymbolAtom.hpp"
-#include "pars/Parser.hpp"
-#include "pars/Token.hpp"
 
-#include "regex/nodes/ExprNode.hpp"
 #include "regex/make.hpp"
+#include "regex/nodes/ExprNode.hpp"
 
 #include "src_gen/ConfigStore.hpp"
 #include "src_gen/CppCodeGen.hpp"
@@ -40,7 +41,6 @@
 #include <string_view>
 #include <unordered_map>
 #include <utility>
-
 
 namespace parsec {
     using namespace pars;
@@ -250,7 +250,7 @@ namespace parsec {
 
                         // adjust the error location to take into account the pattern's token
                         static constexpr int LeftPatternDelim = 1;
-                        const auto newLoc = SourceLoc {
+                        const auto newLoc = SourceLoc{
                             .offset = patLoc.offset + errLoc.offset + LeftPatternDelim,
                             .colCount = errLoc.colCount,
                             .line = patLoc.line,
@@ -345,7 +345,7 @@ namespace parsec {
 
 
     void Compiler::compile(std::istream& input) {
-        const auto ast = Parser::parse(input);
+        const auto ast = Parser::parseFrom(input);
 
         NameTable names;
         PatternNameCache patterns;

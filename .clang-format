@@ -91,37 +91,9 @@ SpaceInEmptyBlock: false
 SpacesBeforeTrailingComments: 1
 SpacesInAngles: Never
 
-# Structural characters handling
 InsertBraces: true
 RemoveParentheses: ReturnStatement
 RemoveSemicolon: true
 
-# Put more specific includes first
 SortIncludes: CaseSensitive
-
-IncludeBlocks: Regroup
-IncludeCategories:
-  # Group local includes by common prefix path
-  - { Regex: '"(\.\./)*core/.*"', Priority: 1 }
-  - { Regex: '"(\.\./)*dfa/.*"', Priority: 2 }
-  - { Regex: '"(\.\./)*elr/.*"', Priority: 3 }
-  - { Regex: '"(\.\./)*pars/.*/.*"', Priority: 4, SortPriority: 4 }
-  - { Regex: '"(\.\./)*pars/.*"', Priority: 4, SortPriority: 5 }
-  - { Regex: '"(\.\./)*regex/.*/.*"', Priority: 5, SortPriority: 5 }
-  - { Regex: '"(\.\./)*regex/.*"', Priority: 5, SortPriority: 6 }
-  - { Regex: '"(\.\./)*src_gen/.*"', Priority: 6 }
-  - { Regex: '"(\.\./)*util/.*"', Priority: 7 }
-  - { Regex: '"(\.\./)+.*"', Priority: 8 }
-  - { Regex: '".*"', Priority: 9 }
-
-  # System includes
-  - Regex: '<parsec/.*/.*>'
-    Priority: 20
-    SortPriority: 20
-  - Regex: '<parsec/.*>'
-    Priority: 20
-    SortPriority: 21
-  - Regex: '<.*/.*>'
-    Priority: 22
-  - Regex: '<.*>'
-    Priority: 23
+IncludeBlocks: Preserve
