@@ -28,7 +28,7 @@ target_link_libraries(parsec-lib
 
 set_target_properties(parsec-lib PROPERTIES OUTPUT_NAME parsec)
 
-target_compile_features(parsec-lib PUBLIC cxx_std_20)
+target_compile_features(parsec-lib PUBLIC cxx_std_23)
 
 
 # List all source and header files for the library

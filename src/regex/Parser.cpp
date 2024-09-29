@@ -7,11 +7,11 @@
 
 #include "util/char_util.hpp"
 
-#include <sstream>
+#include <spanstream>
 
 namespace parsec::regex {
     NodePtr Parser::parseFrom(std::string_view str) {
-        auto in = std::istringstream(std::string(str));
+        auto in = std::ispanstream(str);
         return parseFrom(in);
     }
 

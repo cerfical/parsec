@@ -13,11 +13,11 @@
 #include "pars/ast/StarRule.hpp"
 #include "pars/ast/SymbolAtom.hpp"
 
-#include <sstream>
+#include <spanstream>
 
 namespace parsec::pars {
     NodePtr Parser::parseFrom(std::string_view str) {
-        auto in = std::istringstream(std::string(str));
+        auto in = std::ispanstream(str);
         return parseFrom(in);
     }
 
