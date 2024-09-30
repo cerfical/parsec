@@ -35,10 +35,24 @@ private:
 
     bool parseCommandLine(int argc, const char* argv[]) {
         po::options_description named = { "Options" };
-        named.add_options()("input-file,i", po::value<fs::path>(), "input spec file")("output-file,o", po::value<fs::path>(), "output source code file")("version", "print version information")("help", "produce help message");
+        named.add_options()                                                             //
+            ("input-file,i", po::value<fs::path>(), "input spec file")                  //
+            ("output-file,o", po::value<fs::path>(), "output source code file")         //
+            ("template,t", po::value<std::string>(), "template for output source code") //
+            ("template-path", po::value<fs::path>(), "template directory")              //
+            ("version", "print version information")                                    //
+            ("help", "produce help message");                                           //
 
         po::variables_map options;
-        store(po::command_line_parser(argc, argv).positional(po::positional_options_description().add("input-file", 1).add("output-file", 1)).options(named).run(), options);
+        store(
+            po::command_line_parser(argc, argv)
+                .positional(po::positional_options_description()
+                                .add("input-file", 1)
+                                .add("output-file", 1))
+                .options(named)
+                .run(),
+            options
+        );
 
 
         const bool helpRequested = options.contains("help") || options.empty();
@@ -65,14 +79,25 @@ private:
             return false;
         }
 
+        if(const auto it = options.find("template-path"); it != options.end()) {
+            tmplDir_ = it->second.as<fs::path>();
+        } else {
+            // use the directory placed along the executable as the source for templates
+            tmplDir_ = fs::path(argv[0]).remove_filename() / "templates" / "";
+        }
+
+        if(const auto it = options.find("template"); it != options.end()) {
+            tmplName_ = it->second.as<std::string>();
+        }
 
         inputPath_ = options["input-file"].as<fs::path>();
-        if(const auto it = options.find("output-file"); it != options.cend()) {
+        if(const auto it = options.find("output-file"); it != options.end()) {
             outputPath_ = it->second.as<fs::path>();
         } else {
             outputPath_ = inputPath_;
-            outputPath_.replace_extension("hpp");
+            outputPath_.replace_extension(tmplName_);
         }
+
         return true;
     }
 
@@ -83,16 +108,29 @@ private:
         input_.exceptions(std::ios::badbit | std::ios::failbit);
 
         // perform the compilation and save result in memory
-        std::ostringstream outputMem;
-        parsec::Compiler(outputMem)
-            .compile(input_);
+        parsec::Compiler compiler;
+        compiler.setInputSource(&input_);
 
-        // if everything is fine, try to store the result in the actual output file
-        std::ofstream outputFile(outputPath_);
-        if(!outputFile.is_open()) {
-            throw std::runtime_error(std::format("failed to load the output file \"{}\"", outputPath_.generic_string()));
+        if(!tmplName_.empty()) {
+            auto tmplPath = tmplDir_.append(tmplName_).concat(".tmpl");
+            std::ifstream tmplFile;
+            if(tmplFile.open(tmplPath, std::ios::binary); !tmplFile.is_open()) {
+                throw std::runtime_error(std::format("failed to load the template file \"{}\"", tmplPath.generic_string()));
+            }
+            compiler.setOutputTemplateSource(&tmplFile);
+
+            std::ostringstream outputMem;
+            compiler.setOutputSink(&outputMem);
+            compiler.compile();
+
+            std::ofstream outputFile(outputPath_);
+            if(!outputFile.is_open()) {
+                throw std::runtime_error(std::format("failed to load the output file \"{}\"", outputPath_.generic_string()));
+            }
+            outputFile << outputMem.str();
+        } else {
+            compiler.compile();
         }
-        outputFile << std::move(outputMem).str();
     }
 
 
@@ -166,10 +204,12 @@ private:
 
     static constexpr int TabSize = 8;
 
-
-    std::ifstream input_;
-    fs::path outputPath_;
     fs::path inputPath_;
+    std::ifstream input_;
+
+    fs::path tmplDir_;
+    std::string tmplName_;
+    fs::path outputPath_;
 };
 
 int main(int argc, const char* argv[]) noexcept {

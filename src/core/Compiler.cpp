@@ -28,26 +28,22 @@
 #include "regex/make.hpp"
 #include "regex/nodes/ExprNode.hpp"
 
-#include "src_gen/ConfigStore.hpp"
-#include "src_gen/CppCodeGen.hpp"
-
 #include "util/string_util.hpp"
 
 #include <cstddef>
 #include <format>
-#include <istream>
-#include <sstream>
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <utility>
 
 namespace parsec {
     using namespace pars;
-    using namespace src_gen;
 
     namespace {
-        constexpr auto EofTokenName = "Eof", UnnamedTokenPrefix = "Unnamed";
+        constexpr auto EofTokenName = "Eof";
+        constexpr auto WsTokenName = "Ws";
+        constexpr auto UnnamedTokenPrefix = "Unnamed";
+
 
         Symbol makeName(const Token& name) {
             return string_util::toPascalCase(name.text());
@@ -344,22 +340,29 @@ namespace parsec {
     }
 
 
-    void Compiler::compile(std::istream& input) {
-        const auto ast = Parser::parseFrom(input);
+    void Compiler::compile() {
+        if(!input_) {
+            return;
+        }
 
-        NameTable names;
         PatternNameCache patterns;
+        NameTable names;
 
+        const auto ast = Parser::parseFrom(*input_);
         collectNamesAndPatterns(*ast, names, patterns);
         checkForUndefinedNames(*ast, names);
 
         auto tokens = compileTokenGrammar(*ast, names, patterns);
         tokens.define(EofTokenName, {});
+        tokens.define(WsTokenName, {});
 
-        auto rules = compileRuleGrammar(*ast, names, patterns);
+        const auto rules = compileRuleGrammar(*ast, names, patterns);
+
+        codegen_.setRuleGrammar(&rules);
+        codegen_.setTokenGrammar(&tokens);
 
         try {
-            CppCodeGen(*output_).run(tokens, rules, ConfigStore().eofTokenName(EofTokenName));
+            codegen_.generate();
         } catch(const NameConflictError& err) {
             const auto* const srcTok1 = names.lookupToken(err.name1().value());
             const auto* const srcTok2 = names.lookupToken(err.name2().value());
@@ -371,9 +374,4 @@ namespace parsec {
         }
     }
 
-
-    void Compiler::compile(std::string_view str) {
-        auto input = std::istringstream(std::string(str));
-        compile(input);
-    }
 }

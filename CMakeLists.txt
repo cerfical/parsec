@@ -37,7 +37,6 @@ target_compile_features(parsec-lib PUBLIC cxx_std_23)
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/parsec.hpp"
-        "include/parsec/deps.hpp"
         "include/parsec/print.hpp"
 
     PRIVATE
@@ -117,17 +116,6 @@ target_sources(parsec-lib
         "src/regex/Parser.cpp"
         "src/regex/nodes.cpp"
         "src/regex/make.cpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/src_gen/ConfigStore.hpp"
-        "include/parsec/src_gen/CodeGen.hpp"
-        "include/parsec/src_gen/CppCodeGen.hpp"
-
-    PRIVATE
-        "src/src_gen/CppCodeGen.cpp"
 )
 
 

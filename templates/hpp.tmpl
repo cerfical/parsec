@@ -1,0 +1,428 @@
+#include <array>
+#include <istream>
+#include <optional>
+#include <ostream>
+#include <span>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
+
+struct LineInfo {
+    int offset = {};
+    int no = {};
+};
+
+struct SourceLoc {
+
+    [[nodiscard]]
+    explicit operator bool() const noexcept {
+        return !isEmpty();
+    }
+
+    [[nodiscard]]
+    auto isEmpty() const noexcept -> bool {
+        return colCount == 0;
+    }
+
+
+    [[nodiscard]]
+    auto startCol() const noexcept -> int {
+        return offset - line.offset;
+    }
+
+    [[nodiscard]]
+    auto endCol() const noexcept -> int {
+        return startCol() + colCount;
+    }
+
+
+    int offset = {};
+    int colCount = {};
+    LineInfo line;
+};
+
+auto operator<<(std::ostream& out, const SourceLoc& loc) -> std::ostream& {
+    out << loc.line.no + 1 << ':' << loc.startCol() + 1;
+    if(loc) {
+        out << '-' << (loc.endCol() - 1) + 1;
+    }
+    return out;
+}
+
+
+class ParseError : public std::runtime_error {
+public:
+        
+    ParseError(const std::string& msg, const SourceLoc& loc)
+        : runtime_error(msg), loc_(loc) {}
+
+    [[nodiscard]]
+    auto loc() const noexcept -> const SourceLoc& {
+        return loc_;
+    }
+
+private:
+    SourceLoc loc_;
+};
+
+
+enum class TokenKinds {
+## for name in token_names
+    {{ name }}{% if not loop.is_last %},{% endif %}
+## endfor
+};
+
+auto operator<<(std::ostream& out, TokenKinds tok) -> std::ostream& {
+    switch(tok) {
+## for name in token_names
+        case TokenKinds::{{ name }}: out << "{{ name }}"; break;
+## endfor
+    }
+    return out;
+}
+
+
+class Token {
+public:
+
+    Token() noexcept = default;
+
+    Token(std::string text, TokenKinds kind, const SourceLoc& loc) noexcept
+        : text_(std::move(text)), loc_(loc), kind_(kind) {}
+
+
+    [[nodiscard]]
+    auto text() const noexcept -> const std::string& {
+        return text_;
+    }
+
+
+    [[nodiscard]]
+    auto loc() const noexcept -> const SourceLoc& {
+        return loc_;
+    }
+
+
+    [[nodiscard]]
+    auto kind() const noexcept -> TokenKinds {
+        return kind_;
+    }
+
+
+    template <TokenKinds K>
+    [[nodiscard]]
+    auto is() const noexcept -> bool {
+        return kind() == K;
+    }
+
+
+private:
+    std::string text_;
+    SourceLoc loc_;
+    TokenKinds kind_ = {};
+};
+
+auto operator<<(std::ostream& out, const Token& tok) -> std::ostream& {
+    return out << "(" << tok.kind() << ": \"" << tok.text() << "\")";
+}
+
+
+class Lexer {
+public:
+
+    Lexer(const Lexer&) = delete;
+    auto operator=(const Lexer&) -> Lexer& = delete;
+
+    Lexer(Lexer&&) noexcept = default;
+    auto operator=(Lexer&&) noexcept -> Lexer& = default;
+
+    ~Lexer() = default;
+
+
+    Lexer() noexcept = default;
+
+    explicit Lexer(std::istream* input) noexcept
+        : input_(input) {}
+
+
+    [[nodiscard]]
+    auto peek() -> const Token& {
+        if(!token_) {
+            token_ = nextToken();
+        }
+        return *token_;
+    }
+
+
+    auto lex() -> Token {
+        if(!token_) {
+            token_ = nextToken();
+        }
+
+        Token tok = std::move(token_.value());
+        token_.reset();
+        return tok;
+    }
+
+
+    [[nodiscard]]
+    auto isEof() const -> bool {
+        return isInputEnd();
+    }
+
+
+    [[nodiscard]]
+    auto pos() const noexcept -> SourceLoc {
+        const auto colCount = inputPos_ - tokenStart_;
+        return {
+            .offset = tokenStart_,
+            .colCount = colCount,
+            .line = line_
+        };
+    }
+
+
+    auto skipIf(TokenKinds tok) -> bool {
+        if(peek().kind() == tok) {
+            skip();
+            return true;
+        }
+        return false;
+    }
+
+    auto skipIf(std::string_view tok) -> bool {
+        if(peek().text() == tok) {
+            skip();
+            return true;
+        }
+        return false;
+    }
+
+    void skip() {
+        lex();
+    }
+
+
+private:
+    [[nodiscard]]
+    auto nextToken() -> Token {
+        const auto kind = parseToken();
+        return { tokenText_, kind, pos() };
+    }
+
+
+    [[nodiscard]]
+    auto parseToken() -> TokenKinds {
+## if length(lex_states) > 0
+        TokenKinds kind = {};
+
+    reset:
+        if(isInputEnd()) {
+            kind = TokenKinds::Eof;
+            goto accept;
+        }
+
+        tokenStart_ = inputPos_;
+        tokenText_.clear();
+        goto start;
+
+##   for state in lex_states
+    state{{ state.id }}:
+        tokenText_ += getChar();
+##     if state.id == 0
+    start:
+##   endif
+##     if length(state.transitions) > 0
+        switch(peekChar()) {
+##       for trans in state.transitions
+            case '{{ trans.label }}': goto state{{ trans.target }};
+##       endfor
+        }
+##     endif
+##     if length(state.match) > 0
+        kind = TokenKinds::{{ state.match }};
+        goto accept;
+##     else
+        error();
+##     endif
+
+##   endfor
+    accept:
+        if(kind == TokenKinds::Ws) {
+            goto reset;
+        }
+        return kind;
+## else
+        error();
+## endif
+    }
+
+
+    [[nodiscard]]
+    auto getChar() -> char {
+        const auto ch = static_cast<unsigned char>(input_->get());
+        if(ch == '\n') {
+            line_.offset = inputPos_;
+            line_.no++;
+        }
+        inputPos_++;
+        return ch;
+    }
+
+
+    [[nodiscard]]
+    auto peekChar() -> char {
+        return static_cast<unsigned char>(input_->peek());
+    }
+
+
+    [[nodiscard]]
+    auto isInputEnd() const -> bool {
+        if(!input_) {
+            return true;
+        }
+
+        if(input_->peek() == std::char_traits<char>::eof()) {
+            input_->clear(input_->rdstate() ^ std::ios::eofbit);
+            return true;
+        }
+        return false;
+    }
+
+
+    [[noreturn]]
+    void error() {
+        throw ParseError(isInputEnd() ? "unexpected end of file" : "malformed token", pos());
+    }
+
+
+    std::istream* input_ = {};
+    int inputPos_ = 0;
+
+    LineInfo line_;
+
+    std::optional<Token> token_;
+    std::string tokenText_;
+    int tokenStart_ = {};
+};
+
+
+enum class ParseRules {
+## for name in rule_names
+    {{ name }}{% if not loop.is_last %},{% endif %}
+## endfor
+};
+
+auto operator<<(std::ostream& out, ParseRules rule) -> std::ostream& {
+    switch(rule) {
+## for name in rule_names
+        case ParseRules::{{ name }}: out << "{{ name }}"; break;
+## endfor
+    }
+    return out;
+}
+
+
+class Parser {
+public:
+
+    Parser(const Parser&) = delete;
+    auto operator=(const Parser&) -> Parser& = delete;
+
+    Parser(Parser&&) noexcept = default;
+    auto operator=(Parser&&) noexcept -> Parser& = default;
+
+
+    Parser() noexcept = default;
+
+    explicit Parser(std::istream* input) noexcept
+        : lexer_(input) {}
+
+
+    void parse() {
+## if length(parse_states) > 0
+        state0();
+## else
+        error();
+## endif
+    }
+
+
+protected:
+    ~Parser() = default;
+
+private:
+    using ParseHook = void (Parser::*)(std::span<const Token>);
+    using StateFunc = void (Parser::*)();
+
+## for name in rule_names
+    virtual void on{{ name }}(std::span<const Token> tokens) {}
+## endfor
+
+
+    [[noreturn]]
+    void error() {
+        throw ParseError("unexpected token", lexer_.pos());
+    }
+
+    void shiftState(StateFunc state) {
+        parsedTokens_.push_back(lexer_.lex());
+        (this->*state)();
+        reduceTokenCount_++;
+    }
+
+    void gotoState(StateFunc state) {
+        (this->*state)();
+    }
+
+    void startReduce(ParseRules rule, ParseHook hook, int backlink) noexcept {
+        reduceRule_ = rule;
+        reduceHook_ = hook;
+        reduceBacklink_ = backlink;
+    }
+
+    auto reduce(std::span<const int> backlinks) -> bool {
+        reduceBacklink_ = backlinks[reduceBacklink_];
+        if(reduceBacklink_ == -1) {
+            (this->*reduceHook_)(std::span(parsedTokens_.end() - reduceTokenCount_, reduceTokenCount_));
+            parsedTokens_.resize(parsedTokens_.size() - reduceTokenCount_);
+            reduceTokenCount_ = 0;
+            return true;
+        }
+        return false;
+    }
+
+
+## for state in parse_states
+    void state{{ state.id }}() {
+        static const std::array backlinks = { {% for link in state.backlinks %}{{ link }}{% if not loop.is_last %},{% endif %} {% endfor %}};
+
+        switch(lexer_.peek().kind()) {
+##   for shift in state.shifts
+            case TokenKinds::{{ shift.label }}: shiftState(&Parser::state{{ shift.target }}); break;
+##   endfor
+            default: {% if length(state.match) > 0 %}startReduce(ParseRules::{{ state.match }}, &Parser::on{{ state.match }}, {{ state.backlink }}); break;{% else %}error();{% endif %}
+        }
+
+        while(reduce(backlinks)) {
+            switch(reduceRule_) {
+##   for goto in state.gotos
+                case ParseRules::{{ goto.label }}: gotoState(&Parser::state{{ goto.target }}); break;
+##   endfor
+                default: return;
+            }
+        }
+    }
+
+## endfor
+
+    ParseHook reduceHook_ = {};
+    std::size_t reduceTokenCount_ = 0;
+    ParseRules reduceRule_ = {};
+    int reduceBacklink_ = -1;
+
+    std::vector<Token> parsedTokens_;
+    Lexer lexer_;
+};
