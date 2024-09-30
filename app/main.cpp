@@ -71,9 +71,11 @@ private:
                     << '\n'
                     << named << '\n';
             } else if(versionRequested) {
-                std::cout
-                    << std::format("parsec version {}: {}", PARSEC_VERSION, PARSEC_DESCRIPTION) << '\n'
-                    << '\n';
+                std::cout << std::format(
+                    "parsec version {}: {}",
+                    parsec::Config::version(),
+                    parsec::Config::description()
+                ) << '\n' << '\n';
             }
 
             return false;

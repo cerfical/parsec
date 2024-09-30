@@ -87,15 +87,24 @@ namespace parsec::regex {
 namespace parsec::pars {
     std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
         switch(tok) {
+            case TokenKinds::EmptyToken: out << "EmptyToken"; break;
+            case TokenKinds::Eof:        out << "Eof"; break;
 
-#define PARSEC_PARS_TOKEN_KIND(tok, comment) \
-    case TokenKinds::tok: out << #tok; break;
+            case TokenKinds::Ident:         out << "Ident"; break;
+            case TokenKinds::PatternString: out << "PatternString"; break;
 
-            PARSEC_PARS_TOKEN_KIND_LIST
+            case TokenKinds::Star:         out << "Star"; break;
+            case TokenKinds::Plus:         out << "Plus"; break;
+            case TokenKinds::QuestionMark: out << "QuestionMark"; break;
+            case TokenKinds::Pipe:         out << "Pipe"; break;
+            case TokenKinds::Semicolon:    out << "Semicolon"; break;
+            case TokenKinds::Equals:       out << "Equals"; break;
 
-#undef PARSEC_PARS_TOKEN_KIND
+            case TokenKinds::LeftBrace:  out << "LeftBrace"; break;
+            case TokenKinds::RightBrace: out << "RightBrace"; break;
 
-            default: out << "UnknownTokenType"; break;
+            case TokenKinds::LeftParen:  out << "LeftParen"; break;
+            case TokenKinds::RightParen: out << "RightParen"; break;
         }
         return out;
     }

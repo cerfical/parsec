@@ -1,8 +1,32 @@
 #pragma once
 
-#define PARSEC_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}
-#define PARSEC_VERSION_MINOR ${PROJECT_VERSION_MINOR}
-#define PARSEC_VERSION_PATCH ${PROJECT_VERSION_PATCH}
+#include <string_view>
 
-#define PARSEC_VERSION "${PROJECT_VERSION}"
-#define PARSEC_DESCRIPTION "${PROJECT_DESCRIPTION}"
+namespace parsec {
+
+    /**
+     * @brief Provides access to project configuration.
+     */
+    class Config {
+    public:
+
+        /**
+         * @brief The project version in the form `Major.Minor.Patch`.
+         */
+        static consteval std::string_view version() noexcept {
+            return "${PROJECT_VERSION}";
+        }
+
+
+        /**
+         * @brief A brief description of the library.
+         */
+        static consteval std::string_view description() noexcept {
+            return "${PROJECT_DESCRIPTION}";
+        }
+
+
+        Config() = delete;
+    };
+
+}
