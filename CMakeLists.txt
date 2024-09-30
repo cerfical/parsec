@@ -10,6 +10,7 @@ option(BUILD_DOCS "Generate documentation from the source tree using Doxygen" ON
 option(BUILD_EXAMPLES "Build the examples" ON)
 
 find_package(Boost REQUIRED)
+find_package(inja REQUIRED)
 
 
 # Setup the main project library
@@ -23,6 +24,7 @@ target_include_directories(parsec-lib
 
 target_link_libraries(parsec-lib
     PRIVATE Boost::boost
+    PRIVATE pantor::inja
 )
 
 
@@ -55,13 +57,15 @@ target_sources(parsec-lib
         "include/parsec/core/RegularExpr.hpp"
         "include/parsec/core/SymbolRule.hpp"
         "include/parsec/core/SymbolGrammar.hpp"
-
-    PRIVATE
+        "include/parsec/core/CodeGen.hpp"
+        
+        PRIVATE
         "src/core/TextScanner.cpp"
         "src/core/Compiler.cpp"
         "src/core/ParseError.cpp"
         "src/core/SymbolGrammar.cpp"
         "src/core/RegularExpr.cpp"
+        "src/core/CodeGen.cpp"
 )
 
 

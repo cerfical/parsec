@@ -10,6 +10,7 @@ Checks:
   - -bugprone-easily-swappable-parameters
   - -cppcoreguidelines-avoid-const-or-ref-data-members
   - -cppcoreguidelines-avoid-c-arrays
+  - -cppcoreguidelines-pro-bounds-pointer-arithmetic
   - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-virtual-class-destructor
   - -misc-no-recursion
