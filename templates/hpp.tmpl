@@ -69,7 +69,7 @@ private:
 
 
 enum class TokenKinds {
-## for name in token_names
+## for name in sort(token_names)
     {{ name }}{% if not loop.is_last %},{% endif %}
 ## endfor
 };
@@ -310,14 +310,14 @@ private:
 
 
 enum class ParseRules {
-## for name in rule_names
+## for name in sort(parse_rule_names)
     {{ name }}{% if not loop.is_last %},{% endif %}
 ## endfor
 };
 
 auto operator<<(std::ostream& out, ParseRules rule) -> std::ostream& {
     switch(rule) {
-## for name in rule_names
+## for name in sort(parse_rule_names)
         case ParseRules::{{ name }}: out << "{{ name }}"; break;
 ## endfor
     }
@@ -357,7 +357,7 @@ private:
     using ParseHook = void (Parser::*)(std::span<const Token>);
     using StateFunc = void (Parser::*)();
 
-## for name in rule_names
+## for name in parse_rule_names
     virtual void on{{ name }}(std::span<const Token> tokens) {}
 ## endfor
 

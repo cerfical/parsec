@@ -85,10 +85,10 @@ namespace parsec {
         }
 
         const inja::json vars = {
-            {  "token_names", makeGrammarSymbols(tokens_) },
-            {   "lex_states",      makeLexStates(tokens_) },
-            {   "rule_names",  makeGrammarSymbols(rules_) },
-            { "parse_states",     makeParseStates(rules_) }
+            {      "token_names", makeGrammarSymbols(tokens_) },
+            {       "lex_states",      makeLexStates(tokens_) },
+            { "parse_rule_names",  makeGrammarSymbols(rules_) },
+            {     "parse_states",     makeParseStates(rules_) }
         };
 
         const auto tmplStr = std::string(

@@ -16,16 +16,13 @@ namespace parsec {
     class SymbolGrammar {
     public:
 
-        using SymbolList = std::vector<Symbol>;
-        using RuleList = std::vector<SymbolRule>;
-
         SymbolGrammar(const SymbolGrammar&) = delete;
         SymbolGrammar& operator=(const SymbolGrammar&) = delete;
 
         SymbolGrammar(SymbolGrammar&&) noexcept = default;
         SymbolGrammar& operator=(SymbolGrammar&&) noexcept = default;
 
-        ~SymbolGrammar() = default;
+        ~SymbolGrammar() noexcept = default;
 
 
         /** @{ */
@@ -37,9 +34,6 @@ namespace parsec {
 
         /**
          * @brief Define a new rule for a language symbol.
-         *
-         * @param symbol The symbol to attach the rule.
-         * @param rule A new inference rule for the symbol.
          */
         void define(const Symbol& symbol, const RegularExpr& rule);
 
@@ -53,14 +47,8 @@ namespace parsec {
         /**
          * @brief Check if the grammar contains any definition for a symbol.
          */
-        bool contains(const Symbol& symbol) const noexcept;
-
-
-        /**
-         * @brief Set a new root for the grammar.
-         */
-        void setRoot(const Symbol& root) noexcept {
-            root_ = root;
+        bool contains(const Symbol& symbol) const noexcept {
+            return rulesIndex_.contains(symbol);
         }
 
 
@@ -73,28 +61,34 @@ namespace parsec {
 
 
         /**
+         * @brief Set a new root for the grammar.
+         */
+        void setRoot(const Symbol& root) {
+            root_ = root;
+        }
+
+
+        /**
          * @brief The list of all defined symbols.
          */
-        const SymbolList& symbols() const noexcept;
+        const std::vector<Symbol>& symbols() const noexcept {
+            return symbols_;
+        }
 
 
         /**
          * @brief The list of all defined symbol rules.
          */
-        const RuleList& rules() const noexcept;
+        const std::vector<SymbolRule>& rules() const noexcept {
+            return rules_;
+        }
         /** @} */
 
 
     private:
-        void updateRulesCache() const noexcept;
-
-        mutable std::unordered_map<Symbol, std::size_t> rulesCache_;
-        mutable SymbolList symbols_;
-        mutable RuleList rules_;
-
-        mutable bool cacheValid_ = true;
-        mutable bool symbolsSorted_ = true;
-        mutable bool rulesSorted_ = true;
+        std::unordered_map<Symbol, std::size_t> rulesIndex_;
+        std::vector<Symbol> symbols_;
+        std::vector<SymbolRule> rules_;
 
         Symbol root_;
     };
