@@ -1,11 +1,7 @@
 #include "core/CodeGen.hpp"
 
-#include "dfa/Automaton.hpp"
-#include "dfa/State.hpp"
-
-#include "elr/Automaton.hpp"
-#include "elr/State.hpp"
-
+#include "fsm/DfaAutomaton.hpp"
+#include "fsm/ElrAutomaton.hpp"
 #include "util/string_util.hpp"
 
 #include <inja/inja.hpp>
@@ -14,12 +10,7 @@
 
 namespace parsec {
     namespace {
-        inja::json jsonifySymbol(const Symbol& symbol) {
-            return symbol.value();
-        }
-
-
-        inja::json jsonifyStateTransitions(std::span<const dfa::StateTrans> transitions) {
+        inja::json makeTransitions(std::span<const fsm::StateTrans> transitions) {
             auto json = inja::json::array();
             for(const auto& t : transitions) {
                 json.push_back({
@@ -30,65 +21,58 @@ namespace parsec {
             return json;
         }
 
-        inja::json jsonifyLexStates(const SymbolGrammar* tokens) {
-            auto json = inja::json::array();
-            if(tokens) {
-                const auto dfa = dfa::Automaton(*tokens);
-                for(const auto& s : dfa.states()) {
-                    json.push_back({
-                        {          "id",                                   s.id() },
-                        { "transitions", jsonifyStateTransitions(s.transitions()) },
-                        {       "match",                  s.matchedRule().value() }
-                    });
-                }
-            }
-            return json;
-        }
-
-
-        inja::json jsonifyNumbers(std::span<const int> numbers) {
-            auto json = inja::json::array();
-            for(const auto& n : numbers) {
-                json.push_back(n);
-            }
-            return json;
-        }
-
-        inja::json jsonifyStateTransitions(std::span<const elr::StateTrans> transitions) {
-            auto json = inja::json::array();
-            for(const auto& t : transitions) {
-                json.push_back({
-                    {  "label", t.label.value() },
-                    { "target",        t.target }
-                });
-            }
-            return json;
-        }
-
-        inja::json jsonifyParseStates(const SymbolGrammar* rules) {
-            auto json = inja::json::array();
-            if(rules) {
-                const auto elr = elr::Automaton(*rules);
-                for(const auto& s : elr.states()) {
-                    json.push_back({
-                        {        "id",                              s.id() },
-                        {    "shifts", jsonifyStateTransitions(s.shifts()) },
-                        {     "gotos",  jsonifyStateTransitions(s.gotos()) },
-                        { "backlinks",       jsonifyNumbers(s.backLinks()) },
-                        {     "match",    s.reduction().reduceRule.value() },
-                        {  "backlink",              s.reduction().backLink }
-                    });
-                }
-            }
-            return json;
-        }
-
-
-        inja::json jsonifyGrammarSymbols(const SymbolGrammar* grammar) {
+        inja::json makeGrammarSymbols(const SymbolGrammar* grammar) {
             auto json = inja::json::array();
             if(grammar) {
                 for(const auto& s : grammar->symbols()) {
                     json.push_back(s.value());
+                }
+            }
+            return json;
+        }
+
+
+        inja::json makeLexStates(const SymbolGrammar* tokens) {
+            auto json = inja::json::array();
+            if(tokens) {
+                const auto dfa = fsm::DfaAutomaton(*tokens);
+                for(const auto& s : dfa.states()) {
+                    json.push_back({
+                        {             "id",                           s.id() },
+                        { "is_start_state",                 s.isStartState() },
+                        { "is_match_state",                 s.isMatchState() },
+                        {    "transitions", makeTransitions(s.transitions()) },
+                        {          "match",                s.match().value() }
+                    });
+                }
+            }
+            return json;
+        }
+
+
+        inja::json makeBacklinks(std::span<const int> backlinks) {
+            auto json = inja::json::array();
+            for(const auto& backlink : backlinks) {
+                json.push_back(backlink);
+            }
+            return json;
+        }
+
+        inja::json makeParseStates(const SymbolGrammar* rules) {
+            auto json = inja::json::array();
+            if(rules) {
+                const auto elr = fsm::ElrAutomaton(*rules);
+                for(const auto& s : elr.states()) {
+                    json.push_back({
+                        {             "id",                       s.id() },
+                        { "is_start_state",             s.isStartState() },
+                        { "is_match_state",             s.isMatchState() },
+                        {         "shifts",  makeTransitions(s.shifts()) },
+                        {          "gotos",   makeTransitions(s.gotos()) },
+                        {      "backlinks", makeBacklinks(s.backlinks()) },
+                        {          "match",            s.match().value() },
+                        {       "backlink",                 s.backlink() }
+                    });
                 }
             }
             return json;
@@ -102,10 +86,10 @@ namespace parsec {
         }
 
         const inja::json vars = {
-            {  "token_names", jsonifyGrammarSymbols(tokens_) },
-            {   "lex_states",      jsonifyLexStates(tokens_) },
-            {   "rule_names",  jsonifyGrammarSymbols(rules_) },
-            { "parse_states",     jsonifyParseStates(rules_) }
+            {  "token_names", makeGrammarSymbols(tokens_) },
+            {   "lex_states",      makeLexStates(tokens_) },
+            {   "rule_names",  makeGrammarSymbols(rules_) },
+            { "parse_states",     makeParseStates(rules_) }
         };
 
         const auto tmplStr = std::string(

@@ -1,50 +1,29 @@
-#include "elr/Automaton.hpp"
+#include "fsm/ElrAutomaton.hpp"
 
 #include "core/NameConflictError.hpp"
-
-#include "dfa/Automaton.hpp"
+#include "fsm/DfaAutomaton.hpp"
 
 #include <boost/functional/hash.hpp>
 
 #include <map>
-#include <set>
 #include <unordered_map>
+#include <unordered_set>
 
-namespace parsec::elr {
+namespace parsec::fsm {
     namespace {
-        class StateItem {
-        public:
+        struct StateItem {
 
-            friend auto operator<=>(const StateItem&, const StateItem&) noexcept = default;
+            friend bool operator==(const StateItem& lhs, const StateItem& rhs) noexcept = default;
 
-
-            StateItem(int dfaState, int backLink = -1) noexcept
-                : dfaState_(dfaState), backLink_(backLink) {}
-
-
-            int dfaState() const noexcept {
-                return dfaState_;
-            }
-
-
-            int backLink() const noexcept {
-                return backLink_;
-            }
-
-
-        private:
-            int backLink_ = {};
-            int dfaState_ = {};
+            int dfaState = {};
+            int backlink = -1;
         };
 
-
-        using ItemSet = std::set<StateItem>;
+        using ItemSet = std::unordered_set<StateItem, boost::hash<StateItem>>;
 
 
         class TransNetwork {
         public:
-
-            TransNetwork() = default;
 
             explicit TransNetwork(const SymbolGrammar& grammar) {
                 for(const auto& rule : grammar.rules()) {
@@ -53,17 +32,19 @@ namespace parsec::elr {
                         continue;
                     }
 
-                    insertMachine(rule.head(), dfa::Automaton(rule));
+                    SymbolGrammar ruleGrammar;
+                    ruleGrammar.define(rule.head(), rule.body());
+
+                    insertMachine(rule.head(), DfaAutomaton(ruleGrammar));
                 }
             }
 
 
-            const dfa::State* stateById(int state) const noexcept {
+            const DfaState* stateById(int state) const noexcept {
                 return &states_[state];
             }
 
-
-            const dfa::State* startState(const Symbol& symbol) const noexcept {
+            const DfaState* startState(const Symbol& symbol) const noexcept {
                 const auto symbolToIndexIt = symbolToStartState_.find(symbol);
                 if(symbolToIndexIt != symbolToStartState_.end()) {
                     return &states_[symbolToIndexIt->second];
@@ -72,23 +53,8 @@ namespace parsec::elr {
             }
 
 
-            const std::vector<dfa::State>& states() const noexcept {
-                return states_;
-            }
-
-
-            explicit operator bool() const noexcept {
-                return !isEmpty();
-            }
-
-
-            bool isEmpty() const noexcept {
-                return states_.empty();
-            }
-
-
         private:
-            void insertMachine(const Symbol& name, const dfa::Automaton& dfa) {
+            void insertMachine(const Symbol& name, const DfaAutomaton& dfa) {
                 const auto baseStateId = static_cast<int>(states_.size());
                 for(const auto& dfaState : dfa.states()) {
                     // create a new state with a unique id for each DFA state
@@ -96,72 +62,61 @@ namespace parsec::elr {
                     for(const auto& dfaTrans : dfaState.transitions()) {
                         state.addTransition(baseStateId + dfaTrans.target, dfaTrans.label);
                     }
-                    state.setMatchedRule(dfaState.matchedRule());
+                    state.setMatch(dfaState.match());
                 }
 
-                const auto startState = baseStateId + dfa.startState().id();
+                const auto startState = baseStateId;
                 symbolToStartState_[name] = startState;
-                states_[startState].setStartState(true);
             }
 
-
-            std::vector<dfa::State> states_;
+            std::vector<DfaState> states_;
             std::unordered_map<Symbol, int> symbolToStartState_;
         };
-
-
-        const State emptyState;
     }
 }
 
 
 template <>
-struct boost::hash<parsec::elr::StateItem> {
-    std::size_t operator()(const parsec::elr::StateItem& item) const noexcept {
-        return boost::hash_value(std::tuple(item.dfaState(), item.backLink()));
+struct boost::hash<parsec::fsm::StateItem> {
+    std::size_t operator()(const parsec::fsm::StateItem& item) const noexcept {
+        return boost::hash_value(std::tuple(item.dfaState, item.backlink));
     }
 };
 
 
-namespace parsec::elr {
-    class Automaton::StateBuilder {
+namespace parsec::fsm {
+    class ElrAutomaton::StateBuilder {
     public:
 
-        StateBuilder(const SymbolGrammar& grammar, std::vector<State>& states)
-            : grammar_(grammar), states_(states) {}
-
+        StateBuilder(const SymbolGrammar& grammar, std::vector<ElrState>& states)
+            : transNet_(grammar), grammar_(grammar), states_(states) {}
 
         void run() {
-            transNet_ = TransNetwork(grammar_);
             if(const auto startState = createStartState(); !startState.empty()) {
                 const auto startStateId = buildState(startState);
-                states_[startStateId].setStartState(true);
             }
         }
-
 
     private:
         ItemSet createStartState() {
             ItemSet startState;
             if(const auto& root = grammar_.root()) {
-                startState.insert(transNet_.startState(root.head())->id());
+                startState.insert({ .dfaState = transNet_.startState(root.head())->id() });
             }
             return startState;
         }
 
 
-        int buildState(const ItemSet& stateItems) {
-            const auto [it, wasInserted] =
-                itemSetsToIds_.try_emplace(closure(stateItems), static_cast<int>(itemSetsToIds_.size()));
-            const auto& [items, stateId] = *it;
+        int buildState(const ItemSet& itemSet) {
+            const auto [it, ok] = stateIds_.try_emplace(closure(itemSet), static_cast<int>(stateIds_.size()));
+            const auto& [stateItems, stateId] = *it;
 
-            if(wasInserted) {
+            if(ok) {
                 auto& state = states_.emplace_back(stateId);
-                for(const auto& item : items) {
-                    state.addBackLink(item.backLink());
+                for(const auto& item : stateItems) {
+                    state.addBacklink(item.backlink);
                 }
-
-                buildTransitions(items, stateId);
+                buildTransitions(stateItems, stateId);
             }
             return stateId;
         }
@@ -182,9 +137,9 @@ namespace parsec::elr {
             }
             closure.insert(item);
 
-            for(const auto& trans : transNet_.stateById(item.dfaState())->transitions()) {
+            for(const auto& trans : transNet_.stateById(item.dfaState)->transitions()) {
                 if(const auto* startState = transNet_.startState(trans.label)) {
-                    closeItem(startState->id(), closure);
+                    closeItem({ .dfaState = startState->id() }, closure);
                 }
             }
         }
@@ -195,12 +150,13 @@ namespace parsec::elr {
             std::map<Symbol, ItemSet> transitions;
 
             for(int itemId = 0; const auto& item : items) {
-                const auto& dfaState = transNet_.stateById(item.dfaState());
+                const auto& dfaState = transNet_.stateById(item.dfaState);
                 if(dfaState->isMatchState()) {
-                    if(!states_[stateId].isReduceState()) {
-                        states_[stateId].setReduction(dfaState->matchedRule(), itemId);
+                    if(!states_[stateId].isMatchState()) {
+                        states_[stateId].setMatch(dfaState->match());
+                        states_[stateId].setBacklink(itemId);
                     } else {
-                        throw NameConflictError(states_[stateId].reduction().reduceRule, dfaState->matchedRule());
+                        throw NameConflictError(states_[stateId].match(), dfaState->match());
                     }
                 }
 
@@ -224,31 +180,15 @@ namespace parsec::elr {
         }
 
 
-        std::unordered_map<ItemSet, int, boost::hash<ItemSet>> itemSetsToIds_;
+        std::unordered_map<ItemSet, int, boost::hash<ItemSet>> stateIds_;
         TransNetwork transNet_;
 
         const SymbolGrammar& grammar_;
-        std::vector<State>& states_;
+        std::vector<ElrState>& states_;
     };
 
 
-    Automaton::Automaton(const SymbolGrammar& grammar) {
+    ElrAutomaton::ElrAutomaton(const SymbolGrammar& grammar) {
         StateBuilder(grammar, states_).run();
-    }
-
-
-    const State& Automaton::stateById(int state) const noexcept {
-        if(state >= 0 && state < states_.size()) {
-            return states_[state];
-        }
-        return emptyState;
-    }
-
-
-    const State& Automaton::startState() const noexcept {
-        if(!states_.empty()) {
-            return states_.front();
-        }
-        return emptyState;
     }
 }

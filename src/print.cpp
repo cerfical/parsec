@@ -6,12 +6,6 @@
 #include "core/SymbolGrammar.hpp"
 #include "core/SymbolRule.hpp"
 
-#include "dfa/Automaton.hpp"
-#include "dfa/State.hpp"
-
-#include "elr/Automaton.hpp"
-#include "elr/State.hpp"
-
 #include "pars/Token.hpp"
 #include "pars/TokenKinds.hpp"
 
@@ -114,30 +108,26 @@ namespace parsec::pars {
     }
 }
 
-namespace parsec::elr {
-    std::ostream& operator<<(std::ostream& out, const ReduceAction& reduce) {
-        return out << '(' << reduce.reduceRule << ", " << reduce.backLink << ')';
-    }
-
+namespace parsec::fsm {
     std::ostream& operator<<(std::ostream& out, const StateTrans& trans) {
         return out << trans.label << " => ( " << trans.target << " )";
     }
 
 
-    void print(const Automaton& elr, std::ostream& out, std::string_view indent) {
+    void print(const ElrAutomaton& elr, std::ostream& out, std::string_view indent) {
         for(const auto& state : elr.states()) {
             print(state, out, indent);
         }
     }
 
-    void print(const State& state, std::ostream& out, std::string_view indent) {
+    void print(const ElrState& state, std::ostream& out, std::string_view indent) {
         out << indent;
         if(state.isStartState()) {
             out << "=> ";
         }
         out << "( " << state.id() << " )";
-        if(state.isReduceState()) {
-            out << " => " << state.reduction().reduceRule;
+        if(state.isMatchState()) {
+            out << " => " << state.match();
         }
         out << '\n';
 
@@ -149,37 +139,30 @@ namespace parsec::elr {
             out << indent << "  " << trans << '\n';
         }
 
-        for(const auto& backLink : state.backLinks()) {
+        for(const auto& backlink : state.backlinks()) {
             out << indent << "  ";
-            if(state.isReduceState() && backLink == state.reduction().backLink) {
+            if(state.isMatchState() && backlink == state.backlink()) {
                 out << "=> ";
             }
-            out << backLink << '\n';
+            out << backlink << '\n';
         }
     }
 
-}
 
-namespace parsec::dfa {
-    std::ostream& operator<<(std::ostream& out, const StateTrans& trans) {
-        return out << trans.label << " => ( " << trans.target << " )";
-    }
-
-
-    void print(const Automaton& dfa, std::ostream& out, std::string_view indent) {
+    void print(const DfaAutomaton& dfa, std::ostream& out, std::string_view indent) {
         for(const auto& state : dfa.states()) {
             print(state, out, indent);
         }
     }
 
-    void print(const State& state, std::ostream& out, std::string_view indent) {
+    void print(const DfaState& state, std::ostream& out, std::string_view indent) {
         out << indent;
         if(state.isStartState()) {
             out << "=> ";
         }
         out << "( " << state.id() << " )";
         if(state.isMatchState()) {
-            out << " => " << state.matchedRule();
+            out << " => " << state.match();
         }
         out << '\n';
 

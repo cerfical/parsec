@@ -231,7 +231,7 @@ private:
 ##   for state in lex_states
     state{{ state.id }}:
         tokenText_ += getChar();
-##     if state.id == 0
+##     if state.is_start_state
     start:
 ##   endif
 ##     if length(state.transitions) > 0
@@ -241,7 +241,7 @@ private:
 ##       endfor
         }
 ##     endif
-##     if length(state.match) > 0
+##     if state.is_match_state
         kind = TokenKinds::{{ state.match }};
         goto accept;
 ##     else
@@ -337,13 +337,13 @@ public:
 
     Parser() noexcept = default;
 
-    explicit Parser(std::istream* input) noexcept
+    explicit Parser(std::istream* input)
         : lexer_(input) {}
 
 
     void parse() {
 ## if length(parse_states) > 0
-        state0();
+        state{% for state in parse_states %}{% if state.is_start_state %}{{ state.id }}{% endif %}{% endfor %}();
 ## else
         error();
 ## endif
@@ -351,7 +351,7 @@ public:
 
 
 protected:
-    ~Parser() = default;
+    ~Parser() noexcept = default;
 
 private:
     using ParseHook = void (Parser::*)(std::span<const Token>);
@@ -403,7 +403,7 @@ private:
 ##   for shift in state.shifts
             case TokenKinds::{{ shift.label }}: shiftState(&Parser::state{{ shift.target }}); break;
 ##   endfor
-            default: {% if length(state.match) > 0 %}startReduce(ParseRules::{{ state.match }}, &Parser::on{{ state.match }}, {{ state.backlink }}); break;{% else %}error();{% endif %}
+            default: {% if state.is_match_state %}startReduce(ParseRules::{{ state.match }}, &Parser::on{{ state.match }}, {{ state.backlink }}); break;{% else %}error();{% endif %}
         }
 
         while(reduce(backlinks)) {
