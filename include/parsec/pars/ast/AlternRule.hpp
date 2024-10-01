@@ -4,16 +4,15 @@
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Alternation of two rules.
-	*/
-	class AlternRule : public BinaryRule {
-	public:
+    /**
+     * @brief Alternation of two rules.
+     */
+    class AlternRule : public BinaryRule {
+    public:
 
-		using BinaryRule::BinaryRule;
+        using BinaryRule::BinaryRule;
 
-		void accept(NodeVisitor& visitor) const override;
-
-	};
+        void accept(NodeVisitor& visitor) const override;
+    };
 
 }

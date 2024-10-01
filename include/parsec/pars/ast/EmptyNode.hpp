@@ -4,14 +4,13 @@
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Empty node.
-	*/
-	class EmptyNode : public Node {
-	public:
+    /**
+     * @brief Empty node.
+     */
+    class EmptyNode : public Node {
+    public:
 
-		void accept(NodeVisitor& visitor) const override;
-
-	};
+        void accept(NodeVisitor& visitor) const override;
+    };
 
 }

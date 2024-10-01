@@ -3,28 +3,26 @@
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
-	
-	class UnaryExpr : public ExprNode {
-	public:
 
-		explicit UnaryExpr(NodePtr inner)
-			: m_inner(inner) {}
+    class UnaryExpr : public ExprNode {
+    public:
 
-		~UnaryExpr() override = default;
+        explicit UnaryExpr(NodePtr inner) noexcept
+            : inner_(std::move(inner)) {}
 
 
-		int atomCount() const noexcept override {
-			return m_inner->atomCount();
-		}
+        int atomCount() const noexcept override {
+            return inner_->atomCount();
+        }
 
 
-		const ExprNode* inner() const {
-			return m_inner.get();
-		}
+        const ExprNode* inner() const noexcept {
+            return inner_.get();
+        }
 
 
-	private:
-		NodePtr m_inner;
-	};
+    private:
+        NodePtr inner_;
+    };
 
 }

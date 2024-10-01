@@ -1,37 +1,36 @@
 #pragma once
 
 #include "../../core/Symbol.hpp"
+
 #include "ExprNode.hpp"
 
 namespace parsec::regex {
 
-	class SymbolAtom : public ExprNode {
-	public:
-		
-		explicit SymbolAtom(const Symbol& value)
-			: m_value(value) {}
+    class SymbolAtom : public ExprNode {
+    public:
 
-		~SymbolAtom() override = default;
+        explicit SymbolAtom(Symbol value) noexcept
+            : value_(std::move(value)) {}
 
 
-		void accept(NodeVisitor& visitor) const override;
+        void accept(NodeVisitor& visitor) const override;
 
-		bool isNullable() const noexcept override {
-			return m_value.isEmpty();
-		}
+        bool isNullable() const noexcept override {
+            return value_.isEmpty();
+        }
 
-		int atomCount() const noexcept override {
-			return m_value ? 1 : 0;
-		}
-
-
-		const Symbol& value() const {
-			return m_value;
-		}
+        int atomCount() const noexcept override {
+            return value_ ? 1 : 0;
+        }
 
 
-	private:
-		Symbol m_value;
-	};
+        const Symbol& value() const noexcept {
+            return value_;
+        }
+
+
+    private:
+        Symbol value_;
+    };
 
 }

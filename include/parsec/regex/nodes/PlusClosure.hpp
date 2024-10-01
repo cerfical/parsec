@@ -4,18 +4,17 @@
 
 namespace parsec::regex {
 
-	class PlusClosure : public UnaryExpr {
-	public:
+    class PlusClosure : public UnaryExpr {
+    public:
 
-		using UnaryExpr::UnaryExpr;
+        using UnaryExpr::UnaryExpr;
 
 
-		void accept(NodeVisitor& visitor) const override;
+        void accept(NodeVisitor& visitor) const override;
 
-		bool isNullable() const noexcept override {
-			return inner()->isNullable();
-		}
-
-	};
+        bool isNullable() const noexcept override {
+            return inner()->isNullable();
+        }
+    };
 
 }

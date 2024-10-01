@@ -4,40 +4,38 @@
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Sequence of two other nodes.
-	*/
-	class ListNode : public Node {
-	public:
+    /**
+     * @brief Sequence of two nodes.
+     */
+    class ListNode : public Node {
+    public:
 
-		ListNode(NodePtr head, NodePtr tail)
-			: m_head(std::move(head)), m_tail(std::move(tail)) {}
-
-		~ListNode() override = default;
+        ListNode(NodePtr head, NodePtr tail) noexcept
+            : head_(std::move(head)), tail_(std::move(tail)) {}
 
 
-		void accept(NodeVisitor& visitor) const override;
+        void accept(NodeVisitor& visitor) const override;
 
 
-		/**
-		 * @brief Head node of the list.
-		*/
-		const Node* head() const {
-			return m_head.get();
-		}
+        /**
+         * @brief Head node of the list.
+         */
+        const Node* head() const noexcept {
+            return head_.get();
+        }
 
 
-		/**
-		 * @brief Tail node of the list.
-		*/
-		const Node* tail() const {
-			return m_tail.get();
-		}
+        /**
+         * @brief Tail node of the list.
+         */
+        const Node* tail() const noexcept {
+            return tail_.get();
+        }
 
 
-	private:
-		NodePtr m_head;
-		NodePtr m_tail;
-	};
+    private:
+        NodePtr head_;
+        NodePtr tail_;
+    };
 
 }

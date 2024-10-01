@@ -2,29 +2,29 @@
 
 namespace parsec::regex {
 
-	class SymbolAtom;
+    class SymbolAtom;
 
-	class StarClosure;
-	class PlusClosure;
-	class OptionalExpr;
-	
-	class AlternExpr;
-	class ConcatExpr;
+    class StarClosure;
+    class PlusClosure;
+    class OptionalExpr;
 
-	class NodeVisitor {
-	public:
+    class AlternExpr;
+    class ConcatExpr;
 
-		virtual void visit(const SymbolAtom& n) = 0;
+    class NodeVisitor {
+    public:
 
-		virtual void visit(const StarClosure& n) = 0;
-		virtual void visit(const PlusClosure& n) = 0;
-		virtual void visit(const OptionalExpr& n) = 0;
-		
-		virtual void visit(const AlternExpr& n) = 0;
-		virtual void visit(const ConcatExpr& n) = 0;
+        virtual void visit(const SymbolAtom& n) = 0;
 
-	protected:
-		~NodeVisitor() = default;
-	};
+        virtual void visit(const StarClosure& n) = 0;
+        virtual void visit(const PlusClosure& n) = 0;
+        virtual void visit(const OptionalExpr& n) = 0;
+
+        virtual void visit(const AlternExpr& n) = 0;
+        virtual void visit(const ConcatExpr& n) = 0;
+
+    protected:
+        ~NodeVisitor() = default;
+    };
 
 }

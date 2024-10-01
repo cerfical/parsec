@@ -1,44 +1,43 @@
 #pragma once
 
 #include "../Token.hpp"
+
 #include "Node.hpp"
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Definition of a named token.
-	*/
-	class NamedToken : public Node {
-	public:
+    /**
+     * @brief Definition of a named token.
+     */
+    class NamedToken : public Node {
+    public:
 
-		NamedToken(const Token& name, const Token& pattern)
-			: m_name(name), m_pattern(pattern) {}
-
-		~NamedToken() override = default;
+        NamedToken(Token name, Token pattern) noexcept
+            : name_(std::move(name)), pattern_(std::move(pattern)) {}
 
 
-		void accept(NodeVisitor& visitor) const override;
+        void accept(NodeVisitor& visitor) const override;
 
 
-		/**
-		 * @brief Name of the token.
-		*/
-		const Token& name() const {
-			return m_name;
-		}
+        /**
+         * @brief Name of the token.
+         */
+        const Token& name() const noexcept {
+            return name_;
+        }
 
 
-		/**
-		 * @brief String pattern defining the token.
-		*/
-		const Token& pattern() const {
-			return m_pattern;
-		}
+        /**
+         * @brief String pattern defining the token.
+         */
+        const Token& pattern() const noexcept {
+            return pattern_;
+        }
 
 
-	private:
-		Token m_name;
-		Token m_pattern;
-	};
+    private:
+        Token name_;
+        Token pattern_;
+    };
 
 }

@@ -4,16 +4,15 @@
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Concatenation of two rules.
-	*/
-	class ConcatRule : public BinaryRule {
-	public:
+    /**
+     * @brief Concatenation of two rules.
+     */
+    class ConcatRule : public BinaryRule {
+    public:
 
-		using BinaryRule::BinaryRule;
+        using BinaryRule::BinaryRule;
 
-		void accept(NodeVisitor& visitor) const override;
-
-	};
+        void accept(NodeVisitor& visitor) const override;
+    };
 
 }

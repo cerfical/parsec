@@ -4,37 +4,35 @@
 
 namespace parsec::pars {
 
-	/**
-	 * @brief Rule consisting of two subrules.
-	*/
-	class BinaryRule : public Node {
-	public:
+    /**
+     * @brief Rule consisting of two subrules.
+     */
+    class BinaryRule : public Node {
+    public:
 
-		BinaryRule(NodePtr left, NodePtr right)
-			: m_left(std::move(left)), m_right(std::move(right)) {}
-
-		~BinaryRule() override = default;
-		
-
-		/**
-		 * @brief Left subrule.
-		*/
-		const Node* left() const {
-			return m_left.get();
-		}
+        BinaryRule(NodePtr left, NodePtr right) noexcept
+            : left_(std::move(left)), right_(std::move(right)) {}
 
 
-		/**
-		 * @brief Right subrule.
-		*/
-		const Node* right() const {
-			return m_right.get();
-		}
+        /**
+         * @brief Left subrule.
+         */
+        const Node* left() const noexcept {
+            return left_.get();
+        }
 
 
-	private:
-		NodePtr m_left;
-		NodePtr m_right;
-	};
+        /**
+         * @brief Right subrule.
+         */
+        const Node* right() const noexcept {
+            return right_.get();
+        }
+
+
+    private:
+        NodePtr left_;
+        NodePtr right_;
+    };
 
 }

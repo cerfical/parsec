@@ -4,18 +4,17 @@
 
 namespace parsec::regex {
 
-	class AlternExpr : public BinaryExpr {
-	public:
+    class AlternExpr : public BinaryExpr {
+    public:
 
-		using BinaryExpr::BinaryExpr;
+        using BinaryExpr::BinaryExpr;
 
 
-		void accept(NodeVisitor& visitor) const override;
+        void accept(NodeVisitor& visitor) const override;
 
-		bool isNullable() const noexcept override {
-			return left()->isNullable() || right()->isNullable();
-		}
-
-	};
+        bool isNullable() const noexcept override {
+            return left()->isNullable() || right()->isNullable();
+        }
+    };
 
 }

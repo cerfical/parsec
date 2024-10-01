@@ -4,32 +4,30 @@
 
 namespace parsec::regex {
 
-	class BinaryExpr : public ExprNode {
-	public:
+    class BinaryExpr : public ExprNode {
+    public:
 
-		BinaryExpr(NodePtr left, NodePtr right)
-			: m_left(left), m_right(right) {}
-
-		~BinaryExpr() override = default;
+        BinaryExpr(NodePtr left, NodePtr right) noexcept
+            : left_(std::move(left)), right_(std::move(right)) {}
 
 
-		int atomCount() const noexcept override {
-			return m_left->atomCount() + m_right->atomCount();
-		}
+        int atomCount() const noexcept override {
+            return left_->atomCount() + right_->atomCount();
+        }
 
 
-		const ExprNode* left() const {
-			return m_left.get();
-		}
+        const ExprNode* left() const noexcept {
+            return left_.get();
+        }
 
-		const ExprNode* right() const {
-			return m_right.get();
-		}
+        const ExprNode* right() const noexcept {
+            return right_.get();
+        }
 
 
-	private:
-		NodePtr m_left;
-		NodePtr m_right;
-	};
+    private:
+        NodePtr left_;
+        NodePtr right_;
+    };
 
 }

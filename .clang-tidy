@@ -12,6 +12,7 @@ Checks:
   - -cppcoreguidelines-avoid-c-arrays
   - -cppcoreguidelines-avoid-magic-numbers
   - -cppcoreguidelines-pro-bounds-pointer-arithmetic
+  - -cppcoreguidelines-special-member-functions
   - -cppcoreguidelines-macro-usage
   - -cppcoreguidelines-virtual-class-destructor
   - -misc-no-recursion
