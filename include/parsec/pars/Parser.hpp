@@ -53,6 +53,12 @@ namespace parsec::pars {
         bool isAtom();
 
 
+        [[noreturn]]
+        void misplacedToken() {
+            const auto& tok = lexer_.peek();
+            throw ParseError::misplacedToken(tok.loc(), tok.text());
+        }
+
         template <TokenKinds K>
         Token expect() {
             if(const auto& peekTok = lexer_.peek(); !peekTok.is<K>()) {

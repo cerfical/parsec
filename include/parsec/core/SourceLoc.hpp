@@ -28,17 +28,17 @@ namespace parsec {
     struct SourceLoc {
 
         /**
-         * @brief Check whether the location is not empty, i.e., contains at least one column.
+         * @brief Check whether the location encompasses any data.
          */
         explicit operator bool() const noexcept {
-            return !isEmpty();
+            return !isEof();
         }
 
 
         /**
-         * @brief Check whether the location is empty, i.e., contains no columns.
+         * @brief Check whether the location marks the end of file.
          */
-        bool isEmpty() const noexcept {
+        bool isEof() const noexcept {
             return colCount == 0;
         }
 

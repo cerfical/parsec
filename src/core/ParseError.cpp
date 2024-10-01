@@ -75,10 +75,13 @@ namespace parsec {
     }
 
     ParseError ParseError::misplacedToken(const SourceLoc& tokLoc, std::string_view tokVal) {
-        return { tokLoc, std::format("unexpected \"{}\"", string_util::escape(tokVal)) };
+        if(tokLoc) {
+            return { tokLoc, std::format("unexpected \"{}\"", string_util::escape(tokVal)) };
+        }
+        return unexpectedEof(tokLoc);
     }
 
     ParseError ParseError::unmatchedToken(const SourceLoc& foundLoc, std::string_view expectVal) {
-        return { foundLoc, std::format("{} expected, but got", expectVal) };
+        return { foundLoc, std::format("{} expected, but got{}", expectVal, foundLoc ? "" : " end of file") };
     }
 }

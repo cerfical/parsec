@@ -181,7 +181,7 @@ private:
         }
 
         const auto spaces = std::string(markerPos + extraSpaces, ' ');
-        const auto marker = std::string(err.loc().colCount, err.loc().colCount == 1 ? '^' : '~');
+        const auto marker = std::string(std::max(err.loc().colCount, 1), err.loc().colCount > 1 ? '~' : '^');
         const auto indent = std::string(TabSize, ' ');
 
         std::cerr

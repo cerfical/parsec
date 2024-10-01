@@ -40,8 +40,7 @@ namespace parsec::pars {
             } else if(lexer_.skipIf("rules")) {
                 spec = makeNode<ListNode>(std::move(spec), parseDefList(&Parser::parseRule));
             } else {
-                const auto& tok = lexer_.peek();
-                throw ParseError::misplacedToken(tok.loc(), tok.text());
+                misplacedToken();
             }
         }
         return spec;
@@ -62,8 +61,7 @@ namespace parsec::pars {
             }
 
             if(!lexer_.skipIf(TokenKinds::Semicolon)) {
-                const auto& tok = lexer_.peek();
-                throw ParseError::misplacedToken(tok.loc(), tok.text());
+                misplacedToken();
             }
         }
 
@@ -145,8 +143,7 @@ namespace parsec::pars {
                 throw ParseError::misplacedChar(lexer_.loc(), ')');
             }
             default: {
-                const auto& tok = lexer_.peek();
-                throw ParseError::misplacedToken(tok.loc(), tok.text());
+                misplacedToken();
             }
         }
     }
