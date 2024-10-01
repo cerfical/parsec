@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../util/string_util.hpp"
+
 #include <compare>
 #include <cstddef>
 #include <functional>
@@ -7,7 +9,6 @@
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <utility>
 
 namespace parsec {
 
@@ -32,7 +33,7 @@ namespace parsec {
         Symbol(Symbol&& other) noexcept = default;
         Symbol& operator=(Symbol&& other) noexcept = default;
 
-        ~Symbol() = default;
+        ~Symbol() noexcept = default;
 
 
         /** @{ */
@@ -46,28 +47,28 @@ namespace parsec {
          * @brief Construct a symbol from a single character.
          */
         Symbol(char value)
-            : Symbol(std::string(1, value)) {}
+            : Symbol(std::string_view(&value, 1)) {}
 
 
         /**
          * @brief Construct a symbol from a string literal.
          */
         Symbol(const char* value)
-            : Symbol(std::string(value)) {}
-
-
-        /**
-         * @brief Construct a symbol from an arbitrary char sequence.
-         */
-        Symbol(std::string_view value)
-            : Symbol(std::string(value)) {}
+            : Symbol(std::string_view(value)) {}
 
 
         /**
          * @brief Construct a symbol from a string.
          */
-        Symbol(std::string value)
-            : value_(value.empty() ? nullptr : std::make_shared<std::string>(std::move(value))) {}
+        Symbol(const std::string& value)
+            : Symbol(std::string_view(value)) {}
+
+
+        /**
+         * @brief Construct a symbol from an arbitrary character sequence.
+         */
+        Symbol(std::string_view value)
+            : value_(value.empty() ? nullptr : std::make_shared<std::string>(string_util::escape(value))) {}
         /** @} */
 
 

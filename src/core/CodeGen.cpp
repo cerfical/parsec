@@ -2,7 +2,6 @@
 
 #include "fsm/DfaAutomaton.hpp"
 #include "fsm/ElrAutomaton.hpp"
-#include "util/string_util.hpp"
 
 #include <inja/inja.hpp>
 
@@ -14,8 +13,8 @@ namespace parsec {
             auto json = inja::json::array();
             for(const auto& t : transitions) {
                 json.push_back({
-                    {  "label", string_util::escape(t.label.value()) },
-                    { "target",                             t.target }
+                    {  "label", t.label.value() },
+                    { "target",        t.target }
                 });
             }
             return json;
