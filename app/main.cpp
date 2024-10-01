@@ -23,6 +23,7 @@ public:
             ("output-file,o", po::value<fs::path>(), "output source file")                     //
             ("template,t", po::value<std::string>()->default_value("json"), "output template") //
             ("template-dir", po::value<fs::path>(), "template directory")                      //
+            ("tab-size", po::value<std::size_t>()->default_value(4), "tab display size")       //
             ("version", "print version information")                                           //
             ("help", "produce help message");                                                  //
 
@@ -95,6 +96,11 @@ public:
     }
 
 
+    std::size_t tabSize() const {
+        return options_["tab-size"].as<std::size_t>();
+    }
+
+
 private:
     po::options_description named_;
     po::variables_map options_;
@@ -155,6 +161,7 @@ private:
     }
 
     void dumpError(const parsec::ParseError& err) {
+        const auto tabSize = options_->tabSize();
         auto line = readInputLine(err.loc().line.offset);
         algo::trim_right(line);
 
@@ -169,7 +176,7 @@ private:
         for(std::size_t i = 0; i < line.size(); i++) {
             // tabs are treated specially as they can cause the marker to be visually misplaced
             if(line[i] == '\t') {
-                const auto tabDisplaySize = TabSize - (formatted.size() % TabSize);
+                const auto tabDisplaySize = tabSize - (formatted.size() % tabSize);
                 formatted.append(tabDisplaySize, ' ');
 
                 if(i < markerPos) {
@@ -182,15 +189,13 @@ private:
 
         const auto spaces = std::string(markerPos + extraSpaces, ' ');
         const auto marker = std::string(std::max(err.loc().colCount, 1), err.loc().colCount > 1 ? '~' : '^');
-        const auto indent = std::string(TabSize, ' ');
+        const auto indent = std::string(tabSize, ' ');
 
         std::cerr
             << options_->inputFile().string() << ':' << err.loc() << ": error: " << err.what() << '\n'
             << indent << formatted << '\n'
             << indent << spaces << marker << '\n';
     }
-
-    static constexpr auto TabSize = 4;
 
 
     std::string readInputLine(int linePos) {
