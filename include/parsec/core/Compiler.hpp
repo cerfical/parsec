@@ -18,7 +18,7 @@ namespace parsec {
         Compiler(Compiler&&) noexcept = default;
         Compiler& operator=(Compiler&&) noexcept = default;
 
-        ~Compiler() = default;
+        ~Compiler() noexcept = default;
 
 
         void setOutputTemplateSource(std::istream* tmpl) noexcept {

@@ -80,7 +80,7 @@ namespace parsec {
 
 
     void CodeGen::generate() {
-        if(!tmpl_ || !output_) {
+        if(!output_) {
             return;
         }
 
@@ -91,11 +91,15 @@ namespace parsec {
             {     "parse_states",     makeParseStates(rules_) }
         };
 
-        const auto tmplStr = std::string(
-            std::istreambuf_iterator<char>(*tmpl_),
-            std::istreambuf_iterator<char>()
-        );
+        if(tmpl_) {
+            const auto tmplStr = std::string(
+                std::istreambuf_iterator<char>(*tmpl_),
+                std::istreambuf_iterator<char>()
+            );
 
-        inja::render_to(*output_, tmplStr, vars);
+            inja::render_to(*output_, tmplStr, vars);
+        } else {
+            *output_ << vars.dump(4);
+        }
     }
 }

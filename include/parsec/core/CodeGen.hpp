@@ -18,7 +18,7 @@ namespace parsec {
         CodeGen(CodeGen&& other) noexcept = default;
         CodeGen& operator=(CodeGen&& other) noexcept = default;
 
-        ~CodeGen() = default;
+        ~CodeGen() noexcept = default;
 
 
         void setOutputSink(std::ostream* output) noexcept {

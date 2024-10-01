@@ -14,7 +14,6 @@ namespace fs = std::filesystem;
 namespace views = std::views;
 namespace algo = boost::algorithm;
 namespace po = boost::program_options;
-
 class ParsecApp {
 public:
 
@@ -35,13 +34,13 @@ private:
 
     bool parseCommandLine(int argc, const char* argv[]) {
         po::options_description named = { "Options" };
-        named.add_options()                                                             //
-            ("input-file,i", po::value<fs::path>(), "input spec file")                  //
-            ("output-file,o", po::value<fs::path>(), "output source code file")         //
-            ("template,t", po::value<std::string>(), "template for output source code") //
-            ("template-path", po::value<fs::path>(), "template directory")              //
-            ("version", "print version information")                                    //
-            ("help", "produce help message");                                           //
+        named.add_options()                                                                                    //
+            ("input-file,i", po::value<fs::path>(), "input spec file")                                         //
+            ("output-file,o", po::value<fs::path>(), "output source code file")                                //
+            ("template,t", po::value<std::string>()->default_value("json"), "template for output source code") //
+            ("template-path", po::value<fs::path>(), "template directory")                                     //
+            ("version", "print version information")                                                           //
+            ("help", "produce help message");                                                                  //
 
         po::variables_map options;
         store(
@@ -59,7 +58,7 @@ private:
         const bool versionRequested = options.contains("version");
 
         if(helpRequested || versionRequested) {
-            if(options.size() != 1) {
+            if(options.size() != 2) {
                 throw std::runtime_error("invalid command line options");
             }
 
@@ -114,12 +113,14 @@ private:
         compiler.setInputSource(&input_);
 
         if(!tmplName_.empty()) {
-            auto tmplPath = tmplDir_.append(tmplName_).concat(".tmpl");
             std::ifstream tmplFile;
-            if(tmplFile.open(tmplPath, std::ios::binary); !tmplFile.is_open()) {
-                throw std::runtime_error(std::format("failed to load the template file \"{}\"", tmplPath.generic_string()));
+            if(tmplName_ != "json") {
+                const auto tmplPath = tmplDir_.append(tmplName_).concat(".tmpl");
+                if(tmplFile.open(tmplPath, std::ios::binary); !tmplFile.is_open()) {
+                    throw std::runtime_error(std::format("failed to load the template file \"{}\"", tmplPath.generic_string()));
+                }
+                compiler.setOutputTemplateSource(&tmplFile);
             }
-            compiler.setOutputTemplateSource(&tmplFile);
 
             std::ostringstream outputMem;
             compiler.setOutputSink(&outputMem);
