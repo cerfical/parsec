@@ -176,7 +176,7 @@ namespace parsec {
                 }
 
                 static bool isReservedName(const Symbol& name) {
-                    return name.value().starts_with(UnnamedTokenPrefix) || name == EofTokenName;
+                    return name.text().starts_with(UnnamedTokenPrefix) || name == EofTokenName;
                 }
 
                 PatternNameCache* patterns_ = {};
@@ -364,8 +364,8 @@ namespace parsec {
         try {
             codegen_.generate();
         } catch(const NameConflictError& err) {
-            const auto* const srcTok1 = names.lookupToken(err.name1().value());
-            const auto* const srcTok2 = names.lookupToken(err.name2().value());
+            const auto* const srcTok1 = names.lookupToken(err.name1().text());
+            const auto* const srcTok2 = names.lookupToken(err.name2().text());
 
             if(tokens.contains(err.name1())) {
                 throw ParseError::patternConflict(srcTok1->loc(), srcTok2->text());

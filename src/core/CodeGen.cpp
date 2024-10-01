@@ -13,8 +13,8 @@ namespace parsec {
             auto json = inja::json::array();
             for(const auto& t : transitions) {
                 json.push_back({
-                    {  "label", t.label.value() },
-                    { "target",        t.target }
+                    {  "label", t.label.text() },
+                    { "target",       t.target }
                 });
             }
             return json;
@@ -24,7 +24,7 @@ namespace parsec {
             auto json = inja::json::array();
             if(grammar) {
                 for(const auto& s : grammar->symbols()) {
-                    json.push_back(s.value());
+                    json.push_back(s.text());
                 }
             }
             return json;
@@ -41,7 +41,7 @@ namespace parsec {
                         { "is_start_state",                 s.isStartState() },
                         { "is_match_state",                 s.isMatchState() },
                         {    "transitions", makeTransitions(s.transitions()) },
-                        {          "match",                s.match().value() }
+                        {          "match",                 s.match().text() }
                     });
                 }
             }
@@ -69,7 +69,7 @@ namespace parsec {
                         {         "shifts",  makeTransitions(s.shifts()) },
                         {          "gotos",   makeTransitions(s.gotos()) },
                         {      "backlinks", makeBacklinks(s.backlinks()) },
-                        {          "match",            s.match().value() },
+                        {          "match",             s.match().text() },
                         {       "backlink",                 s.backlink() }
                     });
                 }

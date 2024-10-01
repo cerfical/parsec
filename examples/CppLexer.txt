@@ -1,71 +1,71 @@
 tokens {
 
-	ws = "[ \f\n\r\t\v]+";
-	ident = "[a-zA-Z_][a-zA-Z0-9_]*";
-	number = "0|[1-9][0-9]*(.[0-9]*)?";
-	
-	assign = '=';
-	colon = ':';
-	semicolon = ';';
-	comma = ',';
-	period = '.';
+    ws = "[ \f\n\r\t\v]+";
+    ident = "[a-zA-Z_][a-zA-Z0-9_]*";
+    number = "0|[1-9][0-9]*(.[0-9]*)?";
+    
+    assign = '=';
+    colon = ':';
+    semicolon = ';';
+    comma = ',';
+    period = '.';
 
 
-	// arithmetic operators
-	add = '+';
-	add-eq = '+=';
-	
-	sub = '-';
-	sub-eq = '-=';
-	
-	mul = '*';
-	mul-eq = '*=';
-	
-	div = '/';
-	div-eq = '/=';
+    // arithmetic operators
+    add = '+';
+    add-eq = '+=';
+    
+    sub = '-';
+    sub-eq = '-=';
+    
+    mul = '*';
+    mul-eq = '*=';
+    
+    div = '/';
+    div-eq = '/=';
 
-	mod = "%";
-	mod-eq = "%=";
-
-
-	// logical operators
-	logical-and = '&&';
-	logical-and-eq = '&=';
-
-	logical-or = '||';
-	logical-or-eq = '|=';
-
-	logical-not = '!';
-	logical-not-eq = '!=';
-	logical-eq = '==';
+    mod = "%";
+    mod-eq = "%=";
 
 
-	// bitwise operators
-	bit-and = '&';
-	bit-or = '|';
-	bit-compl = '~';
-	
-	bit-xor = '^';
-	bit-xor-eq = '^=';
+    // logical operators
+    logical-and = '&&';
+    logical-and-eq = '&=';
 
-	left-shift = '<<';
-	left-shift-eq = '<<=';
-	
-	right-shift = '>>';
-	right-shift-eq = '>>=';
+    logical-or = '||';
+    logical-or-eq = '|=';
+
+    logical-not = '!';
+    logical-not-eq = '!=';
+    logical-eq = '==';
 
 
-	// grouping symbols
-	left-brace = '{';
-	right-brace = '}';
+    // bitwise operators
+    bit-and = '&';
+    bit-or = '|';
+    bit-compl = '~';
+    
+    bit-xor = '^';
+    bit-xor-eq = '^=';
 
-	left-paren = '(';
-	right-paren = ')';
+    left-shift = '<<';
+    left-shift-eq = '<<=';
+    
+    right-shift = '>>';
+    right-shift-eq = '>>=';
 
-	left-square-bracket = '[';
-	right-square-bracket = ']';
 
-	left-angle-bracket = '<';
-	right-angle-bracket = '>';
+    // grouping symbols
+    left-brace = '{';
+    right-brace = '}';
+
+    left-paren = '(';
+    right-paren = ')';
+
+    left-square-bracket = '[';
+    right-square-bracket = ']';
+
+    left-angle-bracket = '<';
+    right-angle-bracket = '>';
 
 }

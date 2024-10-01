@@ -77,6 +77,13 @@ namespace parsec {
         LineInfo line;
     };
 
-    std::ostream& operator<<(std::ostream& out, const SourceLoc& loc);
+
+    inline std::ostream& operator<<(std::ostream& out, const SourceLoc& loc) {
+        out << loc.line.no + 1 << ':' << loc.startCol() + 1;
+        if(loc) {
+            out << '-' << (loc.endCol() - 1) + 1;
+        }
+        return out;
+    }
 
 }

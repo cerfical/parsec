@@ -1,22 +1,22 @@
 tokens {
-	ws = "[ \t]+";
-	number = "0|[1-9][0-9]*|[0-9]+.[0-9]+";
+    ws = "[ \t]+";
+    number = "0|[1-9][0-9]*|[0-9]+.[0-9]+";
 
-	open-paren = '(';
-	close-paren = ')';
+    open-paren = '(';
+    close-paren = ')';
 
-	add-op = '+';
-	sub-op = '-';
-	
-	mul-op = '*';
-	div-op = '/';
+    add-op = '+';
+    sub-op = '-';
+    
+    mul-op = '*';
+    div-op = '/';
 }
 
 rules {
-	root-expr = expr eof;
-	
-	expr = ( expr ( '+' | '-' ) )? term;
-	term = ( term ( '*' | '/' ) )? factor;
-	
-	factor = number | '(' expr ')';
+    root-expr = expr eof;
+    
+    expr = ( expr ( '+' | '-' ) )? term;
+    term = ( term ( '*' | '/' ) )? factor;
+    
+    factor = number | '(' expr ')';
 }

@@ -54,7 +54,7 @@ private:
         );
 
 
-        const bool helpRequested = options.contains("help") || options.empty();
+        const bool helpRequested = options.contains("help") || options.size() == 1;
         const bool versionRequested = options.contains("version");
 
         if(helpRequested || versionRequested) {

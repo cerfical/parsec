@@ -16,9 +16,9 @@ namespace parsec::pars {
     class Token {
     public:
 
-        Token() = default;
+        Token() noexcept = default;
 
-        Token(std::string text, TokenKinds kind, const SourceLoc& loc)
+        Token(std::string text, TokenKinds kind, const SourceLoc& loc) noexcept
             : text_(std::move(text)), loc_(loc), kind_(kind) {}
 
 
@@ -26,7 +26,7 @@ namespace parsec::pars {
         /**
          * @brief Character sequence covered by the token.
          */
-        const std::string& text() const {
+        const std::string& text() const noexcept {
             return text_;
         }
 
@@ -34,7 +34,7 @@ namespace parsec::pars {
         /**
          * @brief Location of the token.
          */
-        const SourceLoc& loc() const {
+        const SourceLoc& loc() const noexcept {
             return loc_;
         }
 
@@ -42,7 +42,7 @@ namespace parsec::pars {
         /**
          * @brief Classification of the token.
          */
-        TokenKinds kind() const {
+        TokenKinds kind() const noexcept {
             return kind_;
         }
 
@@ -51,11 +51,10 @@ namespace parsec::pars {
          * @brief Check if the token is of the specified type.
          */
         template <TokenKinds K>
-        bool is() const {
+        bool is() const noexcept {
             return kind() == K;
         }
         /** @} */
-
 
 
     private:
@@ -64,6 +63,10 @@ namespace parsec::pars {
         TokenKinds kind_ = {};
     };
 
-    std::ostream& operator<<(std::ostream& out, const Token& tok);
+
+    inline std::ostream& operator<<(std::ostream& out, const Token& tok) {
+        out << '(' << tok.kind() << ": " << '"' << tok.text() << "\")";
+        return out;
+    }
 
 }

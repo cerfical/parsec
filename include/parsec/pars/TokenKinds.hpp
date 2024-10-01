@@ -28,6 +28,29 @@ namespace parsec::pars {
         RightParen /**< @brief Closing parenthesis. */
     };
 
-    std::ostream& operator<<(std::ostream& out, TokenKinds tok);
+
+    inline std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
+        switch(tok) {
+            case TokenKinds::EmptyToken: out << "EmptyToken"; break;
+            case TokenKinds::Eof:        out << "Eof"; break;
+
+            case TokenKinds::Ident:         out << "Ident"; break;
+            case TokenKinds::PatternString: out << "PatternString"; break;
+
+            case TokenKinds::Star:         out << "Star"; break;
+            case TokenKinds::Plus:         out << "Plus"; break;
+            case TokenKinds::QuestionMark: out << "QuestionMark"; break;
+            case TokenKinds::Pipe:         out << "Pipe"; break;
+            case TokenKinds::Semicolon:    out << "Semicolon"; break;
+            case TokenKinds::Equals:       out << "Equals"; break;
+
+            case TokenKinds::LeftBrace:  out << "LeftBrace"; break;
+            case TokenKinds::RightBrace: out << "RightBrace"; break;
+
+            case TokenKinds::LeftParen:  out << "LeftParen"; break;
+            case TokenKinds::RightParen: out << "RightParen"; break;
+        }
+        return out;
+    }
 
 }

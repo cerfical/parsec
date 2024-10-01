@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <ostream>
 #include <string>
 #include <string_view>
 
@@ -19,11 +18,11 @@ namespace parsec {
     public:
 
         friend bool operator==(const Symbol& lhs, const Symbol& rhs) noexcept {
-            return lhs.value() == rhs.value();
+            return lhs.text() == rhs.text();
         }
 
         friend std::strong_ordering operator<=>(const Symbol& lhs, const Symbol& rhs) noexcept {
-            return lhs.value() <=> rhs.value();
+            return lhs.text() <=> rhs.text();
         }
 
 
@@ -40,35 +39,36 @@ namespace parsec {
         /**
          * @brief Construct an empty symbol.
          */
-        Symbol() noexcept = default;
+        Symbol()
+            : Symbol("") {}
 
 
         /**
          * @brief Construct a symbol from a single character.
          */
-        Symbol(char value)
-            : Symbol(std::string_view(&value, 1)) {}
+        Symbol(char ch)
+            : Symbol(std::string_view(&ch, 1)) {}
 
 
         /**
          * @brief Construct a symbol from a string literal.
          */
-        Symbol(const char* value)
-            : Symbol(std::string_view(value)) {}
+        Symbol(const char* cstr)
+            : Symbol(std::string_view(cstr)) {}
 
 
         /**
          * @brief Construct a symbol from a string.
          */
-        Symbol(const std::string& value)
-            : Symbol(std::string_view(value)) {}
+        Symbol(const std::string& str)
+            : Symbol(std::string_view(str)) {}
 
 
         /**
          * @brief Construct a symbol from an arbitrary character sequence.
          */
-        Symbol(std::string_view value)
-            : value_(value.empty() ? nullptr : std::make_shared<std::string>(string_util::escape(value))) {}
+        Symbol(std::string_view str)
+            : text_(std::make_shared<std::string>(string_util::escape(str))) {}
         /** @} */
 
 
@@ -76,12 +76,8 @@ namespace parsec {
         /**
          * @brief A character string representing the symbol's name.
          */
-        const std::string& value() const noexcept {
-            if(isEmpty()) {
-                static const std::string empty;
-                return empty;
-            }
-            return *value_;
+        const std::string& text() const noexcept {
+            return *text_;
         }
 
 
@@ -97,22 +93,20 @@ namespace parsec {
          * @brief Check if the symbol has an empty value.
          */
         bool isEmpty() const noexcept {
-            return !value_;
+            return text_->empty();
         }
         /** @} */
 
 
     private:
-        std::shared_ptr<std::string> value_;
+        std::shared_ptr<std::string> text_;
     };
-
-    std::ostream& operator<<(std::ostream& out, const Symbol& symbol);
 
 }
 
 template <>
 struct std::hash<parsec::Symbol> {
     std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
-        return std::hash<std::string>()(symbol.value());
+        return std::hash<std::string>()(symbol.text());
     }
 };

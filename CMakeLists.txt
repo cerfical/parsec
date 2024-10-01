@@ -33,14 +33,9 @@ set_target_properties(parsec-lib PROPERTIES OUTPUT_NAME parsec)
 target_compile_features(parsec-lib PUBLIC cxx_std_23)
 
 
-# List all source and header files for the library
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/parsec.hpp"
-        "include/parsec/print.hpp"
-
-    PRIVATE
-        "src/print.cpp"
 )
 
 
