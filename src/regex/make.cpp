@@ -1,12 +1,12 @@
 #include "regex/make.hpp"
 
-#include "regex/nodes/AlternExpr.hpp"
-#include "regex/nodes/ConcatExpr.hpp"
-#include "regex/nodes/NodeVisitor.hpp"
-#include "regex/nodes/OptionalExpr.hpp"
-#include "regex/nodes/PlusClosure.hpp"
-#include "regex/nodes/StarClosure.hpp"
-#include "regex/nodes/SymbolAtom.hpp"
+#include "regex/ast/AlternExpr.hpp"
+#include "regex/ast/ConcatExpr.hpp"
+#include "regex/ast/NodeVisitor.hpp"
+#include "regex/ast/OptionalExpr.hpp"
+#include "regex/ast/PlusClosure.hpp"
+#include "regex/ast/StarClosure.hpp"
+#include "regex/ast/SymbolAtom.hpp"
 
 namespace parsec::regex {
     NodePtr atom(const Symbol& value) {

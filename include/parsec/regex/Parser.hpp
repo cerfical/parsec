@@ -2,7 +2,7 @@
 
 #include "../core/TextScanner.hpp"
 
-#include "nodes/ExprNode.hpp"
+#include "ast/ExprNode.hpp"
 
 #include <istream>
 #include <string_view>

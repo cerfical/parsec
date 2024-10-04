@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../regex/nodes/ExprNode.hpp"
+#include "../regex/ast/ExprNode.hpp"
 #include "../regex/make.hpp"
 
 #include "Symbol.hpp"

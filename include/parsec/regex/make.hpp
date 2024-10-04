@@ -2,7 +2,7 @@
 
 #include "../core/Symbol.hpp"
 
-#include "nodes/ExprNode.hpp"
+#include "ast/ExprNode.hpp"
 
 namespace parsec::regex {
 

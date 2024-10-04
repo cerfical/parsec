@@ -97,19 +97,19 @@ target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/regex/Parser.hpp"
         "include/parsec/regex/make.hpp"
-        "include/parsec/regex/nodes/NodeVisitor.hpp"
-        "include/parsec/regex/nodes/ExprNode.hpp"
-        "include/parsec/regex/nodes/SymbolAtom.hpp"
-        "include/parsec/regex/nodes/BinaryExpr.hpp"
-        "include/parsec/regex/nodes/ConcatExpr.hpp"
-        "include/parsec/regex/nodes/AlternExpr.hpp"
-        "include/parsec/regex/nodes/UnaryExpr.hpp"
-        "include/parsec/regex/nodes/StarClosure.hpp"
-        "include/parsec/regex/nodes/PlusClosure.hpp"
+        "include/parsec/regex/ast/NodeVisitor.hpp"
+        "include/parsec/regex/ast/ExprNode.hpp"
+        "include/parsec/regex/ast/SymbolAtom.hpp"
+        "include/parsec/regex/ast/BinaryExpr.hpp"
+        "include/parsec/regex/ast/ConcatExpr.hpp"
+        "include/parsec/regex/ast/AlternExpr.hpp"
+        "include/parsec/regex/ast/UnaryExpr.hpp"
+        "include/parsec/regex/ast/StarClosure.hpp"
+        "include/parsec/regex/ast/PlusClosure.hpp"
 
     PRIVATE
         "src/regex/Parser.cpp"
-        "src/regex/nodes.cpp"
+        "src/regex/ast.cpp"
         "src/regex/make.cpp"
 )
 

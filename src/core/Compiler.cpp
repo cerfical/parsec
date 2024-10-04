@@ -25,8 +25,8 @@
 #include "pars/ast/StarRule.hpp"
 #include "pars/ast/SymbolAtom.hpp"
 
+#include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
-#include "regex/nodes/ExprNode.hpp"
 
 #include "util/string_util.hpp"
 
