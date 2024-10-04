@@ -6,6 +6,8 @@
 #include "regex/nodes/StarClosure.hpp"
 #include "regex/nodes/SymbolAtom.hpp"
 
+#include "util/string_util.hpp"
+
 namespace parsec::regex {
     std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
         class Impl : private NodeVisitor {
@@ -21,7 +23,7 @@ namespace parsec::regex {
         private:
             void visit(const SymbolAtom& n) override {
                 if(n.value()) {
-                    out_ << '\'' << n.value().text() << '\'';
+                    out_ << '\'' << string_util::escape(n.value().text()) << '\'';
                 } else {
                     out_ << "()";
                 }

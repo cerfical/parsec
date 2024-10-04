@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../util/string_util.hpp"
-
 #include <compare>
 #include <cstddef>
 #include <functional>
@@ -68,7 +66,7 @@ namespace parsec {
          * @brief Construct a symbol from an arbitrary character sequence.
          */
         Symbol(std::string_view str)
-            : text_(std::make_shared<std::string>(string_util::escape(str))) {}
+            : text_(std::make_shared<std::string>(str)) {}
         /** @} */
 
 
