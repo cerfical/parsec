@@ -18,17 +18,22 @@ namespace dll = boost::dll;
 class ParsecOptions {
 public:
 
-    ParsecOptions(int argc, const char* argv[])
-        : argc_(argc), argv_(argv), named_("Options") {
-        named_.add_options()                                                                   //
-            ("input-file,i", po::value<fs::path>()->required(), "input spec file")             //
-            ("output-file,o", po::value<fs::path>(), "output source file")                     //
-            ("template,t", po::value<std::string>()->default_value("json"), "output template") //
-            ("template-dir", po::value<fs::path>(), "template directory")                      //
-            ("tab-size", po::value<std::size_t>()->default_value(4), "tab display size")       //
-            ("version", "print version information")                                           //
-            ("help", "produce help message");                                                  //
+    ParsecOptions()
+        : named_("Options") {
+        // use the directory placed along the executable as the source for templates
+        const auto tmplDir = (dll::program_location().parent_path() / "templates" / "").string();
+        named_.add_options()                                                                                            //
+            ("input-file,i", po::value<std::string>()->required(), "input spec file")                                   //
+            ("output-file,o", po::value<std::string>()->default_value("<input-file>.<template>"), "output source file") //
+            ("template,t", po::value<std::string>()->default_value("json"), "output template")                          //
+            ("template-dir", po::value<std::string>()->default_value(tmplDir), "template directory")                    //
+            ("tab-size", po::value<std::size_t>()->default_value(4), "tab display size")                                //
+            ("version", "print version information")                                                                    //
+            ("help", "produce help message");                                                                           //
+    }
 
+
+    bool parse(int argc, const char* argv[]) {
         store(
             po::command_line_parser(argc, argv)
                 .positional(po::positional_options_description()
@@ -38,12 +43,9 @@ public:
                 .run(),
             options_
         );
-    }
 
-
-    bool dumpUsageInfo() {
         if(options_.contains("help") || options_.contains("version")) {
-            if(argc_ != 2) {
+            if(argc != 2) {
                 throw std::runtime_error("invalid command line options");
             }
 
@@ -68,33 +70,28 @@ public:
     }
 
 
-    fs::path inputFile() const {
-        return options_["input-file"].as<fs::path>();
+    const std::string& inputFile() const {
+        return options_["input-file"].as<std::string>();
     }
 
-    fs::path outputFile() const {
-        if(const auto& out = options_["output-file"]; !out.empty()) {
-            return out.as<fs::path>();
+    std::string outputFile() const {
+        if(const auto& out = options_["output-file"]; !out.defaulted()) {
+            return out.as<std::string>();
         }
-        return inputFile().replace_extension(templateName());
+        return fs::path(inputFile()).replace_extension(templateName()).string();
     }
 
 
-    fs::path templateDir() const {
-        if(const auto& tmplDir = options_["template-dir"]; !tmplDir.empty()) {
-            return tmplDir.as<fs::path>();
-        }
-
-        // use the directory placed along the executable as the source for templates
-        return (dll::program_location().parent_path() / "templates" / "").string();
+    const std::string& templateDir() const {
+        return options_["template-dir"].as<std::string>();
     }
 
-    std::string templateName() const {
+    const std::string& templateName() const {
         return options_["template"].as<std::string>();
     }
 
-    fs::path templatePath() const {
-        return templateDir().append(templateName()).concat(".tmpl");
+    std::string templatePath() const {
+        return (fs::path(templateDir()) / templateName()).string() + ".tmpl";
     }
 
 
@@ -106,9 +103,6 @@ public:
 private:
     po::options_description named_;
     po::variables_map options_;
-
-    int argc_ = {};
-    const char** argv_ = {};
 };
 
 
@@ -119,20 +113,16 @@ public:
         : options_(options) {}
 
     bool exec() {
-        input_.open(options_->inputFile(), std::ios::binary);
+        input_.open(options_->inputFile());
         if(!input_.is_open()) {
-            throw std::runtime_error(std::format("failed to load the input file \"{}\"", options_->inputFile().string()));
+            throw std::runtime_error(std::format("failed to load the input file \"{}\"", options_->inputFile()));
         }
-        input_.exceptions(std::ios::badbit | std::ios::failbit);
         compiler_.setInputSource(&input_);
 
         if(options_->templateName() != "json") {
-            tmpl_.open(options_->templatePath(), std::ios::binary);
+            tmpl_.open(options_->templatePath());
             if(!tmpl_.is_open()) {
-                throw std::runtime_error(std::format(
-                    "failed to load the template file \"{}\"",
-                    options_->templatePath().string()
-                ));
+                throw std::runtime_error(std::format("failed to load the template file \"{}\"", options_->templatePath()));
             }
             compiler_.setOutputTemplateSource(&tmpl_);
         }
@@ -155,7 +145,7 @@ private:
         if(!output_.is_open()) {
             throw std::runtime_error(std::format(
                 "failed to open the output file \"{}\"",
-                options_->outputFile().string()
+                options_->outputFile()
             ));
         }
         output_ << compiled.str();
@@ -194,7 +184,7 @@ private:
         const auto indent = std::string(tabSize, ' ');
 
         std::cerr
-            << options_->inputFile().string() << ':' << err.loc() << ": error: " << err.what() << '\n'
+            << options_->inputFile() << ':' << err.loc() << ": error: " << err.what() << '\n'
             << indent << formatted << '\n'
             << indent << spaces << marker << '\n';
     }
@@ -232,8 +222,7 @@ private:
 
 int main(int argc, const char* argv[]) noexcept {
     try {
-        auto options = ParsecOptions(argc, argv);
-        if(!options.dumpUsageInfo() && ParsecApp(&options).exec()) {
+        if(auto options = ParsecOptions(); !options.parse(argc, argv) && ParsecApp(&options).exec()) {
             return 0;
         }
     } catch(const std::exception& e) {
