@@ -2,6 +2,7 @@
 #include <parsec/parsec.hpp>
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/dll.hpp>
 #include <boost/program_options.hpp>
 
 #include <filesystem>
@@ -12,6 +13,7 @@
 namespace fs = std::filesystem;
 namespace algo = boost::algorithm;
 namespace po = boost::program_options;
+namespace dll = boost::dll;
 
 class ParsecOptions {
 public:
@@ -84,7 +86,7 @@ public:
         }
 
         // use the directory placed along the executable as the source for templates
-        return fs::path(argv_[0]).remove_filename() / "templates" / "";
+        return (dll::program_location().parent_path() / "templates" / "").string();
     }
 
     std::string templateName() const {

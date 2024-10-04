@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED COMPONENTS program_options dll)
 
 
 add_executable(parsec-app "main.cpp")
@@ -7,6 +7,7 @@ target_link_libraries(parsec-app
     PRIVATE parsec-lib
 
     PRIVATE Boost::program_options
+    PRIVATE Boost::dll
     PRIVATE Boost::boost
 )
 
