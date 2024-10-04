@@ -1,10 +1,7 @@
-set(TEST_TOOL Catch2)
+find_package(Catch2 3.7.0 CONFIG)
 
-find_package(${TEST_TOOL})
-
-
-if(NOT ${TEST_TOOL}_FOUND)
-    message(WARNING "${TEST_TOOL} not found: tests disabled")
+if(NOT Catch2_FOUND)
+    message(WARNING "Catch2 not found: tests disabled")
     return()
 endif()
 

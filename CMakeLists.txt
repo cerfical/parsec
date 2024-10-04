@@ -9,8 +9,8 @@ option(BUILD_APP "Build the command line tool" ON)
 option(BUILD_DOCS "Generate documentation from the source tree using Doxygen" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
 
-find_package(Boost REQUIRED)
-find_package(inja REQUIRED)
+find_package(Boost 1.85.0 CONFIG REQUIRED)
+find_package(inja 3.4.0 CONFIG REQUIRED)
 
 
 # Setup the main project library
