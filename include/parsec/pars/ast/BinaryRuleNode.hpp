@@ -7,13 +7,14 @@ namespace parsec::pars {
     /**
      * @brief Rule consisting of two subrules.
      */
-    class BinaryRule : public Node {
+    class BinaryRuleNode : public Node {
     public:
 
-        BinaryRule(NodePtr left, NodePtr right) noexcept
+        BinaryRuleNode(NodePtr left, NodePtr right) noexcept
             : left_(std::move(left)), right_(std::move(right)) {}
 
 
+        /** @{ */
         /**
          * @brief Left subrule.
          */
@@ -28,6 +29,7 @@ namespace parsec::pars {
         const Node* right() const noexcept {
             return right_.get();
         }
+        /** @} */
 
 
     private:

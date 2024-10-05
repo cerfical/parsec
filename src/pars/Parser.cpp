@@ -1,37 +1,19 @@
 #include "pars/Parser.hpp"
 
-#include "pars/ast/AlternRule.hpp"
-#include "pars/ast/ConcatRule.hpp"
+#include "pars/ast/AlternRuleNode.hpp"
+#include "pars/ast/ConcatRuleNode.hpp"
 #include "pars/ast/EmptyNode.hpp"
-#include "pars/ast/EmptyRule.hpp"
-#include "pars/ast/InlineToken.hpp"
+#include "pars/ast/EmptyRuleNode.hpp"
+#include "pars/ast/InlineTokenNode.hpp"
 #include "pars/ast/ListNode.hpp"
-#include "pars/ast/NamedRule.hpp"
-#include "pars/ast/NamedToken.hpp"
-#include "pars/ast/OptionalRule.hpp"
-#include "pars/ast/PlusRule.hpp"
-#include "pars/ast/StarRule.hpp"
-#include "pars/ast/SymbolAtom.hpp"
-
-#include <spanstream>
+#include "pars/ast/NamedRuleNode.hpp"
+#include "pars/ast/NamedTokenNode.hpp"
+#include "pars/ast/OptionalRuleNode.hpp"
+#include "pars/ast/PlusRuleNode.hpp"
+#include "pars/ast/StarRuleNode.hpp"
+#include "pars/ast/SymbolRuleNode.hpp"
 
 namespace parsec::pars {
-    NodePtr Parser::parseFrom(std::string_view str) {
-        auto in = std::ispanstream(str);
-        return parseFrom(in);
-    }
-
-
-    NodePtr Parser::parseFrom(std::istream& in) {
-        return Parser(&in).parse();
-    }
-
-
-    NodePtr Parser::parse() {
-        return parseSpec();
-    }
-
-
     NodePtr Parser::parseSpec() {
         auto spec = makeNode<EmptyNode>();
         while(!lexer_.isEof()) {
@@ -70,12 +52,12 @@ namespace parsec::pars {
 
 
     NodePtr Parser::parseToken(const Token& name) {
-        return makeNode<NamedToken>(name, expect<TokenKinds::PatternString>());
+        return makeNode<NamedTokenNode>(name, expect<TokenKinds::PatternString>());
     }
 
 
     NodePtr Parser::parseRule(const Token& name) {
-        return makeNode<NamedRule>(name, parseRuleExpr());
+        return makeNode<NamedRuleNode>(name, parseRuleExpr());
     }
 
 
@@ -87,7 +69,7 @@ namespace parsec::pars {
     NodePtr Parser::parseAltern() {
         auto lhs = parseConcat();
         while(lexer_.skipIf(TokenKinds::Pipe)) {
-            lhs = makeNode<AlternRule>(std::move(lhs), parseConcat());
+            lhs = makeNode<AlternRuleNode>(std::move(lhs), parseConcat());
         }
         return lhs;
     }
@@ -96,7 +78,7 @@ namespace parsec::pars {
     NodePtr Parser::parseConcat() {
         auto lhs = parseRepeat();
         while(isAtom()) {
-            lhs = makeNode<ConcatRule>(std::move(lhs), parseRepeat());
+            lhs = makeNode<ConcatRuleNode>(std::move(lhs), parseRepeat());
         }
         return lhs;
     }
@@ -106,11 +88,11 @@ namespace parsec::pars {
         auto inner = parseAtom();
         while(true) {
             if(lexer_.skipIf(TokenKinds::Star)) {
-                inner = makeNode<StarRule>(std::move(inner));
+                inner = makeNode<StarRuleNode>(std::move(inner));
             } else if(lexer_.skipIf(TokenKinds::Plus)) {
-                inner = makeNode<PlusRule>(std::move(inner));
+                inner = makeNode<PlusRuleNode>(std::move(inner));
             } else if(lexer_.skipIf(TokenKinds::QuestionMark)) {
-                inner = makeNode<OptionalRule>(std::move(inner));
+                inner = makeNode<OptionalRuleNode>(std::move(inner));
             } else {
                 break;
             }
@@ -122,12 +104,12 @@ namespace parsec::pars {
     NodePtr Parser::parseAtom() {
         switch(lexer_.peek().kind()) {
             case TokenKinds::Ident: {
-                return makeNode<SymbolAtom>(lexer_.lex());
+                return makeNode<SymbolRuleNode>(lexer_.lex());
             }
             case TokenKinds::LeftParen: {
                 const auto openParen = lexer_.lex();
                 if(lexer_.skipIf(TokenKinds::RightParen)) {
-                    return makeNode<EmptyRule>();
+                    return makeNode<EmptyRuleNode>();
                 }
 
                 auto subrule = parseRuleExpr();
@@ -137,7 +119,7 @@ namespace parsec::pars {
                 return subrule;
             }
             case TokenKinds::PatternString: {
-                return makeNode<InlineToken>(lexer_.lex());
+                return makeNode<InlineTokenNode>(lexer_.lex());
             }
             case TokenKinds::RightParen: {
                 throw ParseError::misplacedChar(lexer_.loc(), ')');

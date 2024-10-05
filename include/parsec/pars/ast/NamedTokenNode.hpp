@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Token.hpp"
-
 #include "Node.hpp"
 
 namespace parsec::pars {
@@ -9,13 +8,14 @@ namespace parsec::pars {
     /**
      * @brief Definition of a named token.
      */
-    class NamedToken : public Node {
+    class NamedTokenNode : public Node {
     public:
 
-        NamedToken(Token name, Token pattern) noexcept
+        NamedTokenNode(Token name, Token pattern) noexcept
             : name_(std::move(name)), pattern_(std::move(pattern)) {}
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -33,6 +33,7 @@ namespace parsec::pars {
         const Token& pattern() const noexcept {
             return pattern_;
         }
+        /** @} */
 
 
     private:

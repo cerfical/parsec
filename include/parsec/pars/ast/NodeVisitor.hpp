@@ -5,17 +5,17 @@ namespace parsec::pars {
     class EmptyNode;
     class ListNode;
 
-    class InlineToken;
-    class NamedToken;
-    class NamedRule;
+    class InlineTokenNode;
+    class NamedTokenNode;
+    class NamedRuleNode;
 
-    class SymbolAtom;
-    class EmptyRule;
-    class ConcatRule;
-    class AlternRule;
-    class OptionalRule;
-    class PlusRule;
-    class StarRule;
+    class SymbolRuleNode;
+    class EmptyRuleNode;
+    class ConcatRuleNode;
+    class AlternRuleNode;
+    class OptionalRuleNode;
+    class PlusRuleNode;
+    class StarRuleNode;
 
     /**
      * @brief Implements a visitor for Node%s.
@@ -36,63 +36,63 @@ namespace parsec::pars {
 
 
         /**
-         * @brief Called for an InlineToken.
+         * @brief Called for an InlineTokenNode.
          */
-        virtual void visit(const InlineToken& n) = 0;
+        virtual void visit(const InlineTokenNode& n) = 0;
 
 
         /**
-         * @brief Called for a NamedToken.
+         * @brief Called for a NamedTokenNode.
          */
-        virtual void visit(const NamedToken& n) = 0;
+        virtual void visit(const NamedTokenNode& n) = 0;
 
 
         /**
-         * @brief Called for a NamedRule.
+         * @brief Called for a NamedRuleNode.
          */
-        virtual void visit(const NamedRule& n) = 0;
+        virtual void visit(const NamedRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for a SymbolAtom.
+         * @brief Called for a SymbolRuleNode.
          */
-        virtual void visit(const SymbolAtom& n) = 0;
+        virtual void visit(const SymbolRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for an EmptyRule.
+         * @brief Called for an EmptyRuleNode.
          */
-        virtual void visit(const EmptyRule& n) = 0;
+        virtual void visit(const EmptyRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for a ConcatRule.
+         * @brief Called for a ConcatRuleNode.
          */
-        virtual void visit(const ConcatRule& n) = 0;
+        virtual void visit(const ConcatRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for an AlternRule.
+         * @brief Called for an AlternRuleNode.
          */
-        virtual void visit(const AlternRule& n) = 0;
+        virtual void visit(const AlternRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for an OptionalRule.
+         * @brief Called for an OptionalRuleNode.
          */
-        virtual void visit(const OptionalRule& n) = 0;
+        virtual void visit(const OptionalRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for a PlusRule.
+         * @brief Called for a PlusRuleNode.
          */
-        virtual void visit(const PlusRule& n) = 0;
+        virtual void visit(const PlusRuleNode& n) = 0;
 
 
         /**
-         * @brief Called for a StarRule.
+         * @brief Called for a StarRuleNode.
          */
-        virtual void visit(const StarRule& n) = 0;
+        virtual void visit(const StarRuleNode& n) = 0;
 
 
     protected:

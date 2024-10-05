@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../core/TextScanner.hpp"
-
 #include "Token.hpp"
 
 #include <istream>
@@ -17,18 +16,22 @@ namespace parsec::pars {
     class Lexer {
     public:
 
+        Lexer() = default;
+
         Lexer(const Lexer& other) = delete;
         Lexer& operator=(const Lexer& other) = delete;
 
-        Lexer(Lexer&& other) noexcept = default;
-        Lexer& operator=(Lexer&& other) noexcept = default;
+        Lexer(Lexer&& other) = default;
+        Lexer& operator=(Lexer&& other) = default;
 
         ~Lexer() = default;
 
 
-        Lexer() = default;
-
-        explicit Lexer(std::istream* input) noexcept
+        /** @{ */
+        /**
+         * @brief Construct a new lexer that operates on an input stream.
+         */
+        explicit Lexer(std::istream* input)
             : input_(input) {}
 
 

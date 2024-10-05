@@ -1,40 +1,65 @@
 #pragma once
 
 #include "../core/ParseError.hpp"
-
 #include "ast/Node.hpp"
 
 #include "Lexer.hpp"
 
 #include <istream>
+#include <spanstream>
 #include <string_view>
 
 namespace parsec::pars {
 
+    /**
+     * @brief Parses grammar specifications into their tree representation.
+     */
     class Parser {
     public:
 
-        static NodePtr parseFrom(std::string_view str);
+        /**
+         * @brief Parse a grammar specification taken from a string.
+         */
+        static NodePtr parseFrom(std::string_view str) {
+            auto in = std::ispanstream(str);
+            return parseFrom(in);
+        }
 
-        static NodePtr parseFrom(std::istream& in);
 
+        /**
+         * @brief Parse a grammar specification taken from an input stream.
+         */
+        static NodePtr parseFrom(std::istream& in) {
+            return Parser(&in).parse();
+        }
+
+
+        Parser() = default;
 
         Parser(const Parser& other) = delete;
         Parser& operator=(const Parser& other) = delete;
 
-        Parser(Parser&& other) noexcept = default;
-        Parser& operator=(Parser&& other) noexcept = default;
+        Parser(Parser&& other) = default;
+        Parser& operator=(Parser&& other) = default;
 
         ~Parser() = default;
 
 
-        Parser() noexcept = default;
-
-        explicit Parser(std::istream* input) noexcept
+        /** @{ */
+        /**
+         * @brief Construct a new parser that has an input stream as the source of data to parse.
+         */
+        explicit Parser(std::istream* input)
             : lexer_(input) {}
 
 
-        NodePtr parse();
+        /**
+         * @brief Start the parse.
+         */
+        NodePtr parse() {
+            return parseSpec();
+        }
+        /** @} */
 
 
     private:

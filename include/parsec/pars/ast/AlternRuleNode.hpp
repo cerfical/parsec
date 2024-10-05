@@ -1,18 +1,21 @@
 #pragma once
 
-#include "BinaryRule.hpp"
+#include "BinaryRuleNode.hpp"
 
 namespace parsec::pars {
 
     /**
      * @brief Alternation of two rules.
      */
-    class AlternRule : public BinaryRule {
+    class AlternRuleNode : public BinaryRuleNode {
     public:
 
-        using BinaryRule::BinaryRule;
+        using BinaryRuleNode::BinaryRuleNode;
 
+
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
+        /** @} */
     };
 
 }

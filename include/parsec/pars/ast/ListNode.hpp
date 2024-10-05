@@ -5,7 +5,7 @@
 namespace parsec::pars {
 
     /**
-     * @brief Sequence of two nodes.
+     * @brief Sequence of two Node%s.
      */
     class ListNode : public Node {
     public:
@@ -14,6 +14,7 @@ namespace parsec::pars {
             : head_(std::move(head)), tail_(std::move(tail)) {}
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -31,6 +32,7 @@ namespace parsec::pars {
         const Node* tail() const noexcept {
             return tail_.get();
         }
+        /** @} */
 
 
     private:

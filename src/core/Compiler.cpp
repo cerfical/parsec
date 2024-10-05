@@ -10,20 +10,20 @@
 #include "pars/Parser.hpp"
 #include "pars/Token.hpp"
 
-#include "pars/ast/AlternRule.hpp"
-#include "pars/ast/ConcatRule.hpp"
+#include "pars/ast/AlternRuleNode.hpp"
+#include "pars/ast/ConcatRuleNode.hpp"
 #include "pars/ast/EmptyNode.hpp"
-#include "pars/ast/EmptyRule.hpp"
-#include "pars/ast/InlineToken.hpp"
+#include "pars/ast/EmptyRuleNode.hpp"
+#include "pars/ast/InlineTokenNode.hpp"
 #include "pars/ast/ListNode.hpp"
-#include "pars/ast/NamedRule.hpp"
-#include "pars/ast/NamedToken.hpp"
+#include "pars/ast/NamedRuleNode.hpp"
+#include "pars/ast/NamedTokenNode.hpp"
 #include "pars/ast/Node.hpp"
 #include "pars/ast/NodeVisitor.hpp"
-#include "pars/ast/OptionalRule.hpp"
-#include "pars/ast/PlusRule.hpp"
-#include "pars/ast/StarRule.hpp"
-#include "pars/ast/SymbolAtom.hpp"
+#include "pars/ast/OptionalRuleNode.hpp"
+#include "pars/ast/PlusRuleNode.hpp"
+#include "pars/ast/StarRuleNode.hpp"
+#include "pars/ast/SymbolRuleNode.hpp"
 
 #include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
@@ -58,29 +58,29 @@ namespace parsec {
             }
 
         private:
-            void visit(const NamedRule& n) override {
+            void visit(const NamedRuleNode& n) override {
                 n.rule()->accept(*this);
             }
 
-            void visit(const ConcatRule& n) override {
+            void visit(const ConcatRuleNode& n) override {
                 n.left()->accept(*this);
                 n.right()->accept(*this);
             }
 
-            void visit(const AlternRule& n) override {
+            void visit(const AlternRuleNode& n) override {
                 n.left()->accept(*this);
                 n.right()->accept(*this);
             }
 
-            void visit(const OptionalRule& n) override {
+            void visit(const OptionalRuleNode& n) override {
                 n.inner()->accept(*this);
             }
 
-            void visit(const PlusRule& n) override {
+            void visit(const PlusRuleNode& n) override {
                 n.inner()->accept(*this);
             }
 
-            void visit(const StarRule& n) override {
+            void visit(const StarRuleNode& n) override {
                 n.inner()->accept(*this);
             }
 
@@ -89,10 +89,10 @@ namespace parsec {
                 n.tail()->accept(*this);
             }
 
-            void visit(const SymbolAtom& n) override {}
-            void visit(const InlineToken& n) override {}
-            void visit(const EmptyRule& n) override {}
-            void visit(const NamedToken& n) override {}
+            void visit(const SymbolRuleNode& n) override {}
+            void visit(const InlineTokenNode& n) override {}
+            void visit(const EmptyRuleNode& n) override {}
+            void visit(const NamedTokenNode& n) override {}
             void visit(const EmptyNode& n) override {}
         };
 
@@ -149,12 +149,12 @@ namespace parsec {
                     : names_(&names), patterns_(&patterns) {}
 
             private:
-                void visit(const NamedToken& n) override {
+                void visit(const NamedTokenNode& n) override {
                     insertName(n.name());
                     patterns_->insertEntry(n.pattern().text(), makeName(n.name()));
                 }
 
-                void visit(const NamedRule& n) override {
+                void visit(const NamedRuleNode& n) override {
                     insertName(n.name());
                     // no need to visit the rule itself
                 }
@@ -194,7 +194,7 @@ namespace parsec {
                     : names_(&names) {}
 
             private:
-                void visit(const SymbolAtom& n) override {
+                void visit(const SymbolRuleNode& n) override {
                     if(!names_->contains(makeName(n.value()))) {
                         throw ParseError::undefinedName(n.value().loc());
                     }
@@ -219,11 +219,11 @@ namespace parsec {
                 }
 
             private:
-                void visit(const NamedToken& n) override {
+                void visit(const NamedTokenNode& n) override {
                     defineToken(makeName(n.name()), n.pattern());
                 }
 
-                void visit(const InlineToken& n) override {
+                void visit(const InlineTokenNode& n) override {
                     const auto* const name = patterns_->lookupName(n.pattern().text());
                     if(!name) {
                         const auto fakeName = std::format("{}{}", UnnamedTokenPrefix, nextUnnamedTokenId_++);
@@ -279,7 +279,7 @@ namespace parsec {
                 }
 
             private:
-                void visit(const NamedRule& n) override {
+                void visit(const NamedRuleNode& n) override {
                     traverse(*n.rule());
 
                     const auto unifedName = makeName(n.name());
@@ -291,39 +291,39 @@ namespace parsec {
                     }
                 }
 
-                void visit(const InlineToken& n) override {
+                void visit(const InlineTokenNode& n) override {
                     rule_ = regex::atom(*patterns_->lookupName(n.pattern().text()));
                 }
 
-                void visit(const EmptyRule& /*n*/) override {
+                void visit(const EmptyRuleNode& /*n*/) override {
                     rule_ = regex::empty();
                 }
 
-                void visit(const SymbolAtom& n) override {
+                void visit(const SymbolRuleNode& n) override {
                     rule_ = regex::atom(makeName(n.value()));
                 }
 
-                void visit(const ConcatRule& n) override {
+                void visit(const ConcatRuleNode& n) override {
                     const regex::NodePtr left = (traverse(*n.left()), rule_);
                     rule_ = (traverse(*n.right()), regex::concat(left, rule_));
                 }
 
-                void visit(const AlternRule& n) override {
+                void visit(const AlternRuleNode& n) override {
                     const regex::NodePtr left = (traverse(*n.left()), rule_);
                     rule_ = (traverse(*n.right()), regex::altern(left, rule_));
                 }
 
-                void visit(const OptionalRule& n) override {
+                void visit(const OptionalRuleNode& n) override {
                     traverse(*n.inner());
                     rule_ = regex::optional(rule_);
                 }
 
-                void visit(const PlusRule& n) override {
+                void visit(const PlusRuleNode& n) override {
                     traverse(*n.inner());
                     rule_ = regex::plusClosure(rule_);
                 }
 
-                void visit(const StarRule& n) override {
+                void visit(const StarRuleNode& n) override {
                     traverse(*n.inner());
                     rule_ = regex::starClosure(rule_);
                 }

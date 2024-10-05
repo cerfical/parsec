@@ -1,18 +1,21 @@
 #pragma once
 
-#include "UnaryRule.hpp"
+#include "UnaryRuleNode.hpp"
 
 namespace parsec::pars {
 
     /**
      * @brief Denotes an 'optional' rule.
      */
-    class OptionalRule : public UnaryRule {
+    class OptionalRuleNode : public UnaryRuleNode {
     public:
 
-        using UnaryRule::UnaryRule;
+        using UnaryRuleNode::UnaryRuleNode;
 
+
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
+        /** @} */
     };
 
 }

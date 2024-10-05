@@ -8,7 +8,7 @@ namespace parsec::pars {
     class NodeVisitor;
 
     /**
-     * @brief Polymorphic entry point into an AST node.
+     * @brief AST node to represent a grammar rule.
      */
     class Node {
     public:
@@ -24,10 +24,12 @@ namespace parsec::pars {
         virtual ~Node() = default;
 
 
+        /** @{ */
         /**
-         * @brief Perform a "visit" operation on the node using a NodeVisitor instance.
+         * @brief Perform a type-safe 'visit' on the node using a visitor.
          */
         virtual void accept(NodeVisitor& visitor) const = 0;
+        /** @} */
     };
 
 

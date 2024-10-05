@@ -1,18 +1,21 @@
 #pragma once
 
-#include "UnaryRule.hpp"
+#include "UnaryRuleNode.hpp"
 
 namespace parsec::pars {
 
     /**
      * @brief Denotes an application of the Kleene star operator to a rule.
      */
-    class StarRule : public UnaryRule {
+    class StarRuleNode : public UnaryRuleNode {
     public:
 
-        using UnaryRule::UnaryRule;
+        using UnaryRuleNode::UnaryRuleNode;
 
+
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
+        /** @} */
     };
 
 }

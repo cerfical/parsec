@@ -1,18 +1,21 @@
 #pragma once
 
-#include "UnaryRule.hpp"
+#include "UnaryRuleNode.hpp"
 
 namespace parsec::pars {
 
     /**
      * @brief Denotes an application of the Kleene plus operator to a rule.
      */
-    class PlusRule : public UnaryRule {
+    class PlusRuleNode : public UnaryRuleNode {
     public:
 
-        using UnaryRule::UnaryRule;
+        using UnaryRuleNode::UnaryRuleNode;
 
+
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
+        /** @} */
     };
 
 }

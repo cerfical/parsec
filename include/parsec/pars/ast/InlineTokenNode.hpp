@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Token.hpp"
-
 #include "Node.hpp"
 
 namespace parsec::pars {
@@ -9,13 +8,14 @@ namespace parsec::pars {
     /**
      * @brief Definition of an inline token without a name.
      */
-    class InlineToken : public Node {
+    class InlineTokenNode : public Node {
     public:
 
-        explicit InlineToken(Token pattern) noexcept
+        explicit InlineTokenNode(Token pattern) noexcept
             : pattern_(std::move(pattern)) {}
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -25,6 +25,7 @@ namespace parsec::pars {
         const Token& pattern() const noexcept {
             return pattern_;
         }
+        /** @} */
 
 
     private:

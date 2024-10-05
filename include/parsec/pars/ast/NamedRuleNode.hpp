@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Token.hpp"
-
 #include "Node.hpp"
 
 namespace parsec::pars {
@@ -9,13 +8,14 @@ namespace parsec::pars {
     /**
      * @brief Represents a rule with a name.
      */
-    class NamedRule : public Node {
+    class NamedRuleNode : public Node {
     public:
 
-        NamedRule(Token name, NodePtr rule) noexcept
+        NamedRuleNode(Token name, NodePtr rule) noexcept
             : name_(std::move(name)), rule_(std::move(rule)) {}
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -33,6 +33,7 @@ namespace parsec::pars {
         const Node* rule() const noexcept {
             return rule_.get();
         }
+        /** @} */
 
 
     private:

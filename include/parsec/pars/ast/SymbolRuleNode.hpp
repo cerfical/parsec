@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Token.hpp"
-
 #include "Node.hpp"
 
 namespace parsec::pars {
@@ -9,13 +8,14 @@ namespace parsec::pars {
     /**
      * @brief Trivial rule consisting of a single symbolic name.
      */
-    class SymbolAtom : public Node {
+    class SymbolRuleNode : public Node {
     public:
 
-        explicit SymbolAtom(Token value) noexcept
+        explicit SymbolRuleNode(Token value) noexcept
             : value_(std::move(value)) {}
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -25,6 +25,7 @@ namespace parsec::pars {
         const Token& value() const noexcept {
             return value_;
         }
+        /** @} */
 
 
     private:

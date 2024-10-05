@@ -1,18 +1,21 @@
 #pragma once
 
-#include "BinaryRule.hpp"
+#include "BinaryRuleNode.hpp"
 
 namespace parsec::pars {
 
     /**
      * @brief Concatenation of two rules.
      */
-    class ConcatRule : public BinaryRule {
+    class ConcatRuleNode : public BinaryRuleNode {
     public:
 
-        using BinaryRule::BinaryRule;
+        using BinaryRuleNode::BinaryRuleNode;
 
+
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
+        /** @} */
     };
 
 }
