@@ -6,6 +6,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Atomic expression consisting of a single symbol.
+     */
     class SymbolAtom : public ExprNode {
     public:
 
@@ -24,6 +27,9 @@ namespace parsec::regex {
         }
 
 
+        /**
+         * @brief Value of the symbol.
+         */
         const Symbol& value() const noexcept {
             return value_;
         }

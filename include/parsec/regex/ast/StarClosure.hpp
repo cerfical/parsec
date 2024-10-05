@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Denotes an application of the Kleene star operator to an expression.
+     */
     class StarClosure : public UnaryExpr {
     public:
 

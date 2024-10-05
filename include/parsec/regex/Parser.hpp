@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../core/TextScanner.hpp"
-
 #include "ast/ExprNode.hpp"
 
 #include <istream>
@@ -9,32 +8,54 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Parses regular expressions into their tree representation.
+     */
     class Parser {
     public:
 
+        /**
+         * @brief Parses an expression taken from a string.
+         */
         static NodePtr parseFrom(std::string_view str);
 
+
+        /**
+         * @brief Parses an expression taken from an input stream.
+         */
         static NodePtr parseFrom(std::istream& in);
 
+
+        /**
+         * @brief Checks whether a character has a special meaning in regular expression syntax.
+         */
         static bool isMetaChar(char ch);
 
+
+        Parser() = default;
 
         Parser(const Parser& other) = delete;
         Parser& operator=(const Parser& other) = delete;
 
-        Parser(Parser&& other) noexcept = default;
-        Parser& operator=(Parser&& other) noexcept = default;
+        Parser(Parser&& other) = default;
+        Parser& operator=(Parser&& other) = default;
 
         ~Parser() = default;
 
 
-        Parser() noexcept = default;
-
-        explicit Parser(std::istream* input) noexcept
+        /** @{ */
+        /**
+         * @brief Construct a new parser that has an input stream as the source of data to parse.
+         */
+        explicit Parser(std::istream* input)
             : input_(input) {}
 
 
+        /**
+         * @brief Start the parse.
+         */
         NodePtr parse();
+        /** @} */
 
 
     private:

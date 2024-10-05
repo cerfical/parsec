@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Expression consisting of two subexpressions.
+     */
     class BinaryExpr : public ExprNode {
     public:
 
@@ -16,10 +19,17 @@ namespace parsec::regex {
         }
 
 
+        /**
+         * @brief Left subexpression.
+         */
         const ExprNode* left() const noexcept {
             return left_.get();
         }
 
+
+        /**
+         * @brief Right subexpression.
+         */
         const ExprNode* right() const noexcept {
             return right_.get();
         }

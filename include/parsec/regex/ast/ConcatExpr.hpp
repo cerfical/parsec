@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Concatenation of two expressions.
+     */
     class ConcatExpr : public BinaryExpr {
     public:
 

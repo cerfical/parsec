@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Denotes an application of the Kleene plus operator to an expression.
+     */
     class PlusClosure : public UnaryExpr {
     public:
 

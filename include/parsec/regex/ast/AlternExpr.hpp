@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Alternation of two expressions.
+     */
     class AlternExpr : public BinaryExpr {
     public:
 

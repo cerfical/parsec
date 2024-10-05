@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Denotes an 'optional' expresion.
+     */
     class OptionalExpr : public UnaryExpr {
     public:
 

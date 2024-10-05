@@ -104,6 +104,7 @@ target_sources(parsec-lib
         "include/parsec/regex/ast/ConcatExpr.hpp"
         "include/parsec/regex/ast/AlternExpr.hpp"
         "include/parsec/regex/ast/UnaryExpr.hpp"
+        "include/parsec/regex/ast/OptionalExpr.hpp"
         "include/parsec/regex/ast/StarClosure.hpp"
         "include/parsec/regex/ast/PlusClosure.hpp"
 

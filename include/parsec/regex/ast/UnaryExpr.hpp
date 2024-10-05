@@ -4,6 +4,9 @@
 
 namespace parsec::regex {
 
+    /**
+     * @brief Expression consisting of one subexpression.
+     */
     class UnaryExpr : public ExprNode {
     public:
 
@@ -16,6 +19,9 @@ namespace parsec::regex {
         }
 
 
+        /**
+         * @brief Inner subexpression.
+         */
         const ExprNode* inner() const noexcept {
             return inner_.get();
         }
