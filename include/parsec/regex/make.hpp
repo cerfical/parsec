@@ -1,7 +1,12 @@
 #pragma once
 
-#include "../core/Symbol.hpp"
-#include "ast/ExprNode.hpp"
+#include "ast/AlternExpr.hpp"
+#include "ast/ConcatExpr.hpp"
+#include "ast/NodeVisitor.hpp"
+#include "ast/OptionalExpr.hpp"
+#include "ast/PlusClosure.hpp"
+#include "ast/StarClosure.hpp"
+#include "ast/SymbolAtom.hpp"
 
 namespace parsec::regex {
 
@@ -13,7 +18,9 @@ namespace parsec::regex {
     /**
      * @brief Create a SymbolAtom.
      */
-    NodePtr atom(const Symbol& value);
+    inline NodePtr atom(Symbol value) {
+        return std::make_shared<SymbolAtom>(std::move(value));
+    }
 
 
     /**
@@ -27,31 +34,47 @@ namespace parsec::regex {
     /**
      * @brief Create an AlternExpr.
      */
-    NodePtr altern(NodePtr left, NodePtr right);
+    inline NodePtr altern(NodePtr left, NodePtr right) {
+        if(left && right) {
+            return std::make_shared<AlternExpr>(left, right);
+        }
+        return left ? left : right;
+    }
 
 
     /**
      * @brief Create a ConcatExpr.
      */
-    NodePtr concat(NodePtr left, NodePtr right);
+    inline NodePtr concat(NodePtr left, NodePtr right) {
+        if(left && right) {
+            return std::make_shared<ConcatExpr>(left, right);
+        }
+        return left ? left : right;
+    }
 
 
     /**
      * @brief Create a StarClosure.
      */
-    NodePtr starClosure(NodePtr inner);
+    inline NodePtr starClosure(NodePtr inner) {
+        return inner ? std::make_shared<StarClosure>(inner) : inner;
+    }
 
 
     /**
      * @brief Create a PlusClosure.
      */
-    NodePtr plusClosure(NodePtr inner);
+    inline NodePtr plusClosure(NodePtr inner) {
+        return inner ? std::make_shared<PlusClosure>(inner) : inner;
+    }
 
 
     /**
      * @brief Create an OptionalExpr.
      */
-    NodePtr optional(NodePtr inner);
+    inline NodePtr optional(NodePtr inner) {
+        return inner ? std::make_shared<OptionalExpr>(inner) : inner;
+    }
     /** @} */
 
 }

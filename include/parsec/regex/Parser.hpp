@@ -4,6 +4,7 @@
 #include "ast/ExprNode.hpp"
 
 #include <istream>
+#include <spanstream>
 #include <string_view>
 
 namespace parsec::regex {
@@ -17,13 +18,18 @@ namespace parsec::regex {
         /**
          * @brief Parses an expression taken from a string.
          */
-        static NodePtr parseFrom(std::string_view str);
+        static NodePtr parseFrom(std::string_view str) {
+            auto in = std::ispanstream(str);
+            return parseFrom(in);
+        }
 
 
         /**
          * @brief Parses an expression taken from an input stream.
          */
-        static NodePtr parseFrom(std::istream& in);
+        static NodePtr parseFrom(std::istream& in) {
+            return Parser(&in).parse();
+        }
 
 
         /**

@@ -4,23 +4,9 @@
 #include "core/TextScanner.hpp"
 
 #include "regex/make.hpp"
-
 #include "util/char_util.hpp"
 
-#include <spanstream>
-
 namespace parsec::regex {
-    NodePtr Parser::parseFrom(std::string_view str) {
-        auto in = std::ispanstream(str);
-        return parseFrom(in);
-    }
-
-
-    NodePtr Parser::parseFrom(std::istream& in) {
-        return Parser(&in).parse();
-    }
-
-
     bool Parser::isMetaChar(char ch) {
         switch(ch) {
             case '|':

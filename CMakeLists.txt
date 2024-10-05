@@ -111,7 +111,6 @@ target_sources(parsec-lib
     PRIVATE
         "src/regex/Parser.cpp"
         "src/regex/ast.cpp"
-        "src/regex/make.cpp"
 )
 
 
