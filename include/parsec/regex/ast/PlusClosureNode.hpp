@@ -1,23 +1,25 @@
 #pragma once
 
-#include "UnaryExpr.hpp"
+#include "UnaryExprNode.hpp"
 
 namespace parsec::regex {
 
     /**
      * @brief Denotes an application of the Kleene plus operator to an expression.
      */
-    class PlusClosure : public UnaryExpr {
+    class PlusClosureNode : public UnaryExprNode {
     public:
 
-        using UnaryExpr::UnaryExpr;
+        using UnaryExprNode::UnaryExprNode;
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
         bool isNullable() const noexcept override {
             return inner()->isNullable();
         }
+        /** @} */
     };
 
 }

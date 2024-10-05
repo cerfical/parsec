@@ -7,13 +7,14 @@ namespace parsec::regex {
     /**
      * @brief Expression consisting of one subexpression.
      */
-    class UnaryExpr : public ExprNode {
+    class UnaryExprNode : public ExprNode {
     public:
 
-        explicit UnaryExpr(NodePtr inner) noexcept
+        explicit UnaryExprNode(NodePtr inner) noexcept
             : inner_(std::move(inner)) {}
 
 
+        /** @{ */
         int atomCount() const noexcept override {
             return inner_->atomCount();
         }
@@ -25,6 +26,7 @@ namespace parsec::regex {
         const ExprNode* inner() const noexcept {
             return inner_.get();
         }
+        /** @} */
 
 
     private:

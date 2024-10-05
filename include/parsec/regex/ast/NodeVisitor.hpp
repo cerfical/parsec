@@ -2,14 +2,14 @@
 
 namespace parsec::regex {
 
-    class SymbolAtom;
+    class AtomExprNode;
 
-    class StarClosure;
-    class PlusClosure;
-    class OptionalExpr;
+    class StarClosureNode;
+    class PlusClosureNode;
+    class OptionalExprNode;
 
-    class AlternExpr;
-    class ConcatExpr;
+    class AlternExprNode;
+    class ConcatExprNode;
 
     /**
      * @brief Implements a visitor for ExprNode%s.
@@ -18,39 +18,39 @@ namespace parsec::regex {
     public:
 
         /**
-         * @brief Called for a SymbolAtom.
+         * @brief Called for a AtomExprNode.
          */
-        virtual void visit(const SymbolAtom& n) = 0;
+        virtual void visit(const AtomExprNode& n) = 0;
 
 
         /**
-         * @brief Called for a StarClosure.
+         * @brief Called for a StarClosureNode.
          */
-        virtual void visit(const StarClosure& n) = 0;
+        virtual void visit(const StarClosureNode& n) = 0;
 
 
         /**
-         * @brief Called for a PlusClosure.
+         * @brief Called for a PlusClosureNode.
          */
-        virtual void visit(const PlusClosure& n) = 0;
+        virtual void visit(const PlusClosureNode& n) = 0;
 
 
         /**
-         * @brief Called for an OptionalExpr.
+         * @brief Called for an OptionalExprNode.
          */
-        virtual void visit(const OptionalExpr& n) = 0;
+        virtual void visit(const OptionalExprNode& n) = 0;
 
 
         /**
-         * @brief Called for an AlternExpr.
+         * @brief Called for an AlternExprNode.
          */
-        virtual void visit(const AlternExpr& n) = 0;
+        virtual void visit(const AlternExprNode& n) = 0;
 
 
         /**
-         * @brief Called for a ConcatExpr.
+         * @brief Called for a ConcatExprNode.
          */
-        virtual void visit(const ConcatExpr& n) = 0;
+        virtual void visit(const ConcatExprNode& n) = 0;
 
 
     protected:

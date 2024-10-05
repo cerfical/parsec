@@ -16,7 +16,7 @@ namespace parsec::regex {
     public:
 
         /**
-         * @brief Parses an expression taken from a string.
+         * @brief Parse an expression taken from a string.
          */
         static NodePtr parseFrom(std::string_view str) {
             auto in = std::ispanstream(str);
@@ -25,7 +25,7 @@ namespace parsec::regex {
 
 
         /**
-         * @brief Parses an expression taken from an input stream.
+         * @brief Parse an expression taken from an input stream.
          */
         static NodePtr parseFrom(std::istream& in) {
             return Parser(&in).parse();
@@ -33,7 +33,7 @@ namespace parsec::regex {
 
 
         /**
-         * @brief Checks whether a character has a special meaning in regular expression syntax.
+         * @brief Check if a character has a special meaning in regular expression syntax.
          */
         static bool isMetaChar(char ch);
 

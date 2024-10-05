@@ -3,14 +3,14 @@
 #include "core/Symbol.hpp"
 
 #include "regex/Parser.hpp"
-#include "regex/ast/AlternExpr.hpp"
-#include "regex/ast/ConcatExpr.hpp"
+#include "regex/ast/AlternExprNode.hpp"
+#include "regex/ast/AtomExprNode.hpp"
+#include "regex/ast/ConcatExprNode.hpp"
 #include "regex/ast/ExprNode.hpp"
 #include "regex/ast/NodeVisitor.hpp"
-#include "regex/ast/OptionalExpr.hpp"
-#include "regex/ast/PlusClosure.hpp"
-#include "regex/ast/StarClosure.hpp"
-#include "regex/ast/SymbolAtom.hpp"
+#include "regex/ast/OptionalExprNode.hpp"
+#include "regex/ast/PlusClosureNode.hpp"
+#include "regex/ast/StarClosureNode.hpp"
 #include "regex/make.hpp"
 
 #include <algorithm>
@@ -39,30 +39,30 @@ namespace parsec {
                 }
 
             private:
-                void visit(const SymbolAtom& n) override {
+                void visit(const AtomExprNode& n) override {
                     if(n.value()) {
                         atoms_.push_back(&n);
                     }
                 }
 
-                void visit(const PlusClosure& n) override {
+                void visit(const PlusClosureNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const StarClosure& n) override {
+                void visit(const StarClosureNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const OptionalExpr& n) override {
+                void visit(const OptionalExprNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const AlternExpr& n) override {
+                void visit(const AlternExprNode& n) override {
                     n.left()->accept(*this);
                     n.right()->accept(*this);
                 }
 
-                void visit(const ConcatExpr& n) override {
+                void visit(const ConcatExprNode& n) override {
                     n.left()->accept(*this);
                     n.right()->accept(*this);
                 }
@@ -91,30 +91,30 @@ namespace parsec {
                 }
 
             private:
-                void visit(const SymbolAtom& /* n*/) override {
+                void visit(const AtomExprNode& /* n*/) override {
                     atomCount_++;
                 }
 
-                void visit(const PlusClosure& n) override {
+                void visit(const PlusClosureNode& n) override {
                     addFirstPosToLastPos(*n.inner(), *n.inner(), atomCount_);
                     n.inner()->accept(*this);
                 }
 
-                void visit(const StarClosure& n) override {
+                void visit(const StarClosureNode& n) override {
                     addFirstPosToLastPos(*n.inner(), *n.inner(), atomCount_);
                     n.inner()->accept(*this);
                 }
 
-                void visit(const OptionalExpr& n) override {
+                void visit(const OptionalExprNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const AlternExpr& n) override {
+                void visit(const AlternExprNode& n) override {
                     n.left()->accept(*this);
                     n.right()->accept(*this);
                 }
 
-                void visit(const ConcatExpr& n) override {
+                void visit(const ConcatExprNode& n) override {
                     const auto preLeftAtomCount = atomCount_;
                     n.left()->accept(*this);
 
@@ -165,7 +165,7 @@ namespace parsec {
 
 
     private:
-        using AtomList = std::vector<const SymbolAtom*>;
+        using AtomList = std::vector<const AtomExprNode*>;
 
         static PosList computeFirstOrLastPos(const ExprNode& n, int nextAtomIndex, bool firstOrLast) {
             class Impl : private NodeVisitor {
@@ -180,26 +180,26 @@ namespace parsec {
                 }
 
             private:
-                void visit(const SymbolAtom& n) override {
+                void visit(const AtomExprNode& n) override {
                     if(n.value()) {
                         // only non-empty atoms must have positional indices assigned
                         indices_.push_back(nextAtomIndex_);
                     }
                 }
 
-                void visit(const PlusClosure& n) override {
+                void visit(const PlusClosureNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const StarClosure& n) override {
+                void visit(const StarClosureNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const OptionalExpr& n) override {
+                void visit(const OptionalExprNode& n) override {
                     n.inner()->accept(*this);
                 }
 
-                void visit(const AlternExpr& n) override {
+                void visit(const AlternExprNode& n) override {
                     n.left()->accept(*this);
 
                     const auto leftSize = n.left()->atomCount();
@@ -208,7 +208,7 @@ namespace parsec {
                     nextAtomIndex_ -= leftSize;
                 }
 
-                void visit(const ConcatExpr& n) override {
+                void visit(const ConcatExprNode& n) override {
                     if(firstOrLast_ || n.right()->isNullable()) {
                         n.left()->accept(*this);
                     }
@@ -229,7 +229,7 @@ namespace parsec {
             return Impl(nextAtomIndex, firstOrLast)(n);
         }
 
-        ConcatExpr regexWithEndMark_;
+        ConcatExprNode regexWithEndMark_;
 
         PosList firstPos_;
         std::vector<PosList> followPos_;

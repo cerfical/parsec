@@ -1,23 +1,25 @@
 #pragma once
 
-#include "UnaryExpr.hpp"
+#include "UnaryExprNode.hpp"
 
 namespace parsec::regex {
 
     /**
      * @brief Denotes an 'optional' expresion.
      */
-    class OptionalExpr : public UnaryExpr {
+    class OptionalExprNode : public UnaryExprNode {
     public:
 
-        using UnaryExpr::UnaryExpr;
+        using UnaryExprNode::UnaryExprNode;
 
 
+        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
         bool isNullable() const noexcept override {
             return true;
         }
+        /** @} */
     };
 
 }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ast/AlternExpr.hpp"
-#include "ast/ConcatExpr.hpp"
+#include "ast/AlternExprNode.hpp"
+#include "ast/AtomExprNode.hpp"
+#include "ast/ConcatExprNode.hpp"
 #include "ast/NodeVisitor.hpp"
-#include "ast/OptionalExpr.hpp"
-#include "ast/PlusClosure.hpp"
-#include "ast/StarClosure.hpp"
-#include "ast/SymbolAtom.hpp"
+#include "ast/OptionalExprNode.hpp"
+#include "ast/PlusClosureNode.hpp"
+#include "ast/StarClosureNode.hpp"
 
 namespace parsec::regex {
 
@@ -16,15 +16,15 @@ namespace parsec::regex {
      */
 
     /**
-     * @brief Create a SymbolAtom.
+     * @brief Create a AtomExprNode.
      */
     inline NodePtr atom(Symbol value) {
-        return std::make_shared<SymbolAtom>(std::move(value));
+        return std::make_shared<AtomExprNode>(std::move(value));
     }
 
 
     /**
-     * @brief Create an empty SymbolAtom.
+     * @brief Create an empty AtomExprNode.
      */
     inline NodePtr empty() {
         return atom("");
@@ -32,48 +32,48 @@ namespace parsec::regex {
 
 
     /**
-     * @brief Create an AlternExpr.
+     * @brief Create an AlternExprNode.
      */
     inline NodePtr altern(NodePtr left, NodePtr right) {
         if(left && right) {
-            return std::make_shared<AlternExpr>(left, right);
+            return std::make_shared<AlternExprNode>(left, right);
         }
         return left ? left : right;
     }
 
 
     /**
-     * @brief Create a ConcatExpr.
+     * @brief Create a ConcatExprNode.
      */
     inline NodePtr concat(NodePtr left, NodePtr right) {
         if(left && right) {
-            return std::make_shared<ConcatExpr>(left, right);
+            return std::make_shared<ConcatExprNode>(left, right);
         }
         return left ? left : right;
     }
 
 
     /**
-     * @brief Create a StarClosure.
+     * @brief Create a StarClosureNode.
      */
     inline NodePtr starClosure(NodePtr inner) {
-        return inner ? std::make_shared<StarClosure>(inner) : inner;
+        return inner ? std::make_shared<StarClosureNode>(inner) : inner;
     }
 
 
     /**
-     * @brief Create a PlusClosure.
+     * @brief Create a PlusClosureNode.
      */
     inline NodePtr plusClosure(NodePtr inner) {
-        return inner ? std::make_shared<PlusClosure>(inner) : inner;
+        return inner ? std::make_shared<PlusClosureNode>(inner) : inner;
     }
 
 
     /**
-     * @brief Create an OptionalExpr.
+     * @brief Create an OptionalExprNode.
      */
     inline NodePtr optional(NodePtr inner) {
-        return inner ? std::make_shared<OptionalExpr>(inner) : inner;
+        return inner ? std::make_shared<OptionalExprNode>(inner) : inner;
     }
     /** @} */
 

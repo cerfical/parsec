@@ -1,10 +1,10 @@
-#include "regex/ast/AlternExpr.hpp"
-#include "regex/ast/ConcatExpr.hpp"
+#include "regex/ast/AlternExprNode.hpp"
+#include "regex/ast/AtomExprNode.hpp"
+#include "regex/ast/ConcatExprNode.hpp"
 #include "regex/ast/NodeVisitor.hpp"
-#include "regex/ast/OptionalExpr.hpp"
-#include "regex/ast/PlusClosure.hpp"
-#include "regex/ast/StarClosure.hpp"
-#include "regex/ast/SymbolAtom.hpp"
+#include "regex/ast/OptionalExprNode.hpp"
+#include "regex/ast/PlusClosureNode.hpp"
+#include "regex/ast/StarClosureNode.hpp"
 
 #include "util/string_util.hpp"
 
@@ -21,7 +21,7 @@ namespace parsec::regex {
             }
 
         private:
-            void visit(const SymbolAtom& n) override {
+            void visit(const AtomExprNode& n) override {
                 if(n.value()) {
                     out_ << '\'' << string_util::escape(n.value().text()) << '\'';
                 } else {
@@ -29,22 +29,22 @@ namespace parsec::regex {
                 }
             }
 
-            void visit(const OptionalExpr& n) override {
+            void visit(const OptionalExprNode& n) override {
                 n.inner()->accept(*this);
                 out_ << '?';
             }
 
-            void visit(const PlusClosure& n) override {
+            void visit(const PlusClosureNode& n) override {
                 n.inner()->accept(*this);
                 out_ << '+';
             }
 
-            void visit(const StarClosure& n) override {
+            void visit(const StarClosureNode& n) override {
                 n.inner()->accept(*this);
                 out_ << '*';
             }
 
-            void visit(const AlternExpr& n) override {
+            void visit(const AlternExprNode& n) override {
                 out_ << '(';
                 n.left()->accept(*this);
                 out_ << " | ";
@@ -52,7 +52,7 @@ namespace parsec::regex {
                 out_ << ')';
             }
 
-            void visit(const ConcatExpr& n) override {
+            void visit(const ConcatExprNode& n) override {
                 out_ << '(';
                 n.left()->accept(*this);
                 out_ << ' ';
@@ -69,27 +69,27 @@ namespace parsec::regex {
     }
 
 
-    void SymbolAtom::accept(NodeVisitor& visitor) const {
+    void AtomExprNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 
-    void StarClosure::accept(NodeVisitor& visitor) const {
+    void StarClosureNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 
-    void PlusClosure::accept(NodeVisitor& visitor) const {
+    void PlusClosureNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 
-    void OptionalExpr::accept(NodeVisitor& visitor) const {
+    void OptionalExprNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 
-    void ConcatExpr::accept(NodeVisitor& visitor) const {
+    void ConcatExprNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 
-    void AlternExpr::accept(NodeVisitor& visitor) const {
+    void AlternExprNode::accept(NodeVisitor& visitor) const {
         visitor.visit(*this);
     }
 }

@@ -38,7 +38,7 @@ namespace parsec::regex {
 
 
         /**
-         * @brief Count the number of SymbolAtom%s in the expression.
+         * @brief Count the number of AtomExprNode%s in the expression.
          */
         virtual int atomCount() const noexcept = 0;
         /** @} */
