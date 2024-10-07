@@ -2,7 +2,7 @@
 
 #include "core/SourceLoc.hpp"
 
-#include "util/char_util.hpp"
+#include "util/chars.hpp"
 #include "util/string_util.hpp"
 
 #include <format>
@@ -41,7 +41,7 @@ namespace parsec {
     }
 
     ParseError ParseError::invalidChar(const SourceLoc& chLoc, char ch) {
-        return { chLoc, std::format("invalid character '{}'", char_util::escape(ch)) };
+        return { chLoc, std::format("invalid character '{}'", chars::escape(ch)) };
     }
 
 
@@ -67,7 +67,7 @@ namespace parsec {
                 break;
             }
             default: {
-                msg = std::format("unexpected '{}'", char_util::escape(ch));
+                msg = std::format("unexpected '{}'", chars::escape(ch));
                 break;
             }
         }

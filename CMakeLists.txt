@@ -131,11 +131,11 @@ target_sources(parsec-lib
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/util/string_util.hpp"
-        "include/parsec/util/char_util.hpp"
+        "include/parsec/util/chars.hpp"
 
     PRIVATE
         "src/util/string_util.cpp"
-        "src/util/char_util.cpp"
+        "src/util/chars.cpp"
 )
 
 

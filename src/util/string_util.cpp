@@ -1,6 +1,5 @@
 #include "util/string_util.hpp"
-
-#include "util/char_util.hpp"
+#include "util/chars.hpp"
 
 #include <cstddef>
 #include <string>
@@ -10,7 +9,7 @@ namespace parsec::string_util {
     std::string toPascalCase(std::string_view str) {
         // remove leading non-alphabetic characters
         std::size_t wordStart = 0;
-        while(wordStart < str.size() && !char_util::isAlpha(str[wordStart])) {
+        while(wordStart < str.size() && !chars::isAlpha(str[wordStart])) {
             wordStart++;
         }
 
@@ -21,10 +20,10 @@ namespace parsec::string_util {
 
             // parse a word made up of a sequence of alphanumeric characters
             std::size_t wordEnd = wordStart;
-            while(wordEnd < str.size() && char_util::isAlnum(str[wordEnd])) {
-                if(char_util::isLower(str[wordEnd])) {
+            while(wordEnd < str.size() && chars::isAlnum(str[wordEnd])) {
+                if(chars::isLower(str[wordEnd])) {
                     anyUpper = true;
-                } else if(char_util::isUpper(str[wordEnd])) {
+                } else if(chars::isUpper(str[wordEnd])) {
                     anyLower = true;
                 }
                 wordEnd++;
@@ -33,14 +32,14 @@ namespace parsec::string_util {
             // convert the word to PascalCase, preserving the existing formatting
             const auto word = str.substr(wordStart, wordEnd - wordStart);
             if(anyLower == anyUpper) {
-                res += char_util::toUpper(word.front());
+                res += chars::toUpper(word.front());
                 res += word.substr(1);
             } else {
                 res += string_util::capitalize(word);
             }
 
             // remove delimiting non-alphabetic characters
-            while(wordEnd < str.size() && !char_util::isAlnum(str[wordEnd])) {
+            while(wordEnd < str.size() && !chars::isAlnum(str[wordEnd])) {
                 wordEnd++;
             }
             wordStart = wordEnd;
@@ -49,20 +48,10 @@ namespace parsec::string_util {
     }
 
 
-    std::string capitalize(std::string_view str) {
-        std::string res;
-        if(!str.empty()) {
-            res += char_util::toUpper(str.front());
-            res += toLower(str.substr(1));
-        }
-        return res;
-    }
-
-
     std::string toLower(std::string_view str) {
         std::string lower;
         for(char ch : str) {
-            lower += char_util::toLower(ch);
+            lower += chars::toLower(ch);
         }
         return lower;
     }
@@ -71,17 +60,27 @@ namespace parsec::string_util {
     std::string toUpper(std::string_view str) {
         std::string upper;
         for(char ch : str) {
-            upper += char_util::toUpper(ch);
+            upper += chars::toUpper(ch);
         }
         return upper;
     }
 
 
     std::string escape(std::string_view str) {
-        std::string escapedStr;
+        std::string escaped;
         for(char ch : str) {
-            escapedStr += char_util::escape(ch);
+            escaped += chars::escape(ch);
         }
-        return escapedStr;
+        return escaped;
+    }
+
+
+    std::string capitalize(std::string_view str) {
+        std::string capitalized;
+        if(!str.empty()) {
+            capitalized += chars::toUpper(str.front());
+            capitalized += toLower(str.substr(1));
+        }
+        return capitalized;
     }
 }

@@ -4,7 +4,7 @@
 #include "core/TextScanner.hpp"
 
 #include "regex/make.hpp"
-#include "util/char_util.hpp"
+#include "util/chars.hpp"
 
 namespace parsec::regex {
     bool Parser::isMetaChar(char ch) {
@@ -194,10 +194,10 @@ namespace parsec::regex {
             case 'v': return '\v';
             case 'x': {
                 static constexpr int HexBase = 16;
-                if(char_util::isHexDigit(input_.peek())) {
-                    auto ch = char_util::evalHexDigit(input_.get());
-                    if(!input_.isEof() && char_util::isHexDigit(input_.peek())) {
-                        ch = ch * HexBase + char_util::evalHexDigit(input_.get());
+                if(chars::isHexDigit(input_.peek())) {
+                    auto ch = chars::evalHexDigit(input_.get());
+                    if(!input_.isEof() && chars::isHexDigit(input_.peek())) {
+                        ch = ch * HexBase + chars::evalHexDigit(input_.get());
                     }
                     return static_cast<char>(ch);
                 }

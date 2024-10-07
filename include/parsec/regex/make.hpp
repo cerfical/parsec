@@ -10,11 +10,8 @@
 
 namespace parsec::regex {
 
-    /**
-     * @{
-     * @name Convenience factory functions to construct regular expressions.
-     */
-
+    /** @{ */
+    /** @name Regular expression construction */
     /**
      * @brief Create a AtomExprNode.
      */

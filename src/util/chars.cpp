@@ -1,9 +1,9 @@
-#include "util/char_util.hpp"
+#include "util/chars.hpp"
 
 #include <format>
 #include <string>
 
-namespace parsec::char_util {
+namespace parsec::chars {
     std::string escape(char ch) {
         if(isPrint(ch)) {
             switch(ch) {
@@ -23,9 +23,7 @@ namespace parsec::char_util {
             case '\r': return "\\r";
             case '\t': return "\\t";
             case '\v': return "\\v";
-            default:   {
-                return std::format("\\x{:02x}", toInt(ch));
-            }
+            default:   return std::format("\\x{:02x}", toInt(ch));
         }
     }
 }

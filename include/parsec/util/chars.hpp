@@ -6,36 +6,16 @@
 /**
  * @brief Utilities for working with characters.
  */
-namespace parsec::char_util {
+namespace parsec::chars {
 
+    /** @{ */
+    /** @name Character conversion */
     /**
-     * @brief Safely convert a character to an integer.
+     * @brief Convert a character to an integer safely.
      */
-    inline constexpr int toInt(char ch) noexcept {
+    inline int toInt(char ch) noexcept {
         return static_cast<unsigned char>(ch);
     }
-
-
-    /**
-     * @brief Find the value of a digit character.
-     */
-    inline constexpr int evalDigit(char ch) noexcept {
-        return ch - '0';
-    }
-
-
-    /**
-     * @brief Find the value of a hexadecimal digit character.
-     */
-    inline constexpr int evalHexDigit(char ch) noexcept {
-        return (ch >= 'a') ? ch - 'a' + 10 : ((ch >= 'A') ? ch - 'A' + 10 : evalDigit(ch));
-    }
-
-
-    /**
-     * @brief Present a character in a human-readable form.
-     */
-    std::string escape(char ch);
 
 
     /**
@@ -54,6 +34,34 @@ namespace parsec::char_util {
     }
 
 
+    /**
+     * @brief Find the value of a digit character.
+     */
+    inline int evalDigit(char ch) noexcept {
+        return ch - '0';
+    }
+
+
+    /**
+     * @brief Find the value of a hexadecimal digit character.
+     */
+    inline int evalHexDigit(char ch) noexcept {
+        if(const auto lch = toLower(ch); lch >= 'a') {
+            return lch - 'a' + 10;
+        }
+        return evalDigit(ch);
+    }
+
+
+    /**
+     * @brief Convert a character to its text form, escaping non-printable characters.
+     */
+    std::string escape(char ch);
+    /** @} */
+
+
+    /** @{ */
+    /** @name Character classification */
     /**
      * @brief Check if a character is lowercase.
      */
@@ -116,5 +124,6 @@ namespace parsec::char_util {
     inline bool isPrint(char ch) noexcept {
         return std::isprint(toInt(ch)) != 0;
     }
+    /** @} */
 
 }
