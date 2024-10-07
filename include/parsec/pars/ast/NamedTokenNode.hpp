@@ -11,11 +11,9 @@ namespace parsec::pars {
     class NamedTokenNode : public Node {
     public:
 
-        NamedTokenNode(Token name, Token pattern) noexcept
+        NamedTokenNode(Token name, Token pattern)
             : name_(std::move(name)), pattern_(std::move(pattern)) {}
 
-
-        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -33,7 +31,6 @@ namespace parsec::pars {
         const Token& pattern() const noexcept {
             return pattern_;
         }
-        /** @} */
 
 
     private:

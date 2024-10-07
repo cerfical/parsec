@@ -16,22 +16,18 @@ namespace parsec {
     class SymbolGrammar {
     public:
 
+        SymbolGrammar() = default;
+
         SymbolGrammar(const SymbolGrammar&) = delete;
         SymbolGrammar& operator=(const SymbolGrammar&) = delete;
 
         SymbolGrammar(SymbolGrammar&&) noexcept = default;
         SymbolGrammar& operator=(SymbolGrammar&&) noexcept = default;
 
-        ~SymbolGrammar() noexcept = default;
+        ~SymbolGrammar() = default;
 
 
         /** @{ */
-        /**
-         * @brief Construct an empty grammar.
-         */
-        SymbolGrammar() = default;
-
-
         /**
          * @brief Define a new rule for a language symbol.
          */

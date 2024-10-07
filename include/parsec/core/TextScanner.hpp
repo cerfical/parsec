@@ -15,21 +15,22 @@ namespace parsec {
     class TextScanner {
     public:
 
+        TextScanner() = default;
+
         TextScanner(const TextScanner&) = delete;
         TextScanner& operator=(const TextScanner&) = delete;
 
-        TextScanner(TextScanner&&) = default;
-        TextScanner& operator=(TextScanner&&) = default;
+        TextScanner(TextScanner&&) noexcept = default;
+        TextScanner& operator=(TextScanner&&) noexcept = default;
 
-        TextScanner() noexcept = default;
         ~TextScanner() = default;
 
 
         /** @{ */
         /**
-         * @brief Construct a new scanner to operate on provided `std::istream`.
+         * @brief Construct a new scanner to operate on an input stream.
          */
-        explicit TextScanner(std::istream* input) noexcept
+        explicit TextScanner(std::istream* input)
             : input_(input) {}
 
 

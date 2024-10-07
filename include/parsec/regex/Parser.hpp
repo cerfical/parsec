@@ -43,8 +43,8 @@ namespace parsec::regex {
         Parser(const Parser& other) = delete;
         Parser& operator=(const Parser& other) = delete;
 
-        Parser(Parser&& other) = default;
-        Parser& operator=(Parser&& other) = default;
+        Parser(Parser&& other) noexcept = default;
+        Parser& operator=(Parser&& other) noexcept = default;
 
         ~Parser() = default;
 

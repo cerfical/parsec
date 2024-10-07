@@ -11,11 +11,9 @@ namespace parsec::pars {
     class SymbolRuleNode : public Node {
     public:
 
-        explicit SymbolRuleNode(Token value) noexcept
+        explicit SymbolRuleNode(Token value)
             : value_(std::move(value)) {}
 
-
-        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -25,7 +23,6 @@ namespace parsec::pars {
         const Token& value() const noexcept {
             return value_;
         }
-        /** @} */
 
 
     private:

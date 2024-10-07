@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../core/SourceLoc.hpp"
-
 #include "TokenKinds.hpp"
 
 #include <ostream>
@@ -16,13 +15,13 @@ namespace parsec::pars {
     class Token {
     public:
 
-        Token() noexcept = default;
+        Token() = default;
 
-        Token(std::string text, TokenKinds kind, const SourceLoc& loc) noexcept
+
+        Token(std::string text, TokenKinds kind, const SourceLoc& loc)
             : text_(std::move(text)), loc_(loc), kind_(kind) {}
 
 
-        /** @{ */
         /**
          * @brief Character sequence covered by the token.
          */
@@ -54,7 +53,6 @@ namespace parsec::pars {
         bool is() const noexcept {
             return kind() == K;
         }
-        /** @} */
 
 
     private:

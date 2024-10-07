@@ -6,7 +6,6 @@
 #include "Symbol.hpp"
 
 #include <memory>
-#include <ostream>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -19,29 +18,48 @@ namespace parsec {
     class RegularExpr {
     public:
 
+        /**
+         * @brief Create a concatenation of two expressions.
+         */
         friend RegularExpr operator+(const RegularExpr& lhs, const RegularExpr& rhs) {
             return regex::concat(lhs, rhs);
         }
 
+
+        /**
+         * @brief Create a concatenation of two expressions in place.
+         */
+        friend RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
+            return lhs = lhs + rhs;
+        }
+
+
+        /**
+         * @brief Create an alternation of two expressions.
+         */
         friend RegularExpr operator|(const RegularExpr& lhs, const RegularExpr& rhs) {
             return regex::altern(lhs, rhs);
         }
 
 
-        friend RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
-            return lhs = lhs + rhs;
-        }
-
+        /**
+         * @brief Create an alternation of two expressions in place.
+         */
         friend RegularExpr& operator|=(RegularExpr& lhs, const RegularExpr& rhs) {
             return lhs = lhs | rhs;
         }
 
 
+        /**
+         * @brief List of position indices inside an expression.
+         */
         using PosList = std::vector<int>;
 
 
-        RegularExpr(const RegularExpr&) noexcept = default;
-        RegularExpr& operator=(const RegularExpr&) noexcept = default;
+        RegularExpr() = default;
+
+        RegularExpr(const RegularExpr&) = default;
+        RegularExpr& operator=(const RegularExpr&) = default;
 
         RegularExpr(RegularExpr&&) noexcept = default;
         RegularExpr& operator=(RegularExpr&&) noexcept = default;
@@ -51,26 +69,18 @@ namespace parsec {
 
         /** @{ */
         /**
-         * @brief Construct an empty regular expression.
-         */
-        RegularExpr() noexcept = default;
-
-
-        /**
-         * @brief Parse a regular expression from a string.
+         * @brief Parse an expression from a string.
          */
         explicit RegularExpr(std::string_view regex);
 
 
         /**
-         * @brief Construct a regular expression directly from its AST.
+         * @brief Construct an expression directly from its AST.
          */
-        RegularExpr(regex::NodePtr rootNode) noexcept
+        RegularExpr(regex::NodePtr rootNode)
             : rootNode_(std::move(rootNode)) {}
-        /** @} */
 
 
-        /** @{ */
         /**
          * @brief Get the 'firstpos' set for the expression.
          */
@@ -132,7 +142,5 @@ namespace parsec {
         mutable std::shared_ptr<ComputeCache> computeCache_;
         regex::NodePtr rootNode_;
     };
-
-    std::ostream& operator<<(std::ostream& out, const RegularExpr& expr);
 
 }

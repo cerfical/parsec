@@ -15,8 +15,8 @@ namespace parsec::regex {
     /**
      * @brief Create a AtomExprNode.
      */
-    inline NodePtr atom(Symbol value) {
-        return std::make_shared<AtomExprNode>(std::move(value));
+    inline NodePtr atom(const Symbol& value) {
+        return std::make_shared<AtomExprNode>(value);
     }
 
 

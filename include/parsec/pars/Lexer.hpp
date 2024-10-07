@@ -21,8 +21,8 @@ namespace parsec::pars {
         Lexer(const Lexer& other) = delete;
         Lexer& operator=(const Lexer& other) = delete;
 
-        Lexer(Lexer&& other) = default;
-        Lexer& operator=(Lexer&& other) = default;
+        Lexer(Lexer&& other) noexcept = default;
+        Lexer& operator=(Lexer&& other) noexcept = default;
 
         ~Lexer() = default;
 
@@ -35,7 +35,6 @@ namespace parsec::pars {
             : input_(input) {}
 
 
-        /** @{ */
         /**
          * @brief Perform the input analysis and extract the next token.
          */
@@ -80,10 +79,8 @@ namespace parsec::pars {
                 .line = inputPos.line,
             };
         }
-        /** @} */
 
 
-        /** @{ */
         /**
          * @brief Remove a token from the input if it is of the specified type.
          * @returns @c true if a skip has taken place, @c false otherwise.
@@ -117,7 +114,6 @@ namespace parsec::pars {
             lex();
         }
         /** @} */
-
 
 
     private:

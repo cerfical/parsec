@@ -10,11 +10,10 @@ namespace parsec::regex {
     class UnaryExprNode : public ExprNode {
     public:
 
-        explicit UnaryExprNode(NodePtr inner) noexcept
+        explicit UnaryExprNode(NodePtr inner)
             : inner_(std::move(inner)) {}
 
 
-        /** @{ */
         int atomCount() const noexcept override {
             return inner_->atomCount();
         }
@@ -26,7 +25,6 @@ namespace parsec::regex {
         const ExprNode* inner() const noexcept {
             return inner_.get();
         }
-        /** @} */
 
 
     private:

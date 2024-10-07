@@ -3,7 +3,6 @@
 #include "RegularExpr.hpp"
 #include "Symbol.hpp"
 
-#include <ostream>
 #include <utility>
 
 namespace parsec {
@@ -14,8 +13,10 @@ namespace parsec {
     class SymbolRule {
     public:
 
-        SymbolRule(const SymbolRule&) noexcept = default;
-        SymbolRule& operator=(const SymbolRule&) noexcept = default;
+        SymbolRule() = default;
+
+        SymbolRule(const SymbolRule&) = default;
+        SymbolRule& operator=(const SymbolRule&) = default;
 
         SymbolRule(SymbolRule&&) noexcept = default;
         SymbolRule& operator=(SymbolRule&&) noexcept = default;
@@ -25,20 +26,12 @@ namespace parsec {
 
         /** @{ */
         /**
-         * @brief Construct an empty rule.
-         */
-        SymbolRule() noexcept = default;
-
-
-        /**
          * @brief Construct a rule with a head and a body.
          */
-        SymbolRule(Symbol head, RegularExpr body) noexcept
+        SymbolRule(Symbol head, RegularExpr body)
             : head_(std::move(head)), body_(std::move(body)) {}
-        /** @} */
 
 
-        /** @{ */
         /**
          * @brief Check if the rule has a non-empty body.
          */
@@ -76,7 +69,5 @@ namespace parsec {
         Symbol head_;
         RegularExpr body_;
     };
-
-    std::ostream& operator<<(std::ostream& out, const SymbolRule& rule);
 
 }

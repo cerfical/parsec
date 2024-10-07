@@ -10,11 +10,9 @@ namespace parsec::pars {
     class ListNode : public Node {
     public:
 
-        ListNode(NodePtr head, NodePtr tail) noexcept
+        ListNode(NodePtr head, NodePtr tail)
             : head_(std::move(head)), tail_(std::move(tail)) {}
 
-
-        /** @{ */
         void accept(NodeVisitor& visitor) const override;
 
 
@@ -32,7 +30,6 @@ namespace parsec::pars {
         const Node* tail() const noexcept {
             return tail_.get();
         }
-        /** @} */
 
 
     private:

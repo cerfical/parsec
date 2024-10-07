@@ -12,10 +12,7 @@ namespace parsec::pars {
 
         using BinaryRuleNode::BinaryRuleNode;
 
-
-        /** @{ */
         void accept(NodeVisitor& visitor) const override;
-        /** @} */
     };
 
 }

@@ -24,23 +24,19 @@ namespace parsec {
         }
 
 
-        Symbol(const Symbol& other) noexcept = default;
-        Symbol& operator=(const Symbol& other) noexcept = default;
+        Symbol()
+            : Symbol("") {}
+
+        Symbol(const Symbol& other) = default;
+        Symbol& operator=(const Symbol& other) = default;
 
         Symbol(Symbol&& other) noexcept = default;
         Symbol& operator=(Symbol&& other) noexcept = default;
 
-        ~Symbol() noexcept = default;
+        ~Symbol() = default;
 
 
         /** @{ */
-        /**
-         * @brief Construct an empty symbol.
-         */
-        Symbol()
-            : Symbol("") {}
-
-
         /**
          * @brief Construct a symbol from a single character.
          */
@@ -67,10 +63,8 @@ namespace parsec {
          */
         Symbol(std::string_view str)
             : text_(std::make_shared<std::string>(str)) {}
-        /** @} */
 
 
-        /** @{ */
         /**
          * @brief A character string representing the symbol's name.
          */

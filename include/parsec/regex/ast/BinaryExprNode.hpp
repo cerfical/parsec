@@ -10,11 +10,9 @@ namespace parsec::regex {
     class BinaryExprNode : public ExprNode {
     public:
 
-        BinaryExprNode(NodePtr left, NodePtr right) noexcept
+        BinaryExprNode(NodePtr left, NodePtr right)
             : left_(std::move(left)), right_(std::move(right)) {}
 
-
-        /** @{ */
         int atomCount() const noexcept override {
             return left_->atomCount() + right_->atomCount();
         }
@@ -34,7 +32,6 @@ namespace parsec::regex {
         const ExprNode* right() const noexcept {
             return right_.get();
         }
-        /** @} */
 
 
     private:

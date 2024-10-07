@@ -87,9 +87,9 @@ auto operator<<(std::ostream& out, TokenKinds tok) -> std::ostream& {
 class Token {
 public:
 
-    Token() noexcept = default;
+    Token() = default;
 
-    Token(std::string text, TokenKinds kind, const SourceLoc& loc) noexcept
+    Token(std::string text, TokenKinds kind, const SourceLoc& loc)
         : text_(std::move(text)), loc_(loc), kind_(kind) {}
 
 
@@ -132,6 +132,8 @@ auto operator<<(std::ostream& out, const Token& tok) -> std::ostream& {
 class Lexer {
 public:
 
+    Lexer() = default;
+
     Lexer(const Lexer&) = delete;
     auto operator=(const Lexer&) -> Lexer& = delete;
 
@@ -141,9 +143,7 @@ public:
     ~Lexer() = default;
 
 
-    Lexer() noexcept = default;
-
-    explicit Lexer(std::istream* input) noexcept
+    explicit Lexer(std::istream* input)
         : input_(input) {}
 
 
@@ -328,14 +328,16 @@ auto operator<<(std::ostream& out, ParseRules rule) -> std::ostream& {
 class Parser {
 public:
 
+    Parser() = default;
+    
     Parser(const Parser&) = delete;
     auto operator=(const Parser&) -> Parser& = delete;
 
     Parser(Parser&&) noexcept = default;
     auto operator=(Parser&&) noexcept -> Parser& = default;
 
+    virtual ~Parser() = default;
 
-    Parser() noexcept = default;
 
     explicit Parser(std::istream* input)
         : lexer_(input) {}
@@ -349,9 +351,6 @@ public:
 ## endif
     }
 
-
-protected:
-    ~Parser() noexcept = default;
 
 private:
     using ParseHook = void (Parser::*)(std::span<const Token>);

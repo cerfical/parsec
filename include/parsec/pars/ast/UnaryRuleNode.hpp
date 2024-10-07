@@ -10,18 +10,16 @@ namespace parsec::pars {
     class UnaryRuleNode : public Node {
     public:
 
-        explicit UnaryRuleNode(NodePtr inner) noexcept
+        explicit UnaryRuleNode(NodePtr inner)
             : inner_(std::move(inner)) {}
 
 
-        /** @{ */
         /**
          * @brief Inner subrule.
          */
         const Node* inner() const noexcept {
             return inner_.get();
         }
-        /** @} */
 
 
     private:
