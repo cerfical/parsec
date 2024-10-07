@@ -6,7 +6,7 @@
 #include "regex/ast/PlusClosureNode.hpp"
 #include "regex/ast/StarClosureNode.hpp"
 
-#include "util/string_util.hpp"
+#include "util/strings.hpp"
 
 namespace parsec::regex {
     std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
@@ -23,7 +23,7 @@ namespace parsec::regex {
         private:
             void visit(const AtomExprNode& n) override {
                 if(n.value()) {
-                    out_ << '\'' << string_util::escape(n.value().text()) << '\'';
+                    out_ << '\'' << strings::escape(n.value().text()) << '\'';
                 } else {
                     out_ << "()";
                 }

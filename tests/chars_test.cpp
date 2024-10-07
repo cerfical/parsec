@@ -27,7 +27,7 @@ TEST_CASE("hexadecimal digit character evaluation", Tags) {
     CHECK(evalHexDigit('F') == 15);
 }
 
-TEST_CASE("character escape", Tags) {
+TEST_CASE("escaping a character", Tags) {
     CHECK(escape('a') == "a");
     CHECK(escape('\n') == "\\n");
     CHECK(escape('\x03') == "\\x03");

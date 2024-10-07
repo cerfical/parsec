@@ -3,7 +3,7 @@
 #include "core/SourceLoc.hpp"
 
 #include "util/chars.hpp"
-#include "util/string_util.hpp"
+#include "util/strings.hpp"
 
 #include <format>
 #include <string>
@@ -76,7 +76,7 @@ namespace parsec {
 
     ParseError ParseError::misplacedToken(const SourceLoc& tokLoc, std::string_view tokVal) {
         if(tokLoc) {
-            return { tokLoc, std::format("unexpected \"{}\"", string_util::escape(tokVal)) };
+            return { tokLoc, std::format("unexpected \"{}\"", strings::escape(tokVal)) };
         }
         return unexpectedEof(tokLoc);
     }
