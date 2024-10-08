@@ -32,10 +32,7 @@ namespace parsec::regex {
      * @brief Create an AlternExprNode.
      */
     inline NodePtr altern(NodePtr left, NodePtr right) {
-        if(left && right) {
-            return std::make_shared<AlternExprNode>(left, right);
-        }
-        return left ? left : right;
+        return std::make_shared<AlternExprNode>(left, right);
     }
 
 
@@ -43,10 +40,7 @@ namespace parsec::regex {
      * @brief Create a ConcatExprNode.
      */
     inline NodePtr concat(NodePtr left, NodePtr right) {
-        if(left && right) {
-            return std::make_shared<ConcatExprNode>(left, right);
-        }
-        return left ? left : right;
+        return std::make_shared<ConcatExprNode>(left, right);
     }
 
 
@@ -54,7 +48,7 @@ namespace parsec::regex {
      * @brief Create a StarClosureNode.
      */
     inline NodePtr starClosure(NodePtr inner) {
-        return inner ? std::make_shared<StarClosureNode>(inner) : inner;
+        return std::make_shared<StarClosureNode>(inner);
     }
 
 
@@ -62,7 +56,7 @@ namespace parsec::regex {
      * @brief Create a PlusClosureNode.
      */
     inline NodePtr plusClosure(NodePtr inner) {
-        return inner ? std::make_shared<PlusClosureNode>(inner) : inner;
+        return std::make_shared<PlusClosureNode>(inner);
     }
 
 
@@ -70,7 +64,7 @@ namespace parsec::regex {
      * @brief Create an OptionalExprNode.
      */
     inline NodePtr optional(NodePtr inner) {
-        return inner ? std::make_shared<OptionalExprNode>(inner) : inner;
+        return std::make_shared<OptionalExprNode>(inner);
     }
     /** @} */
 

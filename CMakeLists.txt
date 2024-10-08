@@ -49,7 +49,6 @@ target_sources(parsec-lib
         "include/parsec/core/ParseError.hpp"
         "include/parsec/core/Symbol.hpp"
         "include/parsec/core/RegularExpr.hpp"
-        "include/parsec/core/SymbolRule.hpp"
         "include/parsec/core/SymbolGrammar.hpp"
         "include/parsec/core/CodeGen.hpp"
         
@@ -57,7 +56,6 @@ target_sources(parsec-lib
         "src/core/TextScanner.cpp"
         "src/core/Compiler.cpp"
         "src/core/ParseError.cpp"
-        "src/core/SymbolGrammar.cpp"
         "src/core/RegularExpr.cpp"
         "src/core/CodeGen.cpp"
 )

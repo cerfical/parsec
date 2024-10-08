@@ -26,16 +26,13 @@ namespace parsec::fsm {
         public:
 
             explicit TransNetwork(const SymbolGrammar& grammar) {
-                for(const auto& rule : grammar.rules()) {
-                    // skip empty rules
-                    if(!rule) {
-                        continue;
+                for(const auto& symbol : grammar.symbols()) {
+                    if(const auto* const rule = grammar.resolve(symbol)) {
+                        const auto ruleGrammar = SymbolGrammar()
+                                                     .define(symbol, *rule);
+
+                        insertMachine(symbol, DfaAutomaton(ruleGrammar));
                     }
-
-                    SymbolGrammar ruleGrammar;
-                    ruleGrammar.define(rule.head(), rule.body());
-
-                    insertMachine(rule.head(), DfaAutomaton(ruleGrammar));
                 }
             }
 
@@ -100,8 +97,8 @@ namespace parsec::fsm {
     private:
         ItemSet createStartState() {
             ItemSet startState;
-            if(const auto& root = grammar_.root()) {
-                startState.insert({ .dfaState = transNet_.startState(root.head())->id() });
+            if(const auto* const root = grammar_.root()) {
+                startState.insert({ .dfaState = transNet_.startState(*root)->id() });
             }
             return startState;
         }
@@ -169,8 +166,6 @@ namespace parsec::fsm {
 
             for(const auto& [transLabel, transTarget] : transitions) {
                 const auto transTargetId = buildState(transTarget);
-
-                // check whether the symbol is a nonterminal symbol
                 if(grammar_.contains(transLabel)) {
                     states_[stateId].addGoto(transTargetId, transLabel);
                 } else {

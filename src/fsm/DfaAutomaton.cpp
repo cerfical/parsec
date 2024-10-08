@@ -1,6 +1,7 @@
 #include "fsm/DfaAutomaton.hpp"
 
 #include "core/NameConflictError.hpp"
+#include "core/RegularExpr.hpp"
 
 #include <boost/functional/hash.hpp>
 
@@ -13,20 +14,21 @@ namespace parsec::fsm {
         struct StateItem {
 
             friend bool operator==(const StateItem& lhs, const StateItem& rhs) noexcept {
-                return std::tuple(lhs.rule->head(), lhs.pos) == std::tuple(rhs.rule->head(), rhs.pos);
+                return std::tuple(lhs.rule, lhs.pos) == std::tuple(rhs.rule, rhs.pos);
             }
 
 
             const Symbol& value() const {
-                return rule->body().posValue(pos);
+                return rule->posValue(pos);
             }
 
             bool isAtEnd() const {
-                return rule->body().isEndPos(pos);
+                return rule->isEndPos(pos);
             }
 
 
-            const SymbolRule* rule = {};
+            Symbol symbol;
+            const RegularExpr* rule = {};
             int pos = {};
         };
 
@@ -45,7 +47,7 @@ struct boost::hash<parsec::Symbol> {
 template <>
 struct boost::hash<parsec::fsm::StateItem> {
     std::size_t operator()(const parsec::fsm::StateItem& item) const noexcept {
-        return boost::hash_value(std::tuple(item.rule->head(), item.pos));
+        return boost::hash_value(std::tuple(item.rule, item.pos));
     }
 };
 
@@ -66,9 +68,11 @@ namespace parsec::fsm {
     private:
         ItemSet createStartState() const {
             ItemSet items;
-            for(const auto& rule : grammar_.rules()) {
-                for(const auto& pos : rule.body().firstPos()) {
-                    items.emplace(&rule, pos);
+            for(const auto& symbol : grammar_.symbols()) {
+                if(const auto* const rule = grammar_.resolve(symbol)) {
+                    for(const auto& pos : rule->firstPos()) {
+                        items.emplace(symbol, rule, pos);
+                    }
                 }
             }
             return items;
@@ -93,15 +97,15 @@ namespace parsec::fsm {
             for(const auto& item : stateItems) {
                 if(item.isAtEnd()) {
                     if(!states_[stateId].isMatchState()) {
-                        states_[stateId].setMatch(item.rule->head());
+                        states_[stateId].setMatch(item.symbol);
                         continue;
                     }
-                    throw NameConflictError(states_[stateId].match(), item.rule->head());
+                    throw NameConflictError(states_[stateId].match(), item.symbol);
                 }
 
                 auto& itemTrans = transitions[item.value()];
-                for(const auto& pos : item.rule->body().followPos(item.pos)) {
-                    itemTrans.emplace(item.rule, pos);
+                for(const auto& pos : item.rule->followPos(item.pos)) {
+                    itemTrans.emplace(item.symbol, item.rule, pos);
                 }
             }
 

@@ -353,8 +353,8 @@ namespace parsec {
         checkForUndefinedNames(*ast, names);
 
         auto tokens = compileTokenGrammar(*ast, names, patterns);
-        tokens.define(EofTokenName, {});
-        tokens.define(WsTokenName, {});
+        tokens.define(EofTokenName);
+        tokens.define(WsTokenName);
 
         const auto rules = compileRuleGrammar(*ast, names, patterns);
 
