@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../regex/ast/ConcatExprNode.hpp"
 #include "../regex/ast/ExprNode.hpp"
 #include "../regex/make.hpp"
 
 #include "Symbol.hpp"
 
 #include <memory>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -13,134 +15,137 @@
 namespace parsec {
 
     /**
-     * @brief Presents a regular expression as a linear sequence of symbols.
+     * @brief Wraps a regular expression to make it easier to convert it to DFA.
      */
     class RegularExpr {
     public:
 
         /**
-         * @brief Create a concatenation of two expressions.
-         */
-        friend RegularExpr operator+(const RegularExpr& lhs, const RegularExpr& rhs) {
-            return regex::concat(lhs, rhs);
-        }
-
-
-        /**
-         * @brief Create a concatenation of two expressions in place.
-         */
-        friend RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
-            return lhs = lhs + rhs;
-        }
-
-
-        /**
-         * @brief Create an alternation of two expressions.
-         */
-        friend RegularExpr operator|(const RegularExpr& lhs, const RegularExpr& rhs) {
-            return regex::altern(lhs, rhs);
-        }
-
-
-        /**
-         * @brief Create an alternation of two expressions in place.
-         */
-        friend RegularExpr& operator|=(RegularExpr& lhs, const RegularExpr& rhs) {
-            return lhs = lhs | rhs;
-        }
-
-
-        /**
-         * @brief List of position indices inside an expression.
-         */
-        using PosList = std::vector<int>;
-
-
-        RegularExpr() = default;
-
-        RegularExpr(const RegularExpr&) = default;
-        RegularExpr& operator=(const RegularExpr&) = default;
-
-        RegularExpr(RegularExpr&&) noexcept = default;
-        RegularExpr& operator=(RegularExpr&&) noexcept = default;
-
-        ~RegularExpr() = default;
-
-
-        /** @{ */
-        /**
          * @brief Parse an expression from a string.
          */
-        explicit RegularExpr(std::string_view regex);
+        explicit RegularExpr(std::string_view regex = "");
 
 
         /**
-         * @brief Construct an expression directly from its AST.
+         * @brief Construct an expression from its AST.
          */
         RegularExpr(regex::NodePtr rootNode)
             : rootNode_(std::move(rootNode)) {}
 
 
         /**
-         * @brief Get the 'firstpos' set for the expression.
+         * @brief Compute the 'firstpos' set for the expression.
          */
-        const PosList& firstPos() const;
-
-
-        /**
-         * @brief Get the 'followpos' set for a position in the expression.
-         */
-        const PosList& followPos(int pos) const;
-
-
-        /**
-         * @brief Get a symbol for a position in the expression.
-         */
-        const Symbol& posValue(int pos) const;
-
-
-        /**
-         * @brief Check if a position is the end position for the expression.
-         */
-        bool isEndPos(int pos) const {
-            return posValue(pos).isEmpty();
+        std::span<const int> firstPos() const {
+            return memo()->firstPos;
         }
 
 
         /**
-         * @brief Convert the regular expression to its AST equivalent.
+         * @brief Compute the 'followpos' set for a position.
+         */
+        std::span<const int> followPos(int pos) const {
+            if(const auto& fp = memo()->followPos; pos >= 0 && pos < fp.size()) {
+                return fp[pos];
+            }
+            return {};
+        }
+
+
+        /**
+         * @brief Value of a symbol atom at position, if any.
+         */
+        const Symbol* valueAt(int pos) const {
+            if(const auto& atoms = memo()->atoms; pos >= 0 && pos < atoms.size()) {
+                return &atoms[pos]->value();
+            }
+            return nullptr;
+        }
+
+
+        /**
+         * @brief Check if a position is the end position.
+         */
+        bool isEndPos(int pos) const {
+            return valueAt(pos) == nullptr;
+        }
+
+
+        /**
+         * @brief Convert the expression to its AST.
          */
         operator regex::NodePtr() const noexcept {
+            return rootNode();
+        }
+
+
+        /**
+         * @brief AST representation of the expression.
+         */
+        regex::NodePtr rootNode() const noexcept {
             return rootNode_;
         }
 
 
-        /**
-         * @brief Check if the regular expression is non-empty.
-         */
-        explicit operator bool() const noexcept {
-            return !isEmpty();
-        }
-
-
-        /**
-         * @brief Check if the regular expression is empty.
-         */
-        bool isEmpty() const noexcept {
-            return rootNode_ == nullptr;
-        }
-        /** @} */
-
-
     private:
-        static inline PosList emptyPosList;
-        static inline Symbol emptyPosValue;
+        struct Memo {
 
-        class ComputeCache;
-        ComputeCache* computeCache() const;
+            Memo(regex::NodePtr rootNode);
 
-        mutable std::shared_ptr<ComputeCache> computeCache_;
+
+            regex::ConcatExprNode regex;
+
+            std::vector<const regex::AtomExprNode*> atoms;
+            std::vector<int> firstPos;
+            std::vector<std::vector<int>> followPos;
+        };
+
+
+        Memo* memo() const {
+            if(!memo_) {
+                memo_ = std::make_shared<Memo>(rootNode_);
+            }
+            return memo_.get();
+        }
+
+        mutable std::shared_ptr<Memo> memo_;
         regex::NodePtr rootNode_;
     };
+
+
+    /**
+     * @related RegularExpr
+     * @brief Create a concatenation expression out of two expressions.
+     */
+    inline RegularExpr operator+(const RegularExpr& lhs, const RegularExpr& rhs) {
+        return regex::concat(lhs, rhs);
+    }
+
+
+    /**
+     * @related RegularExpr
+     * @brief Create a concatenation expression out of two expressions in place.
+     */
+    inline RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
+        return lhs = lhs + rhs;
+    }
+
+
+    /**
+     * @related RegularExpr
+     * @brief Create an alternation expression out of two expressions.
+     */
+    inline RegularExpr operator|(const RegularExpr& lhs, const RegularExpr& rhs) {
+        return regex::altern(lhs, rhs);
+    }
+
+
+    /**
+     * @related RegularExpr
+     * @brief Create an alternation expression out of two expressions in place.
+     */
+    inline RegularExpr& operator|=(RegularExpr& lhs, const RegularExpr& rhs) {
+        return lhs = lhs | rhs;
+    }
 
 }

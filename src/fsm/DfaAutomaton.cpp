@@ -18,8 +18,8 @@ namespace parsec::fsm {
             }
 
 
-            const Symbol& value() const {
-                return rule->posValue(pos);
+            const Symbol* value() const {
+                return rule->valueAt(pos);
             }
 
             bool isAtEnd() const {
@@ -103,7 +103,7 @@ namespace parsec::fsm {
                     throw NameConflictError(states_[stateId].match(), item.symbol);
                 }
 
-                auto& itemTrans = transitions[item.value()];
+                auto& itemTrans = transitions[*item.value()];
                 for(const auto& pos : item.rule->followPos(item.pos)) {
                     itemTrans.emplace(item.symbol, item.rule, pos);
                 }
