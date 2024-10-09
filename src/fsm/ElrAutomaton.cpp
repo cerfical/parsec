@@ -1,7 +1,7 @@
 #include "fsm/ElrAutomaton.hpp"
 
 #include "core/NameConflictError.hpp"
-#include "fsm/DfaAutomaton.hpp"
+#include "fsm/DfaStateGen.hpp"
 
 #include <boost/functional/hash.hpp>
 
@@ -22,16 +22,61 @@ namespace parsec::fsm {
         using ItemSet = std::unordered_set<StateItem, boost::hash<StateItem>>;
 
 
+        struct DfaStateTrans {
+            int target = {};
+            Symbol label;
+        };
+
+        struct DfaState {
+            std::vector<DfaStateTrans> transitions;
+            Symbol match;
+            int id = {};
+        };
+
+
+        class GenDfaStates : DfaStateGen::StateSink {
+        public:
+
+            GenDfaStates(std::vector<DfaState>& states, int baseStateId)
+                : states_(states), baseStateId_(baseStateId) {}
+
+            void run(const SymbolGrammar& grammar) {
+                DfaStateGen()
+                    .setInputGrammar(&grammar)
+                    .setStateSink(this)
+                    .generate();
+            }
+
+        private:
+            void addState(int id) override {
+                auto& s = states_.emplace_back();
+                s.id = id + baseStateId_;
+            }
+
+            void addStateTransition(int state, int target, const Symbol& label) override {
+                states_[state + baseStateId_].transitions.emplace_back(target + baseStateId_, label);
+            }
+
+            void setStateMatch(int state, const Symbol& match) override {
+                states_[state + baseStateId_].match = match;
+            }
+
+            std::vector<DfaState>& states_;
+            int baseStateId_ = {};
+        };
+
+
         class TransNetwork {
         public:
 
-            explicit TransNetwork(const SymbolGrammar& grammar) {
+            TransNetwork(const SymbolGrammar& grammar) {
                 for(const auto& symbol : grammar.symbols()) {
                     if(const auto* const rule = grammar.resolve(symbol)) {
-                        const auto ruleGrammar = SymbolGrammar()
-                                                     .define(symbol, *rule);
+                        const auto startStateId = static_cast<int>(states_.size());
+                        symbolToStartState_[symbol] = startStateId;
 
-                        insertMachine(symbol, DfaAutomaton(ruleGrammar));
+                        GenDfaStates(states_, startStateId)
+                            .run(SymbolGrammar().define(symbol, *rule));
                     }
                 }
             }
@@ -51,21 +96,6 @@ namespace parsec::fsm {
 
 
         private:
-            void insertMachine(const Symbol& name, const DfaAutomaton& dfa) {
-                const auto baseStateId = static_cast<int>(states_.size());
-                for(const auto& dfaState : dfa.states()) {
-                    // create a new state with a unique id for each DFA state
-                    auto& state = states_.emplace_back(baseStateId + dfaState.id());
-                    for(const auto& dfaTrans : dfaState.transitions()) {
-                        state.addTransition(baseStateId + dfaTrans.target, dfaTrans.label);
-                    }
-                    state.setMatch(dfaState.match());
-                }
-
-                const auto startState = baseStateId;
-                symbolToStartState_[name] = startState;
-            }
-
             std::vector<DfaState> states_;
             std::unordered_map<Symbol, int> symbolToStartState_;
         };
@@ -98,7 +128,7 @@ namespace parsec::fsm {
         ItemSet createStartState() {
             ItemSet startState;
             if(const auto* const root = grammar_.root()) {
-                startState.insert({ .dfaState = transNet_.startState(*root)->id() });
+                startState.insert({ .dfaState = transNet_.startState(*root)->id });
             }
             return startState;
         }
@@ -134,9 +164,9 @@ namespace parsec::fsm {
             }
             closure.insert(item);
 
-            for(const auto& trans : transNet_.stateById(item.dfaState)->transitions()) {
+            for(const auto& trans : transNet_.stateById(item.dfaState)->transitions) {
                 if(const auto* startState = transNet_.startState(trans.label)) {
-                    closeItem({ .dfaState = startState->id() }, closure);
+                    closeItem({ .dfaState = startState->id }, closure);
                 }
             }
         }
@@ -148,16 +178,16 @@ namespace parsec::fsm {
 
             for(int itemId = 0; const auto& item : items) {
                 const auto& dfaState = transNet_.stateById(item.dfaState);
-                if(dfaState->isMatchState()) {
+                if(dfaState->match) {
                     if(!states_[stateId].isMatchState()) {
-                        states_[stateId].setMatch(dfaState->match());
+                        states_[stateId].setMatch(dfaState->match);
                         states_[stateId].setBacklink(itemId);
                     } else {
-                        throw NameConflictError(states_[stateId].match(), dfaState->match());
+                        throw NameConflictError(states_[stateId].match(), dfaState->match);
                     }
                 }
 
-                for(const auto& trans : dfaState->transitions()) {
+                for(const auto& trans : dfaState->transitions) {
                     transitions[trans.label].insert(StateItem(trans.target, itemId));
                 }
 

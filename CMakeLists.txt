@@ -115,13 +115,12 @@ target_sources(parsec-lib
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/fsm/StateTrans.hpp"
-        "include/parsec/fsm/DfaState.hpp"
-        "include/parsec/fsm/DfaAutomaton.hpp"
+        "include/parsec/fsm/DfaStateGen.hpp"
         "include/parsec/fsm/ElrState.hpp"
         "include/parsec/fsm/ElrAutomaton.hpp"
 
     PRIVATE
-        "src/fsm/DfaAutomaton.cpp"
+        "src/fsm/DfaStateGen.cpp"
         "src/fsm/ElrAutomaton.cpp"
 )
 

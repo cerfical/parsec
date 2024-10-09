@@ -1,6 +1,7 @@
 #include "core/CodeGen.hpp"
+#include "core/SymbolGrammar.hpp"
 
-#include "fsm/DfaAutomaton.hpp"
+#include "fsm/DfaStateGen.hpp"
 #include "fsm/ElrAutomaton.hpp"
 #include "util/strings.hpp"
 
@@ -9,6 +10,47 @@
 
 namespace parsec {
     namespace {
+        class GenerateJsonLexStates : private fsm::DfaStateGen::StateSink {
+        public:
+
+            inja::json run(const SymbolGrammar* tokens) {
+                states_ = inja::json::array();
+
+                fsm::DfaStateGen()
+                    .setStateSink(this)
+                    .setInputGrammar(tokens)
+                    .generate();
+
+                return std::move(states_);
+            }
+
+        private:
+            void addState(int id) override {
+                states_.push_back({
+                    {             "id",                  id },
+                    { "is_start_state",             id == 0 },
+                    { "is_match_state",               false },
+                    {    "transitions", inja::json::array() },
+                    {          "match",                  "" }
+                });
+            }
+
+            void addStateTransition(int state, int target, const Symbol& label) override {
+                states_[state]["transitions"].push_back({
+                    {  "label", strings::escape(label.text()) },
+                    { "target",                        target }
+                });
+            }
+
+            void setStateMatch(int state, const Symbol& match) override {
+                states_[state]["is_match_state"] = true;
+                states_[state]["match"] = match.text();
+            }
+
+            inja::json states_;
+        };
+
+
         inja::json makeTransitions(std::span<const fsm::StateTrans> transitions) {
             auto json = inja::json::array();
             for(const auto& t : transitions) {
@@ -20,29 +62,11 @@ namespace parsec {
             return json;
         }
 
-        inja::json makeGrammarSymbols(const SymbolGrammar* grammar) {
+        inja::json generateJsonSymbols(const SymbolGrammar* grammar) {
             auto json = inja::json::array();
             if(grammar) {
                 for(const auto& s : grammar->symbols()) {
                     json.push_back(s.text());
-                }
-            }
-            return json;
-        }
-
-
-        inja::json makeLexStates(const SymbolGrammar* tokens) {
-            auto json = inja::json::array();
-            if(tokens) {
-                const auto dfa = fsm::DfaAutomaton(*tokens);
-                for(const auto& s : dfa.states()) {
-                    json.push_back({
-                        {             "id",                           s.id() },
-                        { "is_start_state",                 s.isStartState() },
-                        { "is_match_state",                 s.isMatchState() },
-                        {    "transitions", makeTransitions(s.transitions()) },
-                        {          "match",                 s.match().text() }
-                    });
                 }
             }
             return json;
@@ -85,10 +109,10 @@ namespace parsec {
         }
 
         const inja::json vars = {
-            {      "token_names", makeGrammarSymbols(tokens_) },
-            {       "lex_states",      makeLexStates(tokens_) },
-            { "parse_rule_names",  makeGrammarSymbols(rules_) },
-            {     "parse_states",     makeParseStates(rules_) }
+            {      "token_names",         generateJsonSymbols(tokens_) },
+            {       "lex_states", GenerateJsonLexStates().run(tokens_) },
+            { "parse_rule_names",          generateJsonSymbols(rules_) },
+            {     "parse_states",              makeParseStates(rules_) }
         };
 
         if(tmpl_) {
