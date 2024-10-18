@@ -113,7 +113,7 @@ public:
         : options_(options) {}
 
     bool exec() {
-        input_.open(options_->inputFile());
+        input_.open(options_->inputFile(), std::ios::binary);
         if(!input_.is_open()) {
             throw std::runtime_error(std::format("failed to load the input file \"{}\"", options_->inputFile()));
         }
@@ -189,25 +189,11 @@ private:
             << indent << spaces << marker << '\n';
     }
 
-
     std::string readInputLine(int linePos) {
-        const auto inputPos = input_.tellg();
-        input_.seekg(linePos);
-
         std::string line;
-        if(!isInputEnd()) {
-            std::getline(input_, line);
-            input_.seekg(inputPos);
-        }
+        input_.seekg(linePos);
+        std::getline(input_, line);
         return line;
-    }
-
-    bool isInputEnd() {
-        if(input_.peek() == std::char_traits<char>::eof()) {
-            input_.clear(input_.rdstate() ^ std::ios::eofbit);
-            return true;
-        }
-        return false;
     }
 
 

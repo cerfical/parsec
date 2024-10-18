@@ -1,5 +1,4 @@
 #include "core/TextScanner.hpp"
-
 #include "core/ParseError.hpp"
 
 #include <cstddef>
@@ -27,6 +26,14 @@ namespace parsec {
     }
 
 
+    char TextScanner::peek(int off) const {
+        if(fillLookaheadBuffer(off + 1)) {
+            return labuf_[off];
+        }
+        throw ParseError::unexpectedEof(pos());
+    }
+
+
     bool TextScanner::skipIf(char ch) {
         if(!isEof()) {
             if(peek() == ch) {
@@ -38,23 +45,14 @@ namespace parsec {
     }
 
 
-    char TextScanner::peek(int off) const {
-        if(fillLookaheadBuffer(off + 1)) {
-            return labuf_[off];
-        }
-        throw ParseError::unexpectedEof(pos());
-    }
-
-
     bool TextScanner::skipIf(std::string_view text) {
         if(!fillLookaheadBuffer(text.size())) {
             return false;
         }
 
         // compare the text for equality with a same-sized substring of the lookahead buffer
-        if(labuf_.compare(0, text.size(), text) == 0) {
+        if(labuf_.starts_with(text)) {
             labuf_.erase(0, text.size());
-
             for(char ch : text) {
                 updateLocInfo(ch);
             }
@@ -76,7 +74,7 @@ namespace parsec {
     }
 
     bool TextScanner::checkForEof() const {
-        if(!input_) {
+        if(!input_ || input_->eof() || input_->fail() || input_->bad()) {
             return true;
         }
 

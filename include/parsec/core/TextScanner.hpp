@@ -87,9 +87,9 @@ namespace parsec {
 
     private:
         bool fillLookaheadBuffer(std::size_t size) const;
-        bool checkForEof() const;
 
         void updateLocInfo(char ch) noexcept;
+        bool checkForEof() const;
 
 
         mutable std::string labuf_;
