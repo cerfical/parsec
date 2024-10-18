@@ -231,7 +231,7 @@ private:
 ##   for state in lex_states
     state{{ state.id }}:
         tokenText_ += getChar();
-##     if state.is_start_state
+##     if state.id == 0
     start:
 ##   endif
 ##     if length(state.transitions) > 0
@@ -241,7 +241,7 @@ private:
 ##       endfor
         }
 ##     endif
-##     if state.is_match_state
+##     if existsIn(state, "match")
         kind = TokenKinds::{{ state.match }};
         goto accept;
 ##     else
@@ -345,7 +345,7 @@ public:
 
     void parse() {
 ## if length(parse_states) > 0
-        state{% for state in parse_states %}{% if state.is_start_state %}{{ state.id }}{% endif %}{% endfor %}();
+        state{% for state in parse_states %}{% if state.id == 0 %}{{ state.id }}{% endif %}{% endfor %}();
 ## else
         error();
 ## endif
@@ -399,16 +399,16 @@ private:
         static const std::array backlinks = { {% for link in state.backlinks %}{{ link }}{% if not loop.is_last %},{% endif %} {% endfor %}};
 
         switch(lexer_.peek().kind()) {
-##   for shift in state.shifts
-            case TokenKinds::{{ shift.label }}: shiftState(&Parser::state{{ shift.target }}); break;
+##   for trans in state.token_transitions
+            case TokenKinds::{{ trans.label }}: shiftState(&Parser::state{{ trans.target }}); break;
 ##   endfor
-            default: {% if state.is_match_state %}startReduce(ParseRules::{{ state.match }}, &Parser::on{{ state.match }}, {{ state.backlink }}); break;{% else %}error();{% endif %}
+            default: {% if existsIn(state, "match") %}startReduce(ParseRules::{{ state.match }}, &Parser::on{{ state.match }}, {{ state.active_backlink }}); break;{% else %}error();{% endif %}
         }
 
         while(reduce(backlinks)) {
             switch(reduceRule_) {
-##   for goto in state.gotos
-                case ParseRules::{{ goto.label }}: gotoState(&Parser::state{{ goto.target }}); break;
+##   for trans in state.rule_transitions
+                case ParseRules::{{ trans.label }}: gotoState(&Parser::state{{ trans.target }}); break;
 ##   endfor
                 default: return;
             }

@@ -27,11 +27,8 @@ namespace parsec {
         private:
             void addState(int id) override {
                 states_.push_back({
-                    {             "id",                  id },
-                    { "is_start_state",             id == 0 },
-                    { "is_match_state",               false },
-                    {    "transitions", inja::json::array() },
-                    {          "match",                  "" }
+                    {          "id",                  id },
+                    { "transitions", inja::json::array() },
                 });
             }
 
@@ -43,7 +40,6 @@ namespace parsec {
             }
 
             void setStateMatch(int state, const Symbol& match) override {
-                states_[state]["is_match_state"] = true;
                 states_[state]["match"] = match.text();
             }
 
@@ -69,12 +65,9 @@ namespace parsec {
             void addState(int id) override {
                 states_.push_back({
                     {                "id",                  id },
-                    {    "is_start_state",             id == 0 },
-                    {    "is_match_state",               false },
                     { "token_transitions", inja::json::array() },
                     {  "rule_transitions", inja::json::array() },
                     {         "backlinks", inja::json::array() },
-                    {             "match",                  "" }
                 });
             }
 
@@ -101,7 +94,6 @@ namespace parsec {
             }
 
             void setStateMatch(int state, const Symbol& match) override {
-                states_[state]["is_match_state"] = true;
                 states_[state]["match"] = match.text();
             }
 
