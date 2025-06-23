@@ -18,6 +18,7 @@
 #include <vector>
 
 using namespace parsec::regex;
+using namespace parsec;
 
 namespace {
     std::vector<int> computeFirstOrLastPos(const ExprNode& n, int nextAtomIndex, bool firstOrLast) {
@@ -83,19 +84,19 @@ namespace {
     }
 
 
-    std::vector<const AtomExprNode*> collectAtoms(const ExprNode& n) {
+    std::vector<Symbol> collectAtoms(const ExprNode& n) {
         class Impl : private NodeVisitor {
         public:
 
-            std::vector<const AtomExprNode*> run(const ExprNode& n) {
+            std::vector<Symbol> run(const ExprNode& n) {
                 n.accept(*this);
-                return std::move(atoms_);
+                return std::move(symbols_);
             }
 
         private:
             void visit(const AtomExprNode& n) override {
                 if(n.value()) {
-                    atoms_.push_back(&n);
+                    symbols_.push_back(n.value());
                 }
             }
 
@@ -121,7 +122,7 @@ namespace {
                 n.right()->accept(*this);
             }
 
-            std::vector<const AtomExprNode*> atoms_;
+            std::vector<Symbol> symbols_;
         };
 
         return Impl().run(n);
@@ -197,11 +198,16 @@ namespace {
 }
 
 namespace parsec {
-    RegularExpr::Memo::Memo(NodePtr rootNode)
-        : regex(std::move(rootNode), atom('$'))
-        , atoms(collectAtoms(*regex.left()))
-        , firstPos(computeFirstOrLastPos(regex, 0, true))
-        , followPos(computeFollowPos(regex)) {}
+    RegularExpr::RegularExpr(NodePtr rootNode) {
+        auto state = std::make_shared<State>();
+
+        const auto regex = ConcatExprNode(std::move(rootNode), atom('$'));
+        state->symbols = collectAtoms(*regex.left());
+        state->firstPos = computeFirstOrLastPos(regex, 0, true);
+        state->followPos = computeFollowPos(regex);
+
+        state_ = std::move(state);
+    }
 
     RegularExpr::RegularExpr(std::string_view regex)
         : RegularExpr(Parser::parseFrom(regex)) {}
