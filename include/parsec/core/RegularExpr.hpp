@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../regex/ast/AtomExprNode.hpp"
 #include "../regex/ast/ConcatExprNode.hpp"
 #include "../regex/ast/ExprNode.hpp"
-#include "../regex/make.hpp"
 
 #include "Symbol.hpp"
 
@@ -71,22 +71,6 @@ namespace parsec {
         }
 
 
-        /**
-         * @brief Convert the expression to its AST.
-         */
-        operator regex::NodePtr() const noexcept {
-            return rootNode();
-        }
-
-
-        /**
-         * @brief AST representation of the expression.
-         */
-        regex::NodePtr rootNode() const noexcept {
-            return rootNode_;
-        }
-
-
     private:
         struct Memo {
 
@@ -111,41 +95,5 @@ namespace parsec {
         mutable std::shared_ptr<Memo> memo_;
         regex::NodePtr rootNode_;
     };
-
-
-    /**
-     * @related RegularExpr
-     * @brief Create a concatenation expression out of two expressions.
-     */
-    inline RegularExpr operator+(const RegularExpr& lhs, const RegularExpr& rhs) {
-        return regex::concat(lhs, rhs);
-    }
-
-
-    /**
-     * @related RegularExpr
-     * @brief Create a concatenation expression out of two expressions in place.
-     */
-    inline RegularExpr& operator+=(RegularExpr& lhs, const RegularExpr& rhs) {
-        return lhs = lhs + rhs;
-    }
-
-
-    /**
-     * @related RegularExpr
-     * @brief Create an alternation expression out of two expressions.
-     */
-    inline RegularExpr operator|(const RegularExpr& lhs, const RegularExpr& rhs) {
-        return regex::altern(lhs, rhs);
-    }
-
-
-    /**
-     * @related RegularExpr
-     * @brief Create an alternation expression out of two expressions in place.
-     */
-    inline RegularExpr& operator|=(RegularExpr& lhs, const RegularExpr& rhs) {
-        return lhs = lhs | rhs;
-    }
 
 }

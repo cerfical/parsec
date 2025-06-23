@@ -10,6 +10,7 @@
 #include "regex/ast/OptionalExprNode.hpp"
 #include "regex/ast/PlusClosureNode.hpp"
 #include "regex/ast/StarClosureNode.hpp"
+#include "regex/make.hpp"
 
 #include <algorithm>
 #include <string_view>

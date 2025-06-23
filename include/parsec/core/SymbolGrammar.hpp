@@ -20,22 +20,20 @@ namespace parsec {
          * @brief Define a grammar symbol as a combination of other symbols.
          */
         SymbolGrammar& define(const Symbol& symbol, const RegularExpr& rule) {
+            // try to create a new rule definition for the symbol, if the symbol is not already defined
             const auto [it, ok] = rules_.try_emplace(symbol, rule);
             if(ok) {
                 try {
+                    // the symbol is new to the grammar, so add it to the list of all defined symbols
                     symbols_.push_back(symbol);
                 } catch(...) {
+                    // rollback the rule definition if something fails
                     rules_.erase(it);
                     throw;
                 }
             } else {
-                if(it->second) {
-                    // if the symbol already has a rule, then merge it with the new one
-                    *it->second |= rule;
-                } else {
-                    // otherwise, assign the rule to the symbol
-                    it->second = rule;
-                }
+                // replace the existing definition with the new one
+                it->second = rule;
             }
             return *this;
         }
