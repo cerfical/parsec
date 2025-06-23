@@ -292,7 +292,7 @@ namespace parsec {
                 }
 
                 void visit(const InlineTokenNode& n) override {
-                    rule_ = regex::atom(*patterns_->lookupName(n.pattern().text()));
+                    rule_ = regex::atom(patterns_->lookupName(n.pattern().text())->text());
                 }
 
                 void visit(const EmptyRuleNode& /*n*/) override {
@@ -300,7 +300,7 @@ namespace parsec {
                 }
 
                 void visit(const SymbolRuleNode& n) override {
-                    rule_ = regex::atom(makeName(n.value()));
+                    rule_ = regex::atom(makeName(n.value()).text());
                 }
 
                 void visit(const ConcatRuleNode& n) override {

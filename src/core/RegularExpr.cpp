@@ -35,7 +35,7 @@ namespace {
 
         private:
             void visit(const AtomExprNode& n) override {
-                if(n.value()) {
+                if(!n.isNull()) {
                     // only non-empty atoms must have positional indices assigned
                     indices_.push_back(nextAtomIndex_);
                 }
@@ -95,8 +95,8 @@ namespace {
 
         private:
             void visit(const AtomExprNode& n) override {
-                if(n.value()) {
-                    symbols_.push_back(n.value());
+                if(!n.isNull()) {
+                    symbols_.emplace_back(n.value());
                 }
             }
 
@@ -201,7 +201,7 @@ namespace parsec {
     RegularExpr::RegularExpr(NodePtr rootNode) {
         auto state = std::make_shared<State>();
 
-        const auto regex = ConcatExprNode(std::move(rootNode), atom('$'));
+        const auto regex = ConcatExprNode(std::move(rootNode), atom("$"));
         state->symbols = collectAtoms(*regex.left());
         state->firstPos = computeFirstOrLastPos(regex, 0, true);
         state->followPos = computeFollowPos(regex);

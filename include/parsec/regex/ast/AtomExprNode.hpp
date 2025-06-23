@@ -1,41 +1,46 @@
 #pragma once
 
-#include "../../core/Symbol.hpp"
 #include "ExprNode.hpp"
+
+#include <utility>
 
 namespace parsec::regex {
 
     /**
-     * @brief Atomic expression consisting of a single symbol.
+     * @brief A basic expression representing a single atomic value.
      */
     class AtomExprNode : public ExprNode {
     public:
 
-        explicit AtomExprNode(Symbol value)
+        explicit AtomExprNode(std::string value)
             : value_(std::move(value)) {}
 
 
         void accept(NodeVisitor& visitor) const override;
 
         bool isNullable() const noexcept override {
-            return value_.isEmpty();
+            return isNull();
         }
 
         int atomCount() const noexcept override {
-            return value_ ? 1 : 0;
+            return !isNull() ? 1 : 0;
         }
 
 
         /**
          * @brief Value of the symbol.
          */
-        const Symbol& value() const noexcept {
+        const std::string& value() const noexcept {
             return value_;
+        }
+
+        bool isNull() const noexcept {
+            return value_.empty();
         }
 
 
     private:
-        Symbol value_;
+        std::string value_;
     };
 
 }

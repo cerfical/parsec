@@ -7,6 +7,13 @@
 #include "util/chars.hpp"
 
 namespace parsec::regex {
+
+    namespace {
+        NodePtr atomFromChar(char ch) {
+            return atom(std::string(1, ch));
+        }
+    }
+
     bool Parser::isMetaChar(char ch) {
         switch(ch) {
             case '|':
@@ -103,7 +110,7 @@ namespace parsec::regex {
             return parseCharSet();
         }
 
-        return atom(parseChar());
+        return atomFromChar(parseChar());
     }
 
 
@@ -147,7 +154,7 @@ namespace parsec::regex {
         const auto low = parseChar();
 
         // no char range, just a single character
-        auto expr = atom(low);
+        auto expr = atomFromChar(low);
         if(!input_.skipIf('-')) {
             return expr;
         }
@@ -163,10 +170,10 @@ namespace parsec::regex {
             }
 
             for(auto ch = low + 1; ch <= high; ch++) {
-                expr = altern(expr, atom(static_cast<char>(ch)));
+                expr = altern(expr, atomFromChar(static_cast<char>(ch)));
             }
         } else {
-            expr = altern(expr, atom('-'));
+            expr = altern(expr, atomFromChar('-'));
         }
 
         return expr;

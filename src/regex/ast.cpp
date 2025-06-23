@@ -22,8 +22,8 @@ namespace parsec::regex {
 
         private:
             void visit(const AtomExprNode& n) override {
-                if(n.value()) {
-                    out_ << '\'' << strings::escape(n.value().text()) << '\'';
+                if(!n.isNull()) {
+                    out_ << '\'' << strings::escape(n.value()) << '\'';
                 } else {
                     out_ << "()";
                 }
