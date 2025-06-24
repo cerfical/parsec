@@ -36,9 +36,11 @@ public:
     bool parse(int argc, const char* argv[]) {
         store(
             po::command_line_parser(argc, argv)
-                .positional(po::positional_options_description()
-                                .add("input-file", 1)
-                                .add("output-file", 1))
+                .positional(
+                    po::positional_options_description()
+                        .add("input-file", 1)
+                        .add("output-file", 1)
+                )
                 .options(named_)
                 .run(),
             options_
@@ -136,23 +138,24 @@ private:
         compiler_.setOutputSink(&compiled);
         try {
             compiler_.compile();
-        } catch(const parsec::ParseError& e) {
+        } catch(const parsec::CompileError& e) {
             dumpError(e);
             return false;
         }
 
         output_.open(options_->outputFile());
         if(!output_.is_open()) {
-            throw std::runtime_error(std::format(
+            const auto msg = std::format(
                 "failed to open the output file \"{}\"",
                 options_->outputFile()
-            ));
+            );
+            throw std::runtime_error(msg);
         }
         output_ << compiled.str();
         return true;
     }
 
-    void dumpError(const parsec::ParseError& err) {
+    void dumpError(const parsec::CompileError& err) {
         const auto tabSize = options_->tabSize();
         auto line = readInputLine(err.loc().line.offset);
         algo::trim_right(line);

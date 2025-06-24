@@ -1,7 +1,6 @@
 #include "core/Compiler.hpp"
-
+#include "core/CompileError.hpp"
 #include "core/NameConflictError.hpp"
-#include "core/ParseError.hpp"
 #include "core/RegularExpr.hpp"
 #include "core/SourceLoc.hpp"
 #include "core/Symbol.hpp"
@@ -25,6 +24,7 @@
 #include "pars/ast/StarRuleNode.hpp"
 #include "pars/ast/SymbolRuleNode.hpp"
 
+#include "regex/ParseError.hpp"
 #include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
 
@@ -162,15 +162,15 @@ namespace parsec {
                 void insertName(const Token& name) {
                     const auto unifiedName = makeName(name);
                     if(!unifiedName) {
-                        throw ParseError::emptyName(name.loc());
+                        throw CompileError::emptyName(name.loc());
                     }
 
                     if(isReservedName(unifiedName)) {
-                        throw ParseError::reservedNameRedefine(name.loc());
+                        throw CompileError::reservedNameRedefine(name.loc());
                     }
 
                     if(names_->contains(unifiedName)) {
-                        throw ParseError::nameRedefine(name.loc());
+                        throw CompileError::nameRedefine(name.loc());
                     }
                     names_->insertEntry(unifiedName, name);
                 }
@@ -196,7 +196,7 @@ namespace parsec {
             private:
                 void visit(const SymbolRuleNode& n) override {
                     if(!names_->contains(makeName(n.value()))) {
-                        throw ParseError::undefinedName(n.value().loc());
+                        throw CompileError::undefinedName(n.value().loc());
                     }
                 }
 
@@ -240,7 +240,7 @@ namespace parsec {
                     RegularExpr regex;
                     try {
                         regex = RegularExpr(pattern.text());
-                    } catch(const ParseError& err) {
+                    } catch(const regex::ParseError& err) {
                         const auto& patLoc = pattern.loc();
                         const auto& errLoc = err.loc();
 
@@ -251,7 +251,7 @@ namespace parsec {
                             .colCount = errLoc.colCount,
                             .line = patLoc.line,
                         };
-                        throw ParseError(newLoc, err.what());
+                        throw CompileError::syntaxError(newLoc, err.what());
                     }
                     tokens_.define(name, regex);
                 }
@@ -348,7 +348,13 @@ namespace parsec {
         PatternNameCache patterns;
         NameTable names;
 
-        const auto ast = Parser::parseFrom(*input_);
+        NodePtr ast;
+        try {
+            ast = Parser::parseFrom(*input_);
+        } catch(const ParseError& err) {
+            throw CompileError::syntaxError(err.loc(), err.what());
+        }
+
         collectNamesAndPatterns(*ast, names, patterns);
         checkForUndefinedNames(*ast, names);
 
@@ -368,9 +374,9 @@ namespace parsec {
             const auto* const srcTok2 = names.lookupToken(err.name2().text());
 
             if(tokens.contains(err.name1())) {
-                throw ParseError::patternConflict(srcTok1->loc(), srcTok2->text());
+                throw CompileError::patternConflict(srcTok1->loc(), srcTok2->text());
             }
-            throw ParseError::ruleConflict(srcTok1->loc(), srcTok2->text());
+            throw CompileError::ruleConflict(srcTok1->loc(), srcTok2->text());
         }
     }
 

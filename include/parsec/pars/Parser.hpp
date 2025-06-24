@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../core/ParseError.hpp"
 #include "ast/Node.hpp"
 
 #include "Lexer.hpp"
+#include "ParseError.hpp"
 
 #include <istream>
 #include <spanstream>

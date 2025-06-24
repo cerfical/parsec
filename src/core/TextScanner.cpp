@@ -1,5 +1,5 @@
 #include "core/TextScanner.hpp"
-#include "core/ParseError.hpp"
+#include "core/UnexpectedEofError.hpp"
 
 #include <cstddef>
 #include <ios>
@@ -17,7 +17,7 @@ namespace parsec {
             // otherwise fallback to calling istream api
             ch = static_cast<char>(input_->get());
         } else {
-            throw ParseError::unexpectedEof(pos());
+            throw UnexpectedEofError(pos());
         }
 
         // finally update location information, based on the consumed character
@@ -30,7 +30,7 @@ namespace parsec {
         if(fillLookaheadBuffer(off + 1)) {
             return labuf_[off];
         }
-        throw ParseError::unexpectedEof(pos());
+        throw UnexpectedEofError(pos());
     }
 
 

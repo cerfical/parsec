@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/CodeGen.hpp"
+#include "core/CompileError.hpp"
 #include "core/Compiler.hpp"
 #include "core/NameConflictError.hpp"
-#include "core/ParseError.hpp"
 #include "core/SymbolGrammar.hpp"
 
 /**

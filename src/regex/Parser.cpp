@@ -1,9 +1,10 @@
 #include "regex/Parser.hpp"
-
-#include "core/ParseError.hpp"
-#include "core/TextScanner.hpp"
-
+#include "regex/ParseError.hpp"
 #include "regex/make.hpp"
+
+#include "core/TextScanner.hpp"
+#include "core/UnexpectedEofError.hpp"
+
 #include "util/chars.hpp"
 
 namespace parsec::regex {
@@ -49,7 +50,11 @@ namespace parsec::regex {
 
 
     NodePtr Parser::parseExpr() {
-        return parseAltern();
+        try {
+            return parseAltern();
+        } catch(const UnexpectedEofError& e) {
+            throw ParseError::unexpectedEof(e.loc());
+        }
     }
 
 

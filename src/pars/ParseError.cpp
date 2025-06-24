@@ -1,6 +1,4 @@
-#include "core/ParseError.hpp"
-
-#include "core/SourceLoc.hpp"
+#include "pars/ParseError.hpp"
 
 #include "util/chars.hpp"
 #include "util/strings.hpp"
@@ -9,32 +7,7 @@
 #include <string>
 #include <string_view>
 
-namespace parsec {
-    ParseError ParseError::nameRedefine(const SourceLoc& nameLoc) {
-        return { nameLoc, "name redefinition" };
-    }
-
-    ParseError ParseError::reservedNameRedefine(const SourceLoc& nameLoc) {
-        return { nameLoc, "trying to redefine a reserved name" };
-    }
-
-    ParseError ParseError::emptyName(const SourceLoc& nameLoc) {
-        return { nameLoc, "name must contain at least one letter" };
-    }
-
-    ParseError ParseError::undefinedName(const SourceLoc& nameRefLoc) {
-        return { nameRefLoc, "use of undefined name" };
-    }
-
-
-    ParseError ParseError::patternConflict(const SourceLoc& pat1Loc, std::string_view pat2Name) {
-        return { pat1Loc, std::format("pattern is in conflict with pattern \"{}\"", pat2Name) };
-    }
-
-    ParseError ParseError::ruleConflict(const SourceLoc& rule1Loc, std::string_view rule2Name) {
-        return { rule1Loc, std::format("rule is in conflict with rule \"{}\"", rule2Name) };
-    }
-
+namespace parsec::pars {
 
     ParseError ParseError::unexpectedEof(const SourceLoc& eofLoc) {
         return { eofLoc, "unexpected end of file" };
@@ -43,16 +16,6 @@ namespace parsec {
     ParseError ParseError::invalidChar(const SourceLoc& chLoc, char ch) {
         return { chLoc, std::format("invalid character '{}'", chars::escape(ch)) };
     }
-
-
-    ParseError ParseError::emptyHexEscapeSeq(const SourceLoc& seqLoc) {
-        return { seqLoc, "expected at least one hexadecimal digit" };
-    }
-
-    ParseError ParseError::outOfOrderCharRange(const SourceLoc& rngLoc) {
-        return { rngLoc, "character range is out of order" };
-    }
-
 
     ParseError ParseError::misplacedChar(const SourceLoc& chLoc, char ch) {
         std::string msg;
@@ -84,4 +47,5 @@ namespace parsec {
     ParseError ParseError::unmatchedToken(const SourceLoc& foundLoc, std::string_view expectVal) {
         return { foundLoc, std::format("{} expected, but got{}", expectVal, foundLoc ? "" : " end of file") };
     }
+
 }

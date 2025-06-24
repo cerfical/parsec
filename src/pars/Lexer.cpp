@@ -1,6 +1,6 @@
 #include "pars/Lexer.hpp"
+#include "pars/ParseError.hpp"
 
-#include "core/ParseError.hpp"
 #include "regex/Parser.hpp"
 #include "util/chars.hpp"
 

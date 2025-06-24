@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Error.hpp"
 #include "Symbol.hpp"
 
+#include <stdexcept>
 #include <utility>
 
 namespace parsec {
@@ -10,14 +10,16 @@ namespace parsec {
     /**
      * @brief Indicates that there exists some conflict between several symbolic names.
      */
-    class NameConflictError : public Error {
+    class NameConflictError : public std::runtime_error {
     public:
 
         /**
          * @brief Construct an error from two conflicting names.
          */
         NameConflictError(Symbol name1, Symbol name2)
-            : Error("name conflict error"), name1_(std::move(name1)), name2_(std::move(name2)) {}
+            : std::runtime_error("name conflict error")
+            , name1_(std::move(name1))
+            , name2_(std::move(name2)) {}
 
 
         /**

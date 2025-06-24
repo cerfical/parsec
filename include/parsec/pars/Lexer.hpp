@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../core/TextScanner.hpp"
+#include "../core/UnexpectedEofError.hpp"
+
+#include "ParseError.hpp"
 #include "Token.hpp"
 
 #include <istream>
@@ -118,7 +121,12 @@ namespace parsec::pars {
 
     private:
         Token nextToken() {
-            const auto kind = parseToken();
+            auto kind = TokenKinds::EmptyToken;
+            try {
+                kind = parseToken();
+            } catch(const UnexpectedEofError& e) {
+                throw ParseError::unexpectedEof(e.loc());
+            }
             return Token(tokenText_, kind, loc());
         }
 

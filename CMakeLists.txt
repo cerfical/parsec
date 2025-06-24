@@ -44,25 +44,26 @@ target_sources(parsec-lib
         "include/parsec/core/TextScanner.hpp"
         "include/parsec/core/SourceLoc.hpp"
         "include/parsec/core/Compiler.hpp"
-        "include/parsec/core/Error.hpp"
+        "include/parsec/core/CompileError.hpp"
         "include/parsec/core/NameConflictError.hpp"
-        "include/parsec/core/ParseError.hpp"
         "include/parsec/core/Symbol.hpp"
         "include/parsec/core/RegularExpr.hpp"
         "include/parsec/core/SymbolGrammar.hpp"
         "include/parsec/core/CodeGen.hpp"
-        
-        PRIVATE
+        "include/parsec/core/UnexpectedEofError.hpp"
+
+    PRIVATE
         "src/core/TextScanner.cpp"
         "src/core/Compiler.cpp"
-        "src/core/ParseError.cpp"
         "src/core/RegularExpr.cpp"
+        "src/core/CompileError.cpp"
         "src/core/CodeGen.cpp"
 )
 
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+        "include/parsec/pars/ParseError.hpp"
         "include/parsec/pars/TokenKinds.hpp"
         "include/parsec/pars/Token.hpp"
         "include/parsec/pars/Lexer.hpp"
@@ -88,12 +89,14 @@ target_sources(parsec-lib
         "src/pars/Lexer.cpp"
         "src/pars/Parser.cpp"
         "src/pars/ast.cpp"
+        "src/pars/ParseError.cpp"
 )
 
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/regex/Parser.hpp"
+        "include/parsec/regex/ParseError.hpp"
         "include/parsec/regex/make.hpp"
         "include/parsec/regex/ast/NodeVisitor.hpp"
         "include/parsec/regex/ast/ExprNode.hpp"
@@ -109,6 +112,7 @@ target_sources(parsec-lib
     PRIVATE
         "src/regex/Parser.cpp"
         "src/regex/ast.cpp"
+        "src/regex/ParseError.cpp"
 )
 
 
