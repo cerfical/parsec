@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/SourceLoc.hpp"
+#include "../scan/SourceLoc.hpp"
 
 #include <string>
 #include <string_view>
@@ -18,7 +18,7 @@ namespace parsec::pars {
          *
          * @param eofLoc The location of the encountered EOF.
          */
-        static ParseError unexpectedEof(const SourceLoc& eofLoc);
+        static ParseError unexpectedEof(const scan::SourceLoc& eofLoc);
 
 
         /**
@@ -27,7 +27,7 @@ namespace parsec::pars {
          * @param chLoc The location of the character.
          * @param ch The value of the character.
          */
-        static ParseError invalidChar(const SourceLoc& chLoc, char ch);
+        static ParseError invalidChar(const scan::SourceLoc& chLoc, char ch);
 
 
         /**
@@ -36,7 +36,7 @@ namespace parsec::pars {
          * @param chLoc The location of the character.
          * @param ch The value of the character.
          */
-        static ParseError misplacedChar(const SourceLoc& chLoc, char ch);
+        static ParseError misplacedChar(const scan::SourceLoc& chLoc, char ch);
 
 
         /**
@@ -45,7 +45,7 @@ namespace parsec::pars {
          * @param tokLoc The location of the token.
          * @param tokVal The value of the token.
          */
-        static ParseError misplacedToken(const SourceLoc& tokLoc, std::string_view tokVal);
+        static ParseError misplacedToken(const scan::SourceLoc& tokLoc, std::string_view tokVal);
 
 
         /**
@@ -54,7 +54,7 @@ namespace parsec::pars {
          * @param foundLoc The location of the token found.
          * @param expectVal The value of the expected token.
          */
-        static ParseError unmatchedToken(const SourceLoc& foundLoc, std::string_view expectVal);
+        static ParseError unmatchedToken(const scan::SourceLoc& foundLoc, std::string_view expectVal);
 
 
         /**
@@ -63,7 +63,7 @@ namespace parsec::pars {
          * @param loc The error location.
          * @param msg The error description.
          */
-        ParseError(const SourceLoc& loc, const std::string& msg)
+        ParseError(const scan::SourceLoc& loc, const std::string& msg)
             : std::runtime_error(msg)
             , loc_(loc) {}
 
@@ -71,13 +71,13 @@ namespace parsec::pars {
         /**
          * @brief The location where the error occurred.
          */
-        const SourceLoc& loc() const noexcept {
+        const scan::SourceLoc& loc() const noexcept {
             return loc_;
         }
 
 
     private:
-        SourceLoc loc_;
+        scan::SourceLoc loc_;
     };
 
 }

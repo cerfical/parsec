@@ -1,12 +1,12 @@
-#include "core/TextScanner.hpp"
-#include "core/UnexpectedEofError.hpp"
+#include "scan/TextScanner.hpp"
+#include "scan/UnexpectedEofError.hpp"
 
 #include <cstddef>
 #include <ios>
 #include <string>
 #include <string_view>
 
-namespace parsec {
+namespace parsec::scan {
     char TextScanner::get() {
         char ch = {};
         // first check the buffer to take the character from

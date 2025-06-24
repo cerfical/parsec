@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/SourceLoc.hpp"
+#include "../scan/SourceLoc.hpp"
 #include "TokenKinds.hpp"
 
 #include <ostream>
@@ -18,7 +18,7 @@ namespace parsec::pars {
         Token() = default;
 
 
-        Token(std::string text, TokenKinds kind, const SourceLoc& loc)
+        Token(std::string text, TokenKinds kind, const scan::SourceLoc& loc)
             : text_(std::move(text)), loc_(loc), kind_(kind) {}
 
 
@@ -33,7 +33,7 @@ namespace parsec::pars {
         /**
          * @brief Location of the token.
          */
-        const SourceLoc& loc() const noexcept {
+        const scan::SourceLoc& loc() const noexcept {
             return loc_;
         }
 
@@ -57,7 +57,7 @@ namespace parsec::pars {
 
     private:
         std::string text_;
-        SourceLoc loc_;
+        scan::SourceLoc loc_;
         TokenKinds kind_ = {};
     };
 

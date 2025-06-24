@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 
-namespace parsec {
+namespace parsec::scan {
 
     /**
      * @brief Facilitates textual data analysis using standard stream classes.

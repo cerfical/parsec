@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/SourceLoc.hpp"
+#include "../scan/SourceLoc.hpp"
 
 #include <string>
 
@@ -17,7 +17,7 @@ namespace parsec::regex {
          *
          * @param loc The error location.
          */
-        static ParseError unexpectedEof(const SourceLoc& loc);
+        static ParseError unexpectedEof(const scan::SourceLoc& loc);
 
 
         /**
@@ -25,7 +25,7 @@ namespace parsec::regex {
          *
          * @param loc The error location.
          */
-        static ParseError emptyHexEscapeSeq(const SourceLoc& loc);
+        static ParseError emptyHexEscapeSeq(const scan::SourceLoc& loc);
 
 
         /**
@@ -33,7 +33,7 @@ namespace parsec::regex {
          *
          * @param loc The error location.
          */
-        static ParseError outOfOrderCharRange(const SourceLoc& loc);
+        static ParseError outOfOrderCharRange(const scan::SourceLoc& loc);
 
 
         /**
@@ -42,7 +42,7 @@ namespace parsec::regex {
          * @param loc The error location.
          * @param ch The misplaced character.
          */
-        static ParseError misplacedChar(const SourceLoc& loc, char ch);
+        static ParseError misplacedChar(const scan::SourceLoc& loc, char ch);
 
 
         /**
@@ -51,7 +51,7 @@ namespace parsec::regex {
          * @param loc The error location.
          * @param msg The error description.
          */
-        ParseError(const SourceLoc& loc, const std::string& msg)
+        ParseError(const scan::SourceLoc& loc, const std::string& msg)
             : std::runtime_error(msg)
             , loc_(loc) {}
 
@@ -59,13 +59,13 @@ namespace parsec::regex {
         /**
          * @brief The location where the error occurred.
          */
-        const SourceLoc& loc() const noexcept {
+        const scan::SourceLoc& loc() const noexcept {
             return loc_;
         }
 
 
     private:
-        SourceLoc loc_;
+        scan::SourceLoc loc_;
     };
 
 }

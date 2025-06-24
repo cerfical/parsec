@@ -41,8 +41,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/core/TextScanner.hpp"
-        "include/parsec/core/SourceLoc.hpp"
         "include/parsec/core/Compiler.hpp"
         "include/parsec/core/CompileError.hpp"
         "include/parsec/core/NameConflictError.hpp"
@@ -50,14 +48,23 @@ target_sources(parsec-lib
         "include/parsec/core/RegularExpr.hpp"
         "include/parsec/core/SymbolGrammar.hpp"
         "include/parsec/core/CodeGen.hpp"
-        "include/parsec/core/UnexpectedEofError.hpp"
 
     PRIVATE
-        "src/core/TextScanner.cpp"
         "src/core/Compiler.cpp"
         "src/core/RegularExpr.cpp"
         "src/core/CompileError.cpp"
         "src/core/CodeGen.cpp"
+)
+
+
+target_sources(parsec-lib
+    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+        "include/parsec/scan/TextScanner.hpp"
+        "include/parsec/scan/SourceLoc.hpp"
+        "include/parsec/scan/UnexpectedEofError.hpp"
+
+    PRIVATE
+        "src/scan/TextScanner.cpp"
 )
 
 

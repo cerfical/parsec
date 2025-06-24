@@ -9,15 +9,15 @@
 
 namespace parsec::pars {
 
-    ParseError ParseError::unexpectedEof(const SourceLoc& eofLoc) {
+    ParseError ParseError::unexpectedEof(const scan::SourceLoc& eofLoc) {
         return { eofLoc, "unexpected end of file" };
     }
 
-    ParseError ParseError::invalidChar(const SourceLoc& chLoc, char ch) {
+    ParseError ParseError::invalidChar(const scan::SourceLoc& chLoc, char ch) {
         return { chLoc, std::format("invalid character '{}'", chars::escape(ch)) };
     }
 
-    ParseError ParseError::misplacedChar(const SourceLoc& chLoc, char ch) {
+    ParseError ParseError::misplacedChar(const scan::SourceLoc& chLoc, char ch) {
         std::string msg;
         switch(ch) {
             case ')':
@@ -37,14 +37,14 @@ namespace parsec::pars {
         return { chLoc, msg };
     }
 
-    ParseError ParseError::misplacedToken(const SourceLoc& tokLoc, std::string_view tokVal) {
+    ParseError ParseError::misplacedToken(const scan::SourceLoc& tokLoc, std::string_view tokVal) {
         if(tokLoc) {
             return { tokLoc, std::format("unexpected \"{}\"", strings::escape(tokVal)) };
         }
         return unexpectedEof(tokLoc);
     }
 
-    ParseError ParseError::unmatchedToken(const SourceLoc& foundLoc, std::string_view expectVal) {
+    ParseError ParseError::unmatchedToken(const scan::SourceLoc& foundLoc, std::string_view expectVal) {
         return { foundLoc, std::format("{} expected, but got{}", expectVal, foundLoc ? "" : " end of file") };
     }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SourceLoc.hpp"
+#include "../scan/SourceLoc.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -20,7 +20,7 @@ namespace parsec {
          * @param loc The location of the syntax error.
          * @param msg The error description.
          */
-        static CompileError syntaxError(const SourceLoc& loc, const std::string& msg);
+        static CompileError syntaxError(const scan::SourceLoc& loc, const std::string& msg);
 
 
         /**
@@ -28,7 +28,7 @@ namespace parsec {
          *
          * @param nameLoc The location of one of the multiply-defined names.
          */
-        static CompileError nameRedefine(const SourceLoc& nameLoc);
+        static CompileError nameRedefine(const scan::SourceLoc& nameLoc);
 
 
         /**
@@ -36,7 +36,7 @@ namespace parsec {
          *
          * @param nameLoc The location of the name definition.
          */
-        static CompileError reservedNameRedefine(const SourceLoc& nameLoc);
+        static CompileError reservedNameRedefine(const scan::SourceLoc& nameLoc);
 
 
         /**
@@ -44,7 +44,7 @@ namespace parsec {
          *
          * @param nameLoc The location of the name definition.
          */
-        static CompileError emptyName(const SourceLoc& nameLoc);
+        static CompileError emptyName(const scan::SourceLoc& nameLoc);
 
 
         /**
@@ -52,7 +52,7 @@ namespace parsec {
          *
          * @param nameRefLoc The location of the name reference.
          */
-        static CompileError undefinedName(const SourceLoc& nameRefLoc);
+        static CompileError undefinedName(const scan::SourceLoc& nameRefLoc);
 
 
         /**
@@ -61,7 +61,7 @@ namespace parsec {
          * @param pat1Loc The location of the first pattern.
          * @param pat2Name The name of the second pattern.
          */
-        static CompileError patternConflict(const SourceLoc& pat1Loc, std::string_view pat2Name);
+        static CompileError patternConflict(const scan::SourceLoc& pat1Loc, std::string_view pat2Name);
 
 
         /**
@@ -70,7 +70,7 @@ namespace parsec {
          * @param rule1Loc The location of the first rule.
          * @param rule2Name The name of the second rule.
          */
-        static CompileError ruleConflict(const SourceLoc& rule1Loc, std::string_view rule2Name);
+        static CompileError ruleConflict(const scan::SourceLoc& rule1Loc, std::string_view rule2Name);
 
 
         /**
@@ -79,7 +79,7 @@ namespace parsec {
          * @param loc The error location.
          * @param msg The error description.
          */
-        CompileError(const SourceLoc& loc, const std::string& msg)
+        CompileError(const scan::SourceLoc& loc, const std::string& msg)
             : std::runtime_error(msg)
             , loc_(loc) {}
 
@@ -87,13 +87,13 @@ namespace parsec {
         /**
          * @brief The location where the error occurred.
          */
-        const SourceLoc& loc() const noexcept {
+        const scan::SourceLoc& loc() const noexcept {
             return loc_;
         }
 
 
     private:
-        SourceLoc loc_;
+        scan::SourceLoc loc_;
     };
 
 }

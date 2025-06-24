@@ -2,9 +2,10 @@
 #include "core/CompileError.hpp"
 #include "core/NameConflictError.hpp"
 #include "core/RegularExpr.hpp"
-#include "core/SourceLoc.hpp"
 #include "core/Symbol.hpp"
 #include "core/SymbolGrammar.hpp"
+
+#include "scan/SourceLoc.hpp"
 
 #include "pars/Parser.hpp"
 #include "pars/Token.hpp"
@@ -246,7 +247,7 @@ namespace parsec {
 
                         // adjust the error location to take into account the pattern's token
                         static constexpr int LeftPatternDelim = 1;
-                        const auto newLoc = SourceLoc{
+                        const auto newLoc = scan::SourceLoc{
                             .offset = patLoc.offset + errLoc.offset + LeftPatternDelim,
                             .colCount = errLoc.colCount,
                             .line = patLoc.line,

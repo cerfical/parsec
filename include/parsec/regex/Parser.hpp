@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/TextScanner.hpp"
+#include "../scan/TextScanner.hpp"
 #include "ast/ExprNode.hpp"
 
 #include <istream>
@@ -79,7 +79,7 @@ namespace parsec::regex {
         char parseChar();
         char parseEscapeSeq();
 
-        TextScanner input_;
+        scan::TextScanner input_;
     };
 
 }

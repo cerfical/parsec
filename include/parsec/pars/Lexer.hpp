@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/TextScanner.hpp"
-#include "../core/UnexpectedEofError.hpp"
+#include "../scan/TextScanner.hpp"
+#include "../scan/UnexpectedEofError.hpp"
 
 #include "ParseError.hpp"
 #include "Token.hpp"
@@ -74,7 +74,7 @@ namespace parsec::pars {
         /**
          * @brief Location of the lexer in the input stream.
          */
-        SourceLoc loc() const {
+        scan::SourceLoc loc() const {
             const auto& inputPos = input_.pos();
             return {
                 .offset = tokenStart_,
@@ -124,7 +124,7 @@ namespace parsec::pars {
             auto kind = TokenKinds::EmptyToken;
             try {
                 kind = parseToken();
-            } catch(const UnexpectedEofError& e) {
+            } catch(const scan::UnexpectedEofError& e) {
                 throw ParseError::unexpectedEof(e.loc());
             }
             return Token(tokenText_, kind, loc());
@@ -146,7 +146,7 @@ namespace parsec::pars {
         std::optional<Token> token_;
         std::string tokenText_;
 
-        TextScanner input_;
+        scan::TextScanner input_;
     };
 
 }

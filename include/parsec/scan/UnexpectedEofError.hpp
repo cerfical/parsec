@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-namespace parsec {
+namespace parsec::scan {
 
     /**
      * @brief Describes an unexpected end-of-file error.

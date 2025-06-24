@@ -7,19 +7,19 @@
 
 namespace parsec::regex {
 
-    ParseError ParseError::unexpectedEof(const SourceLoc& loc) {
+    ParseError ParseError::unexpectedEof(const scan::SourceLoc& loc) {
         return { loc, "unexpected end of file" };
     }
 
-    ParseError ParseError::emptyHexEscapeSeq(const SourceLoc& loc) {
+    ParseError ParseError::emptyHexEscapeSeq(const scan::SourceLoc& loc) {
         return { loc, "expected at least one hexadecimal digit" };
     }
 
-    ParseError ParseError::outOfOrderCharRange(const SourceLoc& loc) {
+    ParseError ParseError::outOfOrderCharRange(const scan::SourceLoc& loc) {
         return { loc, "character range is out of order" };
     }
 
-    ParseError ParseError::misplacedChar(const SourceLoc& loc, char ch) {
+    ParseError ParseError::misplacedChar(const scan::SourceLoc& loc, char ch) {
         std::string msg;
         switch(ch) {
             case ')':

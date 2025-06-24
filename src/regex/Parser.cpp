@@ -2,8 +2,8 @@
 #include "regex/ParseError.hpp"
 #include "regex/make.hpp"
 
-#include "core/TextScanner.hpp"
-#include "core/UnexpectedEofError.hpp"
+#include "scan/TextScanner.hpp"
+#include "scan/UnexpectedEofError.hpp"
 
 #include "util/chars.hpp"
 
@@ -52,7 +52,7 @@ namespace parsec::regex {
     NodePtr Parser::parseExpr() {
         try {
             return parseAltern();
-        } catch(const UnexpectedEofError& e) {
+        } catch(const scan::UnexpectedEofError& e) {
             throw ParseError::unexpectedEof(e.loc());
         }
     }

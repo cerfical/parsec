@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-namespace parsec {
+namespace parsec::scan {
 
     /**
      * @brief Describes a line inside some text.
