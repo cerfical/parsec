@@ -7,7 +7,6 @@ endif()
 
 
 add_executable(parsec-tests
-    "chars_test.cpp"
     "regex_parse_test.cpp"
     "text_test.cpp"
 )

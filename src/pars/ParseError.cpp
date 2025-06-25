@@ -1,11 +1,10 @@
 #include "pars/ParseError.hpp"
 
-#include "text/chars.hpp"
-#include "text/text.hpp"
-
 #include <format>
 #include <string>
 #include <string_view>
+
+import parsec.text;
 
 namespace parsec::pars {
 
@@ -14,7 +13,7 @@ namespace parsec::pars {
     }
 
     ParseError ParseError::invalidChar(const scan::SourceLoc& chLoc, char ch) {
-        return { chLoc, std::format("invalid character '{}'", text::chars::escape(ch)) };
+        return { chLoc, std::format("invalid character '{}'", text::escape(ch)) };
     }
 
     ParseError ParseError::misplacedChar(const scan::SourceLoc& chLoc, char ch) {
@@ -30,7 +29,7 @@ namespace parsec::pars {
                 break;
             }
             default: {
-                msg = std::format("unexpected '{}'", text::chars::escape(ch));
+                msg = std::format("unexpected '{}'", text::escape(ch));
                 break;
             }
         }

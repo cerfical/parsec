@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.30)
 
 
 # Basic project information
@@ -142,13 +142,9 @@ target_sources(parsec-lib
 
 
 target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/text/text.hpp"
-        "include/parsec/text/chars.hpp"
-
-    PRIVATE
-        "src/text/text.cpp"
-        "src/text/chars.cpp"
+    PUBLIC FILE_SET CXX_MODULES FILES
+        "src/text/text.ixx"
+        "src/text/chars.ixx"
 )
 
 

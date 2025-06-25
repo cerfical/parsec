@@ -1,19 +1,19 @@
-#pragma once
+module;
 
 #include <cctype>
+#include <format>
 #include <string>
 
-/**
- * @brief Utilities for working with characters.
- */
-namespace parsec::text::chars {
+export module parsec.text:chars;
+
+namespace parsec::text {
 
     /** @{ */
     /** @name Character conversion */
     /**
      * @brief Convert a character to an integer safely.
      */
-    inline int toInt(char ch) noexcept {
+    export int toInt(char ch) noexcept {
         return static_cast<unsigned char>(ch);
     }
 
@@ -21,7 +21,7 @@ namespace parsec::text::chars {
     /**
      * @brief Convert a character to lowercase.
      */
-    inline char toLower(char ch) noexcept {
+    export char toLower(char ch) noexcept {
         return static_cast<char>(std::tolower(toInt(ch)));
     }
 
@@ -29,7 +29,7 @@ namespace parsec::text::chars {
     /**
      * @brief Convert a character to uppercase.
      */
-    inline char toUpper(char ch) noexcept {
+    export char toUpper(char ch) noexcept {
         return static_cast<char>(std::toupper(toInt(ch)));
     }
 
@@ -37,7 +37,7 @@ namespace parsec::text::chars {
     /**
      * @brief Find the value of a digit character.
      */
-    inline int evalDigit(char ch) noexcept {
+    export int evalDigit(char ch) noexcept {
         return ch - '0';
     }
 
@@ -45,7 +45,7 @@ namespace parsec::text::chars {
     /**
      * @brief Find the value of a hexadecimal digit character.
      */
-    inline int evalHexDigit(char ch) noexcept {
+    export int evalHexDigit(char ch) noexcept {
         if(const auto lch = toLower(ch); lch >= 'a') {
             return lch - 'a' + 10;
         }
@@ -56,7 +56,7 @@ namespace parsec::text::chars {
     /**
      * @brief Convert a character to its text form, escaping non-printable characters.
      */
-    std::string escape(char ch);
+    export std::string escape(char ch);
     /** @} */
 
 
@@ -65,7 +65,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is lowercase.
      */
-    inline bool isLower(char ch) noexcept {
+    export bool isLower(char ch) noexcept {
         return std::islower(toInt(ch)) != 0;
     }
 
@@ -73,7 +73,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is uppercase.
      */
-    inline bool isUpper(char ch) noexcept {
+    export bool isUpper(char ch) noexcept {
         return std::isupper(toInt(ch)) != 0;
     }
 
@@ -81,7 +81,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is an alphabetic character.
      */
-    inline bool isAlpha(char ch) noexcept {
+    export bool isAlpha(char ch) noexcept {
         return std::isalpha(toInt(ch)) != 0;
     }
 
@@ -89,7 +89,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is a digit.
      */
-    inline bool isDigit(char ch) noexcept {
+    export bool isDigit(char ch) noexcept {
         return std::isdigit(toInt(ch)) != 0;
     }
 
@@ -97,7 +97,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is a hexadecimal digit.
      */
-    inline bool isHexDigit(char ch) noexcept {
+    export bool isHexDigit(char ch) noexcept {
         return std::isxdigit(toInt(ch)) != 0;
     }
 
@@ -105,7 +105,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is an alphanumeric character.
      */
-    inline bool isAlnum(char ch) noexcept {
+    export bool isAlnum(char ch) noexcept {
         return std::isalnum(toInt(ch)) != 0;
     }
 
@@ -113,7 +113,7 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is a whitespace character.
      */
-    inline bool isSpace(char ch) noexcept {
+    export bool isSpace(char ch) noexcept {
         return std::isspace(toInt(ch)) != 0;
     }
 
@@ -121,9 +121,33 @@ namespace parsec::text::chars {
     /**
      * @brief Check if a character is a printable character.
      */
-    inline bool isPrint(char ch) noexcept {
+    export bool isPrint(char ch) noexcept {
         return std::isprint(toInt(ch)) != 0;
     }
     /** @} */
+
+
+    std::string escape(char ch) {
+        if(isPrint(ch)) {
+            switch(ch) {
+                case '\\': return "\\\\";
+                case '\'': return "\\\'";
+                case '\"': return "\\\"";
+                default:   return std::string(1, ch);
+            }
+        }
+
+        switch(ch) {
+            case '\0': return "\\0";
+            case '\a': return "\\a";
+            case '\b': return "\\b";
+            case '\f': return "\\f";
+            case '\n': return "\\n";
+            case '\r': return "\\r";
+            case '\t': return "\\t";
+            case '\v': return "\\v";
+            default:   return std::format("\\x{:02x}", toInt(ch));
+        }
+    }
 
 }

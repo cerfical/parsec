@@ -30,13 +30,13 @@
 #include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
 
-#include "text/text.hpp"
-
 #include <cstddef>
 #include <format>
 #include <string>
 #include <unordered_map>
 #include <utility>
+
+import parsec.text;
 
 namespace parsec {
     using namespace pars;

@@ -6,7 +6,7 @@
 #include "regex/ast/PlusClosureNode.hpp"
 #include "regex/ast/StarClosureNode.hpp"
 
-#include "text/text.hpp"
+import parsec.text;
 
 namespace parsec::regex {
     std::ostream& operator<<(std::ostream& out, const ExprNode& n) {

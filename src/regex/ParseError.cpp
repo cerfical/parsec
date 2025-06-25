@@ -1,9 +1,9 @@
 #include "regex/ParseError.hpp"
 
-#include "text/chars.hpp"
-
 #include <format>
 #include <string>
+
+import parsec.text;
 
 namespace parsec::regex {
 
@@ -32,7 +32,7 @@ namespace parsec::regex {
                 break;
             }
             default: {
-                msg = std::format("unexpected '{}'", text::chars::escape(ch));
+                msg = std::format("unexpected '{}'", text::escape(ch));
                 break;
             }
         }

@@ -3,10 +3,11 @@
 #include "bnf/SymbolGrammar.hpp"
 #include "fsm/DfaStateGen.hpp"
 #include "fsm/ElrStateGen.hpp"
-#include "text/text.hpp"
 
 #include <inja/inja.hpp>
 #include <iterator>
+
+import parsec.text;
 
 namespace parsec {
     namespace {

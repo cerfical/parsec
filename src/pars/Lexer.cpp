@@ -2,7 +2,8 @@
 #include "pars/ParseError.hpp"
 
 #include "regex/Parser.hpp"
-#include "text/chars.hpp"
+
+import parsec.text;
 
 namespace parsec::pars {
     TokenKinds Lexer::parseToken() {
@@ -31,7 +32,7 @@ namespace parsec::pars {
                 break;
             }
 
-            if(text::chars::isSpace(input_.peek())) { // space characters
+            if(text::isSpace(input_.peek())) { // space characters
                 input_.skip();
             } else if(input_.skipIf("//")) { // single-line comments
                 while(!input_.isEof() && input_.get() != '\n') {
@@ -100,7 +101,7 @@ namespace parsec::pars {
 
 
     TokenKinds Lexer::parseIdent() {
-        while(isIdentStart() || text::chars::isDigit(input_.peek())) {
+        while(isIdentStart() || text::isDigit(input_.peek())) {
             tokenText_ += input_.get();
         }
         return TokenKinds::Ident;
@@ -109,7 +110,7 @@ namespace parsec::pars {
 
     bool Lexer::isIdentStart() const {
         const auto ch = input_.peek();
-        return !input_.isEof() && (text::chars::isAlpha(ch) || ch == '-' || ch == '_');
+        return !input_.isEof() && (text::isAlpha(ch) || ch == '-' || ch == '_');
     }
 
 

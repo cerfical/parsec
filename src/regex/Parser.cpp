@@ -5,7 +5,7 @@
 #include "scan/TextScanner.hpp"
 #include "scan/UnexpectedEofError.hpp"
 
-#include "text/chars.hpp"
+import parsec.text;
 
 namespace parsec::regex {
 
@@ -206,10 +206,10 @@ namespace parsec::regex {
             case 'v': return '\v';
             case 'x': {
                 static constexpr int HexBase = 16;
-                if(text::chars::isHexDigit(input_.peek())) {
-                    auto ch = text::chars::evalHexDigit(input_.get());
-                    if(!input_.isEof() && text::chars::isHexDigit(input_.peek())) {
-                        ch = ch * HexBase + text::chars::evalHexDigit(input_.get());
+                if(text::isHexDigit(input_.peek())) {
+                    auto ch = text::evalHexDigit(input_.get());
+                    if(!input_.isEof() && text::isHexDigit(input_.peek())) {
+                        ch = ch * HexBase + text::evalHexDigit(input_.get());
                     }
                     return static_cast<char>(ch);
                 }
