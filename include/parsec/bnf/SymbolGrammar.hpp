@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace parsec {
+namespace parsec::bnf {
 
     /**
      * @brief Describes a formal language in terms of symbols and relationships between them.

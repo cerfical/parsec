@@ -1,10 +1,8 @@
 #pragma once
 
-#include "core/CodeGen.hpp"
-#include "core/CompileError.hpp"
-#include "core/Compiler.hpp"
-#include "core/NameConflictError.hpp"
-#include "core/SymbolGrammar.hpp"
+#include "CodeGen.hpp"
+#include "CompileError.hpp"
+#include "Compiler.hpp"
 
 /**
  * @brief Root namespace for the parsec library.

@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 
-namespace parsec {
+namespace parsec::bnf {
 
     /**
      * @brief Immutable symbolic name.
@@ -83,8 +83,8 @@ namespace parsec {
 }
 
 template <>
-struct std::hash<parsec::Symbol> {
-    std::size_t operator()(const parsec::Symbol& symbol) const noexcept {
+struct std::hash<parsec::bnf::Symbol> {
+    std::size_t operator()(const parsec::bnf::Symbol& symbol) const noexcept {
         return std::hash<std::string>()(symbol.text());
     }
 };

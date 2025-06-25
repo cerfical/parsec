@@ -1,8 +1,8 @@
 #include "fsm/ElrStateGen.hpp"
-
-#include "core/NameConflictError.hpp"
-#include "core/SymbolGrammar.hpp"
 #include "fsm/DfaStateGen.hpp"
+#include "fsm/NameConflictError.hpp"
+
+#include "bnf/SymbolGrammar.hpp"
 
 #include <boost/functional/hash.hpp>
 
@@ -37,12 +37,12 @@ namespace parsec::fsm {
 
         struct DfaStateTrans {
             int target = {};
-            Symbol label;
+            bnf::Symbol label;
         };
 
         struct DfaState {
             std::vector<DfaStateTrans> transitions;
-            Symbol match;
+            bnf::Symbol match;
             int id = {};
         };
 
@@ -53,7 +53,7 @@ namespace parsec::fsm {
             GenDfaStates(std::vector<DfaState>* states, int baseStateId)
                 : states_(states), baseStateId_(baseStateId) {}
 
-            void run(const SymbolGrammar& grammar) {
+            void run(const bnf::SymbolGrammar& grammar) {
                 DfaStateGen()
                     .setInputGrammar(&grammar)
                     .setStateSink(this)
@@ -66,11 +66,11 @@ namespace parsec::fsm {
                 s.id = id + baseStateId_;
             }
 
-            void addStateTransition(int state, int target, const Symbol& label) override {
+            void addStateTransition(int state, int target, const bnf::Symbol& label) override {
                 (*states_)[state + baseStateId_].transitions.emplace_back(target + baseStateId_, label);
             }
 
-            void setStateMatch(int state, const Symbol& match) override {
+            void setStateMatch(int state, const bnf::Symbol& match) override {
                 (*states_)[state + baseStateId_].match = match;
             }
 
@@ -82,14 +82,14 @@ namespace parsec::fsm {
         class TransNetwork {
         public:
 
-            TransNetwork(const SymbolGrammar& grammar) {
+            TransNetwork(const bnf::SymbolGrammar& grammar) {
                 for(const auto& symbol : grammar.symbols()) {
                     if(const auto* const rule = grammar.resolve(symbol)) {
                         const auto startStateId = static_cast<int>(states_.size());
                         startStates_[symbol] = startStateId;
 
                         GenDfaStates(&states_, startStateId)
-                            .run(SymbolGrammar().define(symbol, *rule));
+                            .run(bnf::SymbolGrammar().define(symbol, *rule));
                     }
                 }
             }
@@ -99,7 +99,7 @@ namespace parsec::fsm {
                 return &states_[state];
             }
 
-            const DfaState* startState(const Symbol& symbol) const noexcept {
+            const DfaState* startState(const bnf::Symbol& symbol) const noexcept {
                 const auto symbolToIndexIt = startStates_.find(symbol);
                 if(symbolToIndexIt != startStates_.end()) {
                     return &states_[symbolToIndexIt->second];
@@ -110,14 +110,14 @@ namespace parsec::fsm {
 
         private:
             std::vector<DfaState> states_;
-            std::unordered_map<Symbol, int> startStates_;
+            std::unordered_map<bnf::Symbol, int> startStates_;
         };
 
 
         class GenerateStates {
         public:
 
-            GenerateStates(const SymbolGrammar& grammar, ElrStateGen::StateSink* sink)
+            GenerateStates(const bnf::SymbolGrammar& grammar, ElrStateGen::StateSink* sink)
                 : transNet_(grammar), grammar_(grammar), sink_(sink) {}
 
             void run() {
@@ -181,8 +181,8 @@ namespace parsec::fsm {
 
 
             void addStateTransitions(const ItemSet& items, int id) {
-                std::unordered_map<Symbol, ItemSet> transitions;
-                Symbol match;
+                std::unordered_map<bnf::Symbol, ItemSet> transitions;
+                bnf::Symbol match;
 
                 for(int itemId = 0; const auto& item : items) {
                     const auto& dfaState = transNet_.stateById(item.dfaState);
@@ -216,7 +216,7 @@ namespace parsec::fsm {
             std::unordered_map<ItemSet, int, boost::hash<ItemSet>> states_;
             TransNetwork transNet_;
 
-            const SymbolGrammar& grammar_;
+            const bnf::SymbolGrammar& grammar_;
             ElrStateGen::StateSink* sink_ = {};
         };
     }

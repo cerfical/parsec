@@ -1,7 +1,7 @@
 #include "fsm/DfaStateGen.hpp"
 
-#include "core/NameConflictError.hpp"
-#include "core/SymbolGrammar.hpp"
+#include "bnf/SymbolGrammar.hpp"
+#include "fsm/NameConflictError.hpp"
 
 #include <boost/functional/hash.hpp>
 
@@ -30,7 +30,7 @@ namespace parsec::fsm {
                 return std::tuple(lhs.rule, lhs.pos) == std::tuple(rhs.rule, rhs.pos);
             }
 
-            const Symbol* value() const {
+            const bnf::Symbol* value() const {
                 return rule->valueAt(pos);
             }
 
@@ -38,8 +38,8 @@ namespace parsec::fsm {
                 return rule->isEndPos(pos);
             }
 
-            Symbol symbol;
-            const RegularExpr* rule = {};
+            bnf::Symbol symbol;
+            const bnf::RegularExpr* rule = {};
             int pos = {};
         };
 
@@ -52,14 +52,14 @@ namespace parsec::fsm {
             GenerateStates(DfaStateGen::StateSink* sink)
                 : sink_(sink) {}
 
-            void run(const SymbolGrammar& grammar) {
+            void run(const bnf::SymbolGrammar& grammar) {
                 if(auto startState = createStartState(grammar); !startState.empty()) {
                     addState(std::move(startState));
                 }
             }
 
         private:
-            static ItemSet createStartState(const SymbolGrammar& grammar) {
+            static ItemSet createStartState(const bnf::SymbolGrammar& grammar) {
                 ItemSet startState;
                 for(const auto& symbol : grammar.symbols()) {
                     if(const auto* const rule = grammar.resolve(symbol)) {
@@ -91,8 +91,8 @@ namespace parsec::fsm {
             }
 
             void addStateTransitions(const ItemSet& items, int id) {
-                std::unordered_map<Symbol, ItemSet> transitions;
-                Symbol match;
+                std::unordered_map<bnf::Symbol, ItemSet> transitions;
+                bnf::Symbol match;
 
                 for(const auto& item : items) {
                     if(item.isAtEnd()) {

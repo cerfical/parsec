@@ -1,4 +1,4 @@
-#include "core/CompileError.hpp"
+#include "CompileError.hpp"
 
 #include <format>
 #include <string>

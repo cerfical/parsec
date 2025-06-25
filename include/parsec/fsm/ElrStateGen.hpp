@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/SymbolGrammar.hpp"
+#include "../bnf/SymbolGrammar.hpp"
 
 namespace parsec::fsm {
 
@@ -25,13 +25,13 @@ namespace parsec::fsm {
             /**
              * @brief Create a token-labeled transition between two states.
              */
-            virtual void addStateTokenTransition(int state, int target, const Symbol& label) = 0;
+            virtual void addStateTokenTransition(int state, int target, const bnf::Symbol& label) = 0;
 
 
             /**
              * @brief Create a rule-labeled transition between two states.
              */
-            virtual void addStateRuleTransition(int state, int target, const Symbol& label) = 0;
+            virtual void addStateRuleTransition(int state, int target, const bnf::Symbol& label) = 0;
 
 
             /**
@@ -49,7 +49,7 @@ namespace parsec::fsm {
             /**
              * @brief Set a match for a state to report if there is no transition to take.
              */
-            virtual void setStateMatch(int state, const Symbol& match) = 0;
+            virtual void setStateMatch(int state, const bnf::Symbol& match) = 0;
 
         protected:
             ~StateSink() = default;
@@ -71,7 +71,7 @@ namespace parsec::fsm {
         /**
          * @brief Set an input grammar that defines a language for an automaton to recognize.
          */
-        ElrStateGen& setInputGrammar(const SymbolGrammar* grammar) {
+        ElrStateGen& setInputGrammar(const bnf::SymbolGrammar* grammar) {
             grammar_ = grammar;
             return *this;
         }
@@ -94,7 +94,7 @@ namespace parsec::fsm {
 
 
     private:
-        const SymbolGrammar* grammar_ = {};
+        const bnf::SymbolGrammar* grammar_ = {};
         StateSink* sink_ = {};
     };
 

@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace parsec {
+namespace parsec::bnf {
 
     /**
      * @brief Wraps a regular expression to make it easier to convert it to DFA.

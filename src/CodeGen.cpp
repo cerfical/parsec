@@ -1,6 +1,6 @@
-#include "core/CodeGen.hpp"
-#include "core/SymbolGrammar.hpp"
+#include "CodeGen.hpp"
 
+#include "bnf/SymbolGrammar.hpp"
 #include "fsm/DfaStateGen.hpp"
 #include "fsm/ElrStateGen.hpp"
 #include "text/text.hpp"
@@ -13,7 +13,7 @@ namespace parsec {
         class GenerateJsonLexStates : private fsm::DfaStateGen::StateSink {
         public:
 
-            inja::json run(const SymbolGrammar* tokens) {
+            inja::json run(const bnf::SymbolGrammar* tokens) {
                 states_ = inja::json::array();
 
                 fsm::DfaStateGen()
@@ -32,14 +32,14 @@ namespace parsec {
                 });
             }
 
-            void addStateTransition(int state, int target, const Symbol& label) override {
+            void addStateTransition(int state, int target, const bnf::Symbol& label) override {
                 states_[state]["transitions"].push_back({
                     {  "label", text::escape(label.text()) },
                     { "target",                     target }
                 });
             }
 
-            void setStateMatch(int state, const Symbol& match) override {
+            void setStateMatch(int state, const bnf::Symbol& match) override {
                 states_[state]["match"] = match.text();
             }
 
@@ -50,7 +50,7 @@ namespace parsec {
         class GenerateJsonParseStates : private fsm::ElrStateGen::StateSink {
         public:
 
-            inja::json run(const SymbolGrammar* rules) {
+            inja::json run(const bnf::SymbolGrammar* rules) {
                 states_ = inja::json::array();
 
                 fsm::ElrStateGen()
@@ -71,14 +71,14 @@ namespace parsec {
                 });
             }
 
-            void addStateTokenTransition(int state, int target, const Symbol& label) override {
+            void addStateTokenTransition(int state, int target, const bnf::Symbol& label) override {
                 states_[state]["token_transitions"].push_back({
                     {  "label", text::escape(label.text()) },
                     { "target",                     target }
                 });
             }
 
-            void addStateRuleTransition(int state, int target, const Symbol& label) override {
+            void addStateRuleTransition(int state, int target, const bnf::Symbol& label) override {
                 states_[state]["rule_transitions"].push_back({
                     {  "label", text::escape(label.text()) },
                     { "target",                     target }
@@ -93,7 +93,7 @@ namespace parsec {
                 states_[state]["active_backlink"] = backlink;
             }
 
-            void setStateMatch(int state, const Symbol& match) override {
+            void setStateMatch(int state, const bnf::Symbol& match) override {
                 states_[state]["match"] = match.text();
             }
 
@@ -101,7 +101,7 @@ namespace parsec {
         };
 
 
-        inja::json generateJsonSymbols(const SymbolGrammar* grammar) {
+        inja::json generateJsonSymbols(const bnf::SymbolGrammar* grammar) {
             auto json = inja::json::array();
             if(grammar) {
                 for(const auto& s : grammar->symbols()) {

@@ -41,19 +41,25 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/core/Compiler.hpp"
-        "include/parsec/core/CompileError.hpp"
-        "include/parsec/core/NameConflictError.hpp"
-        "include/parsec/core/Symbol.hpp"
-        "include/parsec/core/RegularExpr.hpp"
-        "include/parsec/core/SymbolGrammar.hpp"
-        "include/parsec/core/CodeGen.hpp"
+        "include/parsec/CodeGen.hpp"
+        "include/parsec/Compiler.hpp"
+        "include/parsec/CompileError.hpp"
 
     PRIVATE
-        "src/core/Compiler.cpp"
-        "src/core/RegularExpr.cpp"
-        "src/core/CompileError.cpp"
-        "src/core/CodeGen.cpp"
+        "src/Compiler.cpp"
+        "src/CompileError.cpp"
+        "src/CodeGen.cpp"
+)
+
+
+target_sources(parsec-lib
+    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+        "include/parsec/bnf/Symbol.hpp"
+        "include/parsec/bnf/RegularExpr.hpp"
+        "include/parsec/bnf/SymbolGrammar.hpp"
+
+    PRIVATE
+        "src/bnf/RegularExpr.cpp"
 )
 
 
@@ -127,6 +133,7 @@ target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/fsm/DfaStateGen.hpp"
         "include/parsec/fsm/ElrStateGen.hpp"
+        "include/parsec/fsm/NameConflictError.hpp"
 
     PRIVATE
         "src/fsm/DfaStateGen.cpp"

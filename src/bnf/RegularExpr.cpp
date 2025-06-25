@@ -1,5 +1,5 @@
-#include "core/RegularExpr.hpp"
-#include "core/Symbol.hpp"
+#include "bnf/RegularExpr.hpp"
+#include "bnf/Symbol.hpp"
 
 #include "regex/Parser.hpp"
 #include "regex/ast/AlternExprNode.hpp"
@@ -17,8 +17,8 @@
 #include <utility>
 #include <vector>
 
+using namespace parsec::bnf;
 using namespace parsec::regex;
-using namespace parsec;
 
 namespace {
     std::vector<int> computeFirstOrLastPos(const ExprNode& n, int nextAtomIndex, bool firstOrLast) {
@@ -197,7 +197,7 @@ namespace {
     }
 }
 
-namespace parsec {
+namespace parsec::bnf {
     RegularExpr::RegularExpr(NodePtr rootNode) {
         auto state = std::make_shared<State>();
 

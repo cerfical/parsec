@@ -1,10 +1,11 @@
-#include "core/Compiler.hpp"
-#include "core/CompileError.hpp"
-#include "core/NameConflictError.hpp"
-#include "core/RegularExpr.hpp"
-#include "core/Symbol.hpp"
-#include "core/SymbolGrammar.hpp"
+#include "Compiler.hpp"
+#include "CompileError.hpp"
 
+#include "bnf/RegularExpr.hpp"
+#include "bnf/Symbol.hpp"
+#include "bnf/SymbolGrammar.hpp"
+
+#include "fsm/NameConflictError.hpp"
 #include "scan/SourceLoc.hpp"
 
 #include "pars/Parser.hpp"
@@ -46,7 +47,7 @@ namespace parsec {
         constexpr auto UnnamedTokenPrefix = "Unnamed";
 
 
-        Symbol makeName(const Token& name) {
+        bnf::Symbol makeName(const Token& name) {
             return text::toPascalCase(name.text());
         }
 
@@ -101,11 +102,11 @@ namespace parsec {
         class PatternNameCache {
         public:
 
-            void insertEntry(const std::string& pattern, const Symbol& name) {
+            void insertEntry(const std::string& pattern, const bnf::Symbol& name) {
                 patternsToNames_[pattern] = name;
             }
 
-            const Symbol* lookupName(const std::string& pattern) const {
+            const bnf::Symbol* lookupName(const std::string& pattern) const {
                 const auto patternToNameIt = patternsToNames_.find(pattern);
                 if(patternToNameIt != patternsToNames_.end()) {
                     return &patternToNameIt->second;
@@ -114,18 +115,18 @@ namespace parsec {
             }
 
         private:
-            std::unordered_map<std::string, Symbol> patternsToNames_;
+            std::unordered_map<std::string, bnf::Symbol> patternsToNames_;
         };
 
 
         class NameTable {
         public:
 
-            void insertEntry(const Symbol& name, const Token& tok) {
+            void insertEntry(const bnf::Symbol& name, const Token& tok) {
                 namesToTokens_[name] = tok;
             }
 
-            const Token* lookupToken(const Symbol& name) const {
+            const Token* lookupToken(const bnf::Symbol& name) const {
                 const auto nameToTokenIt = namesToTokens_.find(name);
                 if(nameToTokenIt != namesToTokens_.end()) {
                     return &nameToTokenIt->second;
@@ -133,12 +134,12 @@ namespace parsec {
                 return nullptr;
             }
 
-            bool contains(const Symbol& name) const {
+            bool contains(const bnf::Symbol& name) const {
                 return namesToTokens_.contains(name) || name == EofTokenName;
             }
 
         private:
-            std::unordered_map<Symbol, Token> namesToTokens_;
+            std::unordered_map<bnf::Symbol, Token> namesToTokens_;
         };
 
 
@@ -176,7 +177,7 @@ namespace parsec {
                     names_->insertEntry(unifiedName, name);
                 }
 
-                static bool isReservedName(const Symbol& name) {
+                static bool isReservedName(const bnf::Symbol& name) {
                     return name.text().starts_with(UnnamedTokenPrefix) || name == EofTokenName;
                 }
 
@@ -207,14 +208,14 @@ namespace parsec {
         }
 
 
-        SymbolGrammar compileTokenGrammar(const Node& ast, NameTable& names, PatternNameCache& patterns) {
+        bnf::SymbolGrammar compileTokenGrammar(const Node& ast, NameTable& names, PatternNameCache& patterns) {
             class Impl : private AstTraverser {
             public:
 
                 Impl(NameTable& names, PatternNameCache& patterns)
                     : names_(&names), patterns_(&patterns) {}
 
-                SymbolGrammar operator()(const Node& ast) {
+                bnf::SymbolGrammar operator()(const Node& ast) {
                     traverse(ast);
                     return std::move(tokens_);
                 }
@@ -237,10 +238,10 @@ namespace parsec {
                     }
                 }
 
-                void defineToken(const Symbol& name, const Token& pattern) {
-                    RegularExpr regex;
+                void defineToken(const bnf::Symbol& name, const Token& pattern) {
+                    bnf::RegularExpr regex;
                     try {
-                        regex = RegularExpr(pattern.text());
+                        regex = bnf::RegularExpr(pattern.text());
                     } catch(const regex::ParseError& err) {
                         const auto& patLoc = pattern.loc();
                         const auto& errLoc = err.loc();
@@ -257,7 +258,7 @@ namespace parsec {
                     tokens_.define(name, regex);
                 }
 
-                SymbolGrammar tokens_;
+                bnf::SymbolGrammar tokens_;
                 std::size_t nextUnnamedTokenId_ = 0;
 
                 NameTable* names_ = {};
@@ -267,14 +268,14 @@ namespace parsec {
         }
 
 
-        SymbolGrammar compileRuleGrammar(const Node& ast, const NameTable& names, const PatternNameCache& patterns) {
+        bnf::SymbolGrammar compileRuleGrammar(const Node& ast, const NameTable& names, const PatternNameCache& patterns) {
             class Impl : private AstTraverser {
             public:
 
                 Impl(const NameTable& names, const PatternNameCache& patterns)
                     : names_(&names), patterns_(&patterns) {}
 
-                SymbolGrammar operator()(const Node& ast) {
+                bnf::SymbolGrammar operator()(const Node& ast) {
                     traverse(ast);
                     return std::move(rules_);
                 }
@@ -330,7 +331,7 @@ namespace parsec {
                 }
 
 
-                SymbolGrammar rules_;
+                bnf::SymbolGrammar rules_;
                 regex::NodePtr rule_;
 
                 const NameTable* names_ = {};
@@ -370,7 +371,7 @@ namespace parsec {
 
         try {
             codegen_.generate();
-        } catch(const NameConflictError& err) {
+        } catch(const fsm::NameConflictError& err) {
             const auto* const srcTok1 = names.lookupToken(err.name1().text());
             const auto* const srcTok2 = names.lookupToken(err.name2().text());
 

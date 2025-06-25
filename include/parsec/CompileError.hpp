@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../scan/SourceLoc.hpp"
+#include "scan/SourceLoc.hpp"
 
 #include <stdexcept>
 #include <string>

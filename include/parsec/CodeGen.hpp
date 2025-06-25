@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SymbolGrammar.hpp"
+#include "bnf/SymbolGrammar.hpp"
 
 #include <istream>
 #include <ostream>
@@ -44,7 +44,7 @@ namespace parsec {
         /**
          * @brief Set an input token language for a parser.
          */
-        void setTokenGrammar(const SymbolGrammar* tokens) {
+        void setTokenGrammar(const bnf::SymbolGrammar* tokens) {
             tokens_ = tokens;
         }
 
@@ -52,7 +52,7 @@ namespace parsec {
         /**
          * @brief Set an input syntax language for a parser.
          */
-        void setRuleGrammar(const SymbolGrammar* rules) {
+        void setRuleGrammar(const bnf::SymbolGrammar* rules) {
             rules_ = rules;
         }
 
@@ -65,8 +65,8 @@ namespace parsec {
 
 
     private:
-        const SymbolGrammar* tokens_ = {};
-        const SymbolGrammar* rules_ = {};
+        const bnf::SymbolGrammar* tokens_ = {};
+        const bnf::SymbolGrammar* rules_ = {};
 
         std::ostream* output_ = {};
         std::istream* tmpl_ = {};
