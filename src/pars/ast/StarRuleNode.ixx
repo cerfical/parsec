@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.StarRuleNode;
 
-#include "UnaryRuleNode.hpp"
+import :ast.UnaryRuleNode;
 
 namespace parsec::pars {
 
     /**
      * @brief Denotes an application of the Kleene star operator to a rule.
      */
-    class StarRuleNode : public UnaryRuleNode {
+    export class StarRuleNode : public UnaryRuleNode {
     public:
 
         using UnaryRuleNode::UnaryRuleNode;

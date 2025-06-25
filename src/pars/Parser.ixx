@@ -1,20 +1,22 @@
-#pragma once
-
-#include "ast/Node.hpp"
-
-#include "Lexer.hpp"
-#include "ParseError.hpp"
+module;
 
 #include <istream>
 #include <spanstream>
 #include <string_view>
+
+export module parsec.pars:Parser;
+
+import :Lexer;
+import :ParseError;
+
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Parses grammar specifications into their tree representation.
      */
-    class Parser {
+    export class Parser {
     public:
 
         /**

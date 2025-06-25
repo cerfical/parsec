@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.EmptyRuleNode;
 
-#include "Node.hpp"
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Rule matching empty string.
      */
-    class EmptyRuleNode : public Node {
+    export class EmptyRuleNode : public Node {
     public:
 
         void accept(NodeVisitor& visitor) const override;

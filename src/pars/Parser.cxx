@@ -1,17 +1,8 @@
-#include "pars/Parser.hpp"
+module;
 
-#include "pars/ast/AlternRuleNode.hpp"
-#include "pars/ast/ConcatRuleNode.hpp"
-#include "pars/ast/EmptyNode.hpp"
-#include "pars/ast/EmptyRuleNode.hpp"
-#include "pars/ast/InlineTokenNode.hpp"
-#include "pars/ast/ListNode.hpp"
-#include "pars/ast/NamedRuleNode.hpp"
-#include "pars/ast/NamedTokenNode.hpp"
-#include "pars/ast/OptionalRuleNode.hpp"
-#include "pars/ast/PlusRuleNode.hpp"
-#include "pars/ast/StarRuleNode.hpp"
-#include "pars/ast/SymbolRuleNode.hpp"
+#include <utility>
+
+module parsec.pars;
 
 namespace parsec::pars {
     NodePtr Parser::parseSpec() {

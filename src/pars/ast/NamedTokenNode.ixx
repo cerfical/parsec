@@ -1,14 +1,18 @@
-#pragma once
+module;
 
-#include "../Token.hpp"
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.NamedTokenNode;
+
+import :ast.Node;
+import :Token;
 
 namespace parsec::pars {
 
     /**
      * @brief Definition of a named token.
      */
-    class NamedTokenNode : public Node {
+    export class NamedTokenNode : public Node {
     public:
 
         NamedTokenNode(Token name, Token pattern)

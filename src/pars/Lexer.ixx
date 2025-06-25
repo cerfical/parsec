@@ -1,22 +1,24 @@
-#pragma once
+module;
 
-#include "../scan/TextScanner.hpp"
-#include "../scan/UnexpectedEofError.hpp"
-
-#include "ParseError.hpp"
-#include "Token.hpp"
+#include "scan/TextScanner.hpp"
+#include "scan/UnexpectedEofError.hpp"
 
 #include <istream>
 #include <optional>
 #include <string>
 #include <string_view>
 
+export module parsec.pars:Lexer;
+
+import :ParseError;
+import :Token;
+
 namespace parsec::pars {
 
     /**
      * @brief Breaks input text into a sequence of Token%s.
      */
-    class Lexer {
+    export class Lexer {
     public:
 
         Lexer() = default;

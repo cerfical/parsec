@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <ostream>
+
+export module parsec.pars:TokenKinds;
 
 namespace parsec::pars {
 
     /**
      * @brief List of token types produced by @ref parsec::pars::Lexer "Lexer".
      */
-    enum class TokenKinds {
+    export enum class TokenKinds {
         EmptyToken, /**< @brief Empty token. */
         Eof,        /**< @brief End of file. */
 
@@ -29,7 +31,7 @@ namespace parsec::pars {
     };
 
 
-    inline std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
+    export std::ostream& operator<<(std::ostream& out, TokenKinds tok) {
         switch(tok) {
             case TokenKinds::EmptyToken: out << "EmptyToken"; break;
             case TokenKinds::Eof:        out << "Eof"; break;

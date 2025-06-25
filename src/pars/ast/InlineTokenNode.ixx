@@ -1,14 +1,18 @@
-#pragma once
+module;
 
-#include "../Token.hpp"
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.InlineTokenNode;
+
+import :ast.Node;
+import :Token;
 
 namespace parsec::pars {
 
     /**
      * @brief Definition of an inline token without a name.
      */
-    class InlineTokenNode : public Node {
+    export class InlineTokenNode : public Node {
     public:
 
         explicit InlineTokenNode(Token pattern)

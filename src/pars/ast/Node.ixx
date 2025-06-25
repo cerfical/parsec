@@ -1,16 +1,18 @@
-#pragma once
+module;
 
 #include <concepts>
 #include <memory>
 
+export module parsec.pars:ast.Node;
+
 namespace parsec::pars {
 
-    class NodeVisitor;
+    export class NodeVisitor;
 
     /**
      * @brief AST node to represent a grammar rule.
      */
-    class Node {
+    export class Node {
     public:
 
         Node() = default;
@@ -36,13 +38,13 @@ namespace parsec::pars {
     /**
      * @brief Owning pointer to a Node.
      */
-    using NodePtr = std::unique_ptr<Node>;
+    export using NodePtr = std::unique_ptr<Node>;
 
 
     /**
      * @brief Create a Node of the specified type.
      */
-    template <typename NodeType, typename... Args>
+    export template <typename NodeType, typename... Args>
         requires std::derived_from<NodeType, Node>
     NodePtr makeNode(Args&&... args) {
         return std::make_unique<NodeType>(std::forward<Args>(args)...);

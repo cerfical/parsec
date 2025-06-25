@@ -1,13 +1,17 @@
-#pragma once
+module;
 
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.UnaryRuleNode;
+
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Rule consisting of one subrule.
      */
-    class UnaryRuleNode : public Node {
+    export class UnaryRuleNode : public Node {
     public:
 
         explicit UnaryRuleNode(NodePtr inner)

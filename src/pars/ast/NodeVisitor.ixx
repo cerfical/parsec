@@ -1,26 +1,26 @@
-#pragma once
+export module parsec.pars:ast.NodeVisitor;
+
+import :ast.EmptyNode;
+import :ast.ListNode;
+
+import :ast.InlineTokenNode;
+import :ast.NamedTokenNode;
+import :ast.NamedRuleNode;
+
+import :ast.AlternRuleNode;
+import :ast.ConcatRuleNode;
+import :ast.EmptyRuleNode;
+import :ast.OptionalRuleNode;
+import :ast.PlusRuleNode;
+import :ast.StarRuleNode;
+import :ast.SymbolRuleNode;
 
 namespace parsec::pars {
-
-    class EmptyNode;
-    class ListNode;
-
-    class InlineTokenNode;
-    class NamedTokenNode;
-    class NamedRuleNode;
-
-    class SymbolRuleNode;
-    class EmptyRuleNode;
-    class ConcatRuleNode;
-    class AlternRuleNode;
-    class OptionalRuleNode;
-    class PlusRuleNode;
-    class StarRuleNode;
 
     /**
      * @brief Implements a visitor for Node%s.
      */
-    class NodeVisitor {
+    export class NodeVisitor {
     public:
 
         /**

@@ -1,18 +1,21 @@
-#pragma once
+module;
 
-#include "../scan/SourceLoc.hpp"
-#include "TokenKinds.hpp"
+#include "scan/SourceLoc.hpp"
 
 #include <ostream>
 #include <string>
 #include <utility>
+
+export module parsec.pars:Token;
+
+import :TokenKinds;
 
 namespace parsec::pars {
 
     /**
      * @brief Character sequence classified according to some rules.
      */
-    class Token {
+    export class Token {
     public:
 
         Token() = default;
@@ -62,7 +65,7 @@ namespace parsec::pars {
     };
 
 
-    inline std::ostream& operator<<(std::ostream& out, const Token& tok) {
+    export std::ostream& operator<<(std::ostream& out, const Token& tok) {
         out << '(' << tok.kind() << ": " << '"' << tok.text() << "\")";
         return out;
     }

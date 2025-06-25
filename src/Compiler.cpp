@@ -7,24 +7,6 @@
 
 #include "scan/SourceLoc.hpp"
 
-#include "pars/Parser.hpp"
-#include "pars/Token.hpp"
-
-#include "pars/ast/AlternRuleNode.hpp"
-#include "pars/ast/ConcatRuleNode.hpp"
-#include "pars/ast/EmptyNode.hpp"
-#include "pars/ast/EmptyRuleNode.hpp"
-#include "pars/ast/InlineTokenNode.hpp"
-#include "pars/ast/ListNode.hpp"
-#include "pars/ast/NamedRuleNode.hpp"
-#include "pars/ast/NamedTokenNode.hpp"
-#include "pars/ast/Node.hpp"
-#include "pars/ast/NodeVisitor.hpp"
-#include "pars/ast/OptionalRuleNode.hpp"
-#include "pars/ast/PlusRuleNode.hpp"
-#include "pars/ast/StarRuleNode.hpp"
-#include "pars/ast/SymbolRuleNode.hpp"
-
 #include "regex/ParseError.hpp"
 #include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
@@ -37,6 +19,7 @@
 
 import parsec.fsm;
 import parsec.text;
+import parsec.pars;
 
 namespace parsec {
     using namespace pars;

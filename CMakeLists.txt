@@ -76,38 +76,6 @@ target_sources(parsec-lib
 
 target_sources(parsec-lib
     PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/pars/ParseError.hpp"
-        "include/parsec/pars/TokenKinds.hpp"
-        "include/parsec/pars/Token.hpp"
-        "include/parsec/pars/Lexer.hpp"
-        "include/parsec/pars/Parser.hpp"
-        "include/parsec/pars/ast/Node.hpp"
-        "include/parsec/pars/ast/NodeVisitor.hpp"
-        "include/parsec/pars/ast/UnaryRuleNode.hpp"
-        "include/parsec/pars/ast/BinaryRuleNode.hpp"
-        "include/parsec/pars/ast/EmptyNode.hpp"
-        "include/parsec/pars/ast/ListNode.hpp"
-        "include/parsec/pars/ast/InlineTokenNode.hpp"
-        "include/parsec/pars/ast/NamedTokenNode.hpp"
-        "include/parsec/pars/ast/EmptyRuleNode.hpp"
-        "include/parsec/pars/ast/SymbolRuleNode.hpp"
-        "include/parsec/pars/ast/NamedRuleNode.hpp"
-        "include/parsec/pars/ast/ConcatRuleNode.hpp"
-        "include/parsec/pars/ast/AlternRuleNode.hpp"
-        "include/parsec/pars/ast/OptionalRuleNode.hpp"
-        "include/parsec/pars/ast/PlusRuleNode.hpp"
-        "include/parsec/pars/ast/StarRuleNode.hpp"
-
-    PRIVATE
-        "src/pars/Lexer.cpp"
-        "src/pars/Parser.cpp"
-        "src/pars/ast.cpp"
-        "src/pars/ParseError.cpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
         "include/parsec/regex/Parser.hpp"
         "include/parsec/regex/ParseError.hpp"
         "include/parsec/regex/make.hpp"
@@ -139,9 +107,37 @@ target_sources(parsec-lib
         "src/fsm/ElrStateGen.ixx"
         "src/fsm/NameConflictError.ixx"
 
+        "src/pars/pars.ixx"
+        "src/pars/ParseError.ixx"
+        "src/pars/TokenKinds.ixx"
+        "src/pars/Token.ixx"
+        "src/pars/Lexer.ixx"
+        "src/pars/Parser.ixx"
+
+        "src/pars/ast/ast.ixx"
+        "src/pars/ast/Node.ixx"
+        "src/pars/ast/NodeVisitor.ixx"
+        "src/pars/ast/UnaryRuleNode.ixx"
+        "src/pars/ast/BinaryRuleNode.ixx"
+        "src/pars/ast/EmptyNode.ixx"
+        "src/pars/ast/ListNode.ixx"
+        "src/pars/ast/InlineTokenNode.ixx"
+        "src/pars/ast/NamedTokenNode.ixx"
+        "src/pars/ast/EmptyRuleNode.ixx"
+        "src/pars/ast/SymbolRuleNode.ixx"
+        "src/pars/ast/NamedRuleNode.ixx"
+        "src/pars/ast/ConcatRuleNode.ixx"
+        "src/pars/ast/AlternRuleNode.ixx"
+        "src/pars/ast/OptionalRuleNode.ixx"
+        "src/pars/ast/PlusRuleNode.ixx"
+        "src/pars/ast/StarRuleNode.ixx"
+
     PRIVATE
         "src/fsm/DfaStateGen.cxx"
         "src/fsm/ElrStateGen.cxx"
+
+        "src/pars/Lexer.cxx"
+        "src/pars/Parser.cxx"
 )
 
 

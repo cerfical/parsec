@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.OptionalRuleNode;
 
-#include "UnaryRuleNode.hpp"
+import :ast.UnaryRuleNode;
 
 namespace parsec::pars {
 
     /**
      * @brief Denotes an 'optional' rule.
      */
-    class OptionalRuleNode : public UnaryRuleNode {
+    export class OptionalRuleNode : public UnaryRuleNode {
     public:
 
         using UnaryRuleNode::UnaryRuleNode;

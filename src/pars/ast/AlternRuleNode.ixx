@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.AlternRuleNode;
 
-#include "BinaryRuleNode.hpp"
+import :ast.BinaryRuleNode;
 
 namespace parsec::pars {
 
     /**
      * @brief Alternation of two rules.
      */
-    class AlternRuleNode : public BinaryRuleNode {
+    export class AlternRuleNode : public BinaryRuleNode {
     public:
 
         using BinaryRuleNode::BinaryRuleNode;

@@ -1,13 +1,17 @@
-#pragma once
+module;
 
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.BinaryRuleNode;
+
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Rule consisting of two subrules.
      */
-    class BinaryRuleNode : public Node {
+    export class BinaryRuleNode : public Node {
     public:
 
         BinaryRuleNode(NodePtr left, NodePtr right)

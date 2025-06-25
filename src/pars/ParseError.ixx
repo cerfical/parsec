@@ -1,16 +1,21 @@
-#pragma once
+module;
 
-#include "../scan/SourceLoc.hpp"
+#include "scan/SourceLoc.hpp"
 
+#include <format>
 #include <string>
 #include <string_view>
+
+export module parsec.pars:ParseError;
+
+import parsec.text;
 
 namespace parsec::pars {
 
     /**
      * @brief Describes a syntax error in the input grammar.
      */
-    class ParseError : public std::runtime_error {
+    export class ParseError : public std::runtime_error {
     public:
 
         /**
@@ -18,7 +23,9 @@ namespace parsec::pars {
          *
          * @param eofLoc The location of the encountered EOF.
          */
-        static ParseError unexpectedEof(const scan::SourceLoc& eofLoc);
+        static ParseError unexpectedEof(const scan::SourceLoc& eofLoc) {
+            return { eofLoc, "unexpected end of file" };
+        }
 
 
         /**
@@ -27,7 +34,9 @@ namespace parsec::pars {
          * @param chLoc The location of the character.
          * @param ch The value of the character.
          */
-        static ParseError invalidChar(const scan::SourceLoc& chLoc, char ch);
+        static ParseError invalidChar(const scan::SourceLoc& chLoc, char ch) {
+            return { chLoc, std::format("invalid character '{}'", text::escape(ch)) };
+        }
 
 
         /**
@@ -36,7 +45,25 @@ namespace parsec::pars {
          * @param chLoc The location of the character.
          * @param ch The value of the character.
          */
-        static ParseError misplacedChar(const scan::SourceLoc& chLoc, char ch);
+        static ParseError misplacedChar(const scan::SourceLoc& chLoc, char ch) {
+            std::string msg;
+            switch(ch) {
+                case ')':
+                case '(': {
+                    msg = "unmatched parenthesis";
+                    break;
+                }
+                case '\n': {
+                    msg = "unexpected end of line";
+                    break;
+                }
+                default: {
+                    msg = std::format("unexpected '{}'", text::escape(ch));
+                    break;
+                }
+            }
+            return { chLoc, msg };
+        }
 
 
         /**
@@ -45,7 +72,12 @@ namespace parsec::pars {
          * @param tokLoc The location of the token.
          * @param tokVal The value of the token.
          */
-        static ParseError misplacedToken(const scan::SourceLoc& tokLoc, std::string_view tokVal);
+        static ParseError misplacedToken(const scan::SourceLoc& tokLoc, std::string_view tokVal) {
+            if(tokLoc) {
+                return { tokLoc, std::format("unexpected \"{}\"", text::escape(tokVal)) };
+            }
+            return unexpectedEof(tokLoc);
+        }
 
 
         /**
@@ -54,7 +86,9 @@ namespace parsec::pars {
          * @param foundLoc The location of the token found.
          * @param expectVal The value of the expected token.
          */
-        static ParseError unmatchedToken(const scan::SourceLoc& foundLoc, std::string_view expectVal);
+        static ParseError unmatchedToken(const scan::SourceLoc& foundLoc, std::string_view expectVal) {
+            return { foundLoc, std::format("{} expected, but got{}", expectVal, foundLoc ? "" : " end of file") };
+        }
 
 
         /**

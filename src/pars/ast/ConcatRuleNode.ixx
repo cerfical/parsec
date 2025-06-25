@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.ConcatRuleNode;
 
-#include "BinaryRuleNode.hpp"
+import :ast.BinaryRuleNode;
 
 namespace parsec::pars {
 
     /**
      * @brief Concatenation of two rules.
      */
-    class ConcatRuleNode : public BinaryRuleNode {
+    export class ConcatRuleNode : public BinaryRuleNode {
     public:
 
         using BinaryRuleNode::BinaryRuleNode;

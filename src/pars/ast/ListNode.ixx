@@ -1,13 +1,17 @@
-#pragma once
+module;
 
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.ListNode;
+
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Sequence of two Node%s.
      */
-    class ListNode : public Node {
+    export class ListNode : public Node {
     public:
 
         ListNode(NodePtr head, NodePtr tail)

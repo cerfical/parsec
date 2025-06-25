@@ -1,7 +1,8 @@
-#include "pars/Lexer.hpp"
-#include "pars/ParseError.hpp"
+module;
 
 #include "regex/Parser.hpp"
+
+module parsec.pars;
 
 import parsec.text;
 

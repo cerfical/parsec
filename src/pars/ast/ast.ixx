@@ -1,16 +1,24 @@
-#include "pars/ast/AlternRuleNode.hpp"
-#include "pars/ast/ConcatRuleNode.hpp"
-#include "pars/ast/EmptyNode.hpp"
-#include "pars/ast/EmptyRuleNode.hpp"
-#include "pars/ast/InlineTokenNode.hpp"
-#include "pars/ast/ListNode.hpp"
-#include "pars/ast/NamedRuleNode.hpp"
-#include "pars/ast/NamedTokenNode.hpp"
-#include "pars/ast/NodeVisitor.hpp"
-#include "pars/ast/OptionalRuleNode.hpp"
-#include "pars/ast/PlusRuleNode.hpp"
-#include "pars/ast/StarRuleNode.hpp"
-#include "pars/ast/SymbolRuleNode.hpp"
+export module parsec.pars:ast;
+
+export import :ast.Node;
+export import :ast.NodeVisitor;
+export import :ast.UnaryRuleNode;
+export import :ast.BinaryRuleNode;
+
+export import :ast.EmptyNode;
+export import :ast.ListNode;
+
+export import :ast.InlineTokenNode;
+export import :ast.NamedTokenNode;
+export import :ast.NamedRuleNode;
+
+export import :ast.AlternRuleNode;
+export import :ast.ConcatRuleNode;
+export import :ast.EmptyRuleNode;
+export import :ast.OptionalRuleNode;
+export import :ast.PlusRuleNode;
+export import :ast.StarRuleNode;
+export import :ast.SymbolRuleNode;
 
 namespace parsec::pars {
     void EmptyNode::accept(NodeVisitor& visitor) const {

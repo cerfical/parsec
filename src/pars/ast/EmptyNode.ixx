@@ -1,13 +1,13 @@
-#pragma once
+export module parsec.pars:ast.EmptyNode;
 
-#include "Node.hpp"
+import :ast.Node;
 
 namespace parsec::pars {
 
     /**
      * @brief Empty node.
      */
-    class EmptyNode : public Node {
+    export class EmptyNode : public Node {
     public:
 
         void accept(NodeVisitor& visitor) const override;

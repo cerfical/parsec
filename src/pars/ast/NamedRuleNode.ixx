@@ -1,14 +1,18 @@
-#pragma once
+module;
 
-#include "../Token.hpp"
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.NamedRuleNode;
+
+import :ast.Node;
+import :Token;
 
 namespace parsec::pars {
 
     /**
      * @brief Represents a rule with a name.
      */
-    class NamedRuleNode : public Node {
+    export class NamedRuleNode : public Node {
     public:
 
         NamedRuleNode(Token name, NodePtr rule)

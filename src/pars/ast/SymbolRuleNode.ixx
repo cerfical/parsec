@@ -1,14 +1,18 @@
-#pragma once
+module;
 
-#include "../Token.hpp"
-#include "Node.hpp"
+#include <utility>
+
+export module parsec.pars:ast.SymbolRuleNode;
+
+import :ast.Node;
+import :Token;
 
 namespace parsec::pars {
 
     /**
      * @brief Trivial rule consisting of a single symbolic name.
      */
-    class SymbolRuleNode : public Node {
+    export class SymbolRuleNode : public Node {
     public:
 
         explicit SymbolRuleNode(Token value)
