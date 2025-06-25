@@ -130,21 +130,18 @@ target_sources(parsec-lib
 
 
 target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/fsm/DfaStateGen.hpp"
-        "include/parsec/fsm/ElrStateGen.hpp"
-        "include/parsec/fsm/NameConflictError.hpp"
-
-    PRIVATE
-        "src/fsm/DfaStateGen.cpp"
-        "src/fsm/ElrStateGen.cpp"
-)
-
-
-target_sources(parsec-lib
     PUBLIC FILE_SET CXX_MODULES FILES
         "src/text/text.ixx"
         "src/text/chars.ixx"
+
+        "src/fsm/fsm.ixx"
+        "src/fsm/DfaStateGen.ixx"
+        "src/fsm/ElrStateGen.ixx"
+        "src/fsm/NameConflictError.ixx"
+
+    PRIVATE
+        "src/fsm/DfaStateGen.cxx"
+        "src/fsm/ElrStateGen.cxx"
 )
 
 

@@ -1,6 +1,4 @@
-#include "fsm/ElrStateGen.hpp"
-#include "fsm/DfaStateGen.hpp"
-#include "fsm/NameConflictError.hpp"
+module;
 
 #include "bnf/SymbolGrammar.hpp"
 
@@ -8,6 +6,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+
+module parsec.fsm;
 
 namespace parsec::fsm {
     namespace {

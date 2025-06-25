@@ -1,13 +1,15 @@
-#pragma once
+module;
 
-#include "../bnf/SymbolGrammar.hpp"
+#include "bnf/SymbolGrammar.hpp"
+
+export module parsec.fsm:DfaStateGen;
 
 namespace parsec::fsm {
 
     /**
      * @brief Generates states for a DFA automaton.
      */
-    class DfaStateGen {
+    export class DfaStateGen {
     public:
 
         /**

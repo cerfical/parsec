@@ -1,13 +1,15 @@
-#pragma once
+module;
 
-#include "../bnf/SymbolGrammar.hpp"
+#include "bnf/SymbolGrammar.hpp"
+
+export module parsec.fsm:ElrStateGen;
 
 namespace parsec::fsm {
 
     /**
      * @brief Generates states for an ELR automaton.
      */
-    class ElrStateGen {
+    export class ElrStateGen {
     public:
 
         /**

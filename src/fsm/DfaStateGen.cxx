@@ -1,13 +1,14 @@
-#include "fsm/DfaStateGen.hpp"
+module;
 
 #include "bnf/SymbolGrammar.hpp"
-#include "fsm/NameConflictError.hpp"
 
 #include <boost/functional/hash.hpp>
 
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
+
+module parsec.fsm;
 
 namespace parsec::fsm {
     namespace {

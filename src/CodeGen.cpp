@@ -1,12 +1,11 @@
 #include "CodeGen.hpp"
 
 #include "bnf/SymbolGrammar.hpp"
-#include "fsm/DfaStateGen.hpp"
-#include "fsm/ElrStateGen.hpp"
 
 #include <inja/inja.hpp>
 #include <iterator>
 
+import parsec.fsm;
 import parsec.text;
 
 namespace parsec {

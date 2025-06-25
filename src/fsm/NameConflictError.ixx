@@ -1,16 +1,18 @@
-#pragma once
+module;
 
-#include "../bnf/Symbol.hpp"
+#include "bnf/Symbol.hpp"
 
 #include <stdexcept>
 #include <utility>
+
+export module parsec.fsm:NameConflictError;
 
 namespace parsec::fsm {
 
     /**
      * @brief Indicates that there exists some conflict between several symbolic names.
      */
-    class NameConflictError : public std::runtime_error {
+    export class NameConflictError : public std::runtime_error {
     public:
 
         /**

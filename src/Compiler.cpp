@@ -5,7 +5,6 @@
 #include "bnf/Symbol.hpp"
 #include "bnf/SymbolGrammar.hpp"
 
-#include "fsm/NameConflictError.hpp"
 #include "scan/SourceLoc.hpp"
 
 #include "pars/Parser.hpp"
@@ -36,6 +35,7 @@
 #include <unordered_map>
 #include <utility>
 
+import parsec.fsm;
 import parsec.text;
 
 namespace parsec {
