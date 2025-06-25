@@ -28,9 +28,9 @@ set(DOXYGEN_COLLABORATION_GRAPH NO)
 set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "README.md")
 
 
-get_target_property(PARSEC_LIB_HEADERS parsec-lib HEADER_SET)
+get_target_property(PARSEC_MODULES parsec-lib CXX_MODULE_SET)
 
 doxygen_add_docs(parsec-docs ALL USE_STAMP_FILE
-    "${PARSEC_LIB_HEADERS}"
+    "${PARSEC_MODULES}"
     "../README.md"
 )

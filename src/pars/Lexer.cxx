@@ -1,10 +1,9 @@
 module;
 
-#include "regex/Parser.hpp"
-
 module parsec.pars;
 
 import parsec.text;
+import parsec.regex;
 
 namespace parsec::pars {
     TokenKinds Lexer::parseToken() {

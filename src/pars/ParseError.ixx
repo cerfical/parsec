@@ -1,7 +1,5 @@
 module;
 
-#include "scan/SourceLoc.hpp"
-
 #include <format>
 #include <string>
 #include <string_view>
@@ -9,6 +7,7 @@ module;
 export module parsec.pars:ParseError;
 
 import parsec.text;
+import parsec.scan;
 
 namespace parsec::pars {
 

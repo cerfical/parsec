@@ -1,8 +1,6 @@
-module;
-
-#include "bnf/SymbolGrammar.hpp"
-
 export module parsec.fsm:DfaStateGen;
+
+import parsec.bnf;
 
 namespace parsec::fsm {
 

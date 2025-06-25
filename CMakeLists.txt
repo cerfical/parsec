@@ -32,73 +32,18 @@ set_target_properties(parsec-lib PROPERTIES OUTPUT_NAME parsec)
 
 target_compile_features(parsec-lib PUBLIC cxx_std_23)
 
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/parsec.hpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/CodeGen.hpp"
-        "include/parsec/Compiler.hpp"
-        "include/parsec/CompileError.hpp"
-
-    PRIVATE
-        "src/Compiler.cpp"
-        "src/CompileError.cpp"
-        "src/CodeGen.cpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/bnf/Symbol.hpp"
-        "include/parsec/bnf/RegularExpr.hpp"
-        "include/parsec/bnf/SymbolGrammar.hpp"
-
-    PRIVATE
-        "src/bnf/RegularExpr.cpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/scan/TextScanner.hpp"
-        "include/parsec/scan/SourceLoc.hpp"
-        "include/parsec/scan/UnexpectedEofError.hpp"
-
-    PRIVATE
-        "src/scan/TextScanner.cpp"
-)
-
-
-target_sources(parsec-lib
-    PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
-        "include/parsec/regex/Parser.hpp"
-        "include/parsec/regex/ParseError.hpp"
-        "include/parsec/regex/make.hpp"
-        "include/parsec/regex/ast/NodeVisitor.hpp"
-        "include/parsec/regex/ast/ExprNode.hpp"
-        "include/parsec/regex/ast/AtomExprNode.hpp"
-        "include/parsec/regex/ast/BinaryExprNode.hpp"
-        "include/parsec/regex/ast/ConcatExprNode.hpp"
-        "include/parsec/regex/ast/AlternExprNode.hpp"
-        "include/parsec/regex/ast/UnaryExprNode.hpp"
-        "include/parsec/regex/ast/OptionalExprNode.hpp"
-        "include/parsec/regex/ast/StarClosureNode.hpp"
-        "include/parsec/regex/ast/PlusClosureNode.hpp"
-
-    PRIVATE
-        "src/regex/Parser.cpp"
-        "src/regex/ast.cpp"
-        "src/regex/ParseError.cpp"
-)
+configure_file("src/config.ixx.in" "src/config.ixx")
 
 
 target_sources(parsec-lib
     PUBLIC FILE_SET CXX_MODULES FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/src/config.ixx"
+    
+        "src/parsec.ixx"
+        "src/CodeGen.ixx"
+        "src/Compiler.ixx"
+        "src/CompileError.ixx"
+
         "src/text/text.ixx"
         "src/text/chars.ixx"
 
@@ -132,12 +77,47 @@ target_sources(parsec-lib
         "src/pars/ast/PlusRuleNode.ixx"
         "src/pars/ast/StarRuleNode.ixx"
 
+        "src/regex/regex.ixx"
+        "src/regex/Parser.ixx"
+        "src/regex/ParseError.ixx"
+
+        "src/regex/ast/ast.ixx"
+        "src/regex/ast/NodeVisitor.ixx"
+        "src/regex/ast/ExprNode.ixx"
+        "src/regex/ast/AtomExprNode.ixx"
+        "src/regex/ast/BinaryExprNode.ixx"
+        "src/regex/ast/ConcatExprNode.ixx"
+        "src/regex/ast/AlternExprNode.ixx"
+        "src/regex/ast/UnaryExprNode.ixx"
+        "src/regex/ast/OptionalExprNode.ixx"
+        "src/regex/ast/StarClosureNode.ixx"
+        "src/regex/ast/PlusClosureNode.ixx"
+
+        "src/scan/scan.ixx"
+        "src/scan/TextScanner.ixx"
+        "src/scan/SourceLoc.ixx"
+        "src/scan/UnexpectedEofError.ixx"
+
+        "src/bnf/bnf.ixx"
+        "src/bnf/Symbol.ixx"
+        "src/bnf/RegularExpr.ixx"
+        "src/bnf/SymbolGrammar.ixx"
+
     PRIVATE
         "src/fsm/DfaStateGen.cxx"
         "src/fsm/ElrStateGen.cxx"
-
+        
         "src/pars/Lexer.cxx"
         "src/pars/Parser.cxx"
+        
+        "src/regex/Parser.cxx"
+        
+        "src/scan/TextScanner.cxx"
+        
+        "src/bnf/RegularExpr.cxx"
+
+        "src/Compiler.cxx"
+        "src/CodeGen.cxx"
 )
 
 
@@ -163,5 +143,3 @@ endif()
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" [[
 *
 ]])
-
-configure_file("src/config.hpp.in" "include/parsec/config.hpp")

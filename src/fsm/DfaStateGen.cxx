@@ -1,7 +1,5 @@
 module;
 
-#include "bnf/SymbolGrammar.hpp"
-
 #include <boost/functional/hash.hpp>
 
 #include <optional>
@@ -9,6 +7,8 @@ module;
 #include <unordered_set>
 
 module parsec.fsm;
+
+import parsec.bnf;
 
 namespace parsec::fsm {
     namespace {

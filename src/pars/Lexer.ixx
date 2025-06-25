@@ -1,14 +1,13 @@
 module;
 
-#include "scan/TextScanner.hpp"
-#include "scan/UnexpectedEofError.hpp"
-
 #include <istream>
 #include <optional>
 #include <string>
 #include <string_view>
 
 export module parsec.pars:Lexer;
+
+import parsec.scan;
 
 import :ParseError;
 import :Token;

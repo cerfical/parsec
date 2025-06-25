@@ -1,11 +1,11 @@
 module;
 
-#include "bnf/Symbol.hpp"
-
 #include <stdexcept>
 #include <utility>
 
 export module parsec.fsm:NameConflictError;
+
+import parsec.bnf;
 
 namespace parsec::fsm {
 

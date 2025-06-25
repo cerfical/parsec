@@ -1,12 +1,12 @@
 module;
 
-#include "scan/SourceLoc.hpp"
-
 #include <ostream>
 #include <string>
 #include <utility>
 
 export module parsec.pars:Token;
+
+import parsec.scan;
 
 import :TokenKinds;
 

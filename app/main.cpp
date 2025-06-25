@@ -1,6 +1,3 @@
-#include <parsec/config.hpp>
-#include <parsec/parsec.hpp>
-
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/dll.hpp>
 #include <boost/program_options.hpp>
@@ -9,6 +6,9 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+import parsec;
+import parsec.config;
 
 namespace fs = std::filesystem;
 namespace algo = boost::algorithm;

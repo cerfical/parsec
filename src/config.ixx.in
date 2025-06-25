@@ -1,0 +1,34 @@
+module;
+
+#include <string_view>
+
+export module parsec.config;
+
+namespace parsec {
+
+    /**
+     * @brief Provides access to project configuration.
+     */
+    export class Config {
+    public:
+
+        /**
+         * @brief The project version in the form `Major.Minor.Patch`.
+         */
+        static consteval std::string_view version() noexcept {
+            return "${PROJECT_VERSION}";
+        }
+
+
+        /**
+         * @brief A brief description of the library.
+         */
+        static consteval std::string_view description() noexcept {
+            return "${PROJECT_DESCRIPTION}";
+        }
+
+
+        Config() = delete;
+    };
+
+}

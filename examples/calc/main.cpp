@@ -1,10 +1,10 @@
-#include <parsec/parsec.hpp>
-
 #include "ExprParser.hpp"
 
 #include <iostream>
 #include <spanstream>
 #include <stack>
+
+import parsec;
 
 class ExprEvaluator : Parser {
 public:

@@ -1,8 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
-#include <parsec/regex/Parser.hpp>
 
 #include <sstream>
 #include <string_view>
+
+import parsec.regex;
 
 using namespace parsec::regex;
 
