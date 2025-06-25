@@ -1,9 +1,9 @@
-#include "util/chars.hpp"
+#include "text/chars.hpp"
 
 #include <format>
 #include <string>
 
-namespace parsec::chars {
+namespace parsec::text::chars {
     std::string escape(char ch) {
         if(isPrint(ch)) {
             switch(ch) {

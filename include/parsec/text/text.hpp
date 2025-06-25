@@ -6,7 +6,7 @@
 /**
  * @brief Utilities for working with character strings.
  */
-namespace parsec::strings {
+namespace parsec::text {
 
     /** @{ */
     /** @name String conversion */

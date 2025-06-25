@@ -29,7 +29,7 @@
 #include "regex/ast/ExprNode.hpp"
 #include "regex/make.hpp"
 
-#include "util/strings.hpp"
+#include "text/text.hpp"
 
 #include <cstddef>
 #include <format>
@@ -47,7 +47,7 @@ namespace parsec {
 
 
         Symbol makeName(const Token& name) {
-            return strings::toPascalCase(name.text());
+            return text::toPascalCase(name.text());
         }
 
 

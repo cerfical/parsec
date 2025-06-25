@@ -1,11 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
-#include <parsec/util/strings.hpp>
+#include <parsec/text/text.hpp>
 
-using namespace parsec::strings;
+using namespace parsec::text;
 
 
 namespace {
-    constexpr auto Tags = "[strings][util]";
+    constexpr auto Tags = "[text]";
 }
 
 

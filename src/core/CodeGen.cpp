@@ -3,7 +3,7 @@
 
 #include "fsm/DfaStateGen.hpp"
 #include "fsm/ElrStateGen.hpp"
-#include "util/strings.hpp"
+#include "text/text.hpp"
 
 #include <inja/inja.hpp>
 #include <iterator>
@@ -34,8 +34,8 @@ namespace parsec {
 
             void addStateTransition(int state, int target, const Symbol& label) override {
                 states_[state]["transitions"].push_back({
-                    {  "label", strings::escape(label.text()) },
-                    { "target",                        target }
+                    {  "label", text::escape(label.text()) },
+                    { "target",                     target }
                 });
             }
 
@@ -73,15 +73,15 @@ namespace parsec {
 
             void addStateTokenTransition(int state, int target, const Symbol& label) override {
                 states_[state]["token_transitions"].push_back({
-                    {  "label", strings::escape(label.text()) },
-                    { "target",                        target }
+                    {  "label", text::escape(label.text()) },
+                    { "target",                     target }
                 });
             }
 
             void addStateRuleTransition(int state, int target, const Symbol& label) override {
                 states_[state]["rule_transitions"].push_back({
-                    {  "label", strings::escape(label.text()) },
-                    { "target",                        target }
+                    {  "label", text::escape(label.text()) },
+                    { "target",                     target }
                 });
             }
 

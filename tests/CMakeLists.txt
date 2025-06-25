@@ -9,7 +9,7 @@ endif()
 add_executable(parsec-tests
     "chars_test.cpp"
     "regex_parse_test.cpp"
-    "strings_test.cpp"
+    "text_test.cpp"
 )
 
 target_link_libraries(parsec-tests

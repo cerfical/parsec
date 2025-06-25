@@ -1,7 +1,7 @@
 #include "pars/ParseError.hpp"
 
-#include "util/chars.hpp"
-#include "util/strings.hpp"
+#include "text/chars.hpp"
+#include "text/text.hpp"
 
 #include <format>
 #include <string>
@@ -14,7 +14,7 @@ namespace parsec::pars {
     }
 
     ParseError ParseError::invalidChar(const scan::SourceLoc& chLoc, char ch) {
-        return { chLoc, std::format("invalid character '{}'", chars::escape(ch)) };
+        return { chLoc, std::format("invalid character '{}'", text::chars::escape(ch)) };
     }
 
     ParseError ParseError::misplacedChar(const scan::SourceLoc& chLoc, char ch) {
@@ -30,7 +30,7 @@ namespace parsec::pars {
                 break;
             }
             default: {
-                msg = std::format("unexpected '{}'", chars::escape(ch));
+                msg = std::format("unexpected '{}'", text::chars::escape(ch));
                 break;
             }
         }
@@ -39,7 +39,7 @@ namespace parsec::pars {
 
     ParseError ParseError::misplacedToken(const scan::SourceLoc& tokLoc, std::string_view tokVal) {
         if(tokLoc) {
-            return { tokLoc, std::format("unexpected \"{}\"", strings::escape(tokVal)) };
+            return { tokLoc, std::format("unexpected \"{}\"", text::escape(tokVal)) };
         }
         return unexpectedEof(tokLoc);
     }

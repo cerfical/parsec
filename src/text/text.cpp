@@ -1,11 +1,11 @@
-#include "util/strings.hpp"
-#include "util/chars.hpp"
+#include "text/text.hpp"
+#include "text/chars.hpp"
 
 #include <cstddef>
 #include <string>
 #include <string_view>
 
-namespace parsec::strings {
+namespace parsec::text {
     std::string toPascalCase(std::string_view str) {
         // remove leading non-alphabetic characters
         std::size_t wordStart = 0;
@@ -35,7 +35,7 @@ namespace parsec::strings {
                 res += chars::toUpper(word.front());
                 res += word.substr(1);
             } else {
-                res += strings::capitalize(word);
+                res += capitalize(word);
             }
 
             // remove delimiting non-alphabetic characters
