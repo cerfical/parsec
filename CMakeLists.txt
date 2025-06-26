@@ -46,6 +46,7 @@ target_sources(parsec-lib
 
         "src/text/text.ixx"
         "src/text/chars.ixx"
+        "src/text/strings.ixx"
 
         "src/fsm/fsm.ixx"
         "src/fsm/DfaStateGen.ixx"
@@ -115,6 +116,8 @@ target_sources(parsec-lib
         "src/scan/TextScanner.cxx"
         
         "src/bnf/RegularExpr.cxx"
+
+        "src/text/text.cxx"
 
         "src/Compiler.cxx"
         "src/CodeGen.cxx"
