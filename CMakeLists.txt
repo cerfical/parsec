@@ -110,8 +110,10 @@ target_sources(parsec-lib
         
         "src/pars/Lexer.cxx"
         "src/pars/Parser.cxx"
+        "src/pars/ast/ast.cxx"
         
         "src/regex/Parser.cxx"
+        "src/regex/ast/ast.cxx"
         
         "src/scan/TextScanner.cxx"
         
