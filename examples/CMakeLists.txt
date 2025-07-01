@@ -1,5 +1,5 @@
 add_executable(calc
-    "calc/main.cxx"
+    "main.cxx"
     "ExprParser.hpp"
 )
 
@@ -11,11 +11,11 @@ target_include_directories(calc PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_custom_command(
     OUTPUT "ExprParser.hpp"
-    COMMAND parsec-app
-        "${CMAKE_CURRENT_SOURCE_DIR}/calc/ExprParser.txt"
+    COMMAND parsec
+        "${CMAKE_CURRENT_SOURCE_DIR}/ExprParser.txt"
         "${CMAKE_CURRENT_BINARY_DIR}/ExprParser.hpp"
         "-t" "hpp"
         "--template-dir" "${CMAKE_SOURCE_DIR}/templates/"
-    MAIN_DEPENDENCY "calc/ExprParser.txt"
+    MAIN_DEPENDENCY "ExprParser.txt"
     VERBATIM
 )

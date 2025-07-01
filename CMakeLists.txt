@@ -5,11 +5,10 @@ cmake_minimum_required(VERSION 3.30)
 project(parsec LANGUAGES CXX DESCRIPTION "Simple parser generator" VERSION 1.0.0)
 include(CTest)
 
-option(BUILD_APP "Build the command line tool" ON)
 option(BUILD_DOCS "Generate documentation from the source tree using Doxygen" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
 
-find_package(Boost 1.85.0 CONFIG REQUIRED)
+find_package(Boost 1.85.0 CONFIG REQUIRED COMPONENTS program_options dll)
 find_package(inja 3.4.0 CONFIG REQUIRED)
 
 
@@ -126,10 +125,17 @@ target_sources(parsec-lib
 )
 
 
-# Optional components
-if(BUILD_APP)
-    add_subdirectory(app)
-endif()
+# Build the CLI tool
+add_executable(parsec "src/main.cxx")
+
+target_link_libraries(parsec
+    PRIVATE parsec-lib
+
+    PRIVATE Boost::program_options
+    PRIVATE Boost::dll
+    PRIVATE Boost::boost
+)
+
 
 if(BUILD_TESTING)
     add_subdirectory(tests)
