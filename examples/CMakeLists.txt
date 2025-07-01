@@ -1,5 +1,5 @@
 add_executable(calc
-    "calc/main.cpp"
+    "calc/main.cxx"
     "ExprParser.hpp"
 )
 
