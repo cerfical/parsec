@@ -4,6 +4,8 @@ module;
 
 module parsec.regex;
 
+import parsec.text;
+
 namespace parsec::regex {
 
     std::ostream& operator<<(std::ostream& out, const ExprNode& n) {
