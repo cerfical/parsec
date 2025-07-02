@@ -2,19 +2,15 @@
   "version": 9,
   "configurePresets": [
     {
-      "name": "default",
-      "binaryDir": "build/${presetName}"
-    },
-
-    {
       "name": "windows-base",
-      "inherits": "default",
       "hidden": true,
+      "binaryDir": "build",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
       },
       "condition": {
         "type": "equals",
